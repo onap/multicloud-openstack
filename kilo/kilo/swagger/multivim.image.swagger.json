@@ -1,0 +1,384 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/openoapi/multivim/v1/",
+    "tags": [
+        {
+            "name": "MultiVIM broker"
+        }
+    ],
+    "paths": {
+        "/{vimid}/{tenantid}/images": {
+            "post": {
+                "tags": [
+                    "vim images"
+                ],
+                "summary": "create a image",
+                "description": "create a image",
+                "operationId": "create_vim_image",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "create vim image request param",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateVimImage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimImageInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim image is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim images"
+                ],
+                "summary": "query vim images list",
+                "description": "query vim images list",
+                "operationId": "query_vim_images",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "get a list of vim images request param",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/ListVimImages"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimImagesInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim image is not accessable"
+                    }
+                }
+            }
+        },
+        "/{vimid}/{tenantid}/images/{imageid}": {
+            "delete": {
+                "tags": [
+                    "vim images"
+                 ],
+                 "summary": "delete specific vim image",
+                "description": "delete specific vim image",
+                "operationId": "delete_vim_image",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "imageid",
+                        "in": "path",
+                        "description": "vim image id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim image is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim images"
+                ],
+                "summary": "query specific vim image",
+                "description": "query specific vim image",
+                "operationId": "query_vim_image",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "imageid",
+                        "in": "path",
+                        "description": "vim image id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimImageInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim image is not accessable"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CreateVimImage": {
+            "type": "object",
+            "required": [
+                "imagePath",
+                "name",
+                "imageType",
+                "containerFormat"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "image name"
+                },
+                "imageType": {
+                    "type": "string",
+                    "description": "image type: ami, ari, aki, vhd, vhdx, vmdk, raw, qcow2, vdi, iso"
+                },
+                "imagePath": {
+                    "type": "string",
+                    "description": "image url to catalog"
+                },
+                "containerFormat": {
+                    "type": "string",
+                    "description": "image container format: ami, ari, aki, bare, ovf, ova,  docker"
+                },
+                "visibility": {
+                    "type": "string",
+                    "description": "public, private, shared, or community"
+                },
+                "properties": {
+                    "type": "array",
+                    "description": "list of properties",
+                    "items": {
+                       "$ref": "#/definitions/VimImagePropertyInfo"
+                    }
+                }
+            }
+        },
+        "VimImagePropertyInfo": {
+            "type": "object",
+            "properties": {
+                "keyName": {
+                    "type": "string",
+                    "description": "property name"
+                },
+                "value": {
+                    "type": "string",
+                    "description": "property value"
+                }
+            }
+        },
+        "ListVimImages": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "image name to filter image list"
+                },
+                "limit": {
+                    "type": "string",
+                    "description": "Requests a page size of items"
+                },
+                "marker": {
+                    "type": "string",
+                    "description": "image ID of the last-seen item"
+                }
+            }
+        },
+        "VimImagesInfo": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenantId",
+                "images"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "images": {
+                    "type": "array",
+                    "description": "image list information",
+                    "items": {
+                       "$ref": "#/definitions/VimImageInfo"
+                    }
+                }
+            }
+        },
+        "VimImageInfo": {
+            "type": "object",
+            "required": [
+                "name",
+                "status",
+                "id"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "image name"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "image UUID"
+                },
+                "imageType": {
+                    "type": "string",
+                    "description": "image type: ami, ari, aki, vhd, vhdx, vmdk, raw, qcow2, vdi, iso"
+                },
+                "imagePath": {
+                    "type": "string",
+                    "description": "image url to catalog"
+                },
+                "containerFormat": {
+                    "type": "string",
+                    "description": "image container format: ami, ari, aki, bare, ovf, ova,  docker"
+                },
+                "visibility": {
+                    "type": "string",
+                    "description": "public, private, shared, or community"
+                },
+                "properties": {
+                    "type": "array",
+                    "description": "list of properties",
+                    "items": {
+                       "$ref": "#/definitions/VimImagePropertyInfo"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "description": "image status"
+                },
+                "size": {
+                    "type": "string",
+                    "description": "image size"
+                },
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "returnCode": {
+                    "type": "integer",
+                    "description": "0: Already exist 1: Newly created"
+                }
+            }
+        }
+    }
+}

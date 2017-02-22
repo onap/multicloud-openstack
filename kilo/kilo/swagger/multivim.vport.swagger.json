@@ -1,0 +1,378 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/openoapi/multivim/v1/",
+    "tags": [
+        {
+            "name": "MultiVIM broker"
+        }
+    ],
+    "paths": {
+        "/{vimid}/{tenantid}/ports": {
+            "post": {
+                "tags": [
+                    "vim virtual ports"
+                ],
+                "summary": "create a virtual port",
+                "description": "create a virtual port",
+                "operationId": "create_vim_port",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "create vim virtual port request param",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateVimPort"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimPortInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim virtual port is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim virtual ports"
+                ],
+                "summary": "query vim ports list",
+                "description": "query vim ports list",
+                "operationId": "query_vim_ports",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "get a list of vim virtual ports request param",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/ListVimPorts"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimPortsInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim virtual port is not accessable"
+                    }
+                }
+            }
+        },
+        "/{vimid}/{tenantid}/ports/{portid}": {
+            "delete": {
+                "tags": [
+                    "vim virtual ports"
+                 ],
+                 "summary": "delete specific vim virtual port",
+                "description": "delete specific vim virtual port",
+                "operationId": "delete_vim_port",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "portid",
+                        "in": "path",
+                        "description": "vim virtual port id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the virtual port is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim virtual ports"
+                ],
+                "summary": "query specific vim virtual port",
+                "description": "query specific vim virtual port",
+                "operationId": "query_vim_port",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "portid",
+                        "in": "path",
+                        "description": "vim virtual port id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimPortInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim virtual port id is not accessable"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CreateVimPort": {
+            "type": "object",
+            "required": [
+                "networkId",
+                "subnetId",
+                "name",
+                "cidr",
+                "ipVersion"
+            ],
+            "properties": {
+                "networkId": {
+                    "type": "string",
+                    "description": "network UUID"
+                },
+                "subnetId": {
+                    "type": "string",
+                    "description": "subnet UUID"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "virtual port name"
+                },
+                "ip": {
+                    "type": "string",
+                    "description": "virtual port fixed IP"
+                },
+                "macAddress": {
+                    "type": "string",
+                    "description": "virtual port MAC address"
+                },
+                "vnicType": {
+                    "type": "string",
+                    "description": "vnicType: normal,direct,macvtap"
+                },
+                "securityGroups": {
+                    "type": "array",
+                    "description": "List of security group names",
+                    "items": {
+                       "type": "string"
+                    }
+                }
+            }
+        },
+        "ListVimPorts": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "virtual port name"
+                }
+            }
+        },
+        "VimPortsInfo": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenantId",
+                "ports"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "ports": {
+                    "type": "array",
+                    "description": "ports information",
+                    "items": {
+                       "$ref": "#/definitions/VimPortInfo"
+                    }
+                }
+            }
+        },
+        "VimPortInfo": {
+            "type": "object",
+            "required": [
+                "name",
+                "status",
+                "id",
+                "networkId",
+                "subnetId"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "virtual port name"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "virtual port UUID"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "subnet status"
+                },
+                "networkId": {
+                    "type": "string",
+                    "description": "network UUID"
+                },
+                "networkName": {
+                    "type": "string",
+                    "description": "network name"
+                },
+                "subnetName": {
+                    "type": "string",
+                    "description": "subnet name"
+                },
+                "subnetId": {
+                    "type": "string",
+                    "description": "subnet UUID"
+                },
+                "ip": {
+                    "type": "string",
+                    "description": "virtual port fixed IP"
+                },
+                "macAddress": {
+                    "type": "string",
+                    "description": "virtual port MAC address"
+                },
+                "vnicType": {
+                    "type": "string",
+                    "description": "vnicType: normal,direct,macvtap"
+                },
+                "securityGroups": {
+                    "type": "array",
+                    "description": "list of securityGroups names",
+                    "items": {
+                       "type": "string"
+                    }
+                },
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "returnCode": {
+                    "type": "integer",
+                    "description": "0: Already exist 1: Newly created"
+                }
+            }
+        }
+    }
+}

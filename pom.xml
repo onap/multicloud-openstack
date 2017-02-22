@@ -29,6 +29,7 @@
     
     <modules>
         <module>newton</module>
+        <module>kilo</module>
     </modules>
 
     <build>

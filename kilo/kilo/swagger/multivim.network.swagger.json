@@ -1,0 +1,360 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/openoapi/multivim/v1/",
+    "tags": [
+        {
+            "name": "MultiVIM broker"
+        }
+    ],
+    "paths": {
+        "/{vimid}/{tenantid}/networks": {
+            "post": {
+                "tags": [
+                    "vim networks"
+                ],
+                "summary": "create a network",
+                "description": "create a network",
+                "operationId": "create_vim_network",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "create vim network request param",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateVimNetwork"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimNetworkInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim network is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim networks"
+                ],
+                "summary": "query vim networks list",
+                "description": "query vim networks list",
+                "operationId": "query_vim_networks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "get a list of vim networks request param",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/ListVimNetworks"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimNetworksInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim network is not accessable"
+                    }
+                }
+            }
+        },
+        "/{vimid}/{tenantid}/networks/{networkid}": {
+            "delete": {
+                "tags": [
+                    "vim networks"
+                 ],
+                 "summary": "delete specific vim network",
+                "description": "delete specific vim network",
+                "operationId": "delete_vim_network",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "networkid",
+                        "in": "path",
+                        "description": "vim network id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the network is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim networks"
+                ],
+                "summary": "query specific vim network",
+                "description": "query specific vim network",
+                "operationId": "query_vim_network",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "networkid",
+                        "in": "path",
+                        "description": "vim network id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimNetworkInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim network is not accessable"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CreateVimNetwork": {
+            "type": "object",
+            "required": [
+                "networkType",
+                "name",
+                "shared"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "network name"
+                },
+                "networkType": {
+                    "type": "string",
+                    "description": "network type"
+                },
+                "physicalNetwork": {
+                    "type": "string",
+                    "description": "physical network name"
+                },
+                "segmentationId": {
+                    "type": "integer",
+                    "description": "segmentation ID of physical network"
+                },
+                "vlanTransparent": {
+                    "type": "boolean",
+                    "description": "vlan transparent"
+                },
+                "shared": {
+                    "type": "boolean",
+                    "description": "network is shared across tenants"
+                },
+                "routerExternal": {
+                    "type": "boolean",
+                    "description": "network can provide floating IPs via a router"
+                }
+            }
+        },
+        "ListVimNetworks": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "network name"
+                }
+            }
+        },
+        "VimNetworksInfo": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenantId",
+                "networks"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "networks": {
+                    "type": "array",
+                    "description": "network information",
+                    "items": {
+                       "$ref": "#/definitions/VimNetworkInfo"
+                    }
+                }
+            }
+        },
+        "VimNetworkInfo": {
+            "type": "object",
+            "required": [
+                "name",
+                "status",
+                "id"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "network name"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "network UUID"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "network status"
+                },
+                "networkType": {
+                    "type": "string",
+                    "description": "network type"
+                },
+                "physicalNetwork": {
+                    "type": "string",
+                    "description": "physical network name"
+                },
+                "segmentationId": {
+                    "type": "boolean",
+                    "description": "segmentationId of physical network"
+                },
+                "vlanTransparent": {
+                    "type": "boolean",
+                    "description": "vlan transparent"
+                },
+                "shared": {
+                    "type": "boolean",
+                    "description": "network is shared across tenants"
+                },
+                "routerExternal": {
+                    "type": "boolean",
+                    "description": "network can provide floating IPs via a router"
+                },
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "returnCode": {
+                    "type": "integer",
+                    "description": "0: Already exist 1: Newly created"
+                }
+            }
+        }
+    }
+}
