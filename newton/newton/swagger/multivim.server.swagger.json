@@ -1,0 +1,493 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/openoapi/multivim/v1/",
+    "tags": [
+        {
+            "name": "MultiVIM broker"
+        }
+    ],
+    "paths": {
+        "/{vimid}/{tenantid}/servers": {
+            "post": {
+                "tags": [
+                    "vim servers"
+                ],
+                "summary": "create a server",
+                "description": "create a server",
+                "operationId": "create_vim_server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "create vim server request param",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateVimServer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimServerInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim server is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim servers"
+                ],
+                "summary": "query vim servers list",
+                "description": "query vim servers list",
+                "operationId": "query_vim_servers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "get a list of vim servers request param",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/ListVimServers"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimServersInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim server is not accessable"
+                    }
+                }
+            }
+        },
+        "/{vimid}/{tenantid}/servers/{serverid}": {
+            "delete": {
+                "tags": [
+                    "vim servers"
+                 ],
+                 "summary": "delete specific vim server",
+                "description": "delete specific vim server",
+                "operationId": "delete_vim_server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "serverid",
+                        "in": "path",
+                        "description": "vim server id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim server is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim servers"
+                ],
+                "summary": "query specific vim server",
+                "description": "query specific vim server",
+                "operationId": "query_vim_server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "serverid",
+                        "in": "path",
+                        "description": "vim server id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimServerInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim server is not accessable"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CreateVimServer": {
+            "type": "object",
+            "required": [
+                "name",
+                "boot",
+                "flavorId"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "server name"
+                },
+                "boot": {
+                    "type": "object",
+                    "description": "Parameters to start a server",
+                    "properties": {
+                        "type": {
+                            "type": "integer",
+                            "description": "boot type: 1: boot from volume, 2: boot from image"
+                        },
+                        "volumeId": {
+                            "type": "string",
+                            "description": "volume UUID to boot server"
+                        },
+                        "imageId": {
+                            "type": "string",
+                            "description": "image UUID to boot server"
+                        }
+                    }
+                },
+                "flavorId": {
+                    "type": "string",
+                    "description": "flavor uuid to start server"
+                },
+                "contextArray": {
+                    "type": "array",
+                    "description": "list of injected files",
+                    "items": {
+                       "$ref": "#/definitions/VimServerContextInfo"
+                    }
+                },
+                "volumeArray": {
+                    "type": "array",
+                    "description": "list of volumes attached to a server",
+                    "items": {
+                       "$ref": "#/definitions/VimServerVolumeInfo"
+                    }
+                },
+                "nicArray": {
+                    "type": "array",
+                    "description": "list of volumes attached to a server",
+                    "items": {
+                       "$ref": "#/definitions/VimServerNicInfo"
+                    }
+                },
+                "availabilityZone": {
+                    "type": "string",
+                    "description": "The availability zone from which to launch the server."
+                },
+                "metadata": {
+                    "type": "array",
+                    "description": "list of key-value pairs for metadata to start a server",
+                    "items": {
+                       "$ref": "#/definitions/VimServerKeyValuePair"
+                    }                    
+                },
+                "userdata": {
+                    "type": "string",
+                    "description": "user data to start a aserver"
+                },
+                "securityGroups": {
+                    "type": "array",
+                    "description": "list of security groups for a server",
+                    "items": {
+                        "type": "string",
+                        "description": "name of security group"
+                    }
+                },
+                "serverGroup": {
+                    "type": "string",
+                    "description": "server group"
+                }
+            }
+        },
+        "VimServerKeyValuePair": {
+            "type": "object",
+            "properties": {
+                "keyName": {
+                    "type": "string",
+                    "description": "key name"
+                },
+                "value": {
+                    "type": "string",
+                    "description": "value "
+                }
+            }
+        },
+        "VimServerContextInfo": {
+            "type": "object",
+            "properties": {
+                "fileName": {
+                    "type": "string",
+                    "description": "Injected file name"
+                },
+                "fileData": {
+                    "type": "string",
+                    "description": "Injected file content "
+                }
+            }
+        },
+        "VimServerVolumeInfo": {
+            "type": "object",
+            "properties": {
+                "volumeId": {
+                    "type": "string",
+                    "description": "volume UUID"
+                }
+            }
+        },
+        "VimServerNicInfo": {
+            "type": "object",
+            "properties": {
+                "portId": {
+                    "type": "string",
+                    "description": "virtual port UUID to boot a server"
+                }
+            }
+        },
+        "ListVimServers": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "server name to filter server list"
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Requests a page size of items"
+                },
+                "marker": {
+                    "type": "string",
+                    "description": "server ID of the last-seen item"
+                }
+            }
+        },
+        "VimServersInfo": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenantId",
+                "servers"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "servers": {
+                    "type": "array",
+                    "description": "server list information",
+                    "items": {
+                       "$ref": "#/definitions/VimServerInfo"
+                    }
+                }
+            }
+        },
+        "VimServerInfo": {
+            "type": "object",
+            "required": [
+                "name",
+                "status",
+                "id"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "server name"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "server UUID"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "server status,0:INACTIVE,1:ACTIVE,2:ERROR"
+                },
+                "boot": {
+                    "type": "object",
+                    "description": "Parameters to start a server",
+                    "properties": {
+                        "type": {
+                            "type": "integer",
+                            "description": "boot type: 1: boot from volume, 2: boot from image"
+                        },
+                        "volumeId": {
+                            "type": "string",
+                            "description": "volume UUID to boot server"
+                        },
+                        "ImageId": {
+                            "type": "string",
+                            "description": "image UUID to boot server"
+                        }
+                    }
+                },
+                "flavorId": {
+                    "type": "string",
+                    "description": "flavor uuid to start server"
+                },
+                "volumeArray": {
+                    "type": "array",
+                    "description": "list of volumes attached to a server",
+                    "items": {
+                       "$ref": "#/definitions/VimServerVolumeInfo"
+                    }
+                },
+                "nicArray": {
+                    "type": "array",
+                    "description": "list of volumes attached to a server",
+                    "items": {
+                       "$ref": "#/definitions/VimServerNicInfo"
+                    }
+                },
+                "availabilityZone": {
+                    "type": "string",
+                    "description": "available zone for a server"
+                },
+                "metadata": {
+                    "type": "array",
+                    "description": "list of key-value pairs for metadata to start a server",
+                    "items": {
+                       "$ref": "#/definitions/VimServerKeyValuePair"
+                    }                    
+                },
+                "securityGroups": {
+                    "type": "array",
+                    "description": "list of security groups for a server",
+                    "items": {
+                        "type": "string",
+                        "description": "name of security group"
+                    }
+                },
+                "serverGroup": {
+                    "type": "string",
+                    "description": "server group"
+                },
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "returnCode": {
+                    "type": "integer",
+                    "description": "0: Already exist 1: Newly created"
+                }
+            }
+        }
+    }
+}

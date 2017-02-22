@@ -1,0 +1,428 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/openoapi/multivim/v1/",
+    "tags": [
+        {
+            "name": "MultiVIM broker"
+        }
+    ],
+    "paths": {
+        "/{vimid}/{tenantid}/subnets": {
+            "post": {
+                "tags": [
+                    "vim subnets"
+                ],
+                "summary": "create a subnet",
+                "description": "create a subnet",
+                "operationId": "create_vim_subnet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "create vim subnet request param",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateVimSubnet"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimSubnetInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim subnet is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim subnets"
+                ],
+                "summary": "query vim subnets list",
+                "description": "query vim subnets list",
+                "operationId": "query_vim_subnets",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "get a list of vim subnets request param",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/ListVimSubnets"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimSubnetsInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim subnet is not accessable"
+                    }
+                }
+            }
+        },
+        "/{vimid}/{tenantid}/subnets/{subnetid}": {
+            "delete": {
+                "tags": [
+                    "vim subnets"
+                 ],
+                 "summary": "delete specific vim subnet",
+                "description": "delete specific vim subnet",
+                "operationId": "delete_vim_subnet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subnetid",
+                        "in": "path",
+                        "description": "vim subnet id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the subnet is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim subnets"
+                ],
+                "summary": "query specific vim subnet",
+                "description": "query specific vim subnet",
+                "operationId": "query_vim_subnet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subnetid",
+                        "in": "path",
+                        "description": "vim subnet id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimSubnetInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim subnet id is invalid"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CreateVimSubnet": {
+            "type": "object",
+            "required": [
+                "networkId",
+                "name",
+                "cidr",
+                "ipVersion"
+            ],
+            "properties": {
+                "networkId": {
+                    "type": "string",
+                    "description": "network UUID"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "subnet name"
+                },
+                "cidr": {
+                    "type": "string",
+                    "description": "subnet CIDR"
+                },
+                "ipVersion": {
+                    "type": "integer",
+                    "description": "IP version: 4 for IPv4, 6 for IPv6"
+                },
+                "enableDhcp": {
+                    "type": "boolean",
+                    "description": "Enable DHCP or not"
+                },
+                "gatewayIp": {
+                    "type": "string",
+                    "description": "gateway IP address"
+                },
+                "dnsNameservers": {
+                    "type": "array",
+                    "description": "DNS Nameservers",
+                    "items": {
+                       "type": "string"
+                    }
+                },
+                "hostRoutes": {
+                    "type": "array",
+                    "description": "Host route entries",
+                    "items": {
+                       "$ref": "#/definitions/VimHostRouteInfo"
+                    }
+                },
+                "allocationPools": {
+                    "type": "array",
+                    "description": "IP address allocation pools",
+                    "items": {
+                       "$ref": "#/definitions/VimIpAllocationPoolInfo"
+                    }
+                }
+            }
+        },
+        "VimHostRouteInfo": {
+            "type": "object",
+            "properties": {
+                "destination": {
+                    "type": "string",
+                    "description": "destination field of a route entry"
+                },
+                "nexthop ": {
+                    "type": "string",
+                    "description": "next hop of a route entry"
+                }
+            }
+        },
+        "VimIpAllocationPoolInfo": {
+            "type": "object",
+            "properties": {
+                "start": {
+                    "type": "string",
+                    "description": "start IP address of a pool"
+                },
+                "end ": {
+                    "type": "string",
+                    "description": "end IP address of a pool"
+                }
+            }
+        },
+        "ListVimSubnets": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "subnet name"
+                }
+            }
+        },
+        "VimSubnetsInfo": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenantId",
+                "subnets"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "subnets": {
+                    "type": "array",
+                    "description": "subnets information",
+                    "items": {
+                       "$ref": "#/definitions/VimSubnetInfo"
+                    }
+                }
+            }
+        },
+        "VimSubnetInfo": {
+            "type": "object",
+            "required": [
+                "name",
+                "status",
+                "id",
+                "networkId",
+                "cidr",
+                "ipVersion"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "subnet name"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "subnet UUID"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "subnet status"
+                },
+                "networkId": {
+                    "type": "string",
+                    "description": "network UUID"
+                },
+                "networkName": {
+                    "type": "string",
+                    "description": "network name"
+                },
+                "cidr": {
+                    "type": "string",
+                    "description": "subnet CIDR"
+                },
+                "ipVersion": {
+                    "type": "integer",
+                    "description": "IP version: 4 for IPv4, 6 for IPv6"
+                },
+                "enableDhcp": {
+                    "type": "boolean",
+                    "description": "Enable DHCP or not"
+                },
+                "gatewayIp": {
+                    "type": "string",
+                    "description": "gateway IP address"
+                },
+                "dnsNameservers": {
+                    "type": "array",
+                    "description": "DNS Nameservers",
+                    "items": {
+                       "type": "string"
+                    }
+                },
+                "hostRoutes": {
+                    "type": "array",
+                    "description": "Host route entries",
+                    "items": {
+                       "$ref": "#/definitions/VimHostRouteInfo"
+                    }
+                },
+                "allocationPools": {
+                    "type": "array",
+                    "description": "IP address allocation pools",
+                    "items": {
+                       "$ref": "#/definitions/VimIpAllocationPoolInfo"
+                    }
+                },
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "returnCode": {
+                    "type": "integer",
+                    "description": "0: Already exist 1: Newly created"
+                }
+            }
+        }
+    }
+}

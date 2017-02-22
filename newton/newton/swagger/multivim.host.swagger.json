@@ -1,0 +1,183 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/openoapi/multivim/v1/",
+    "tags": [
+        {
+            "name": "MultiVIM broker"
+        }
+    ],
+    "paths": {
+        "/{vimid}/{tenantid}/hosts": {
+            "get": {
+                "tags": [
+                    "vim hosts"
+                ],
+                "summary": "query vim hosts list",
+                "description": "query vim hosts list",
+                "operationId": "query_vim_hosts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "get a list of vim hosts request param",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/ListVimHosts"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimHostsInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim host is not accessable"
+                    }
+                }
+            }
+        },
+        "/{vimid}/{tenantid}/hosts/{hostname}": {
+            "get": {
+                "tags": [
+                    "vim hosts"
+                ],
+                "summary": "query specific vim host",
+                "description": "query specific vim host",
+                "operationId": "query_vim_host",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "hostname",
+                        "in": "path",
+                        "description": "vim host name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimHostInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim host is not accessable"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "VimHostsInfo": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenantId",
+                "hosts"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "hosts": {
+                    "type": "array",
+                    "description": "list of host information",
+                    "items": {
+                       "$ref": "#/definitions/VimHostInfo"
+                    }
+                }
+            }
+        },
+        "VimHostInfo": {
+            "type": "object",
+            "required": [
+                "name",
+                "service"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "host name"
+                },
+                "service": {
+                    "type": "string",
+                    "description": "service name running on the host"
+                },
+                "zone": {
+                    "type": "string",
+                    "description": "available zone name of the host"
+                },
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                }
+            }
+        }
+    }
+}

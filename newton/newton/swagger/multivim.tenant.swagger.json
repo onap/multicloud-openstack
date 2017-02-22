@@ -1,0 +1,119 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/openoapi/multivim/v1/",
+    "tags": [
+        {
+            "name": "MultiVIM broker"
+        }
+    ],
+    "paths": {
+        "/{vimid}/tenants": {
+            "get": {
+                "tags": [
+                    "vim tenants"
+                ],
+                "summary": "query vim tenants list",
+                "description": "query vim tenants list",
+                "operationId": "query_vim_tenants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "get a list of vim tenants request param",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/ListVimTenants"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimTenantsInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id is wrong"
+                    },
+                    "500": {
+                        "description": "the vim tenants is not accessable"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ListVimTenants": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "tenant name to filter tenant list"
+                }
+            }
+        },
+        "VimTenantsInfo": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenants"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenants": {
+                    "type": "array",
+                    "description": "tenant list information",
+                    "items": {
+                       "$ref": "#/definitions/VimTenantInfo"
+                    }
+                }
+            }
+        },
+        "VimTenantInfo": {
+            "type": "object",
+            "required": [
+                "name",
+                "id"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "tenant name"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

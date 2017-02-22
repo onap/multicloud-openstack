@@ -1,0 +1,397 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/openoapi/multivim/v1/",
+    "tags": [
+        {
+            "name": "MultiVIM broker"
+        }
+    ],
+    "paths": {
+        "/{vimid}/{tenantid}/flavors": {
+            "post": {
+                "tags": [
+                    "vim flavors"
+                ],
+                "summary": "create a flavor",
+                "description": "create a flavor",
+                "operationId": "create_vim_flavor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "create vim flavor request param",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateVimFlavor"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimFlavorInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim flavor is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim flavors"
+                ],
+                "summary": "query vim flavors list",
+                "description": "query vim flavors list",
+                "operationId": "query_vim_flavors",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "get a list of vim flavors request param",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/ListVimFlavors"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimFlavorsInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim flavor is not accessable"
+                    }
+                }
+            }
+        },
+        "/{vimid}/{tenantid}/flavors/{flavorid}": {
+            "delete": {
+                "tags": [
+                    "vim flavors"
+                 ],
+                 "summary": "delete specific vim flavor",
+                "description": "delete specific vim flavor",
+                "operationId": "delete_vim_flavor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "flavorid",
+                        "in": "path",
+                        "description": "vim flavor id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim flavor is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim flavors"
+                ],
+                "summary": "query specific vim flavor",
+                "description": "query specific vim flavor",
+                "operationId": "query_vim_flavor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "flavorid",
+                        "in": "path",
+                        "description": "vim flavor id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimFlavorInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim flavor is not accessable"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CreateVimFlavor": {
+            "type": "object",
+            "required": [
+                "vcpu",
+                "name",
+                "memory",
+                "disk"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "flavor name"
+                },
+                "vcpu": {
+                    "type": "integer",
+                    "description": "virtual cpu number"
+                },
+                "memory": {
+                    "type": "integer",
+                    "description": "memory size"
+                },
+                "disk": {
+                    "type": "integer",
+                    "description": "The size of the root disk"
+                },
+                "ephemeral": {
+                    "type": "integer",
+                    "description": "The size of the ephemeral disk"
+                },
+                "swap": {
+                    "type": "integer",
+                    "description": "The size of the swap disk"
+                },
+                "isPublic": {
+                    "type": "boolean",
+                    "description": "whether the flavor is public"
+                },
+                "extraSpecs": {
+                    "type": "array",
+                    "description": "list of extra specs",
+                    "items": {
+                       "$ref": "#/definitions/VimFlavorExtraSpecInfo"
+                    }
+                }
+            }
+        },
+        "VimFlavorExtraSpecInfo": {
+            "type": "object",
+            "properties": {
+                "keyName": {
+                    "type": "string",
+                    "description": "extra spec key"
+                },
+                "value": {
+                    "type": "string",
+                    "description": "extra spec value"
+                }
+            }
+        },
+        "ListVimFlavors": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "flavor name to filter flavor list"
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Requests a page size of items"
+                },
+                "marker": {
+                    "type": "string",
+                    "description": "flavor ID of the last-seen item"
+                }
+            }
+        },
+        "VimFlavorsInfo": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenantId",
+                "flavors"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "flavors": {
+                    "type": "array",
+                    "description": "flavor list information",
+                    "items": {
+                       "$ref": "#/definitions/VimFlavorInfo"
+                    }
+                }
+            }
+        },
+        "VimFlavorInfo": {
+            "type": "object",
+            "required": [
+                "name",
+                "id",
+                "vcpu",
+                "memory",
+                "disk",
+                "ephemeral",
+                "swap",
+                "isPublic"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "flavor name"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "flavor UUID"
+                },
+                "vcpu": {
+                    "type": "integer",
+                    "description": "virtual cpu number"
+                },
+                "memory": {
+                    "type": "integer",
+                    "description": "memory size"
+                },
+                "disk": {
+                    "type": "integer",
+                    "description": "The size of the root disk"
+                },
+                "ephemeral": {
+                    "type": "integer",
+                    "description": "The size of the ephemeral disk"
+                },
+                "swap": {
+                    "type": "integer",
+                    "description": "The size of the swap disk"
+                },
+                "isPublic": {
+                    "type": "boolean",
+                    "description": "whether the flavor is public"
+                },
+                "extraSpecs": {
+                    "type": "array",
+                    "description": "list of extra specs",
+                    "items": {
+                       "$ref": "#/definitions/VimFlavorExtraSpecInfo"
+                    }
+                },
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "returnCode": {
+                    "type": "integer",
+                    "description": "0: Already exist 1: Newly created"
+                }
+            }
+        }
+    }
+}

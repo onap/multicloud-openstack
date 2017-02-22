@@ -1,0 +1,158 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/openoapi/multivim/v1/",
+    "tags": [
+        {
+            "name": "MultiVIM broker"
+        }
+    ],
+    "paths": {
+        "/{vimid}/{tenantid}/limits": {
+            "get": {
+                "tags": [
+                    "vim limits"
+                ],
+                "summary": "query vim limits list",
+                "description": "query vim limits list",
+                "operationId": "query_vim_limits",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimLimitsInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim limits is not accessable"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "VimLimitsInfo": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenantId"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "maxPersonality": {
+                    "type": "integer",
+                    "description": "The number of allowed injected files for each tenant"
+                },
+                "maxPersonalitySize": {
+                    "type": "integer",
+                    "description": "The number of allowed bytes of content for each injected file"
+                },
+                "maxServerGroupMembers": {
+                    "type": "integer",
+                    "description": "The number of allowed members for each server group"
+                },
+                "maxServerGroups": {
+                    "type": "integer",
+                    "description": "The number of allowed server groups for each tenant"
+                },
+                "maxServerMeta": {
+                    "type": "integer",
+                    "description": "The number of allowed metadata items for each instance"
+                },
+                "maxTotalCores": {
+                    "type": "integer",
+                    "description": "The number of allowed instance cores for each tenant"
+                },
+                "maxTotalInstances": {
+                    "type": "integer",
+                    "description": "The number of allowed instances for each tenant"
+                },
+                "maxTotalKeypairs": {
+                    "type": "integer",
+                    "description": "The number of allowed key pairs for each user"
+                },
+                "maxTotalRAMSize": {
+                    "type": "integer",
+                    "description": "The amount of allowed instance RAM, in MB, for each tenant"
+                },
+                "maxTotalVolumeGigabytes": {
+                    "type": "integer",
+                    "description": "The maximum total amount of volumes, in gibibytes (GiB)."
+                },
+                "maxTotalVolumes": {
+                    "type": "integer",
+                    "description": "The maximum number of volumes"
+                },
+                "totalGigabytesUsed": {
+                    "type": "integer",
+                    "description": "The total number of gibibytes (GiB) used"
+                },
+                "network": {
+                    "type": "integer",
+                    "description": "The number of networks allowed for each project"
+                },
+                "subnet": {
+                    "type": "integer",
+                    "description": "The number of subnets allowed for each project"
+                },
+                "subnetpool": {
+                    "type": "integer",
+                    "description": "The number of subnet pools allowed for each project"
+                },
+                "security_group_rule": {
+                    "type": "integer",
+                    "description": "The number of security group rules allowed for each project"
+                },
+                "security_group": {
+                    "type": "integer",
+                    "description": "The number of security groups allowed for each project"
+                },
+                "router": {
+                    "type": "integer",
+                    "description": "The number of routers allowed for each project"
+                },
+                "port": {
+                    "type": "integer",
+                    "description": "The number of ports allowed for each project"
+                }
+            }
+        }
+    }
+}
