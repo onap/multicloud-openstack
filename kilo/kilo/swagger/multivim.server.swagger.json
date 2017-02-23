@@ -7,7 +7,7 @@
     "basePath": "/openoapi/multivim/v1/",
     "tags": [
         {
-            "name": "MultiVIM broker"
+            "name": "MultiVIM services"
         }
     ],
     "paths": {
