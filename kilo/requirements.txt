@@ -2,9 +2,6 @@
 Django==1.9.6
 djangorestframework==3.3.3
 
-# for access MySQL
-MySQL-python==1.2.5
-
 # redis cache
 redis==2.10.5
 
