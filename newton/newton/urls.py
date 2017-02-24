@@ -10,16 +10,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 from django.conf.urls import include, url
-from newton.pub.config.config import REG_TO_MSB_WHEN_START, REG_TO_MSB_REG_URL, REG_TO_MSB_REG_PARAM
+from newton.pub.config.config \
+    import REG_TO_MSB_WHEN_START, REG_TO_MSB_REG_URL, REG_TO_MSB_REG_PARAM
 
 urlpatterns = [
     url(r'^', include('newton.swagger.urls')),
     url(r'^', include('newton.samples.urls')),
+    url(r'^openoapi/multivim-newton/v1/(?P<vimid>[0-9a-zA-Z_-]+)/'
+        '(?P<tenantid>[0-9a-zA-Z_-]+)/', include('newton.requests.urls')),
 ]
-#url(r'^', include('newton.forward.urls')),
 
 # regist to MSB when startup
 if REG_TO_MSB_WHEN_START:
     import json
     from newton.pub.utils.restcall import req_by_msb
-    req_by_msb(REG_TO_MSB_REG_URL, "POST", json.JSONEncoder().encode(REG_TO_MSB_REG_PARAM))
+    req_by_msb(REG_TO_MSB_REG_URL, "POST",
+               json.JSONEncoder().encode(REG_TO_MSB_REG_PARAM))
