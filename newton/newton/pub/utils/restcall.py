@@ -14,7 +14,10 @@ import traceback
 import logging
 import urllib2
 import uuid
+import httplib
 import httplib2
+
+from rest_framework import status
 
 from newton.pub.config.config import MSB_SERVICE_IP, MSB_SERVICE_PORT
 
@@ -36,7 +39,7 @@ def call_req(base_url, user, passwd, auth_type,
     logger.debug("[%s]call_req('%s','%s','%s',%s,'%s','%s','%s')" % (
         callid, base_url, user, passwd, auth_type, resource, method, content))
     ret = None
-    resp_status = ''
+    resp_status = None
     try:
         full_url = combine_url(base_url, resource)
         headers = {
@@ -69,26 +72,18 @@ def call_req(base_url, user, passwd, auth_type,
                 else:
                     ret = [1, resp_body, resp_status]
                 break
-            except Exception as ex:
-                if 'httplib.ResponseNotReady' in str(sys.exc_info()):
-                    logger.debug("retry_times=%d", retry_times)
-                    logger.error(traceback.format_exc())
-                    ret = [1, "Unable to connect to %s" % full_url, resp_status]
-                    continue
-                raise ex
+            except httplib.ResponseNotReady:
+                logger.debug("retry_times=%d", retry_times)
+                ret = [1, "Unable to connect to %s" % full_url, resp_status]
+                continue
     except urllib2.URLError as err:
         ret = [2, str(err), resp_status]
-    except Exception as ex:
+    except Exception:
         logger.error(traceback.format_exc())
         logger.error("[%s]ret=%s" % (callid, str(sys.exc_info())))
-        res_info = str(sys.exc_info())
-        if 'httplib.ResponseNotReady' in res_info:
-            res_info = ("The URL[%s] request failed or is not responding." %
-                        full_url)
-        ret = [3, res_info, resp_status]
-    except:
-        logger.error(traceback.format_exc())
-        ret = [4, str(sys.exc_info()), resp_status]
+        if not resp_status:
+            resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+        ret = [3, str(sys.exc_info()), resp_status]
 
     logger.debug("[%s]ret=%s" % (callid, str(ret)))
     return ret

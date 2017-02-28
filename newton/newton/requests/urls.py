@@ -15,11 +15,13 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from . import views
+from views import network
 
 urlpatterns = [
-    url(r'^networks(/(?P<networkid>[0-9a-zA-Z_-]+))?', views.Networks.as_view()),
-    url(r'^subnets/(?P<subnetid>[0-9a-zA-Z_-]+)', views.Subnets.as_view()),
+    url(r'^networks(/(?P<networkid>[0-9a-zA-Z_-]+))?',
+        network.Networks.as_view()),
+    url(r'^subnets/(?P<subnetid>[0-9a-zA-Z_-]+)',
+        network.Subnets.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

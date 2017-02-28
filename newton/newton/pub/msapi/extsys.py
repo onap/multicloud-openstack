@@ -12,6 +12,7 @@
 import json
 import logging
 
+from rest_framework import status
 from newton.pub.exceptions import VimDriverNewtonException
 from newton.pub.utils.restcall import req_by_msb
 
@@ -33,5 +34,6 @@ def get_vim_by_id(vim_id):
     if retcode != 0:
         logger.error("Status code is %s, detail is %s.", status_code, content)
         raise VimDriverNewtonException(
-            "Failed to query VIM with id (%s) from extsys." % vim_id)
+            "Failed to query VIM with id (%s) from extsys." % vim_id,
+            status.HTTP_404_NOT_FOUND, content)
     return json.JSONDecoder().decode(content)
