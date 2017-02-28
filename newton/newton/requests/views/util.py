@@ -73,4 +73,4 @@ class VimDriverUtils(object):
     @staticmethod
     def replace_key_by_mapping(dict_obj, mapping, reverse=False):
         for k in mapping:
-            VimDriverUtils.replace_a_key(dict_obj, k)
+            VimDriverUtils.replace_a_key(dict_obj, k, reverse)
