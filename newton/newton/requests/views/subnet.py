@@ -71,7 +71,7 @@ class Subnets(APIView):
             else:
                 # convert the key naming in the subnet specified by id
                 old_subnet = content["subnet"]
-                del content["subnet"]
+                content.pop("subnet", None)
                 VimDriverUtils.replace_key_by_mapping(old_subnet,
                                                       self.keys_mapping)
                 content.update(old_subnet)
