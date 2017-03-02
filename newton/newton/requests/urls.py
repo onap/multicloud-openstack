@@ -16,14 +16,15 @@ from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from views import network
+from views import subnet
 from views import limits
 from views import hosts
 
 urlpatterns = [
     url(r'^networks(/(?P<networkid>[0-9a-zA-Z_-]+))?',
         network.Networks.as_view()),
-    url(r'^subnets/(?P<subnetid>[0-9a-zA-Z_-]+)',
-        network.Subnets.as_view()),
+    url(r'^subnets(/(?P<subnetid>[0-9a-zA-Z_-]+))?',
+        subnet.Subnets.as_view()),
     url(r'^limits$', limits.Limits.as_view()),
     url(r'^hosts(/(?P<hostname>[0-9a-zA-Z_-]+))?', hosts.Hosts.as_view()),
 ]
