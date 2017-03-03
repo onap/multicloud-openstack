@@ -44,48 +44,71 @@ class Subnets(APIView):
         logger.debug("Subnets--get::> %s" % request.data)
         try:
             # prepare request resource to vim instance
-            req_resouce = "v2.0/subnets"
-            if subnetid:
-                req_resouce += "/%s" % subnetid
-
-            query = VimDriverUtils.get_query_part(request)
-            if query:
-                req_resouce += "?%s" % query
-
-            vim = VimDriverUtils.get_vim_info(vimid)
-            sess = VimDriverUtils.get_session(vim, tenantid)
-            resp = sess.get(req_resouce, endpoint_filter=self.service)
-            content = resp.json()
-            vim_dict = {
-                "vimName": vim["name"],
-                "vimId": vim["vimId"],
-                "tenantId": tenantid,
-            }
-            content.update(vim_dict)
-
-            if not subnetid:
-                # convert the key naming in subnets
-                for subnet in content["subnets"]:
-                    VimDriverUtils.replace_key_by_mapping(subnet,
-                                                          self.keys_mapping)
-            else:
-                # convert the key naming in the subnet specified by id
-                old_subnet = content["subnet"]
-                content.pop("subnet", None)
-                VimDriverUtils.replace_key_by_mapping(old_subnet,
-                                                      self.keys_mapping)
-                content.update(old_subnet)
-
-            return Response(data=content, status=resp.status_code)
+            content, status_code = self.get_subnets(request, vimid, tenantid, subnetid)
+            return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    def get_subnets(self, request, vimid="", tenantid="", subnetid=""):
+        logger.debug("Subnets--get_subnets::> %s" % subnetid)
+
+        # prepare request resource to vim instance
+        req_resouce = "v2.0/subnets"
+        if subnetid:
+            req_resouce += "/%s" % subnetid
+
+        query = VimDriverUtils.get_query_part(request)
+        if query:
+            req_resouce += "?%s" % query
+
+        vim = VimDriverUtils.get_vim_info(vimid)
+        sess = VimDriverUtils.get_session(vim, tenantid)
+        resp = sess.get(req_resouce, endpoint_filter=self.service)
+        content = resp.json()
+        vim_dict = {
+            "vimName": vim["name"],
+            "vimId": vim["vimId"],
+            "tenantId": tenantid,
+        }
+        content.update(vim_dict)
+
+        if not subnetid:
+            # convert the key naming in subnets
+            for subnet in content["subnets"]:
+                VimDriverUtils.replace_key_by_mapping(subnet,
+                                                      self.keys_mapping)
+        else:
+            # convert the key naming in the subnet specified by id
+            old_subnet = content["subnet"]
+            content.pop("subnet", None)
+            VimDriverUtils.replace_key_by_mapping(old_subnet,
+                                                  self.keys_mapping)
+            content.update(old_subnet)
+
+        return content, resp.status_code
+
     def post(self, request, vimid="", tenantid="", subnetid=""):
         logger.debug("Subnets--post::> %s" % request.data)
         try:
+            #check if created already: check name
+            content, status_code = self.get_subnets(request, vimid, tenantid)
+            existed = False
+            if status_code == 200:
+                for subnet in content["subnets"]:
+                    if subnet["name"] == request.data["name"]:
+                        existed = True
+                        break
+                    pass
+                if existed == True:
+                    vim_dict = {
+                        "returnCode": 0,
+                    }
+                    subnet.update(vim_dict)
+                    return Response(data=subnet, status=status_code)
+
             # prepare request resource to vim instance
             req_resouce = "v2.0/subnets"
 
@@ -103,6 +126,7 @@ class Subnets(APIView):
                 "vimName": vim["name"],
                 "vimId": vim["vimId"],
                 "tenantId": tenantid,
+                "returnCode": 1,
             }
             resp_body.update(vim_dict)
             return Response(data=resp_body, status=resp.status_code)
