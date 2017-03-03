@@ -94,13 +94,11 @@
                         "type": "string"
                     },
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "get a list of vim subnets request param",
+                        "name": "name",
+                        "in":  "query",
+                        "description": "subnet name to filter list",
                         "required": false,
-                        "schema": {
-                            "$ref": "#/definitions/ListVimSubnets"
-                        }
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -301,15 +299,6 @@
                 "end ": {
                     "type": "string",
                     "description": "end IP address of a pool"
-                }
-            }
-        },
-        "ListVimSubnets": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "subnet name"
                 }
             }
         },

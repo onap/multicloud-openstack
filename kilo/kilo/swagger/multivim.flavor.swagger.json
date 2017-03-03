@@ -94,13 +94,25 @@
                         "type": "string"
                     },
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "get a list of vim flavors request param",
+                        "name": "name",
+                        "in":  "query",
+                        "description": "flavor name to filter list",
                         "required": false,
-                        "schema": {
-                            "$ref": "#/definitions/ListVimFlavors"
-                        }
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "in":  "query",
+                        "description": "Requests a page size of items",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "marker",
+                        "in":  "query",
+                        "description": "image ID of the last-seen item",
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -278,23 +290,6 @@
                 "value": {
                     "type": "string",
                     "description": "extra spec value"
-                }
-            }
-        },
-        "ListVimFlavors": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "flavor name to filter flavor list"
-                },
-                "limit": {
-                    "type": "integer",
-                    "description": "Requests a page size of items"
-                },
-                "marker": {
-                    "type": "string",
-                    "description": "flavor ID of the last-seen item"
                 }
             }
         },

@@ -94,13 +94,25 @@
                         "type": "string"
                     },
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "get a list of vim images request param",
+                        "name": "name",
+                        "in":  "query",
+                        "description": "images name to filter list",
                         "required": false,
-                        "schema": {
-                            "$ref": "#/definitions/ListVimImages"
-                        }
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "in":  "query",
+                        "description": "Requests a page size of items",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "marker",
+                        "in":  "query",
+                        "description": "image ID of the last-seen item",
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -270,23 +282,6 @@
                 "value": {
                     "type": "string",
                     "description": "property value"
-                }
-            }
-        },
-        "ListVimImages": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "image name to filter image list"
-                },
-                "limit": {
-                    "type": "string",
-                    "description": "Requests a page size of items"
-                },
-                "marker": {
-                    "type": "string",
-                    "description": "image ID of the last-seen item"
                 }
             }
         },

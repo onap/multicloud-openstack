@@ -94,13 +94,25 @@
                         "type": "string"
                     },
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "get a list of vim volumes request param",
+                        "name": "name",
+                        "in":  "query",
+                        "description": "volumn name to filter list",
                         "required": false,
-                        "schema": {
-                            "$ref": "#/definitions/ListVimVolumes"
-                        }
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "in":  "query",
+                        "description": "Requests a page size of items",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "marker",
+                        "in":  "query",
+                        "description": "image ID of the last-seen item",
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -251,23 +263,6 @@
                 }
             }
         },
-        "ListVimVolumes": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "volume name to filter volume list"
-                },
-                "limit": {
-                    "type": "integer",
-                    "description": "Requests a page size of items"
-                },
-                "marker": {
-                    "type": "string",
-                    "description": "volume ID of the last-seen item"
-                }
-            }
-        },
         "VimVolumesInfo": {
             "type": "object",
             "required": [
@@ -333,6 +328,10 @@
                     "items": {
                        "$ref": "#/definitions/VimVolumeAttachmentInfo"
                     }
+                },
+                "status": {
+                    "type": "string",
+                    "description": "volume status"
                 },
                 "vimId": {
                     "type": "string"

@@ -34,13 +34,11 @@
                         "type": "string"
                     },
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "get a list of vim tenants request param",
+                        "name": "name",
+                        "in":  "query",
+                        "description": "tenant name to filter tenant list",
                         "required": false,
-                        "schema": {
-                            "$ref": "#/definitions/ListVimTenants"
-                        }
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -61,15 +59,6 @@
         }
     },
     "definitions": {
-        "ListVimTenants": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "tenant name to filter tenant list"
-                }
-            }
-        },
         "VimTenantsInfo": {
             "type": "object",
             "required": [
@@ -106,12 +95,6 @@
                 "id": {
                     "type": "string",
                     "description": "tenant UUID"
-                },
-                "vimId": {
-                    "type": "string"
-                },
-                "vimName": {
-                    "type": "string"
                 }
             }
         }

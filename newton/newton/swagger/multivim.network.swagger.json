@@ -94,13 +94,11 @@
                         "type": "string"
                     },
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "get a list of vim networks request param",
+                        "name": "name",
+                        "in":  "query",
+                        "description": "network name to filter list",
                         "required": false,
-                        "schema": {
-                            "$ref": "#/definitions/ListVimNetworks"
-                        }
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -257,15 +255,6 @@
                 "routerExternal": {
                     "type": "boolean",
                     "description": "network can provide floating IPs via a router"
-                }
-            }
-        },
-        "ListVimNetworks": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "network name"
                 }
             }
         },

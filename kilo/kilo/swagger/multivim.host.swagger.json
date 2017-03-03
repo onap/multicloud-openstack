@@ -39,15 +39,6 @@
                         "description": "tenant UUID",
                         "required": true,
                         "type": "string"
-                    },
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "get a list of vim hosts request param",
-                        "required": false,
-                        "schema": {
-                            "$ref": "#/definitions/ListVimHosts"
-                        }
                     }
                 ],
                 "responses": {
@@ -107,7 +98,7 @@
                     "200": {
                         "description": "successful operation",
                         "schema": {
-                            "$ref": "#/definitions/VimHostInfo"
+                            "$ref": "#/definitions/VimHostDetail"
                         }
                     },
                     "404": {
@@ -176,6 +167,65 @@
                 "tenantId": {
                     "type": "string",
                     "description": "tenant UUID"
+                }
+            }
+        },
+        "VimHostDetail": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenantId",
+                "host"
+            ],
+            "properties": {
+                "host": {
+                    "type": "array",
+                    "description": "list of host information",
+                    "items": {
+                       "$ref": "#/definitions/VimHostResource"
+                    }
+                },
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                }
+            }
+        },
+        "VimHostResource": {
+            "type": "object",
+            "required": [
+                "name",
+                "cpu",
+                "memory_mb",
+                "disk_gb",
+                "project"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "host name"
+                },
+                "cpu": {
+                    "type": "integer",
+                    "description": "The cpu info on the host"
+                },
+                "memory_mb": {
+                    "type": "integer",
+                    "description": "The memory info on the host (in MB)"
+                },
+                "disk_gb": {
+                    "type": "integer",
+                    "description": "The disk info on the host (in GB)"
+                },
+                "project": {
+                    "type": "string",
+                    "description": "The project id (or special name like total, used_now, used_max)."
                 }
             }
         }
