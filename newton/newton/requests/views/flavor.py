@@ -76,13 +76,14 @@ class Flavors(APIView):
 
             else:
                 wanted = None
-                #check if query contains name="???"
-                for queryone in query.split('&'):
-                    k,v = queryone.split('=')
-                    if k == "name":
-                        wanted = v
-                        break
-                    pass
+                #check if query contains name="flavorname"
+                if query:
+                    for queryone in query.split('&'):
+                        k,v = queryone.split('=')
+                        if k == "name":
+                            wanted = v
+                            break
+                        pass
 
                 if wanted:
                    oldFlavors = content.pop("flavors", None)
@@ -164,7 +165,7 @@ class Flavors(APIView):
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
 
-            #check if the flavor name or id is used
+            #check if the flavor is already created: name or id
             tmpresp = self.get_flavor(sess, request)
             content = tmpresp.json()
             #iterate each flavor to get extra_specs
@@ -178,7 +179,7 @@ class Flavors(APIView):
                    break
                 pass
 
-            if existed:
+            if existed == True:
                 extraResp = self.get_flavor_extra_specs(sess, flavor["id"])
                 extraContent = extraResp.json()
                 if extraContent["extra_specs"]:
