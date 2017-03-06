@@ -44,7 +44,8 @@ class Subnets(APIView):
         logger.debug("Subnets--get::> %s" % request.data)
         try:
             # prepare request resource to vim instance
-            content, status_code = self.get_subnets(request, vimid, tenantid, subnetid)
+            query = VimDriverUtils.get_query_part(request)
+            content, status_code = self.get_subnets(query, vimid, tenantid, subnetid)
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
@@ -52,7 +53,7 @@ class Subnets(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_subnets(self, request, vimid="", tenantid="", subnetid=""):
+    def get_subnets(self, query="", vimid="", tenantid="", subnetid=""):
         logger.debug("Subnets--get_subnets::> %s" % subnetid)
 
         # prepare request resource to vim instance
@@ -60,7 +61,6 @@ class Subnets(APIView):
         if subnetid:
             req_resouce += "/%s" % subnetid
 
-        query = VimDriverUtils.get_query_part(request)
         if query:
             req_resouce += "?%s" % query
 
@@ -82,11 +82,10 @@ class Subnets(APIView):
                                                       self.keys_mapping)
         else:
             # convert the key naming in the subnet specified by id
-            old_subnet = content["subnet"]
-            content.pop("subnet", None)
-            VimDriverUtils.replace_key_by_mapping(old_subnet,
+            subnet = content.pop("subnet", None)
+            VimDriverUtils.replace_key_by_mapping(subnet,
                                                   self.keys_mapping)
-            content.update(old_subnet)
+            content.update(subnet)
 
         return content, resp.status_code
 
@@ -94,7 +93,8 @@ class Subnets(APIView):
         logger.debug("Subnets--post::> %s" % request.data)
         try:
             #check if created already: check name
-            content, status_code = self.get_subnets(request, vimid, tenantid)
+            query = "name=%s" % request.data["name"]
+            content, status_code = self.get_subnets(query, vimid, tenantid)
             existed = False
             if status_code == 200:
                 for subnet in content["subnets"]:
