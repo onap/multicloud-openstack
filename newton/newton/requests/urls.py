@@ -18,6 +18,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from views import network
 from views import subnet
 from views import image
+from views import volume
 from views import vport
 from views import limits
 from views import hosts
@@ -30,6 +31,8 @@ urlpatterns = [
         subnet.Subnets.as_view()),
     url(r'^images(/(?P<imageid>[0-9a-zA-Z_-]+))?',
         image.Images.as_view()),
+    url(r'^volumes(/(?P<volumeid>[0-9a-zA-Z_-]+))?',
+        volume.Volumes.as_view()),
     url(r'^ports(/(?P<portid>[0-9a-zA-Z_-]+))?',
         vport.Vports.as_view()),
     url(r'^flavors(/(?P<flavorid>[0-9a-zA-Z_-]+))?',
