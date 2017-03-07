@@ -262,26 +262,6 @@
                 "visibility": {
                     "type": "string",
                     "description": "public, private, shared, or community"
-                },
-                "properties": {
-                    "type": "array",
-                    "description": "list of properties",
-                    "items": {
-                       "$ref": "#/definitions/VimImagePropertyInfo"
-                    }
-                }
-            }
-        },
-        "VimImagePropertyInfo": {
-            "type": "object",
-            "properties": {
-                "keyName": {
-                    "type": "string",
-                    "description": "property name"
-                },
-                "value": {
-                    "type": "string",
-                    "description": "property value"
                 }
             }
         },
