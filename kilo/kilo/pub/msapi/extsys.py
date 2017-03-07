@@ -12,6 +12,7 @@
 import json
 import logging
 
+from rest_framework import status
 from kilo.pub.exceptions import VimDriverKiloException
 from kilo.pub.utils.restcall import req_by_msb
 
@@ -19,16 +20,20 @@ logger = logging.getLogger(__name__)
 
 
 def get_vims():
-    ret = req_by_msb("/openoapi/extsys/v1/vims", "GET")
-    if ret[0] != 0:
-        logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
-        raise VimDrvierKiloException("Failed to query VIMs from extsys.")
-    return json.JSONDecoder().decode(ret[1])
+    retcode, content, status_code = \
+        req_by_msb("/openoapi/extsys/v1/vims", "GET")
+    if retcode != 0:
+        logger.error("Status code is %s, detail is %s.", status_code, content)
+        raise VimDriverKiloException("Failed to query VIMs from extsys.")
+    return json.JSONDecoder().decode(content)
 
 
 def get_vim_by_id(vim_id):
-    ret = req_by_msb("/openoapi/extsys/v1/vims/%s" % vim_id, "GET")
-    if ret[0] != 0:
-        logger.error("Status code is %s, detail is %s.", ret[2], ret[1])
-        raise VimDrvierKiloException("Failed to query VIM with id (%s) from extsys." % vim_id)
-    return json.JSONDecoder().decode(ret[1])
+    retcode, content, status_code = \
+        req_by_msb("/openoapi/extsys/v1/vims/%s" % vim_id, "GET")
+    if retcode != 0:
+        logger.error("Status code is %s, detail is %s.", status_code, content)
+        raise VimDriverKiloException(
+            "Failed to query VIM with id (%s) from extsys." % vim_id,
+            status.HTTP_404_NOT_FOUND, content)
+    return json.JSONDecoder().decode(content)

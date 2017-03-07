@@ -8,11 +8,3 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
-
-class VimDriverKiloException(Exception):
-    def __init__(self, message, status_code="", content=""):
-        super(VimDriverKiloException, self).__init__(message)
-        self.status_code = status_code
-        self.content = content
-    pass
