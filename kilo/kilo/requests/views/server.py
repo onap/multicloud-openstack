@@ -229,6 +229,7 @@ class Servers(APIView):
                 "returnCode": 1,
             }
             resp_body.update(vim_dict)
+            resp_body["boot"] = boot
             resp_body["volumeArray"] = volumearray
             resp_body["nicArray"] = nicarray
             resp_body["contextArray"] = contextarray
