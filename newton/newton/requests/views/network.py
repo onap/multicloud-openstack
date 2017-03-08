@@ -41,7 +41,8 @@ class Networks(APIView):
     def get(self, request, vimid="", tenantid="", networkid=""):
         logger.debug("Networks--get::> %s" % request.data)
         try:
-            content, status_code = self.get_networks(request, vimid, tenantid, networkid)
+            query = VimDriverUtils.get_query_part(request)
+            content, status_code = self.get_networks(query, vimid, tenantid, networkid)
             return Response(data=content, status=status_code)
 
         except VimDriverNewtonException as e:
@@ -50,14 +51,14 @@ class Networks(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_networks(self, request, vimid="", tenantid="", networkid=""):
+    def get_networks(self, query, vimid="", tenantid="", networkid=""):
         logger.debug("Networks--get_networks::> %s" % networkid)
 
         # prepare request resource to vim instance
         req_resouce = "v2.0/networks"
         if networkid:
             req_resouce += "/%s" % networkid
-        query = VimDriverUtils.get_query_part(request)
+
         if query:
             req_resouce += "?%s" % query
 
@@ -90,7 +91,8 @@ class Networks(APIView):
         logger.debug("Networks--post::> %s" % request.data)
         try:
             #check if created already: check name
-            content, status_code = self.get_networks(request, vimid, tenantid)
+            query = "name=%s" % request.data["name"]
+            content, status_code = self.get_networks(query, vimid, tenantid)
             existed = False
             if status_code == 200:
                 for network in content["networks"]:
@@ -107,11 +109,6 @@ class Networks(APIView):
 
             # prepare request resource to vim instance
             req_resouce = "v2.0/networks"
-            if networkid:
-                req_resouce += "/%s" % networkid
-            query = VimDriverUtils.get_query_part(request)
-            if query:
-                req_resouce += "?%s" % query
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
