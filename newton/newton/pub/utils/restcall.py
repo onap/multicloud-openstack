@@ -36,8 +36,8 @@ logger = logging.getLogger(__name__)
 def call_req(base_url, user, passwd, auth_type,
              resource, method, extra_headers='', content=''):
     callid = str(uuid.uuid1())
-    logger.debug("[%s]call_req('%s','%s','%s',%s,'%s','%s','%s')" % (
-        callid, base_url, user, passwd, auth_type, resource, method, content))
+#    logger.debug("[%s]call_req('%s','%s','%s',%s,'%s','%s','%s')" % (
+#        callid, base_url, user, passwd, auth_type, resource, method, content))
     ret = None
     resp_status = None
     try:
@@ -65,15 +65,15 @@ def call_req(base_url, user, passwd, auth_type,
                                                   headers=headers)
                 resp_status, resp_body = \
                     resp['status'], resp_content.decode('UTF-8')
-                logger.debug("[%s][%d]status=%s,resp_body=%s)" %
-                             (callid, retry_times, resp_status, resp_body))
+#                logger.debug("[%s][%d]status=%s,resp_body=%s)" %
+#                             (callid, retry_times, resp_status, resp_body))
                 if resp_status in status_ok_list:
                     ret = [0, resp_body, resp_status]
                 else:
                     ret = [1, resp_body, resp_status]
                 break
             except httplib.ResponseNotReady:
-                logger.debug("retry_times=%d", retry_times)
+#                logger.debug("retry_times=%d", retry_times)
                 ret = [1, "Unable to connect to %s" % full_url, resp_status]
                 continue
     except urllib2.URLError as err:
@@ -85,13 +85,13 @@ def call_req(base_url, user, passwd, auth_type,
             resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
         ret = [3, str(sys.exc_info()), resp_status]
 
-    logger.debug("[%s]ret=%s" % (callid, str(ret)))
+#    logger.debug("[%s]ret=%s" % (callid, str(ret)))
     return ret
 
 
 def req_by_msb(resource, method, content=''):
     base_url = "http://%s:%s/" % (MSB_SERVICE_IP, MSB_SERVICE_PORT)
-    logger.debug("Networks--get::> %s" % "33")
+#    logger.debug("requests--get::> %s" % "33")
     return call_req(base_url, "", "", rest_no_auth,
                     resource, method, "", content)
 
