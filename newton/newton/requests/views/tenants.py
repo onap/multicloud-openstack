@@ -44,9 +44,9 @@ class Tenants(APIView):
             if '/v2' in vim["url"]:
                 req_resouce = "/v2.0/tenants"
             elif '/v3' in vim["url"]:
-                req_resouce = "/v3/projects"
+                req_resouce = "/projects"
             else:
-                req_resouce = "/v3/projects"
+                req_resouce = "/projects"
 
             sess = VimDriverUtils.get_session(vim)
             resp = sess.get(req_resouce, endpoint_filter=self.service)
