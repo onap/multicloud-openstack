@@ -249,9 +249,9 @@
                     "type": "integer",
                     "description": "volume size"
                 },
-                "imageName": {
+                "imageId": {
                     "type": "string",
-                    "description": "image name to create volume"
+                    "description": "image UUID to create volume"
                 },
                 "volumeType": {
                     "type": "string",
