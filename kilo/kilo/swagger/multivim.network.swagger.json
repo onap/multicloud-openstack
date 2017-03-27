@@ -51,7 +51,7 @@
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "successful operation",
                         "schema": {
                             "$ref": "#/definitions/VimNetworkInfo"

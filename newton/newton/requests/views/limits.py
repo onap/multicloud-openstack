@@ -34,6 +34,10 @@ class Limits(APIView):
                'interface': 'public',
                'region_name': 'RegionOne'}
 
+    service_volume = {'service_type': 'volumev2',
+               'interface': 'public',
+               'region_name': 'RegionOne'}
+
     def get(self, request, vimid="", tenantid=""):
         logger.debug("Limits--get::> %s" % request.data)
         try:
@@ -59,6 +63,13 @@ class Limits(APIView):
             resp = sess.get(req_resouce, endpoint_filter=self.service_network)
             content = resp.json()
             content_all.update(content['quota'])
+
+            #now get volume limits
+            # prepare request resource to vim instance
+            req_resouce = "/limits"
+            resp = sess.get(req_resouce, endpoint_filter=self.service_volume)
+            content = resp.json()
+            content_all.update(content['limits']['absolute'])
 
             return Response(data=content_all, status=resp.status_code)
         except VimDriverNewtonException as e:
