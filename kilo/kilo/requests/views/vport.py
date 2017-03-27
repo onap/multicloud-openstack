@@ -13,6 +13,7 @@
 # limitations under the License.
 import logging
 import json
+import traceback
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -43,30 +44,33 @@ class Vports(APIView):
         logger.debug("Ports--get::> %s" % request.data)
         try:
             # prepare request resource to vim instance
-            vim = VimDriverUtils.get_vim_info(vimid)
-            sess = VimDriverUtils.get_session(vim, tenantid)
-
-            content, status_code = self.get_ports(sess, request, vim, tenantid, portid)
+            query = VimDriverUtils.get_query_part(request)
+            content, status_code = self.get_ports(query, vimid, tenantid, portid)
 
             return Response(data=content, status=status_code)
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-    def get_ports(self, sess, request, vim, tenantid, portid=""):
+    def get_ports(self, query="", vimid="", tenantid="", portid=""):
         logger.debug("Ports--get_ports::> %s" % portid)
+        vim = VimDriverUtils.get_vim_info(vimid)
+        sess = VimDriverUtils.get_session(vim, tenantid)
+
         if sess:
             # prepare request resource to vim instance
             req_resouce = "v2.0/ports"
             if portid:
                 req_resouce += "/%s" % portid
 
-            query = VimDriverUtils.get_query_part(request)
             if query:
                 req_resouce += "?%s" % query
+
+            vim = VimDriverUtils.get_vim_info(vimid)
+            sess = VimDriverUtils.get_session(vim, tenantid)
             resp = sess.get(req_resouce, endpoint_filter=self.service)
             content = resp.json()
             vim_dict = {
@@ -80,18 +84,16 @@ class Vports(APIView):
                 # convert the key naming in ports
                 for port in content["ports"]:
                     # use only 1st entry of fixed_ips
-                    if port:
-                        tmpips = port.pop("fixed_ips", None)
-                        port.update(tmpips[0])
+                    tmpips = port.pop("fixed_ips", None) if port else None
+                    port.update(tmpips[0]) if tmpips and len(tmpips) > 0 else None
                     VimDriverUtils.replace_key_by_mapping(port,
                                                           self.keys_mapping)
             else:
                 # convert the key naming in the port specified by id
                 port = content.pop("port", None)
                 #use only 1st entry of fixed_ips
-                if port:
-                    tmpips = port.pop("fixed_ips", None)
-                    port.update(tmpips[0])
+                tmpips = port.pop("fixed_ips", None) if port else None
+                port.update(tmpips[0]) if tmpips and len(tmpips) > 0 else None
 
                 VimDriverUtils.replace_key_by_mapping(port,
                                                       self.keys_mapping)
@@ -102,12 +104,9 @@ class Vports(APIView):
     def post(self, request, vimid="", tenantid="", portid=""):
         logger.debug("Ports--post::> %s" % request.data)
         try:
-            # prepare request resource to vim instance
-            vim = VimDriverUtils.get_vim_info(vimid)
-            sess = VimDriverUtils.get_session(vim, tenantid)
-
             #check if already created: name
-            content, status_code = self.get_ports(sess, request, vim, tenantid)
+            query = "name=%s" % request.data["name"]
+            content, status_code = self.get_ports(query, vimid, tenantid, portid)
             existed = False
             if status_code == 200:
                 for port in content["ports"]:
@@ -123,15 +122,18 @@ class Vports(APIView):
                     return Response(data=port, status=status_code)
 
             #otherwise create a new one
-            return self.create_port(sess, request, vim, tenantid)
+            return self.create_port(request, vimid, tenantid)
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def create_port(self, sess, request, vim, tenantid):
+    def create_port(self, request, vimid, tenantid):
         logger.debug("Ports--create::> %s" % request.data)
+        vim = VimDriverUtils.get_vim_info(vimid)
+        sess = VimDriverUtils.get_session(vim, tenantid)
         if sess:
             # prepare request resource to vim instance
             req_resouce = "v2.0/ports"
@@ -156,7 +158,7 @@ class Vports(APIView):
             resp_body = resp.json()["port"]
             #use only 1 fixed_ip
             tmpips = resp_body.pop("fixed_ips", None)
-            if tmpips:
+            if tmpips and len(tmpips) > 0:
                 resp_body.update(tmpips[0])
 
             VimDriverUtils.replace_key_by_mapping(resp_body, self.keys_mapping)
@@ -188,6 +190,7 @@ class Vports(APIView):
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         pass

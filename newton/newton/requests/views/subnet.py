@@ -13,6 +13,7 @@
 # limitations under the License.
 import logging
 import json
+import traceback
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -50,6 +51,7 @@ class Subnets(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -133,6 +135,7 @@ class Subnets(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         pass
@@ -155,6 +158,7 @@ class Subnets(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         pass

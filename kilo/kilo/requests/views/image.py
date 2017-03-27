@@ -15,6 +15,7 @@ import logging
 import json
 import urllib2
 import threading
+import traceback
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -65,6 +66,7 @@ class imageThread (threading.Thread):
             logger.debug("response status code of transfer_image %s" % resp.status_code)
             return None
         except Exception as e:
+            logger.error(traceback.format_exc())
             logger.debug("Failed to transfer_image:%s" % str(e))
             return None
         pass
@@ -89,6 +91,7 @@ class Images(APIView):
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -201,6 +204,7 @@ class Images(APIView):
             return Response(data={'error': 'image is not accessible:%s' % str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         pass
@@ -220,6 +224,7 @@ class Images(APIView):
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         pass

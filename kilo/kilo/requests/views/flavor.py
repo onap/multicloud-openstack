@@ -13,6 +13,7 @@
 # limitations under the License.
 import logging
 import json
+import traceback
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -118,6 +119,7 @@ class Flavors(APIView):
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         pass
@@ -240,6 +242,8 @@ class Flavors(APIView):
 
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
+
             if sess and resp and resp.status_code == 200:
                 self.delete_flavor(sess, flavorid)
 
@@ -306,6 +310,7 @@ class Flavors(APIView):
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except Exception as e:
+            logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         pass
