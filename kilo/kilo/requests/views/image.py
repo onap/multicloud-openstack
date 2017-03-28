@@ -16,7 +16,7 @@ import json
 import urllib2
 import threading
 import traceback
-
+from keystoneauth1.exceptions import HttpError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -65,6 +65,9 @@ class imageThread (threading.Thread):
 
             logger.debug("response status code of transfer_image %s" % resp.status_code)
             return None
+        except HttpError as e:
+            logger.error("transfer_image, HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return None
         except Exception as e:
             logger.error(traceback.format_exc())
             logger.debug("Failed to transfer_image:%s" % str(e))
@@ -90,6 +93,9 @@ class Images(APIView):
             return Response(data=content, status=status_code)
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
@@ -203,6 +209,9 @@ class Images(APIView):
         except urllib2.URLError as e:
             return Response(data={'error': 'image is not accessible:%s' % str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except HttpError as e:
+            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
@@ -223,6 +232,9 @@ class Images(APIView):
             return Response(status=resp.status_code)
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},

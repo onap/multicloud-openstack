@@ -14,7 +14,7 @@
 import logging
 import json
 import traceback
-
+from keystoneauth1.exceptions import HttpError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -50,6 +50,9 @@ class Vports(APIView):
             return Response(data=content, status=status_code)
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
@@ -125,6 +128,9 @@ class Vports(APIView):
             return self.create_port(request, vimid, tenantid)
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
@@ -189,6 +195,9 @@ class Vports(APIView):
             return Response(status=resp.status_code)
         except VimDriverKiloException as e:
             return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
