@@ -135,7 +135,8 @@ class Servers(APIView):
         logger.debug("Servers--post::> %s" % request.data)
         try:
             # check if created already: check name
-            query = "name=%s" % request.data["name"]
+            servername = request.data["name"]
+            query = "name=%s" % servername
             content, status_code = self.get_servers(query, vimid, tenantid)
             existed = False
             if status_code == 200:
@@ -234,6 +235,7 @@ class Servers(APIView):
             resp_body["volumeArray"] = volumearray
             resp_body["nicArray"] = nicarray
             resp_body["contextArray"] = contextarray
+            resp_body["name"] = servername
             return Response(data=resp_body, status=resp.status_code)
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
