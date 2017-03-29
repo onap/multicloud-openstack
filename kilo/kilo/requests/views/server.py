@@ -13,6 +13,8 @@
 # limitations under the License.
 import logging
 import json
+import urllib2
+import threading
 import traceback
 from keystoneauth1.exceptions import HttpError
 from rest_framework import status
@@ -26,6 +28,104 @@ from util import VimDriverUtils
 logger = logging.getLogger(__name__)
 
 
+running_threads = {}
+running_thread_lock = threading.Lock()
+
+#assume volume is attached on server creation
+class serverThread (threading.Thread):
+    service = {'service_type': 'compute',
+               'interface': 'public',
+               'region_name': 'RegionOne'}
+    def __init__(self, vimid, tenantid, serverid, is_attach, *volumeids):
+        threading.Thread.__init__(self)
+        self.vimid = vimid
+        self.tenantid = tenantid
+        self.serverid = serverid
+        self.volumeids = volumeids
+        self.is_attach = is_attach
+
+    def run(self):
+        logger.debug("start server thread %s, %s, %s" % (self.vimid, self.tenantid, self.serverid))
+        if (self.is_attach):
+            self.attach_volume(self.vimid, self.tenantid, self.serverid, *self.volumeids)
+        else:
+            elf.detach_volume(self.vimid, self.tenantid, self.serverid, *self.volumeids)
+        logger.debug("stop server thread %s, %s, %s" % (self.vimid, self.tenantid, self.serverid))
+        running_thread_lock.acquire()
+        running_threads.pop(self.serverid)
+        running_thread_lock.release()
+
+    def attach_volume(self, vimid, tenantid, serverid, *volumeids):
+        logger.debug("Server--attach_volume::> %s, %s" % (serverid, volumeids))
+        try:
+            # prepare request resource to vim instance
+            vim = VimDriverUtils.get_vim_info(vimid)
+            sess = VimDriverUtils.get_session(vim, tenantid)
+
+            #check if server is ready to attach
+            logger.debug("Servers--attach_volume, wait for server to be ACTIVE::>%s" % serverid)
+            req_resouce = "servers/%s" % serverid
+            while True:
+                resp = sess.get(req_resouce, endpoint_filter=self.service)
+                content = resp.json()
+                if content and content["server"] and content["server"]["status"] == "ACTIVE":
+                    break;
+
+            for volumeid in volumeids:
+                req_resouce = "servers/%s/os-volume_attachments" % serverid
+                req_data = {"volumeAttachment": {
+                    "volumeId": volumeid
+                }}
+                logger.debug("Servers--attach_volume::>%s, %s" % (req_resouce, req_data))
+                req_body = json.JSONEncoder().encode(req_data)
+                resp = sess.post(req_resouce, data=req_body,
+                                 endpoint_filter=self.service,
+                                 headers={"Content-Type": "application/json",
+                                          "Accept": "application/json"})
+                logger.debug("Servers--attach_volume resp::>%s" % resp.json())
+
+            return None
+        except HttpError as e:
+            logger.error("attach_volume, HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return None
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            logger.debug("Failed to attach_volume:%s" % str(e))
+            return None
+        pass
+
+
+    def detach_volume(self, vimid, tenantid, serverid, *volumeids):
+        logger.debug("Server--detach_volume::> %s, %s" % (serverid, volumeids))
+        try:
+            # prepare request resource to vim instance
+            vim = VimDriverUtils.get_vim_info(vimid)
+            sess = VimDriverUtils.get_session(vim, tenantid)
+
+            #wait server to be ready to detach volume
+
+            # assume attachment id is the same as volume id
+            for volumeid in volumeids:
+                req_resouce = "servers/%s/os-volume_attachments/%s" % (serverid, volumeid)
+
+                logger.debug("Servers--dettachVolume::>%s" % (req_resouce))
+                resp = sess.delete(req_resouce,
+                                   endpoint_filter=self.service,
+                                   headers={"Content-Type": "application/json",
+                                            "Accept": "application/json"})
+
+                logger.debug("Servers--dettachVolume resp::>%s" % resp.json())
+
+            return None
+        except HttpError as e:
+            logger.error("detach_volume, HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return None
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            logger.debug("Failed to detach_volume:%s" % str(e))
+            return None
+        pass
+
 class Servers(APIView):
     service = {'service_type': 'compute',
                'interface': 'public',
@@ -36,24 +136,33 @@ class Servers(APIView):
         ("user_data", "userdata"),
         ("security_groups", "securityGroups"),
         ("availability_zone ", "availabilityZone"),
+        ("os-extended-volumes:volumes_attached", "volumeArray"),
     ]
 
-    service_volume = {'service_type': 'volumev2',
-                      'interface': 'public',
-                      'region_name': 'RegionOne'}
+    def attachVolume(self, vimid, tenantid, serverId, *volumeIds):
+        #has to be async mode to wait server is ready to attach volume
+        logger.debug("launch thread to attach volume: %s" % serverId)
+        tmp_thread = serverThread(vimid, tenantid, serverId, True, *volumeIds)
+        running_thread_lock.acquire()
+        running_threads[serverId] = tmp_thread
+        running_thread_lock.release()
+        tmp_thread.start()
+        pass
 
-    def attachVolume(self, sess, serverId, volumeId):
-        req_resouce = "volumes"
-        if volumeId:
-            req_resouce += "/%s/action" % volumeId
+    def dettachVolume(self, vimid, tenantid, serverId, *volumeIds):
+        # assume attachment id is the same as volume id
+        vim = VimDriverUtils.get_vim_info(vimid)
+        sess = VimDriverUtils.get_session(vim, tenantid)
 
-        req_data = {"os-attach": {
-            "instance_uuid": serverId
-        }}
-        req_body = json.JSONEncoder().encode(req_data)
-        resp = sess.post(req_resouce, data=req_body,
-                         endpoint_filter=self.service, headers={"Content-Type": "application/json",
-                                                                "Accept": "application/json"})
+        for volumeid in volumeIds:
+            req_resouce = "servers/%s/os-volume_attachments/%s" % (serverId, volumeid)
+            logger.debug("Servers--dettachVolume::>%s" % (req_resouce))
+            resp = sess.delete(req_resouce,
+                               endpoint_filter=self.service,
+                               headers={"Content-Type": "application/json",
+                                        "Accept": "application/json"})
+            logger.debug("Servers--dettachVolume resp status::>%s" % resp.status_code)
+
         pass
 
     def convertMetadata(self, metadata, mata_data, reverse=False):
@@ -69,6 +178,32 @@ class Servers(APIView):
                 metadata.append(spec)
 
     pass
+
+    def convert_resp(self, server):
+        #convert volumeArray
+        volumeArray = server.pop("volumeArray", None)
+        tmpVolumeArray = []
+        if volumeArray and len(volumeArray) > 0:
+            for vol in volumeArray:
+                tmpVolumeArray.append({"volumeId": vol["id"]})
+        server["volumeArray"] = tmpVolumeArray if len(tmpVolumeArray) > 0 else None
+
+        #convert flavor
+        flavor = server.pop("flavor", None)
+        server["flavorId"] = flavor["id"] if flavor else None
+
+        #convert nicArray
+
+        #convert boot
+        imageObj = server.pop("image", None)
+        imageId = imageObj.pop("id", None) if imageObj else None
+        if imageId:
+            server["boot"] = {"type":1, "imageId": imageId}
+        else:
+            server["boot"] = {"type":2, "volumeId":tmpVolumeArray.pop(0)["volumeId"] if len(tmpVolumeArray) > 0 else None}
+
+        #convert OS-EXT-AZ:availability_zone
+        server["availabilityZone"] = server.pop("OS-EXT-AZ:availability_zone", None)
 
     def get(self, request, vimid="", tenantid="", serverid=""):
         logger.debug("Servers--get::> %s" % request.data)
@@ -86,6 +221,7 @@ class Servers(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
     def get_servers(self, query="", vimid="", tenantid="", serverid=None):
         logger.debug("Servers--get_servers::> %s,%s" % (tenantid, serverid))
@@ -120,6 +256,7 @@ class Servers(APIView):
                     server["metadata"] = meta_data
                 VimDriverUtils.replace_key_by_mapping(server,
                                                       self.keys_mapping)
+                self.convert_resp(server)
         else:
             # convert the key naming in the server specified by id
             server = content.pop("server", None)
@@ -130,6 +267,7 @@ class Servers(APIView):
                 server["metadata"] = meta_data
             VimDriverUtils.replace_key_by_mapping(server,
                                                   self.keys_mapping)
+            self.convert_resp(server)
             content.update(server)
 
         return content, resp.status_code
@@ -169,10 +307,11 @@ class Servers(APIView):
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             if boot["type"] == 1:
                 # boot from volume
-                server["block_device_mapping_v2 "] = {"uuid": boot["volumeId"],
+                server["block_device_mapping_v2"] = [{"uuid": boot["volumeId"],
                                                       "source_type": "volume",
                                                       "destination_type": "volume",
-                                                      "delete_on_termination": "false"}
+                                                      "delete_on_termination": "false",
+                                                      "boot_index": "0"}]
             else:
                 # boot from image
                 server["imageRef"] = boot["imageId"]
@@ -210,16 +349,20 @@ class Servers(APIView):
                                                   self.keys_mapping, True)
             req_body = json.JSONEncoder().encode({"server": server})
             resp = sess.post(req_resouce, data=req_body,
-                             endpoint_filter=self.service, headers={"Content-Type": "application/json",
-                                                                    "Accept": "application/json"})
+                             endpoint_filter=self.service,
+                             headers={"Content-Type": "application/json",
+                                      "Accept": "application/json"})
 
             resp_body = resp.json().pop("server", None)
 
-            if resp.status_code == 201 and volumearray:
-                # server is created, now attach volumes
-                for volumeId in volumearray:
-                    self.attachVolume(sess, resp_body["id"], volumeId)
-                    pass
+            logger.debug("Servers--post status::>%s, %s" % (resp_body["id"], resp.status_code))
+            if resp.status_code == 200 or resp.status_code == 201 or resp.status_code == 202 :
+                if volumearray and len(volumearray) > 0:
+                    # server is created, now attach volumes
+                    volumeIds = [extraVolume["volumeId"] for extraVolume in volumearray]
+                    self.attachVolume(vimid, tenantid, resp_body["id"], *volumeIds)
+                pass
+            pass
 
             metadata = resp_body.pop("metadata", None)
             if metadata:
@@ -256,12 +399,21 @@ class Servers(APIView):
         logger.debug("Servers--delete::> %s" % request.data)
         try:
             # prepare request resource to vim instance
+            vim = VimDriverUtils.get_vim_info(vimid)
+            sess = VimDriverUtils.get_session(vim, tenantid)
+
+            #check and dettach them if volumes attached to server
+            server, status_code = self.get_servers("", vimid, tenantid, serverid)
+            volumearray = server.pop("volumeArray", None)
+            if volumearray and len(volumearray) > 0:
+                volumeIds = [extraVolume["volumeId"] for extraVolume in volumearray]
+                self.dettachVolume(vimid, tenantid, serverid, *volumeIds)
+
+            #delete server now
             req_resouce = "servers"
             if serverid:
                 req_resouce += "/%s" % serverid
 
-            vim = VimDriverUtils.get_vim_info(vimid)
-            sess = VimDriverUtils.get_session(vim, tenantid)
             resp = sess.delete(req_resouce, endpoint_filter=self.service)
             return Response(status=resp.status_code)
         except VimDriverKiloException as e:
