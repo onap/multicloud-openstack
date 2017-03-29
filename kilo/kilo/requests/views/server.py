@@ -198,9 +198,9 @@ class Servers(APIView):
         imageObj = server.pop("image", None)
         imageId = imageObj.pop("id", None) if imageObj else None
         if imageId:
-            server["boot"] = {"type":1, "imageId": imageId}
+            server["boot"] = {"type":2, "imageId": imageId}
         else:
-            server["boot"] = {"type":2, "volumeId":tmpVolumeArray.pop(0)["volumeId"] if len(tmpVolumeArray) > 0 else None}
+            server["boot"] = {"type":1, "volumeId":tmpVolumeArray.pop(0)["volumeId"] if len(tmpVolumeArray) > 0 else None}
 
         #convert OS-EXT-AZ:availability_zone
         server["availabilityZone"] = server.pop("OS-EXT-AZ:availability_zone", None)
@@ -222,6 +222,17 @@ class Servers(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    def get_ports(self, vimid="", tenantid="", serverid=None):
+        # query attached ports
+        vim = VimDriverUtils.get_vim_info(vimid)
+        sess = VimDriverUtils.get_session(vim, tenantid)
+        req_resouce = "servers/%s/os-interface" % serverid
+        resp = sess.get(req_resouce, endpoint_filter=self.service)
+        ports = resp.json()
+        if ports and ports["interfaceAttachments"] and len(ports["interfaceAttachments"]) > 0:
+            return [{"portId":port["port_id"]} for port in ports["interfaceAttachments"]]
+        else:
+            return None
 
     def get_servers(self, query="", vimid="", tenantid="", serverid=None):
         logger.debug("Servers--get_servers::> %s,%s" % (tenantid, serverid))
@@ -257,6 +268,8 @@ class Servers(APIView):
                 VimDriverUtils.replace_key_by_mapping(server,
                                                       self.keys_mapping)
                 self.convert_resp(server)
+                server["nicArray"] = self.get_ports(vimid, tenantid, server["id"])
+
         else:
             # convert the key naming in the server specified by id
             server = content.pop("server", None)
@@ -268,6 +281,7 @@ class Servers(APIView):
             VimDriverUtils.replace_key_by_mapping(server,
                                                   self.keys_mapping)
             self.convert_resp(server)
+            server["nicArray"] = self.get_ports(vimid, tenantid, serverid)
             content.update(server)
 
         return content, resp.status_code
