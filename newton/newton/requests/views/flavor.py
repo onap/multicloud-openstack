@@ -330,6 +330,7 @@ class Flavors(APIView):
         extra_specs = resp.json()
         if extra_specs and extra_specs["extra_specs"]:
             for k, _ in extra_specs["extra_specs"].items():
+                # just try to delete extra spec, but do not care if succeeded
                 self.delete_flavor_one_extra_spec(sess, flavorid, k)
         return resp
         pass
@@ -337,17 +338,25 @@ class Flavors(APIView):
     def delete_flavor_one_extra_spec(self, sess, flavorid, extra_spec_key):
         logger.debug("Flavors--delete  1 extra::> %s" % extra_spec_key)
         # prepare request resource to vim instance
-        req_resouce = "/flavors"
-        if flavorid and extra_spec_key:
-            req_resouce += "/%s" % flavorid
-            req_resouce += "/os-extra_specs/%s" % extra_spec_key
-        else:
-            raise VimDriverNewtonException(message="VIM newton exception",
-                   content="internal bug in deleting flavor extra specs: %s" % extra_spec_key,
-                   status_code=500)
+        try:
+            req_resouce = "/flavors"
+            if flavorid and extra_spec_key:
+                req_resouce += "/%s" % flavorid
+                req_resouce += "/os-extra_specs/%s" % extra_spec_key
+            else:
+                raise VimDriverNewtonException(message="VIM newton exception",
+                       content="internal bug in deleting flavor extra specs: %s" % extra_spec_key,
+                       status_code=500)
 
-        resp = sess.delete(req_resouce, endpoint_filter=self.service)
-        return resp
+            resp = sess.delete(req_resouce, endpoint_filter=self.service)
+            return resp
+        except HttpError as e:
+            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         pass
 
 
