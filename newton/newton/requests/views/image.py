@@ -32,8 +32,7 @@ running_thread_lock = threading.Lock()
 
 class imageThread (threading.Thread):
     service = {'service_type': 'image',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
     def __init__(self, vimid, tenantid, imageid, imagefd):
         threading.Thread.__init__(self)
         self.vimid = vimid
@@ -76,8 +75,7 @@ class imageThread (threading.Thread):
 
 class Images(APIView):
     service = {'service_type': 'image',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
     keys_mapping = [
         ("project_id", "tenantId"),
         ("disk_format", "imageType"),

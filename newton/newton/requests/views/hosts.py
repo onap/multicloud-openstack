@@ -28,8 +28,7 @@ logger = logging.getLogger(__name__)
 
 class Hosts(APIView):
     service = {'service_type': 'compute',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
 
     hosts_keys_mapping = [
         ("host_name", "name"),

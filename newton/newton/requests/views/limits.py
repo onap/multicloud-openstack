@@ -28,16 +28,13 @@ logger = logging.getLogger(__name__)
 
 class Limits(APIView):
     service = {'service_type': 'compute',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
 
     service_network = {'service_type': 'network',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
 
     service_volume = {'service_type': 'volumev2',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
 
     def get(self, request, vimid="", tenantid=""):
         logger.debug("Limits--get::> %s" % request.data)

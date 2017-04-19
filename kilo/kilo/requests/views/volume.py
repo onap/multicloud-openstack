@@ -28,8 +28,7 @@ logger = logging.getLogger(__name__)
 
 class Volumes(APIView):
     service = {'service_type': 'volumev2',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
     keys_mapping = [
         ("project_id", "tenantId"),
         ("created_at", "createTime"),

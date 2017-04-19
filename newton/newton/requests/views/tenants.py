@@ -29,8 +29,7 @@ DEBUG=True
 
 class Tenants(APIView):
     service = {'service_type': 'identity',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
     keys_mapping = [
         ("projects", "tenants"),
     ]

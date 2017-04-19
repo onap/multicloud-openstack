@@ -34,8 +34,7 @@ running_thread_lock = threading.Lock()
 #assume volume is attached on server creation
 class serverThread (threading.Thread):
     service = {'service_type': 'compute',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
     def __init__(self, vimid, tenantid, serverid, is_attach, *volumeids):
         threading.Thread.__init__(self)
         self.vimid = vimid
@@ -128,8 +127,7 @@ class serverThread (threading.Thread):
 
 class Servers(APIView):
     service = {'service_type': 'compute',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
     keys_mapping = [
         ("tenant_id", "tenantId"),
         ("flavorRef", "flavorId"),

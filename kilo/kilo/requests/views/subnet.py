@@ -28,8 +28,7 @@ logger = logging.getLogger(__name__)
 
 class Subnets(APIView):
     service = {'service_type': 'network',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
     keys_mapping = [
         ("project_id", "tenantId"),
         ("network_id", "networkId"),

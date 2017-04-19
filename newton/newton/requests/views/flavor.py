@@ -28,8 +28,7 @@ logger = logging.getLogger(__name__)
 
 class Flavors(APIView):
     service = {'service_type': 'compute',
-               'interface': 'public',
-               'region_name': 'RegionOne'}
+               'interface': 'public'}
     keys_mapping = [
         ("project_id", "tenantId"),
         ("ram", "memory"),
