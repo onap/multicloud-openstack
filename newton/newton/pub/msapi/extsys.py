@@ -11,6 +11,7 @@
 
 import json
 import logging
+import re
 
 from rest_framework import status
 from newton.pub.exceptions import VimDriverNewtonException
@@ -18,22 +19,30 @@ from newton.pub.utils.restcall import req_by_msb
 
 logger = logging.getLogger(__name__)
 
-
 def get_vims():
     retcode, content, status_code = \
-        req_by_msb("/openoapi/extsys/v1/vims", "GET")
+        req_by_msb("/api/aai-cloudInfrastructure/v1/cloud-infrastructure/cloud-regions", "GET")
     if retcode != 0:
         logger.error("Status code is %s, detail is %s.", status_code, content)
         raise VimDriverNewtonException("Failed to query VIMs from extsys.")
     return json.JSONDecoder().decode(content)
 
-
 def get_vim_by_id(vim_id):
-    retcode, content, status_code = \
-        req_by_msb("/openoapi/extsys/v1/vims/%s" % vim_id, "GET")
-    if retcode != 0:
-        logger.error("Status code is %s, detail is %s.", status_code, content)
-        raise VimDriverNewtonException(
-            "Failed to query VIM with id (%s) from extsys." % vim_id,
-            status.HTTP_404_NOT_FOUND, content)
-    return json.JSONDecoder().decode(content)
+
+    m = re.search(r'^([0-9a-zA-Z-]+)_([0-9a-zA-Z_-]+)$', vim_id)
+    cloud_owner,cloud_region_id = m.group(1),m.group(2)
+
+    if cloud_owner and cloud_region_id:
+        retcode, content, status_code = \
+            req_by_msb("/api/aai-cloudInfrastructure/v1/cloud-infrastructure/cloud-regions/cloud-region/%s/%s" % (cloud_owner,cloud_region_id), "GET")
+        if retcode != 0:
+            logger.error("Status code is %s, detail is %s.", status_code, content)
+            raise VimDriverNewtonException(
+                "Failed to query VIM with id (%s:%s,%s) from extsys." % (vim_id,cloud_owner,cloud_region_id),
+                status.HTTP_404_NOT_FOUND, content)
+        return json.JSONDecoder().decode(content)
+    else:
+        return None
+
+
+

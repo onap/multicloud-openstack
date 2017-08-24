@@ -13,6 +13,11 @@
 # limitations under the License.
 import logging
 
+import datetime
+
+from django.core.cache import cache
+
+from keystoneauth1 import _utils as utils
 from keystoneauth1.identity import v2 as keystone_v2
 from keystoneauth1.identity import v3 as keystone_v3
 from keystoneauth1 import session
@@ -39,9 +44,9 @@ class VimDriverUtils(object):
         return query
 
     @staticmethod
-    def get_session(vim, tenantid=None):
+    def get_session(vim, tenantid=None, auth_state=None):
         """
-        get vim info from ESR and create auth plugin and session object
+        get session object and optionally preload auth_state
         """
         auth = None
         if '/v2' in vim["url"]:
@@ -56,7 +61,43 @@ class VimDriverUtils(object):
                                         project_name=vim["tenant"],
                                         user_domain_id='default',
                                         project_domain_id='default')
+
+        #preload auth_state which was acquired in last requests
+        if auth_state:
+           auth.set_auth_state(auth_state)
+
         return session.Session(auth=auth)
+
+
+    @staticmethod
+    def get_auth_state(vim, session):
+        auth = session._auth_required(None, 'fetch a token')
+        if not auth:
+            return None
+
+        #trigger the authenticate request
+        session.get_auth_headers(auth)
+
+#        norm_expires = utils.normalize_time(auth.expires)
+
+        #return a string dump of json object with token and resp_data of authentication request
+        return auth.get_auth_state()
+#        return auth.get_auth_ref(session)
+
+    @staticmethod
+    def update_token_cache(vim, session, old_token, auth_state):
+
+        tmp_auth_token = session.get_token()
+        #check if need to update token:auth_state mapping
+        if tmp_auth_token != old_token:
+            tmp_auth_state = cache.delete(old_token)
+
+        # store the auth_state, memcached
+        # set expiring in 1 hour
+        cache.set(tmp_auth_token, auth_state, 3600)
+
+        #return new token
+        return tmp_auth_token
 
     @staticmethod
     def replace_a_key(dict_obj, keypair, reverse=False):
