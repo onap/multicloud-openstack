@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_ce57bf01",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 399
+      },
+      "writtenOn": "2017-08-29T07:16:21Z",
+      "side": 1,
+      "message": "I think it\u0027s org.onap.multicloud.openstack",
+      "range": {
+        "startLine": 24,
+        "startChar": 13,
+        "endLine": 24,
+        "endChar": 46
+      },
+      "revId": "0ae1d7e83d5936383ee8077979fab489c6b5af76",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
