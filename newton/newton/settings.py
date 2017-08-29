@@ -66,13 +66,6 @@ REST_FRAMEWORK = {
     )
 }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
 TIME_ZONE = 'UTC'
 
 # Static files (CSS, JavaScript, Images)
@@ -110,14 +103,16 @@ LOGGING = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
 if 'test' in sys.argv:
     from newton.pub.config import config
-    config.REG_TO_MSB_WHEN_START = False
-    DATABASES = {}
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
-    }
+
     REST_FRAMEWORK = {}
     import platform
 

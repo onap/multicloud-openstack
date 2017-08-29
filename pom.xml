@@ -21,15 +21,14 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.openo.multivimdriver.openstack</groupId>
-    <artifactId>multivimdriver-openstack-root</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
-    <name>multivim-openstack</name>
+    <groupId>org.onap.multicloud.openstack</groupId>
+    <artifactId>multicloud-openstack-root</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>multicloud/openstack</name>
     <packaging>pom</packaging>
     
     <modules>
         <module>newton</module>
-        <module>kilo</module>
     </modules>
 
     <build>

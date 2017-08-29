@@ -50,5 +50,4 @@
         </fileSet>
     </fileSets>
     <baseDirectory>newton</baseDirectory>
-    <!--baseDirectory>multivimdriver-openstack/newton</baseDirectory-->
 </assembly>
