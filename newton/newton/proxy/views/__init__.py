@@ -8,15 +8,3 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
-from django.conf.urls import patterns, url
-from rest_framework.urlpatterns import format_suffix_patterns
-
-from newton.swagger import views
-from newton.swagger.views import SwaggerJsonView
-
-urlpatterns = [
-    url(r'^api/multicloud-newton/v0/swagger.json$', SwaggerJsonView.as_view()),
-]
-
-urlpatterns = format_suffix_patterns(urlpatterns)

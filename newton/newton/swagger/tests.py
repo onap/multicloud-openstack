@@ -23,7 +23,7 @@ class SampleViewTest(unittest.TestCase):
         pass
 
     def test_sample(self):
-        response = self.client.get("/openoapi/multivim-newton/v1/swagger.json")
+        response = self.client.get("/api/multicloud-newton/v0/swagger.json")
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
 #        resp_data = json.loads(response.content)
 #        self.assertEqual({"status": "active"}, resp_data)

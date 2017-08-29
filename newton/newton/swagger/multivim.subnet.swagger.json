@@ -4,7 +4,7 @@
         "version": "1.0.0",
         "title": "MultiVIM Service rest API"
     },
-    "basePath": "/openoapi/multivim/v1/",
+    "basePath": "/api/multicloud-newton/v0/",
     "tags": [
         {
             "name": "MultiVIM services"
