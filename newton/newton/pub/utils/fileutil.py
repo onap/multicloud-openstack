@@ -12,7 +12,7 @@ import os
 import shutil
 import logging
 import traceback
-import urllib2
+from six.moves import urllib
 
 logger = logging.getLogger(__name__)
 
