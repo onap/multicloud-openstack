@@ -15,8 +15,8 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from views import identityV3
-from views import services
+from newton.proxy.views import identityV3
+from newton.proxy.views import services
 
 urlpatterns = [
     #    url(r'^identity/v2)$',

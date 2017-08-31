@@ -15,8 +15,8 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from views import extensions
-from views import epacaps
+from newton.extensions.views import extensions
+from newton.extensions.views import epacaps
 
 urlpatterns = [
     url(r'^sions$', extensions.Extensions.as_view()),

@@ -13,7 +13,7 @@
 # limitations under the License.
 import logging
 import json
-import urllib2
+from six.moves import urllib
 import threading
 import traceback
 from keystoneauth1.exceptions import HttpError
@@ -23,7 +23,7 @@ from rest_framework.views import APIView
 
 from newton.pub.exceptions import VimDriverNewtonException
 
-from util import VimDriverUtils
+from newton.requests.views.util import VimDriverUtils
 
 logger = logging.getLogger(__name__)
 
