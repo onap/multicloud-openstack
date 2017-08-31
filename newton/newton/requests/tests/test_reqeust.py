@@ -16,11 +16,5 @@ from django.test import TestCase
 
 
 class TestNetworksRequest(TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def assert_true_result(self):
         self.assertTrue(1)

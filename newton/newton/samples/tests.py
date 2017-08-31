@@ -19,9 +19,6 @@ class SampleViewTest(unittest.TestCase):
     def setUp(self):
         self.client = Client()
 
-    def tearDown(self):
-        pass
-
     def test_sample(self):
         response = self.client.get("/samples/")
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)

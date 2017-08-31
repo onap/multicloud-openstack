@@ -491,10 +491,6 @@ mock_auth_state = {
 class TestIdentityService(unittest.TestCase):
     def setUp(self):
         self.client = Client()
-        pass
-
-    def tearDown(self):
-        pass
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -529,5 +525,3 @@ class TestIdentityService(unittest.TestCase):
 
         self.assertTrue(response['X-Subject-Token'] != None)
         self.assertTrue(context['token']['catalog'] != None)
-
-        pass

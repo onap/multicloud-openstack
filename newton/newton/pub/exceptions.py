@@ -15,4 +15,3 @@ class VimDriverNewtonException(Exception):
         super(VimDriverNewtonException, self).__init__(message)
         self.status_code = status_code
         self.content = content
-        pass

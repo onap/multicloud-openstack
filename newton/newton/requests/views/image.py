@@ -71,7 +71,6 @@ class imageThread (threading.Thread):
             logger.error(traceback.format_exc())
             logger.error("Failed to transfer_image:%s" % str(e))
             return None
-        pass
 
 class Images(APIView):
     service = {'service_type': 'image',
@@ -146,7 +145,6 @@ class Images(APIView):
                     if image["name"] == request.data["name"]:
                         existed = True
                         break
-                    pass
                 if existed == True:
                     vim_dict = {
                         "returnCode": 0,
@@ -199,7 +197,6 @@ class Images(APIView):
                 tmp_thread.start()
             else:
                 logger.debug("resp.status_code: %s" % resp.status_code)
-                pass
 
             return Response(data=resp_body, status=resp.status_code)
         except VimDriverNewtonException as e:
@@ -214,7 +211,6 @@ class Images(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass
 
     def delete(self, request, vimid="", tenantid="", imageid=""):
         logger.debug("Images--delete::> %s" % request.data)
@@ -237,4 +233,3 @@ class Images(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass

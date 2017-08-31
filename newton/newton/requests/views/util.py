@@ -88,7 +88,6 @@ class VimDriverUtils(object):
         else:
             #something wrong
             return None
-            pass
 
         #preload auth_state which was acquired in last requests
         if auth_state:
