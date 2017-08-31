@@ -5,3 +5,6 @@
 target/
 logs/*.log
 *.pyc
+.tox
+.coverage
+htmlcov/

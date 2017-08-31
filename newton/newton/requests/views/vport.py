@@ -21,7 +21,7 @@ from rest_framework.views import APIView
 
 from newton.pub.exceptions import VimDriverNewtonException
 
-from util import VimDriverUtils
+from newton.requests.views.util import VimDriverUtils
 
 logger = logging.getLogger(__name__)
 

@@ -83,7 +83,7 @@ class SwaggerJsonView(APIView):
         f.close()
         json_data["paths"].update(json_data_temp["paths"])
         json_data["definitions"].update(json_data_temp["definitions"])
-	json_data["basePath"] = "/api/multicloud-newton/v0/"
-	json_data["info"]["title"] = "MultiVIM driver of OpenStack Newton Service NBI"
+        json_data["basePath"] = "/api/multicloud-newton/v0/"
+        json_data["info"]["title"] = "MultiVIM driver of OpenStack Newton Service NBI"
         return Response(json_data)
 

@@ -15,15 +15,15 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from views import network
-from views import subnet
-from views import image
-from views import volume
-from views import server
-from views import vport
-from views import limits
-from views import hosts
-from views import flavor
+from newton.requests.views import network
+from newton.requests.views import subnet
+from newton.requests.views import image
+from newton.requests.views import volume
+from newton.requests.views import server
+from newton.requests.views import vport
+from newton.requests.views import limits
+from newton.requests.views import hosts
+from newton.requests.views import flavor
 
 urlpatterns = [
     url(r'^networks(/(?P<networkid>[0-9a-zA-Z_-]+))?',

@@ -12,9 +12,9 @@
 import sys
 import traceback
 import logging
-import urllib2
+from six.moves import urllib
 import uuid
-import httplib
+from six.moves import http_client
 import httplib2
 
 from rest_framework import status

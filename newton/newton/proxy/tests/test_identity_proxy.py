@@ -525,7 +525,7 @@ class TestIdentityService(unittest.TestCase):
         data ={}
         response = self.client.post("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens", data=data, format='json')
         self.failUnlessEqual(status.HTTP_201_CREATED, response.status_code)
-        context = json.loads(response.content)
+        context = response.json()
 
         self.assertTrue(response['X-Subject-Token'] != None)
         self.assertTrue(context['token']['catalog'] != None)
