@@ -103,7 +103,6 @@ class Networks(APIView):
                     if network["name"] == request.data["name"]:
                         existed = True
                         break
-                    pass
                 if existed == True:
                     vim_dict = {
                         "returnCode": 0,
@@ -141,7 +140,6 @@ class Networks(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass
 
     def delete(self, request, vimid="", tenantid="", networkid=""):
         logger.debug("Networks--delete::> %s" % request.data)
@@ -167,7 +165,6 @@ class Networks(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass
 
 
 class Subnets(APIView):

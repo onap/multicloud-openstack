@@ -505,10 +505,6 @@ class mock_catalog_response_specs(object):
 class TestIdentityService(unittest.TestCase):
     def setUp(self):
         self.client = Client()
-        pass
-
-    def tearDown(self):
-        pass
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -543,10 +539,6 @@ class TestIdentityService(unittest.TestCase):
 
         self.assertTrue(response['X-Subject-Token'] == mock_token_id)
         self.assertTrue(context['token']['catalog'] != None)
-
-        pass
-
-
 
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -587,5 +579,3 @@ class TestIdentityService(unittest.TestCase):
 
         self.assertTrue(response['X-Subject-Token'] == mock_token_id)
         self.assertTrue(context['catalog'] != None)
-
-        pass

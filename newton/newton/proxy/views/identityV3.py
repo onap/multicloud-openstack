@@ -104,7 +104,6 @@ def update_catalog(vimid, catalog, multicould_namespace):
         return catalog, metadata_catalog
     else:
         return None
-    pass
 
 
 
@@ -151,7 +150,6 @@ class Tokens(APIView):
 
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass
 
 
 class Catalog(APIView):
@@ -199,4 +197,3 @@ class Catalog(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass

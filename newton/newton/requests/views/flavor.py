@@ -49,7 +49,6 @@ class Flavors(APIView):
               spec['keyName']=k
               spec['value']=v
               extraSpecs.append(spec)
-    pass
 
     def get(self, request, vimid="", tenantid="", flavorid=""):
         logger.debug("Flavors--get::> %s" % request.data)
@@ -83,7 +82,6 @@ class Flavors(APIView):
                         if k == "name":
                             wanted = v
                             break
-                        pass
 
                 if wanted:
                    oldFlavors = content.pop("flavors", None)
@@ -91,7 +89,6 @@ class Flavors(APIView):
                    for flavor in oldFlavors:
                        if wanted == flavor["name"]:
                            content["flavors"].append(flavor)
-                       pass
 
 
                 #iterate each flavor to get extra_specs
@@ -124,7 +121,6 @@ class Flavors(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass
 
     def get_flavor_extra_specs(self, sess, flavorid):
         if not flavorid:
@@ -136,7 +132,6 @@ class Flavors(APIView):
 
             resp = sess.get(req_resouce, endpoint_filter=self.service)
             return resp
-        pass
 
     def get_flavor(self, sess, request, flavorid=""):
         logger.debug("Flavors--get basic")
@@ -156,7 +151,6 @@ class Flavors(APIView):
 
             resp = sess.get(req_resouce, endpoint_filter=self.service)
             return resp
-        pass
 
 
     def post(self, request, vimid="", tenantid="", flavorid=""):
@@ -181,7 +175,6 @@ class Flavors(APIView):
                 elif hasattr(request.data, "id") and flavor["id"] == request.data["id"]:
                    existed = True
                    break
-                pass
 
             if existed == True:
                 extraResp = self.get_flavor_extra_specs(sess, flavor["id"])
@@ -254,7 +247,6 @@ class Flavors(APIView):
 
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass
 
 
     def create_flavor(self, sess, request):
@@ -269,7 +261,6 @@ class Flavors(APIView):
         req_body = json.JSONEncoder().encode({"flavor": flavor})
         return sess.post(req_resouce, data=req_body,
                          endpoint_filter=self.service)
-        pass
 
 
 
@@ -288,7 +279,6 @@ class Flavors(APIView):
 
         return sess.post(req_resouce, data=req_body,
                          endpoint_filter=self.service)
-        pass
 
 
 
@@ -318,7 +308,6 @@ class Flavors(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass
 
 
     def delete_flavor_extra_specs(self, sess, flavorid):
@@ -332,7 +321,6 @@ class Flavors(APIView):
                 # just try to delete extra spec, but do not care if succeeded
                 self.delete_flavor_one_extra_spec(sess, flavorid, k)
         return resp
-        pass
 
     def delete_flavor_one_extra_spec(self, sess, flavorid, extra_spec_key):
         logger.debug("Flavors--delete  1 extra::> %s" % extra_spec_key)
@@ -356,7 +344,6 @@ class Flavors(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass
 
 
     def delete_flavor(self, sess, flavorid):
@@ -372,5 +359,4 @@ class Flavors(APIView):
 
         resp = sess.delete(req_resouce, endpoint_filter=self.service)
         return resp
-        pass
 

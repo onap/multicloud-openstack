@@ -115,7 +115,6 @@ class Vports(APIView):
                     if port["name"] == request.data["name"]:
                         existed = True
                         break
-                    pass
                 if existed == True:
                     vim_dict = {
                          "returnCode": 0,
@@ -201,4 +200,3 @@ class Vports(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass

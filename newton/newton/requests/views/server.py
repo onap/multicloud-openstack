@@ -91,7 +91,6 @@ class serverThread (threading.Thread):
             logger.error(traceback.format_exc())
             logger.debug("Failed to attach_volume:%s" % str(e))
             return None
-        pass
 
 
     def detach_volume(self, vimid, tenantid, serverid, *volumeids):
@@ -123,7 +122,6 @@ class serverThread (threading.Thread):
             logger.error(traceback.format_exc())
             logger.debug("Failed to detach_volume:%s" % str(e))
             return None
-        pass
 
 class Servers(APIView):
     service = {'service_type': 'compute',
@@ -145,7 +143,6 @@ class Servers(APIView):
         running_threads[serverId] = tmp_thread
         running_thread_lock.release()
         tmp_thread.start()
-        pass
 
     def dettachVolume(self, vimid, tenantid, serverId, *volumeIds):
         # assume attachment id is the same as volume id
@@ -161,7 +158,6 @@ class Servers(APIView):
                                         "Accept": "application/json"})
             logger.debug("Servers--dettachVolume resp status::>%s" % resp.status_code)
 
-        pass
 
     def convertMetadata(self, metadata, mata_data, reverse=False):
         if reverse == False:
@@ -175,7 +171,6 @@ class Servers(APIView):
                 spec['value'] = v
                 metadata.append(spec)
 
-    pass
 
     def convert_resp(self, server):
         #convert volumeArray
@@ -297,7 +292,6 @@ class Servers(APIView):
                     if server["name"] == request.data["name"]:
                         existed = True
                         break
-                    pass
                 if existed == True and server:
                     vim_dict = {
                         "returnCode": 0,
@@ -353,7 +347,6 @@ class Servers(APIView):
                     personalities.append({"path": context["fileName"], "contents": context["fileData"]})
                 if len(personalities) > 0:
                     server["personality"] = personalities
-                pass
 
             volumearray = server.pop("volumeArray", None)
 
@@ -373,8 +366,6 @@ class Servers(APIView):
                     # server is created, now attach volumes
                     volumeIds = [extraVolume["volumeId"] for extraVolume in volumearray]
                     self.attachVolume(vimid, tenantid, resp_body["id"], *volumeIds)
-                pass
-            pass
 
             metadata = resp_body.pop("metadata", None)
             if metadata:
@@ -405,7 +396,6 @@ class Servers(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass
 
     def delete(self, request, vimid="", tenantid="", serverid=""):
         logger.debug("Servers--delete::> %s" % request.data)
@@ -437,4 +427,3 @@ class Servers(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        pass
