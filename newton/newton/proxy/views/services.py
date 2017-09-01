@@ -36,6 +36,7 @@ DEBUG=True
 class Services(APIView):
 
     def head(self, request, vimid="", servicetype="", requri=""):
+        logger.debug("Services--head::META> %s" % request.META)
         logger.debug("Services--head::data> %s" % request.data)
         logger.debug("Services--head::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
@@ -82,6 +83,7 @@ class Services(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, vimid="", servicetype="", requri=""):
+        logger.debug("Services--get::META> %s" % request.META)
         logger.debug("Services--get::data> %s" % request.data)
         logger.debug("Services--get::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
@@ -158,6 +160,7 @@ class Services(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, vimid="", servicetype="", requri=""):
+        logger.debug("Services--post::META> %s" % request.META)
         logger.debug("Services--post::data> %s" % request.data)
         logger.debug("Services--post::vimid, servicetype,  requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
@@ -235,6 +238,7 @@ class Services(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request, vimid="", servicetype="", requri=""):
+        logger.debug("Services--put::META> %s" % request.META)
         logger.debug("Services--put::data> %s" % request.data)
         logger.debug("Services--put::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
@@ -313,6 +317,7 @@ class Services(APIView):
 
 
     def patch(self, request, vimid="", servicetype="", requri=""):
+        logger.debug("Services--patch::META> %s" % request.META)
         logger.debug("Services--patch::data> %s" % request.data)
         logger.debug("Services--patch::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
@@ -390,6 +395,7 @@ class Services(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, vimid="", servicetype="", requri=""):
+        logger.debug("Services--delete::META> %s" % request.META)
         logger.debug("Services--delete::data> %s" % request.data)
         logger.debug("Services--delete::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
@@ -446,15 +452,8 @@ class Services(APIView):
             resp = sess.delete(req_resource, endpoint_filter=service)
             # update token cache in case the token was required during the requests
             tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
-            content = resp.json()
 
-            #filter the resp content and replace all endpoint prefix
-            tmp_content = json.dumps(content)
-            tmp_pattern = re.compile(real_prefix)
-            tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
-            content = json.loads(tmp_content)
-
-            return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
+            return Response(headers={'X-Subject-Token': tmp_auth_token}, status=resp.status_code)
 
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
@@ -472,6 +471,7 @@ class GetTenants(Services):
     Backward compatible API for /v2.0/tenants
     '''
     def get(self, request, vimid="", servicetype="identity", requri='projects'):
+        logger.debug("GetTenants--get::META> %s" % request.META)
         logger.debug("GetTenants--get::data> %s" % request.data)
         logger.debug("GetTenants--get::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
