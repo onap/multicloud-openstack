@@ -158,7 +158,7 @@ class Images(APIView):
                 return Response(data={'error': 'imagePath is not specified'}, status=500)
 
             #valid image url
-            imagefd = urllib2.urlopen(imageurl)
+            imagefd = urllib.request.urlopen(imageurl)
             if not imagefd:
                 logger.debug("image is not available at %s" % imageurl)
                 return Response(data={'error': 'cannot access to specified imagePath'}, status=500)
@@ -201,7 +201,7 @@ class Images(APIView):
             return Response(data=resp_body, status=resp.status_code)
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
-        except urllib2.URLError as e:
+        except urllib.error.URLError as e:
             return Response(data={'error': 'image is not accessible:%s' % str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except HttpError as e:

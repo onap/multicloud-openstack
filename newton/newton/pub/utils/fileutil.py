@@ -36,8 +36,7 @@ def download_file_from_http(url, local_dir, file_name):
     is_download_ok = False
     try:
         make_dirs(local_dir)
-        r = urllib2.Request(url)
-        req = urllib2.urlopen(r)
+        req = urllib.request.urlopen(url)
         save_file = open(local_file_name, 'wb')
         save_file.write(req.read())
         save_file.close()

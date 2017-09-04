@@ -16,10 +16,15 @@ from six.moves import urllib
 import uuid
 from six.moves import http_client
 import httplib2
+import uuid
 
 from rest_framework import status
-
+from newton.pub.config.config import AAI_SCHEMA_VERSION
+from newton.pub.config.config import AAI_SERVICE_URL
+from newton.pub.config.config import AAI_USERNAME
+from newton.pub.config.config import AAI_PASSWORD
 from newton.pub.config.config import MSB_SERVICE_IP, MSB_SERVICE_PORT
+from newton.pub.config.config import AAI_APP_ID
 
 rest_no_auth, rest_oneway_auth, rest_bothway_auth = 0, 1, 2
 HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_202_ACCEPTED \
@@ -72,11 +77,11 @@ def call_req(base_url, user, passwd, auth_type,
                 else:
                     ret = [1, resp_body, resp_status]
                 break
-            except httplib.ResponseNotReady:
+            except http.client.ResponseNotReady:
 #                logger.debug("retry_times=%d", retry_times)
                 ret = [1, "Unable to connect to %s" % full_url, resp_status]
                 continue
-    except urllib2.URLError as err:
+    except urllib.error.URLError as err:
         ret = [2, str(err), resp_status]
     except Exception:
         logger.error(traceback.format_exc())
@@ -99,6 +104,19 @@ def req_by_msb(resource, method, content=''):
 def req_to_vim(base_url, resource, method, extra_headers='', content=''):
     return call_req(base_url, "", "", rest_no_auth,
                     resource, method, extra_headers, content)
+
+def req_to_aai(resource, method, content='', appid=AAI_APP_ID):
+    tmp_trasaction_id = uuid.uuid1()
+    headers = {
+        'X-FromAppId': appid,
+        'X-TransactionId': tmp_trasaction_id,
+        'content-type': 'application/json',
+        'accept': 'application/json'
+    }
+    base_url = "%s/%s" % (AAI_SERVICE_URL, AAI_SCHEMA_VERSION)
+    logger.debug("req_to_aai--%s::> %s, %s" % (tmp_trasaction_id, method, resource))
+    return call_req(base_url, AAI_USERNAME, AAI_PASSWORD, rest_no_auth,
+                    resource, method, content, headers)
 
 
 def combine_url(base_url, resource):

@@ -15,5 +15,15 @@ import os
 MSB_SERVICE_IP = '127.0.0.1'
 MSB_SERVICE_PORT = '80'
 
+# [A&AI]
+AAI_ADDR = "aai.api.simpledemo.openecomp.org"
+AAI_PORT = "8443"
+AAI_SERVICE_URL = 'https://%s:%s/aai' % (AAI_ADDR, AAI_PORT)
+AAI_SCHEMA_VERSION = "v11"
+AAI_USERNAME = 'AAI'
+AAI_PASSWORD = 'AAI'
+
+AAI_APP_ID = 'MultiCloud-Newton'
+
 # [IMAGE LOCAL PATH]
 ROOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
