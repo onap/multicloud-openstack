@@ -20,6 +20,48 @@ from newton.pub.utils.restcall import req_by_msb,req_to_aai
 
 logger = logging.getLogger(__name__)
 
+tisr4 = {
+    "createTime": "2017-04-01 02:22:27",
+    "domain": "Default",
+    "name": "TiS_R4",
+    "password": "admin",
+    "tenant": "admin",
+    "type": "openstack",
+    "url": "http://128.224.180.14:5000/v3",
+    "userName": "admin",
+    "vendor": "WindRiver",
+    "version": "newton",
+    "vimId": "windriver-hudson-dc_RegionOne",
+    'cloud_owner':'windriver-hudson-dc',
+    'cloud_region_id':'RegionOne',
+    'cloud_extra_info':'',
+    'cloud_epa_caps':'{"huge_page":"true","cpu_pinning":"true",\
+        "cpu_thread_policy":"true","numa_aware":"true","sriov":"true",\
+        "dpdk_vswitch":"true","rdt":"false","numa_locality_pci":"true"}',
+    'insecure':'True',
+}
+
+#    "vimId": "6e720f68-34b3-44f0-a6a4-755929b20393"
+
+def mock_get_vim_by_id(method):
+    def wrapper(vimid):
+        return tisr4
+    return wrapper
+
+def mock_delete_vim_by_id(method):
+    def wrapper(vimid):
+        return status.HTTP_202_ACCEPTED
+    return wrapper
+
+#def get_vims():
+#    retcode, content, status_code = \
+#        req_by_msb("/api/aai-cloudInfrastructure/v1/cloud-infrastructure/cloud-regions", "GET")
+#    if retcode != 0:
+#        logger.error("Status code is %s, detail is %s.", status_code, content)
+#        raise VimDriverNewtonException("Failed to query VIMs from extsys.")
+#    return json.JSONDecoder().decode(content)
+
+@mock_get_vim_by_id
 def get_vim_by_id(vim_id):
 
     cloud_owner,cloud_region_id = decode_vim_id(vim_id)
@@ -77,6 +119,7 @@ def get_vim_by_id(vim_id):
     else:
         return None
 
+@mock_delete_vim_by_id
 def delete_vim_by_id(vim_id):
     cloud_owner, cloud_region_id = decode_vim_id(vim_id)
     if cloud_owner and cloud_region_id:

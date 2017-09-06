@@ -33,61 +33,182 @@ DEBUG=True
 
 class Registry(APIView):
 
+    def __init__(self):
+        self._logger = logger
+
+    def discover_tenants(self, request, vimid="", session=None, viminfo=None):
+        req_resource = "/projects"
+        service = {'service_type': "identity",
+                   'interface': 'public',
+                   'region_id': viminfo['cloud_region_id']}
+
+        resp = session.get(req_resource, endpoint_filter=service)
+        content = resp.json()
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+                           % (vimid, req_resource, resp.status_code,content))
+        # iterate all projects and populate them into AAI
+        # TBD
+
+        pass
+
+    def discover_flavors(self, request, vimid="", session=None, viminfo=None):
+
+        req_resource = "/flavors"
+        service = {'service_type': "compute",
+                   'interface': 'public',
+                   'region_id': viminfo['cloud_region_id']}
+        resp = session.get(req_resource, endpoint_filter=service)
+        content = resp.json()
+
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+                           % (vimid, req_resource, resp.status_code,content))
+        pass
+
+    def discover_images(self, request, vimid="", session=None, viminfo=None):
+
+        req_resource = "/v2/images"
+        service = {'service_type': "image",
+                   'interface': 'public',
+                   'region_id': viminfo['cloud_region_id']}
+        resp = session.get(req_resource, endpoint_filter=service)
+        content = resp.json()
+
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+                           % (vimid, req_resource, resp.status_code,content))
+        pass
+
+    def discover_availablezones(self, request, vimid="", session=None, viminfo=None):
+
+        req_resource = "/os-availability-zone/detail"
+        service = {'service_type': "compute",
+                   'interface': 'public',
+                   'region_id': viminfo['cloud_region_id']}
+        resp = session.get(req_resource, endpoint_filter=service)
+        content = resp.json()
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+                           % (vimid, req_resource, resp.status_code,content))
+        pass
+
+    def discover_volumegroups(self, request, vimid="", session=None, viminfo=None):
+
+        req_resource = "/consistencygroups/detail"
+        service = {'service_type': "volumev3",
+                   'interface': 'public',
+                   'region_id': viminfo['cloud_region_id']}
+        resp = session.get(req_resource, endpoint_filter=service)
+        content = resp.json()
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+                           % (vimid, req_resource, resp.status_code,content))
+        pass
+
+    def discover_snapshots(self, request, vimid="", session=None, viminfo=None):
+
+        req_resource = "/snapshots/detail"
+        service = {'service_type': "volumev3",
+                   'interface': 'public',
+                   'region_id': viminfo['cloud_region_id']}
+        resp = session.get(req_resource, endpoint_filter=service)
+        content = resp.json()
+
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+                           % (vimid, req_resource, resp.status_code,content))
+        pass
+
+    def discover_servergroups(self, request, vimid="", session=None, viminfo=None):
+
+        req_resource = "/os-server-groups"
+        service = {'service_type': "compute",
+                   'interface': 'public',
+                   'region_id': viminfo['cloud_region_id']}
+        resp = session.get(req_resource, endpoint_filter=service)
+        content = resp.json()
+
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+                           % (vimid, req_resource, resp.status_code,content))
+        pass
+
+    def discover_pservers(self, request, vimid="", session=None, viminfo=None):
+
+        req_resource = "/os-hypervisors/detail"
+        service = {'service_type': "compute",
+                   'interface': 'public',
+                   'region_id': viminfo['cloud_region_id']}
+        resp = session.get(req_resource, endpoint_filter=service)
+        content = resp.json()
+
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+                           % (vimid, req_resource, resp.status_code,content))
+        pass
+
+
+    def discover_epa_resources(self, request, vimid="", session=None, viminfo=None):
+
+
+        pass
+
     def post(self, request, vimid=""):
-        logger.debug("Registration--post::data> %s" % request.data)
-        logger.debug("Registration--post::vimid > %s" % vimid)
+        self._logger.debug("Registration--post::data> %s" % request.data)
+        self._logger.debug("Registration--post::vimid > %s" % vimid)
 
         try:
             # prepare request resource to vim instance
             # get token:
-            vim = VimDriverUtils.get_vim_info(vimid)
+            viminfo = VimDriverUtils.get_vim_info(vimid)
             #set the default tenant since there is no tenant info in the VIM yet
-            sess = VimDriverUtils.get_session(vim, tenantname=request.data['defaultTenant'])
+            sess = VimDriverUtils.get_session(viminfo, tenantname=request.data['defaultTenant'])
 
             #step 1. discover all projects and populate into AAI
-            req_resource = "/projects"
-            service = {'service_type': "identity",
-                       'interface': 'public',
-                       'region_id': vim['cloud_region_id']}
-
-            resp = sess.get(req_resource, endpoint_filter=service)
-            content = resp.json()
-            #iterate all projects and populate them into AAI
-            # TBD
+            self.discover_tenants(request,vimid,sess, viminfo)
 
             # discover all flavors
+            self.discover_flavors(request, vimid, sess, viminfo)
+
             # discover all images
+            self.discover_images(request, vimid, sess, viminfo)
+
+
             # discover all az
+            self.discover_availablezones(request, vimid, sess, viminfo)
+
             # discover all vg
+            self.discover_volumegroups(request, vimid, sess, viminfo)
+
             # discover all snapshots
+            self.discover_snapshots(request, vimid, sess, viminfo)
+
             # discover all server groups
+            self.discover_servergroups(request, vimid, sess, viminfo)
+
             # discover all pservers
+            self.discover_pservers(request, vimid, sess, viminfo)
+
             # discover all epa resources, e.g. sriov pf and vf, etc.
+            self.discover_epa_resources(request, vimid, sess, viminfo)
 
             return Response(status=status.HTTP_202_ACCEPTED)
 
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, vimid=""):
-        logger.debug("Registration--delete::data> %s" % request.data)
-        logger.debug("Registration--delete::vimid > %s"% vimid)
+        self._logger.debug("Registration--delete::data> %s" % request.data)
+        self._logger.debug("Registration--delete::vimid > %s"% vimid)
         try:
             ret_code = VimDriverUtils.delete_vim_info(vimid)
             return Response(status=status.HTTP_202_ACCEPTED)
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
