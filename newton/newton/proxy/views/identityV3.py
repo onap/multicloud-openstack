@@ -74,12 +74,19 @@ def update_catalog(vimid, catalog, multicould_namespace):
                     # replace the endpoint with MultiCloud's proxy
                     import re
                     endpoint_url = endpoint["url"]
-#                    m = re.search(r'^http[s]*://([0-9.]+:[0-9]+)[/]*([0-9a-zA-Z/._-]*)$', endpoint_url)
-                    m = re.search(r'^(http[s]?://[0-9.]+:[0-9]+)(/([0-9a-zA-Z/._-]+)$)?', endpoint_url)
+                    real_prefix = None
+                    real_suffix = None
+#                    m = re.search(r'^(http[s]?://[0-9.]+:[0-9]+)(/([0-9a-zA-Z/._-]+)$)?', endpoint_url)
+                    m = re.search(r'^(http[s]?://[0-9.]+[0-9:]*)(/([0-9a-zA-Z/._-]+)$)?', endpoint_url)
                     if m:
                         real_prefix = m.group(1)
                         real_suffix = m.group(3)
-
+#                    else:
+#                        m = re.search(r'^(http[s]?://[0-9.]+)(/([0-9a-zA-Z/._-]+)$)?', endpoint_url)
+#                        if m:
+#                            real_prefix = m.group(1)
+#                            real_suffix = m.group(2)
+                    if real_prefix:
                         # populate metadata_catalog
                         one_catalog['prefix'] = real_prefix
                         one_catalog['suffix'] = real_suffix if real_suffix else ''
@@ -96,6 +103,9 @@ def update_catalog(vimid, catalog, multicould_namespace):
 #                        endpoint["url"] = re.sub(r"^http([s]*)://([0-9.]+):([0-9]+)",
 #                                                 multicould_namespace + "/%s/" % vimid + item["type"],
 #                                                 endpoint["url"])
+                    else:
+                        #something wrong
+                        pass
 
 
                     endpoint["url"] = endpoint_url
@@ -114,9 +124,10 @@ class Tokens(APIView):
 
     def __init__(self):
         self.proxy_prefix = MULTICLOUD_PREFIX
+        self._logger = logger
 
     def post(self, request, vimid=""):
-        logger.debug("identityV3--post::> %s" % request.data)
+        self._logger.debug("identityV3--post::> %s" % request.data)
         sess = None
         resp = None
         resp_body = None
@@ -135,7 +146,7 @@ class Tokens(APIView):
 
             #update the catalog
             tmp_auth_data['token']['catalog'], tmp_metadata_catalog = update_catalog(vimid, tmp_auth_data['token']['catalog'], self.proxy_prefix)
-            VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state, json.dumps(tmp_metadata_catalog))
+            tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state, json.dumps(tmp_metadata_catalog))
 
             resp = Response(headers={'X-Subject-Token': tmp_auth_token}, data=tmp_auth_data, status=status.HTTP_201_CREATED)
             return resp
@@ -143,10 +154,10 @@ class Tokens(APIView):
 
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
 
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -159,10 +170,11 @@ class Catalog(APIView):
 
     def __init__(self):
         self.proxy_prefix = MULTICLOUD_PREFIX
+        self._logger = logger
 
     def get(self, request, vimid=""):
-        logger.debug("Catalog--get::data> %s" % request.data)
-#        logger.debug("Catalog--get::META> %s" % request.META)
+        self._logger.debug("Catalog--get::data> %s" % request.data)
+#        self._logger.debug("Catalog--get::META> %s" % request.META)
         try:
             # prepare request resource to vim instance
             #get token:
@@ -191,9 +203,9 @@ class Catalog(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)

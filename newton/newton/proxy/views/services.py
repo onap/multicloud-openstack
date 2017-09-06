@@ -35,10 +35,13 @@ DEBUG=True
 
 class Services(APIView):
 
+    def __init__(self):
+        self._logger = logger
+
     def head(self, request, vimid="", servicetype="", requri=""):
-        logger.debug("Services--head::META> %s" % request.META)
-        logger.debug("Services--head::data> %s" % request.data)
-        logger.debug("Services--head::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.debug("Services--head::META> %s" % request.META)
+        self._logger.debug("Services--head::data> %s" % request.data)
+        self._logger.debug("Services--head::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
 
         try:
@@ -75,17 +78,17 @@ class Services(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, vimid="", servicetype="", requri=""):
-        logger.debug("Services--get::META> %s" % request.META)
-        logger.debug("Services--get::data> %s" % request.data)
-        logger.debug("Services--get::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.debug("Services--get::META> %s" % request.META)
+        self._logger.debug("Services--get::data> %s" % request.data)
+        self._logger.debug("Services--get::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
         try:
             # prepare request resource to vim instance
@@ -104,7 +107,7 @@ class Services(APIView):
             proxy_prefix = None
             suffix = None
             if servicetype and metadata_catalog:
-#                logger.error("metadata_catalog:%s" % metadata_catalog)
+#                self._logger.error("metadata_catalog:%s" % metadata_catalog)
                 metadata_catalog = json.loads(metadata_catalog)
                 service_metadata = metadata_catalog.get(servicetype, None)
                 if service_metadata:
@@ -152,17 +155,17 @@ class Services(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, vimid="", servicetype="", requri=""):
-        logger.debug("Services--post::META> %s" % request.META)
-        logger.debug("Services--post::data> %s" % request.data)
-        logger.debug("Services--post::vimid, servicetype,  requri> %s,%s,%s"
+        self._logger.debug("Services--post::META> %s" % request.META)
+        self._logger.debug("Services--post::data> %s" % request.data)
+        self._logger.debug("Services--post::vimid, servicetype,  requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
         try:
             # prepare request resource to vim instance
@@ -182,7 +185,7 @@ class Services(APIView):
             proxy_prefix = None
             suffix = None
             if servicetype and metadata_catalog:
-#                logger.error("metadata_catalog:%s" % metadata_catalog)
+#                self._logger.error("metadata_catalog:%s" % metadata_catalog)
                 metadata_catalog = json.loads(metadata_catalog)
                 service_metadata = metadata_catalog.get(servicetype, None)
                 if service_metadata:
@@ -230,17 +233,17 @@ class Services(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request, vimid="", servicetype="", requri=""):
-        logger.debug("Services--put::META> %s" % request.META)
-        logger.debug("Services--put::data> %s" % request.data)
-        logger.debug("Services--put::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.debug("Services--put::META> %s" % request.META)
+        self._logger.debug("Services--put::data> %s" % request.data)
+        self._logger.debug("Services--put::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
         try:
             # prepare request resource to vim instance
@@ -260,7 +263,7 @@ class Services(APIView):
             proxy_prefix = None
             suffix = None
             if servicetype and metadata_catalog:
-#                logger.error("metadata_catalog:%s" % metadata_catalog)
+#                self._logger.error("metadata_catalog:%s" % metadata_catalog)
                 metadata_catalog = json.loads(metadata_catalog)
                 service_metadata = metadata_catalog.get(servicetype, None)
                 if service_metadata:
@@ -308,18 +311,18 @@ class Services(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
     def patch(self, request, vimid="", servicetype="", requri=""):
-        logger.debug("Services--patch::META> %s" % request.META)
-        logger.debug("Services--patch::data> %s" % request.data)
-        logger.debug("Services--patch::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.debug("Services--patch::META> %s" % request.META)
+        self._logger.debug("Services--patch::data> %s" % request.data)
+        self._logger.debug("Services--patch::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
         try:
             # prepare request resource to vim instance
@@ -339,7 +342,7 @@ class Services(APIView):
             proxy_prefix = None
             suffix = None
             if servicetype and metadata_catalog:
-#                logger.error("metadata_catalog:%s" % metadata_catalog)
+#                self._logger.error("metadata_catalog:%s" % metadata_catalog)
                 metadata_catalog = json.loads(metadata_catalog)
                 service_metadata = metadata_catalog.get(servicetype, None)
                 if service_metadata:
@@ -387,17 +390,17 @@ class Services(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, vimid="", servicetype="", requri=""):
-        logger.debug("Services--delete::META> %s" % request.META)
-        logger.debug("Services--delete::data> %s" % request.data)
-        logger.debug("Services--delete::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.debug("Services--delete::META> %s" % request.META)
+        self._logger.debug("Services--delete::data> %s" % request.data)
+        self._logger.debug("Services--delete::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
         try:
             # prepare request resource to vim instance
@@ -417,7 +420,7 @@ class Services(APIView):
             proxy_prefix = None
             suffix = None
             if servicetype and metadata_catalog:
-#                logger.error("metadata_catalog:%s" % metadata_catalog)
+#                self._logger.error("metadata_catalog:%s" % metadata_catalog)
                 metadata_catalog = json.loads(metadata_catalog)
                 service_metadata = metadata_catalog.get(servicetype, None)
                 if service_metadata:
@@ -458,10 +461,10 @@ class Services(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -470,10 +473,14 @@ class GetTenants(Services):
     '''
     Backward compatible API for /v2.0/tenants
     '''
+
+    def __init__(self):
+        self._logger = logger
+
     def get(self, request, vimid="", servicetype="identity", requri='projects'):
-        logger.debug("GetTenants--get::META> %s" % request.META)
-        logger.debug("GetTenants--get::data> %s" % request.data)
-        logger.debug("GetTenants--get::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.debug("GetTenants--get::META> %s" % request.META)
+        self._logger.debug("GetTenants--get::data> %s" % request.data)
+        self._logger.debug("GetTenants--get::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
 
         tmp_auth_token = request.META.get('HTTP_X_AUTH_TOKEN', None)

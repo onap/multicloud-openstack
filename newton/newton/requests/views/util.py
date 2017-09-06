@@ -71,6 +71,11 @@ class VimDriverUtils(object):
                                             username=vim["userName"],
                                             password=vim["password"],
                                             project_id=tenantid)
+            elif '/identity' in vim["url"]:
+                auth = keystone_v3.Password(auth_url=vim["url"]+"/v3",
+                                            username=vim["userName"],
+                                            password=vim["password"],
+                                            project_id=tenantid)
         elif tenant_name:
             if '/v2' in vim["url"]:
                 auth = keystone_v2.Password(auth_url=vim["url"],
@@ -79,6 +84,13 @@ class VimDriverUtils(object):
                                             tenant_name=tenant_name)
             elif '/v3' in vim["url"]:
                 auth = keystone_v3.Password(auth_url=vim["url"],
+                                            username=vim["userName"],
+                                            password=vim["password"],
+                                            project_name=tenant_name,
+                                            user_domain_name=vim["domain"],
+                                            project_domain_name=vim["domain"])
+            elif '/identity' in vim["url"]:
+                auth = keystone_v3.Password(auth_url=vim["url"]+"/v3",
                                             username=vim["userName"],
                                             password=vim["password"],
                                             project_name=tenant_name,
@@ -124,40 +136,30 @@ class VimDriverUtils(object):
 
 
     @staticmethod
-    def update_token_cache(vim, session, old_token, auth_state, metadata=None):
+    def update_token_cache(vim, session, token, auth_state, metadata=None):
         '''
         cache the auth_state as well as metadata_catalog
         :param vim:
         :param session:
-        :param old_token:
+        :param token:
         :param auth_state:
         :param matadata:
         :return:
         '''
 
-        metadata_key = "meta_%s" % old_token
+        if metadata == None: #do not update token any more
+            return token
 
-        if not metadata:
-            metadata = cache.get(metadata_key)
-        if not metadata:
-            #something wrong since metadata is neither inputted, nor cached previously. but ignore temporarily
-            pass
+        metadata_key = "meta_%s" % token
 
-        tmp_auth_token = session.get_token()
-        #check if need to update token:auth_state mapping
-        if tmp_auth_token != old_token:
-             cache.delete(old_token)
-             cache.delete(metadata_key)
-             metadata_key = "meta_%s" % tmp_auth_token
-
-        elif not cache.get(old_token):
+        if not cache.get(token):
             # store the auth_state, memcached
             # set expiring in 1 hour
-            cache.set(tmp_auth_token, auth_state, 3600)
+            cache.set(token, auth_state, 3600)
             cache.set(metadata_key, metadata, 3600)
 
-        #return new token
-        return tmp_auth_token
+        return token
+
 
     @staticmethod
     def replace_a_key(dict_obj, keypair, reverse=False):
