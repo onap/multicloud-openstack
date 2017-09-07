@@ -10,6 +10,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 import sys
+import json
 import traceback
 import logging
 from six.moves import urllib
@@ -19,20 +20,13 @@ import httplib2
 import uuid
 
 from rest_framework import status
-from newton.pub.config.config import AAI_SCHEMA_VERSION
-from newton.pub.config.config import AAI_SERVICE_URL
-from newton.pub.config.config import AAI_USERNAME
-from newton.pub.config.config import AAI_PASSWORD
-from newton.pub.config.config import MSB_SERVICE_ADDR, MSB_SERVICE_PORT
-from newton.pub.config.config import MULTICLOUD_APP_ID
+from newton.pub.config import config
 
 rest_no_auth, rest_oneway_auth, rest_bothway_auth = 0, 1, 2
-HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_202_ACCEPTED \
-    = '200', '201', '204', '202'
+
 status_ok_list \
-    = [HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_202_ACCEPTED]
-HTTP_404_NOTFOUND, HTTP_403_FORBIDDEN, \
-    HTTP_401_UNAUTHORIZED, HTTP_400_BADREQUEST = '404', '403', '401', '400'
+    = [status.HTTP_200_OK, status.HTTP_201_CREATED, status.HTTP_204_NO_CONTENT, status.HTTP_202_ACCEPTED]
+
 MAX_RETRY_TIME = 3
 
 logger = logging.getLogger(__name__)
@@ -95,7 +89,7 @@ def call_req(base_url, user, passwd, auth_type,
 
 
 def req_by_msb(resource, method, content=''):
-    base_url = "http://%s:%s/" % (MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
+    base_url = "http://%s:%s/" % (config.MSB_SERVICE_ADDR, config.MSB_SERVICE_PORT)
 #    logger.debug("requests--get::> %s" % "33")
     return call_req(base_url, "", "", rest_no_auth,
                     resource, method, "", content)
@@ -105,7 +99,7 @@ def req_to_vim(base_url, resource, method, extra_headers='', content=''):
     return call_req(base_url, "", "", rest_no_auth,
                     resource, method, extra_headers, content)
 
-def req_to_aai(resource, method, content='', appid=MULTICLOUD_APP_ID):
+def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
     tmp_trasaction_id = uuid.uuid1()
     headers = {
         'X-FromAppId': appid,
@@ -113,10 +107,10 @@ def req_to_aai(resource, method, content='', appid=MULTICLOUD_APP_ID):
         'content-type': 'application/json',
         'accept': 'application/json'
     }
-    base_url = "%s/%s" % (AAI_SERVICE_URL, AAI_SCHEMA_VERSION)
+
     logger.debug("req_to_aai--%s::> %s, %s" % (tmp_trasaction_id, method, resource))
-    return call_req(base_url, AAI_USERNAME, AAI_PASSWORD, rest_no_auth,
-                    resource, method, content, headers)
+    return call_req(config.AAI_BASE_URL, config.AAI_USERNAME, config.AAI_PASSWORD, rest_no_auth,
+                    resource, method, json.dumps(content), headers)
 
 
 def combine_url(base_url, resource):

@@ -15,10 +15,6 @@ import logging
 import json
 import traceback
 
-from django.core.cache import cache
-
-from keystoneauth1 import access
-from keystoneauth1.access import service_catalog
 from keystoneauth1.exceptions import HttpError
 from rest_framework import status
 from rest_framework.response import Response
@@ -57,7 +53,7 @@ class Registry(APIView):
                 req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s"
                            % (cloud_owner, cloud_region_id, tenantinfo['tenant-id']), "PUT", content=tenantinfo)
 
-            self._logger.debug("update_tenant,vimid:%s_%s req_to_aai: %s, return %s, %s, %s" \
+            self._logger.debug("update_tenant,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
                                % (cloud_owner,cloud_region_id, tenantinfo['tenant-id'], retcode, content, status_code))
             return retcode
         return 1
@@ -70,20 +66,20 @@ class Registry(APIView):
 
         resp = session.get(req_resource, endpoint_filter=service)
         content = resp.json()
-        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
                            % (vimid, req_resource, resp.status_code,content))
 
         if resp.status_code != status.HTTP_200_OK:
-            return False #failed to discover resources
+            return False  # failed to discover resources
 
         # iterate all projects and populate them into AAI
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        tenant_info = {}
-        for tenant in content['projects']:
-            tenant_info['tenant-id'] = tenant['id']
-            tenant_info['tenant-name'] = tenant['name']
+        for tenant in content.get('projects'):
+            tenant_info = {
+                'tenant-id': tenant['id'],
+                'tenant-name': tenant['name'],
+            }
             self.update_tenant(cloud_owner, cloud_region_id, tenant_info)
-
         pass
 
 
@@ -112,7 +108,7 @@ class Registry(APIView):
                 req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/flavors/flavor/%s"
                            % (cloud_owner, cloud_region_id, flavorinfo['flavor-id']), "PUT", content=flavorinfo)
 
-            self._logger.debug("update_flavor,vimid:%s_%s req_to_aai: %s, return %s, %s, %s" \
+            self._logger.debug("update_flavor,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
                                % (cloud_owner,cloud_region_id, flavorinfo['flavor-id'], retcode, content, status_code))
             return retcode
         return 1
@@ -126,26 +122,29 @@ class Registry(APIView):
         resp = session.get(req_resource, endpoint_filter=service)
         content = resp.json()
 
-        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
                            % (vimid, req_resource, resp.status_code,content))
 
         if resp.status_code != status.HTTP_200_OK:
-            return False #failed to discover resources
+            return False  # failed to discover resources
 
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        flavor_info = {}
-        for flavor in content['flavors']:
-            flavor_info['flavor-id'] = flavor['id']
-            flavor_info['flavor-name'] = flavor['name']
-            flavor_info['flavor-vcpus'] = flavor['vcpus']
-            flavor_info['flavor-ram'] = flavor['ram']
-            flavor_info['flavor-disk'] = flavor['disk']
-            flavor_info['flavor-ephemeral'] = flavor['OS-FLV-EXT-DATA:ephemeral']
-            flavor_info['flavor-swap'] = flavor['swap']
-            flavor_info['flavor-is-public'] = flavor['os-flavor-access:is_public']
-            flavor_info['flavor-selflink'] = flavor['links'][0]['href']
-            flavor_info['flavor-swap'] = flavor['swap']
-            flavor_info['flavor-disabled'] = flavor['OS-FLV-DISABLED:disabled']
+        for flavor in content.get('flavors'):
+            flavor_info = {
+                'flavor-id': flavor['id'],
+                'flavor-name': flavor['name'],
+                'flavor-vcpus': flavor['vcpus'],
+                'flavor-ram': flavor['ram'],
+                'flavor-disk': flavor['disk'],
+                'flavor-ephemeral': flavor['OS-FLV-EXT-DATA:ephemeral'],
+                'flavor-swap': flavor['swap'],
+                'flavor-is-public': flavor['os-flavor-access:is_public'],
+                'flavor-disabled': flavor['OS-FLV-DISABLED:disabled'],
+            }
+
+            if flavor.get('link') and len(flavor['link']) > 0:
+                flavor_info['flavor-selflink'] =flavor['links'][0]['href'],
+
             self.update_flavor(cloud_owner, cloud_region_id, flavor_info)
 
         pass
@@ -164,11 +163,15 @@ class Registry(APIView):
 
         if cloud_owner and cloud_region_id:
             retcode, content, status_code = \
-                req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/images/image/%s"
-                           % (cloud_owner, cloud_region_id, image_id, metadatainfo['metaname']), "PUT", content=imageinfo)
+                req_to_aai(
+                    "/cloud-infrastructure/cloud-regions/cloud-region"
+                    + "/%s/%s/images/image/%s/metadata/metadatum/%s"
+                    % (cloud_owner, cloud_region_id, image_id, metadatainfo['metaname']),
+                    "PUT", content=metadatainfo)
 
-            self._logger.debug("update_image,vimid:%s_%s req_to_aai: %s/%s, return %s, %s, %s" \
-                               % (cloud_owner,cloud_region_id,image_id,metadatainfo['metaname'], retcode, content, status_code))
+            self._logger.debug("update_image,vimid:%s_%s req_to_aai: %s/%s, return %s, %s, %s"
+                               % (cloud_owner,cloud_region_id,image_id,metadatainfo['metaname'],
+                                  retcode, content, status_code))
             return retcode
         return 1
 
@@ -191,17 +194,18 @@ class Registry(APIView):
         :return:
         '''
 
-
         if cloud_owner and cloud_region_id:
             retcode, content, status_code = \
                 req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/images/image/%s"
-                           % (cloud_owner, cloud_region_id, imageinfo['image-id']), "PUT", content=imageinfo)
+                           % (cloud_owner, cloud_region_id, imageinfo['image-id']),
+                           "PUT", content=imageinfo)
 
-            self._logger.debug("update_image,vimid:%s_%s req_to_aai: %s, return %s, %s, %s" \
-                               % (cloud_owner,cloud_region_id, imageinfo['image-id'], retcode, content, status_code))
+            self._logger.debug("update_image,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
+                               % (cloud_owner,cloud_region_id, imageinfo['image-id'],
+                                  retcode, content, status_code))
 
             return retcode
-        return 1 #unknown cloud owner,region_id
+        return 1  # unknown cloud owner,region_id
 
     def discover_images(self, request, vimid="", session=None, viminfo=None):
 
@@ -212,31 +216,31 @@ class Registry(APIView):
         resp = session.get(req_resource, endpoint_filter=service)
         content = resp.json()
 
-        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
                            % (vimid, req_resource, resp.status_code,content))
 
         if resp.status_code != status.HTTP_200_OK:
-            return False #failed to discover resources
+            return False   # failed to discover resources
 
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        image_info = {}
-        metadata_info = {}
-        for image in content['images']:
-            image_info['image-id'] = image['id']
-            image_info['image-name'] = image['name']
-            image_info['image-selflink'] = image['self']
+        for image in content.get('images'):
+            image_info = {
+                'image-id': image['id'],
+                'image-name': image['name'],
+                'image-selflink': image['self'],
 
-            image_info['image-os-distro'] = image['os_distro'] or ''
-            image_info['image-os-version'] = image['os_version'] or ''
-            image_info['application'] = image['application'] or ''
-            image_info['application-vendor'] = image['application_vendor'] or ''
-            image_info['application-version'] = image['application_version'] or ''
-            image_info['image-architecture'] = image['architecture'] or ''
+                'image-os-distro': image.get('os_distro'),
+                'image-os-version': image.get('os_version'),
+                'application': image.get('application'),
+                'application-vendor': image.get('application_vendor'),
+                'application-version': image.get('application_version'),
+                'image-architecture': image.get('architecture'),
+            }
 
             ret = self.update_image(cloud_owner, cloud_region_id, image_info)
             if ret != 0:
-                #failed to update image
-                self._logger.debug("failed to populate image info into AAI: %s, image id: %s, ret:%s" \
+                # failed to update image
+                self._logger.debug("failed to populate image info into AAI: %s, image id: %s, ret:%s"
                                    % (vimid, image_info['image-id'], ret))
                 continue
 
@@ -249,17 +253,42 @@ class Registry(APIView):
                 resp = session.get(req_resource, endpoint_filter=service)
                 content = resp.json()
 
-                self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+                self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
                                    % (vimid, req_resource, resp.status_code, content))
                 if resp.status_code == status.HTTP_200_OK:
-                    #parse the schema?
-                    #self.update_image(cloud_owner, cloud_region_id, image_info)
+                    # parse the schema? TBD
+                    # self.update_image(cloud_owner, cloud_region_id, image_info)
+                    #metadata_info = {}
                     pass
-
-
-
-
         pass
+
+
+    def update_az(self, cloud_owner, cloud_region_id, azinfo):
+        '''
+        populate available zone into AAI
+        :param cloud_owner:
+        :param cloud_region_id:
+        :param azinfo:
+            availability-zone-name: string
+            hypervisor-type: string
+            operational-status: string
+        :return:
+        '''
+
+        if cloud_owner and cloud_region_id:
+            retcode, content, status_code = \
+                req_to_aai(
+                    "/cloud-infrastructure/cloud-regions/cloud-region"
+                    + "/%s/%s/availability-zones/availability-zone/%s"
+                    % (cloud_owner, cloud_region_id, azinfo['availability-zone-name']),
+                    "PUT", content=azinfo)
+
+            self._logger.debug("update_az,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
+                               % (cloud_owner,cloud_region_id, azinfo['availability-zone-name'],
+                                  retcode, content, status_code))
+
+            return retcode
+        return 1  # unknown cloud owner,region_id
 
     def discover_availablezones(self, request, vimid="", session=None, viminfo=None):
 
@@ -269,9 +298,72 @@ class Registry(APIView):
                    'region_id': viminfo['cloud_region_id']}
         resp = session.get(req_resource, endpoint_filter=service)
         content = resp.json()
-        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
                            % (vimid, req_resource, resp.status_code,content))
+
+        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+        for az in content.get('availabilityZoneInfo'):
+            az_info = {
+                'availability-zone-name': az['zoneName'],
+                'operational-status': az['zoneState']['available'] if az.get('zoneState') else '',
+                'hypervisor-type': '',
+            }
+            if az.get('hosts'):
+                for (k, v) in az['hosts'].items():
+                    req_resource = "/os-hypervisors/detail?hypervisor_hostname_pattern=%s" % k
+                    service = {'service_type': "compute",
+                               'interface': 'public',
+                               'region_id': viminfo['cloud_region_id']}
+                    resp = session.get(req_resource, endpoint_filter=service)
+                    content = resp.json()
+                    self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
+                                       % (vimid, req_resource, resp.status_code, content))
+                    if resp.status_code != status.HTTP_200_OK and not content[0]:
+                        continue
+                    az_info['hypervisor-type'] = content['hypervisors'][0]['hypervisor_type']\
+                        if len(content.get('hypervisors')) else ''
+
+                    break
+            ret = self.update_az(cloud_owner, cloud_region_id, az_info)
+            if ret != 0:
+                # failed to update image
+                self._logger.debug("failed to populate az info into AAI: %s, az name: %s, ret:%s"
+                                   % (vimid, az_info['availability-zone-name'], ret))
+            continue
         pass
+
+    def update_vg(self, cloud_owner, cloud_region_id, vginfo):
+        '''
+        populate volume group into AAI
+        :param cloud_owner:
+        :param cloud_region_id:
+        :param vginfo:
+            volume-group-id: string
+            volume-group-name: string
+            vnf-type: string
+            model-customization-id: string
+            heat-stack-id: string
+            orchestration-status: string
+             vf-module-model-customization-id: string
+
+        :return:
+        '''
+
+
+        if cloud_owner and cloud_region_id:
+            retcode, content, status_code = \
+                req_to_aai(
+                    "/cloud-infrastructure/cloud-regions/cloud-region"
+                    + "/%s/%s/volume-groups/volume-group/%s"
+                    % (cloud_owner, cloud_region_id, vginfo['volume-group-id']),
+                    "PUT", content=vginfo)
+
+            self._logger.debug("update_vg,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
+                               % (cloud_owner,cloud_region_id, vginfo['volume-group-id'],
+                                  retcode, content, status_code))
+
+            return retcode
+        return 1  # unknown cloud owner,region_id
 
     def discover_volumegroups(self, request, vimid="", session=None, viminfo=None):
 
@@ -281,9 +373,55 @@ class Registry(APIView):
                    'region_id': viminfo['cloud_region_id']}
         resp = session.get(req_resource, endpoint_filter=service)
         content = resp.json()
-        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
                            % (vimid, req_resource, resp.status_code,content))
+
+        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+        for cg in content.get('consistencygroups'):
+            vg_info = {
+                'volume-group-id': cg['id'],
+                'volume-group-name': cg['name'],
+                'vnf-type': '',
+            }
+
+            ret = self.update_az(cloud_owner, cloud_region_id, vg_info)
+            if ret != 0:
+                # failed to update image
+                self._logger.debug("failed to populate az info into AAI: %s, volume-group-id: %s, ret:%s"
+                                   % (vimid, vg_info['volume-group-id'], ret))
+            continue
         pass
+
+    def update_snapshot(self, cloud_owner, cloud_region_id, snapshotinfo):
+        '''
+        populate snapshot into AAI
+        :param cloud_owner:
+        :param cloud_region_id:
+        :param snapshotinfo:
+            snapshot-id: string
+            snapshot-name: string
+            snapshot-architecture: string
+            snapshot-os-distro: string
+            snapshot-os-version: string
+            application: string
+            application-vendor: string
+            application-version: string
+            snapshot-selflink: string
+            prev-snapshot-id: string
+
+        :return:
+        '''
+
+        if cloud_owner and cloud_region_id:
+            retcode, content, status_code = \
+                req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/volume-groups/volume-group/%s"
+                           % (cloud_owner, cloud_region_id, snapshotinfo['snapshot-id']), "PUT", content=snapshotinfo)
+
+            self._logger.debug("update_snapshot,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
+                               % (cloud_owner,cloud_region_id, snapshotinfo['snapshot-id'], retcode, content, status_code))
+
+            return retcode
+        return 1  # unknown cloud owner,region_id
 
     def discover_snapshots(self, request, vimid="", session=None, viminfo=None):
 
@@ -294,8 +432,31 @@ class Registry(APIView):
         resp = session.get(req_resource, endpoint_filter=service)
         content = resp.json()
 
-        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
                            % (vimid, req_resource, resp.status_code,content))
+
+        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+        for ss in content.get('snapshots'):
+            snapshot_info = {
+                'snapshot-id': ss['id'],
+                'snapshot-name': ss['name'],
+            }
+            if ss.get('metadata'):
+                snapshot_info['snapshot-architecture'] = ss['metadata'].get('architecture')
+                snapshot_info['application'] = ss['metadata'].get('architecture')
+                snapshot_info['snapshot-os-distro'] = ss['metadata'].get('os-distro')
+                snapshot_info['snapshot-os-version'] = ss['metadata'].get('os-version')
+                snapshot_info['application-vendor'] = ss['metadata'].get('vendor')
+                snapshot_info['application-version'] = ss['metadata'].get('version')
+                snapshot_info['snapshot-selflink'] = ss['metadata'].get('selflink')
+                snapshot_info['prev-snapshot-id'] = ss['metadata'].get('prev-snapshot-id')
+
+            ret = self.update_az(cloud_owner, cloud_region_id, snapshot_info)
+            if ret != 0:
+                # failed to update image
+                self._logger.debug("failed to populate az info into AAI: %s, snapshot-id: %s, ret:%s"
+                                   % (vimid, snapshot_info['snapshot-id'], ret))
+            continue
         pass
 
     def discover_servergroups(self, request, vimid="", session=None, viminfo=None):
@@ -307,9 +468,99 @@ class Registry(APIView):
         resp = session.get(req_resource, endpoint_filter=service)
         content = resp.json()
 
-        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
                            % (vimid, req_resource, resp.status_code,content))
         pass
+
+
+    def update_pserver(self, cloud_owner, cloud_region_id, pserverinfo):
+        '''
+        populate pserver into AAI
+        :param cloud_owner:
+        :param cloud_region_id:
+        :param pserverinfo:
+            hostname: string
+            in-maint: boolean
+
+            pserver-name2: string
+            pserver-id: string
+            ptnii-equip-name: string
+            number-of-cpus: integer
+            disk-in-gigabytes: integer
+            ram-in-megabytes: integer
+            equip-type: string
+            equip-vendor: string
+            equip-model: string
+            fqdn: string
+            pserver-selflink: string
+            ipv4-oam-address: string
+            serial-number: string
+            ipaddress-v4-loopback-0: string
+            ipaddress-v6-loopback-0: string
+            ipaddress-v4-aim: string
+            ipaddress-v6-aim: string
+            ipaddress-v6-oam: string
+            inv-status: string
+            internet-topology: string
+            purpose: string
+            prov-status: string
+            management-option: string
+            host-profile: string
+
+        :return:
+        '''
+
+        if cloud_owner and cloud_region_id:
+            retcode, content, status_code = \
+                req_to_aai("/cloud-infrastructure/pservers/pserver/%s"
+                           % (pserverinfo['hostname']), "PUT", content=pserverinfo)
+
+            self._logger.debug("update_snapshot,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
+                               % (cloud_owner,cloud_region_id, pserverinfo['hostname'], retcode, content, status_code))
+
+            if retcode == 0:
+                # relationship to cloud-region
+
+                related_link = ("%s/cloud-infrastructure/cloud-regions/"
+                                "cloud-region/%s/%s" % (
+                                    config.AAI_BASE_URL, cloud_owner,
+                                    cloud_region_id))
+
+                relationship_data = \
+                    {
+                        'related-to': 'cloud-region',
+                        'related-link': related_link,
+                        'relationship-data': [
+                            {
+                                'relationship-key': 'cloud-region.cloud-owner',
+                                'relationship-value': cloud_owner
+                            },
+                            {
+                                'relationship-key': 'cloud-region.cloud-region-id',
+                                'relationship-value': cloud_region_id
+                            }
+                        ],
+                        "related-to-property": [
+                            {
+                                "property-key": "cloud-region.cloud-owner"
+                            },
+                            {
+                                "property-key": "cloud-region.cloud-region-id"
+                            }
+                        ]
+                    }
+
+                retcode, content, status_code = \
+                    req_to_aai("/cloud-infrastructure/pservers/pserver/%s/relationship-list/relationship"
+                               % (pserverinfo['hostname']), "PUT", content=relationship_data)
+
+                self._logger.debug("update_snapshot,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
+                                   % (cloud_owner, cloud_region_id, pserverinfo['hostname'], retcode, content,
+                                      status_code))
+                pass
+
+            return retcode
+        return 1  # unknown cloud owner,region_id
 
     def discover_pservers(self, request, vimid="", session=None, viminfo=None):
 
@@ -320,14 +571,38 @@ class Registry(APIView):
         resp = session.get(req_resource, endpoint_filter=service)
         content = resp.json()
 
-        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s" \
+        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
                            % (vimid, req_resource, resp.status_code,content))
+
+        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+        for hypervisor in content.get('hypervisors'):
+            hypervisor_info = {
+                'hostname': hypervisor['hypervisor_hostname'],
+                'in-maint': hypervisor['name'],
+
+                'pserver-id': hypervisor.get('id'),
+                'ptnii-equip-name': hypervisor.get('id'),
+                'disk-in-gigabytes': hypervisor.get('local_gb'),
+                'ram-in-megabytes': hypervisor.get('memory_mb'),
+                'pserver-selflink': hypervisor.get('hypervisor_links'),
+                'ipv4-oam-address': hypervisor.get('host_ip'),
+            }
+
+            if hypervisor.get('cpu_info') and hypervisor.get('cpu_info').get('topology'):
+                cputopo = hypervisor.get('cpu_info').get('topology')
+                n_cpus = cputopo['cores'] * cputopo['threads'] * cputopo['sockets']
+                hypervisor_info['number-of-cpus'] = n_cpus
+
+            ret = self.update_pserver(cloud_owner, cloud_region_id, hypervisor_info)
+            if ret != 0:
+                # failed to update image
+                self._logger.debug("failed to populate pserver info into AAI: %s, hostname: %s, ret:%s"
+                                   % (vimid, hypervisor_info['hostname'], ret))
+            continue
         pass
 
 
     def discover_epa_resources(self, request, vimid="", session=None, viminfo=None):
-
-
         pass
 
     def update_proxy_identity_endpoint(self, cloud_owner, cloud_region_id, url):
@@ -343,7 +618,7 @@ class Registry(APIView):
                 req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
                            % (cloud_owner, cloud_region_id), "PUT", content={'identity-url': url})
 
-            self._logger.debug("update_proxy_identity_endpoint,vimid:%s_%s req_to_aai: %s, return %s, %s, %s" \
+            self._logger.debug("update_proxy_identity_endpoint,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
                                % (cloud_owner,cloud_region_id, url, retcode, content, status_code))
 
     def post(self, request, vimid=""):
@@ -351,18 +626,19 @@ class Registry(APIView):
         self._logger.debug("Registration--post::vimid > %s" % vimid)
 
         try:
-            #populate proxy identity url
+            # populate proxy identity url
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-            self.update_proxy_identity_endpoint(cloud_owner, cloud_region_id, config.MULTICLOUD_PREFIX+"/%s/identity/v3" % vimid )
+            self.update_proxy_identity_endpoint(cloud_owner, cloud_region_id,
+                                                config.MULTICLOUD_PREFIX + "/%s/identity/v3" % vimid)
 
             # prepare request resource to vim instance
             # get token:
             viminfo = VimDriverUtils.get_vim_info(vimid)
-            #set the default tenant since there is no tenant info in the VIM yet
+            # set the default tenant since there is no tenant info in the VIM yet
             sess = VimDriverUtils.get_session(viminfo, tenantname=request.data['defaultTenant'])
 
-            #step 1. discover all projects and populate into AAI
-            self.discover_tenants(request,vimid,sess, viminfo)
+            # step 1. discover all projects and populate into AAI
+            self.discover_tenants(request, vimid,sess, viminfo)
 
             # discover all flavors
             self.discover_flavors(request, vimid, sess, viminfo)
@@ -370,18 +646,17 @@ class Registry(APIView):
             # discover all images
             self.discover_images(request, vimid, sess, viminfo)
 
-
             # discover all az
             self.discover_availablezones(request, vimid, sess, viminfo)
 
             # discover all vg
-            self.discover_volumegroups(request, vimid, sess, viminfo)
+            #self.discover_volumegroups(request, vimid, sess, viminfo)
 
             # discover all snapshots
             self.discover_snapshots(request, vimid, sess, viminfo)
 
             # discover all server groups
-            self.discover_servergroups(request, vimid, sess, viminfo)
+            #self.discover_servergroups(request, vimid, sess, viminfo)
 
             # discover all pservers
             self.discover_pservers(request, vimid, sess, viminfo)
@@ -406,7 +681,7 @@ class Registry(APIView):
         self._logger.debug("Registration--delete::vimid > %s"% vimid)
         try:
             ret_code = VimDriverUtils.delete_vim_info(vimid)
-            return Response(status=status.HTTP_202_ACCEPTED)
+            return Response(status=status.HTTP_202_ACCEPTED if ret_code==0 else status.HTTP_500_INTERNAL_SERVER_ERROR)
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
