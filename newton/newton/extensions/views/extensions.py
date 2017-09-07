@@ -48,8 +48,8 @@ class Extensions(APIView):
                         "alias": "epa-caps",
                         "description": "Multiple network support",
                         "name": "EPACapsQuery",
-                        "url": "http://%s:%s/api/multicloud-newton/v0/%s/extensions/epa-caps" \
-                                       % (config.MSB_SERVICE_IP, config.MSB_SERVICE_PORT, vimid),
+                        "url": config.MULTICLOUD_PREFIX+"/%s/extensions/epa-caps" \
+                                       % (vimid),
                         "spec": ""
                     }
                 ]

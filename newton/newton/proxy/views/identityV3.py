@@ -31,7 +31,7 @@ from newton.requests.views.util import VimDriverUtils
 logger = logging.getLogger(__name__)
 
 DEBUG=True
-MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-newton/v0" %(config.MSB_SERVICE_IP, config.MSB_SERVICE_PORT)
+#MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-newton/v0" %(config.MSB_SERVICE_IP, config.MSB_SERVICE_PORT)
 
 def update_catalog(vimid, catalog, multicould_namespace):
     '''
@@ -76,16 +76,13 @@ def update_catalog(vimid, catalog, multicould_namespace):
                     endpoint_url = endpoint["url"]
                     real_prefix = None
                     real_suffix = None
-#                    m = re.search(r'^(http[s]?://[0-9.]+:[0-9]+)(/([0-9a-zA-Z/._-]+)$)?', endpoint_url)
-                    m = re.search(r'^(http[s]?://[0-9.]+[0-9:]*)(/([0-9a-zA-Z/._-]+)$)?', endpoint_url)
+                    m = re.search(r'^(http[s]?://[0-9.]+:[0-9]+)(/([0-9a-zA-Z/._-]+)$)?', endpoint_url)
+                    if not m:
+                        m = re.search(r'^(http[s]?://[0-9.]+)(/([0-9a-zA-Z/._-]+)$)?', endpoint_url)
                     if m:
                         real_prefix = m.group(1)
                         real_suffix = m.group(3)
-#                    else:
-#                        m = re.search(r'^(http[s]?://[0-9.]+)(/([0-9a-zA-Z/._-]+)$)?', endpoint_url)
-#                        if m:
-#                            real_prefix = m.group(1)
-#                            real_suffix = m.group(2)
+
                     if real_prefix:
                         # populate metadata_catalog
                         one_catalog['prefix'] = real_prefix
@@ -123,7 +120,7 @@ class Tokens(APIView):
                'interface': 'public'}
 
     def __init__(self):
-        self.proxy_prefix = MULTICLOUD_PREFIX
+        self.proxy_prefix = config.MULTICLOUD_PREFIX
         self._logger = logger
 
     def post(self, request, vimid=""):
@@ -169,7 +166,7 @@ class Catalog(APIView):
                'interface': 'public'}
 
     def __init__(self):
-        self.proxy_prefix = MULTICLOUD_PREFIX
+        self.proxy_prefix = config.MULTICLOUD_PREFIX
         self._logger = logger
 
     def get(self, request, vimid=""):

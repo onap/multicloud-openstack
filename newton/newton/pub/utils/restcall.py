@@ -23,8 +23,8 @@ from newton.pub.config.config import AAI_SCHEMA_VERSION
 from newton.pub.config.config import AAI_SERVICE_URL
 from newton.pub.config.config import AAI_USERNAME
 from newton.pub.config.config import AAI_PASSWORD
-from newton.pub.config.config import MSB_SERVICE_IP, MSB_SERVICE_PORT
-from newton.pub.config.config import AAI_APP_ID
+from newton.pub.config.config import MSB_SERVICE_ADDR, MSB_SERVICE_PORT
+from newton.pub.config.config import MULTICLOUD_APP_ID
 
 rest_no_auth, rest_oneway_auth, rest_bothway_auth = 0, 1, 2
 HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_202_ACCEPTED \
@@ -95,7 +95,7 @@ def call_req(base_url, user, passwd, auth_type,
 
 
 def req_by_msb(resource, method, content=''):
-    base_url = "http://%s:%s/" % (MSB_SERVICE_IP, MSB_SERVICE_PORT)
+    base_url = "http://%s:%s/" % (MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 #    logger.debug("requests--get::> %s" % "33")
     return call_req(base_url, "", "", rest_no_auth,
                     resource, method, "", content)
@@ -105,7 +105,7 @@ def req_to_vim(base_url, resource, method, extra_headers='', content=''):
     return call_req(base_url, "", "", rest_no_auth,
                     resource, method, extra_headers, content)
 
-def req_to_aai(resource, method, content='', appid=AAI_APP_ID):
+def req_to_aai(resource, method, content='', appid=MULTICLOUD_APP_ID):
     tmp_trasaction_id = uuid.uuid1()
     headers = {
         'X-FromAppId': appid,

@@ -12,8 +12,12 @@
 import os
 
 # [MSB]
-MSB_SERVICE_IP = '127.0.0.1'
+MSB_SERVICE_ADDR = '127.0.0.1'
 MSB_SERVICE_PORT = '80'
+
+
+#[Multicloud]
+MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-newton/v0" %(MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
 # [A&AI]
 AAI_ADDR = "aai.api.simpledemo.openecomp.org"
@@ -23,7 +27,7 @@ AAI_SCHEMA_VERSION = "v11"
 AAI_USERNAME = 'AAI'
 AAI_PASSWORD = 'AAI'
 
-AAI_APP_ID = 'MultiCloud-Newton'
+MULTICLOUD_APP_ID = 'MultiCloud-Newton'
 
 # [IMAGE LOCAL PATH]
 ROOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
