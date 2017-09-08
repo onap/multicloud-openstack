@@ -602,7 +602,46 @@ class Registry(APIView):
         pass
 
 
+    def update_epa_caps(self, cloud_owner, cloud_region_id, epa_caps_info):
+        '''
+        populate cloud EPA Capabilities information into AAI
+        :param cloud_owner:
+        :param cloud_region_id:
+        :param epa_caps_info: dict of meta data about cloud-region's epa caps
+
+        :return:
+        '''
+
+        cloud_epa_caps = {
+            'cloud-epa-caps': json.dumps(epa_caps_info),
+        }
+
+        if cloud_owner and cloud_region_id:
+            retcode, content, status_code = \
+                req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/"
+                           % (cloud_owner, cloud_region_id, ), "PUT", content=cloud_epa_caps)
+
+            self._logger.debug(
+                "update_epa_caps,vimid:%s_%s req_to_aai: update cloud-epa-caps, return %s, %s, %s"
+                % (cloud_owner,cloud_region_id, retcode, content, status_code))
+
+            return retcode
+        return 1  # unknown cloud owner,region_id
+
     def discover_epa_resources(self, request, vimid="", session=None, viminfo=None):
+        cloud_epa_caps_info = {}
+        cloud_extra_info = viminfo.get('cloud_extra_info')
+        if cloud_extra_info:
+            cloud_epa_caps_info.update(json.loads(cloud_extra_info))
+            pass
+
+        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+        ret = self.update_epa_caps(cloud_owner, cloud_region_id, cloud_epa_caps_info)
+        if ret != 0:
+            # failed to update image
+            self._logger.debug("failed to populate EPA CAPs info into AAI: %s, ret:%s"
+                               % (vimid, ret))
+
         pass
 
     def update_proxy_identity_endpoint(self, cloud_owner, cloud_region_id, url):

@@ -37,7 +37,8 @@ def get_vim_by_id(vim_id):
 
         #assume esr-system-info-id is composed by {cloud-owner} _ {cloud-region-id}
         retcode2,content2,status_code2 = \
-            req_to_aai("/cloud-infrastructure/esr-system-info/%s/%s/%s_%s" \
+            req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
+                       + "/esr-system-info-list/esr-system-info/%s_%s" \
                        % (cloud_owner,cloud_region_id,cloud_owner,cloud_region_id),
                        "GET")
         if retcode2 != 0:
@@ -64,7 +65,7 @@ def get_vim_by_id(vim_id):
                 viminfo['userName'] = tmp_authinfo['user-name']
                 viminfo['password'] = tmp_authinfo['password']
                 viminfo['domain'] = tmp_authinfo['cloud-domain']
-                viminfo['url'] = tmp_authinfo['url']
+                viminfo['url'] = tmp_authinfo['service-url']
                 viminfo['tenant'] = tmp_authinfo['default-tenant']
                 viminfo['cacert'] = tmp_authinfo['ssl-cacert']
                 viminfo['insecure'] = tmp_authinfo['ssl-insecure']

@@ -17,8 +17,6 @@ import traceback
 
 from django.core.cache import cache
 
-from keystoneauth1 import access
-from keystoneauth1.access import service_catalog
 from keystoneauth1.exceptions import HttpError
 from rest_framework import status
 from rest_framework.response import Response
