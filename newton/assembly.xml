@@ -38,6 +38,14 @@
             </includes>
         </fileSet>
         <fileSet>
+            <directory>docker</directory>
+            <outputDirectory>/docker</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+        <fileSet>
             <directory>.</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
