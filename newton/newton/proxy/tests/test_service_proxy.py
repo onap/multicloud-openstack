@@ -698,6 +698,7 @@ MOCK_PATCH_IMAGE_RESPONSE = {
 
 class mock_get_servers_response_specs(object):
    status_code = 200
+   content = ''
 
    def json(self):
       pass
@@ -735,6 +736,7 @@ class TestServiceProxy(unittest.TestCase):
        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
        mock_get_servers_response_obj = mock.Mock(spec=mock_get_servers_response_specs)
        mock_get_servers_response_obj.status_code=200
+       mock_get_servers_response_obj.content = MOCK_GET_SERVERS_RESPONSE
        mock_get_servers_response_obj.json.return_value=MOCK_GET_SERVERS_RESPONSE
        mock_session.get.return_value = mock_get_servers_response_obj
 
@@ -782,6 +784,7 @@ class TestServiceProxy(unittest.TestCase):
        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
        mock_post_server_response_obj = mock.Mock(spec=mock_get_servers_response_specs)
        mock_post_server_response_obj.status_code=202
+       mock_post_server_response_obj.content = MOCK_POST_SERVER_RESPONSE
        mock_post_server_response_obj.json.return_value=MOCK_POST_SERVER_RESPONSE
        mock_session.post.return_value = mock_post_server_response_obj
 

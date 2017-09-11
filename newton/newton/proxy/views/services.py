@@ -72,7 +72,8 @@ class Services(APIView):
             resp = sess.head(req_resource, endpoint_filter=service)
             #update token cache in case the token was required during the requests
             tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
-            content = resp.json()
+            content = resp.json() if resp.content else None
+
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
             #return resp
         except VimDriverNewtonException as e:
@@ -142,13 +143,13 @@ class Services(APIView):
             resp = sess.get(req_resource, endpoint_filter=service)
             #update token cache in case the token was required during the requests
             tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
-            content = resp.json()
-
-            #filter the resp content and replace all endpoint prefix
-            tmp_content = json.dumps(content)
-            tmp_pattern = re.compile(real_prefix)
-            tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
-            content = json.loads(tmp_content)
+            content = resp.json() if resp.content else None
+            if content:
+                #filter the resp content and replace all endpoint prefix
+                tmp_content = json.dumps(content)
+                tmp_pattern = re.compile(real_prefix)
+                tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
+                content = json.loads(tmp_content)
 
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
             #return resp
@@ -220,13 +221,13 @@ class Services(APIView):
             resp = sess.post(req_resource, data=json.JSONEncoder().encode(request.data),endpoint_filter=service)
             # update token cache in case the token was required during the requests
             tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
-            content = resp.json()
-
-            #filter the resp content and replace all endpoint prefix
-            tmp_content = json.dumps(content)
-            tmp_pattern = re.compile(real_prefix)
-            tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
-            content = json.loads(tmp_content)
+            content = resp.json() if resp.content else None
+            if content:
+                #filter the resp content and replace all endpoint prefix
+                tmp_content = json.dumps(content)
+                tmp_pattern = re.compile(real_prefix)
+                tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
+                content = json.loads(tmp_content)
 
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
 
@@ -298,13 +299,13 @@ class Services(APIView):
             resp = sess.put(req_resource, data=json.JSONEncoder().encode(request.data),endpoint_filter=service)
             # update token cache in case the token was required during the requests
             tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
-            content = resp.json()
-
-            #filter the resp content and replace all endpoint prefix
-            tmp_content = json.dumps(content)
-            tmp_pattern = re.compile(real_prefix)
-            tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
-            content = json.loads(tmp_content)
+            content = resp.json() if resp.content else None
+            if content:
+                #filter the resp content and replace all endpoint prefix
+                tmp_content = json.dumps(content)
+                tmp_pattern = re.compile(real_prefix)
+                tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
+                content = json.loads(tmp_content)
 
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
 
@@ -377,13 +378,13 @@ class Services(APIView):
             resp = sess.patch(req_resource, data=json.JSONEncoder().encode(request.data),endpoint_filter=service)
             # update token cache in case the token was required during the requests
             tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
-            content = resp.json()
-
-            #filter the resp content and replace all endpoint prefix
-            tmp_content = json.dumps(content)
-            tmp_pattern = re.compile(real_prefix)
-            tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
-            content = json.loads(tmp_content)
+            content = resp.json() if resp.content else None
+            if content:
+                #filter the resp content and replace all endpoint prefix
+                tmp_content = json.dumps(content)
+                tmp_pattern = re.compile(real_prefix)
+                tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
+                content = json.loads(tmp_content)
 
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
 

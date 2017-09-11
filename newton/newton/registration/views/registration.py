@@ -387,7 +387,7 @@ class Registry(APIView):
             ret = self.update_az(cloud_owner, cloud_region_id, vg_info)
             if ret != 0:
                 # failed to update image
-                self._logger.debug("failed to populate az info into AAI: %s, volume-group-id: %s, ret:%s"
+                self._logger.debug("failed to populate volumegroup info into AAI: %s, volume-group-id: %s, ret:%s"
                                    % (vimid, vg_info['volume-group-id'], ret))
             continue
         pass
@@ -454,7 +454,7 @@ class Registry(APIView):
             ret = self.update_az(cloud_owner, cloud_region_id, snapshot_info)
             if ret != 0:
                 # failed to update image
-                self._logger.debug("failed to populate az info into AAI: %s, snapshot-id: %s, ret:%s"
+                self._logger.debug("failed to populate snapshot info into AAI: %s, snapshot-id: %s, ret:%s"
                                    % (vimid, snapshot_info['snapshot-id'], ret))
             continue
         pass
@@ -554,7 +554,7 @@ class Registry(APIView):
                     req_to_aai("/cloud-infrastructure/pservers/pserver/%s/relationship-list/relationship"
                                % (pserverinfo['hostname']), "PUT", content=relationship_data)
 
-                self._logger.debug("update_snapshot,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
+                self._logger.debug("update_pserver,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
                                    % (cloud_owner, cloud_region_id, pserverinfo['hostname'], retcode, content,
                                       status_code))
                 pass
@@ -578,7 +578,7 @@ class Registry(APIView):
         for hypervisor in content.get('hypervisors'):
             hypervisor_info = {
                 'hostname': hypervisor['hypervisor_hostname'],
-                'in-maint': hypervisor['name'],
+                'in-maint': hypervisor['state'],
 
                 'pserver-id': hypervisor.get('id'),
                 'ptnii-equip-name': hypervisor.get('id'),
