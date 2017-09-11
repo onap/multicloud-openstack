@@ -71,18 +71,24 @@ def call_req(base_url, user, passwd, auth_type,
                 else:
                     ret = [1, resp_body, resp_status]
                 break
-            except http.client.ResponseNotReady:
-#                logger.debug("retry_times=%d", retry_times)
-                ret = [1, "Unable to connect to %s" % full_url, resp_status]
-                continue
+            except Exception as ex:
+                if 'httplib.ResponseNotReady' in str(sys.exc_info()):
+                    logger.debug("retry_times=%d", retry_times)
+                    logger.error(traceback.format_exc())
+                    ret = [1, "Unable to connect to %s" % full_url, resp_status]
+                    continue
+                raise ex
     except urllib.error.URLError as err:
         ret = [2, str(err), resp_status]
-    except Exception:
+    except Exception as ex:
         logger.error(traceback.format_exc())
         logger.error("[%s]ret=%s" % (callid, str(sys.exc_info())))
         if not resp_status:
             resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
         ret = [3, str(sys.exc_info()), resp_status]
+    except:
+        logger.error(traceback.format_exc())
+        ret = [4, str(sys.exc_info()), resp_status]
 
 #    logger.debug("[%s]ret=%s" % (callid, str(ret)))
     return ret
@@ -100,7 +106,7 @@ def req_to_vim(base_url, resource, method, extra_headers='', content=''):
                     resource, method, extra_headers, content)
 
 def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
-    tmp_trasaction_id = uuid.uuid1()
+    tmp_trasaction_id = str(uuid.uuid1())
     headers = {
         'X-FromAppId': appid,
         'X-TransactionId': tmp_trasaction_id,
@@ -110,7 +116,7 @@ def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
 
     logger.debug("req_to_aai--%s::> %s, %s" % (tmp_trasaction_id, method, resource))
     return call_req(config.AAI_BASE_URL, config.AAI_USERNAME, config.AAI_PASSWORD, rest_no_auth,
-                    resource, method, json.dumps(content), headers)
+                    resource, method, content=json.dumps(content), extra_headers=headers)
 
 
 def combine_url(base_url, resource):
