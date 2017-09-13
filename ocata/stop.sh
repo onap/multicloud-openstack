@@ -12,5 +12,5 @@
 
 #!/bin/bash
 
-ps auxww | grep 'manage.py runserver 0.0.0.0:9003' | awk '{print $2}' | xargs kill -9
+ps auxww | grep 'manage.py runserver 0.0.0.0:9004' | awk '{print $2}' | xargs kill -9
 ps auxww | grep 'memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid' | awk '{print $2}' | xargs kill -9

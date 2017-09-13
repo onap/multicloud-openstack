@@ -1,4 +1,3 @@
-#!/bin/bash
 # Copyright (c) 2017 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,7 +9,21 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
-#!/bin/bash
+import unittest
+import json
+from django.test import Client
+from rest_framework import status
 
-ps auxww | grep 'manage.py runserver 0.0.0.0:9003' | awk '{print $2}' | xargs kill -9
-ps auxww | grep 'memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid' | awk '{print $2}' | xargs kill -9
+
+class SampleViewTest(unittest.TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def tearDown(self):
+        pass
+
+    def test_sample(self):
+        response = self.client.get("/samples/")
+        self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
+        resp_data = response.json()
+        self.assertEqual({"status": "active"}, resp_data)
