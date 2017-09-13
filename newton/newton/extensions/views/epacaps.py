@@ -34,6 +34,10 @@ DEBUG=True
 
 class EpaCaps(APIView):
 
+    def __init__(self):
+        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self._logger = logger
+
     def get(self, request, vimid=""):
         logger.debug("EpaCaps--get::data> %s" % request.data)
         logger.debug("EpaCaps--get::vimid> %s"

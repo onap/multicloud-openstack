@@ -33,8 +33,8 @@ DEBUG=True
 class Registry(APIView):
 
     def __init__(self):
+        self.proxy_prefix = config.MULTICLOUD_PREFIX
         self._logger = logger
-
 
     def update_tenant(self, cloud_owner, cloud_region_id, tenantinfo):
         '''
@@ -668,7 +668,7 @@ class Registry(APIView):
             # populate proxy identity url
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
             self.update_proxy_identity_endpoint(cloud_owner, cloud_region_id,
-                                                config.MULTICLOUD_PREFIX + "/%s/identity/v3" % vimid)
+                                                self.proxy_prefix + "/%s/identity/v3" % vimid)
 
             # prepare request resource to vim instance
             # get token:

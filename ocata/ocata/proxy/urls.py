@@ -23,8 +23,6 @@ urlpatterns = [
     #        identityV2.Tokens.as_view()),
     url(r'^identity/v3/auth/tokens$',
         identityV3.Tokens.as_view()),
-    url(r'^identity/v3/auth/catalog$',
-        identityV3.Catalog.as_view()),
     url(r'^identity/(?:v2.0/|)tenants$',
         services.GetTenants.as_view()),
     url(r'^(?P<servicetype>[0-9a-zA-Z_-]+)/(?P<requri>[0-9a-zA-Z./_-]*)$',

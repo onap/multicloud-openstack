@@ -36,6 +36,10 @@ DEBUG=True
 
 class Extensions(APIView):
 
+    def __init__(self):
+        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self._logger = logger
+
     def get(self, request, vimid=""):
         logger.debug("Extensions--get::data> %s" % request.data)
         logger.debug("Extensions--get::vimid> %s"
@@ -48,7 +52,7 @@ class Extensions(APIView):
                         "alias": "epa-caps",
                         "description": "Multiple network support",
                         "name": "EPACapsQuery",
-                        "url": config.MULTICLOUD_PREFIX+"/%s/extensions/epa-caps" \
+                        "url": self.proxy_prefix+"/%s/extensions/epa-caps" \
                                        % (vimid),
                         "spec": ""
                     }
@@ -61,7 +65,7 @@ class Extensions(APIView):
                 "extensions": registered_extensions
             }
             return Response(data=content, status=status.HTTP_200_OK)
-            #return resp
+
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:

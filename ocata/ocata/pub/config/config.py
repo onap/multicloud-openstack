@@ -12,11 +12,11 @@
 import os
 
 # [MSB]
-MSB_SERVICE_IP = '127.0.0.1'
+MSB_SERVICE_ADDR = '127.0.0.1'
 MSB_SERVICE_PORT = '80'
 
 #[Multicloud]
-MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-ocata/v0" %(MSB_SERVICE_IP, MSB_SERVICE_PORT)
+MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-ocata/v0" %(MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
 # [A&AI]
 AAI_ADDR = "aai.api.simpledemo.openecomp.org"

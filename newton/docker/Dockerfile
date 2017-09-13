@@ -23,6 +23,7 @@ RUN apt-get update && \
     cd /opt/ && \
     wget -O multicloud-openstack-newton.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-newton&e=zip&v=LATEST" && \
     unzip -q -o -B multicloud-openstack-newton.zip && \
+    chmod +x /opt/newton/*.sh && \
     rm -f multicloud-openstack-newton.zip && \
     pip install -r /opt/newton/requirements.txt
 

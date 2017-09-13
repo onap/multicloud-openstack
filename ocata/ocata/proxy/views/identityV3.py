@@ -13,7 +13,7 @@
 # limitations under the License.
 import logging
 
-from newton.pub.config import config
+from ocata.pub.config import config
 from newton.proxy.views import identityV3 as newton_identityV3
 
 logger = logging.getLogger(__name__)
@@ -21,12 +21,6 @@ logger = logging.getLogger(__name__)
 DEBUG=True
 
 class Tokens(newton_identityV3.Tokens):
-
-    def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
-        self._logger = logger
-
-class Catalog(newton_identityV3.Catalog):
 
     def __init__(self):
         self.proxy_prefix = config.MULTICLOUD_PREFIX

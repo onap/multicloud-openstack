@@ -11,7 +11,7 @@
 
 from django.conf.urls import include, url
 
-from newton.registration.views import registration
+from ocata.registration.views import registration
 from newton.requests.views import tenants
 
 urlpatterns = [

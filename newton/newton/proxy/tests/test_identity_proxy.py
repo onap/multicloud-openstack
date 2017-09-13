@@ -23,7 +23,7 @@ from keystoneauth1 import session
 from keystoneauth1.exceptions import HttpError
 
 from newton.requests.views.util import VimDriverUtils
-from newton.proxy.views.identityV3 import Tokens, Catalog
+from newton.proxy.views.identityV3 import Tokens
 
 mock_viminfo = {
     "createTime": "2017-04-01 02:22:27",
@@ -494,14 +494,6 @@ mock_auth_state = {
 }
 
 
-
-class mock_catalog_response_specs(object):
-   status_code = 200
-
-   def json(self):
-      return mock_catalog_response
-
-
 class TestIdentityService(unittest.TestCase):
     def setUp(self):
         self.client = Client()
@@ -539,43 +531,3 @@ class TestIdentityService(unittest.TestCase):
 
         self.assertTrue(response['X-Subject-Token'] == mock_token_id)
         self.assertTrue(context['token']['catalog'] != None)
-
-
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_auth_state')
-    @mock.patch.object(VimDriverUtils, 'update_token_cache')
-    @mock.patch.object(VimDriverUtils, 'get_token_cache')
-    def test_catalog(self, mock_get_token_cache, mock_update_token_cache, mock_get_auth_state, mock_get_session, mock_get_vim_info):
-        '''
-                test API: get token
-        :param mock_update_token_cache:
-        :param mock_get_auth_state:
-        :param mock_get_session:
-        :param mock_get_vim_info:
-        :return:
-        '''
-
-        #mock VimDriverUtils APIs
-        mock_session_specs = ["get"]
-
-        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-        mock_catalog_response_obj = mock.Mock(spec=mock_catalog_response_specs)
-        mock_catalog_response_obj.status_code=200
-        mock_catalog_response_obj.json.return_value=mock_catalog_response
-        mock_session.get.return_value = mock_catalog_response_obj
-
-        mock_get_vim_info.return_value = mock_viminfo
-        mock_get_session.return_value = mock_session
-        mock_get_auth_state.return_value = json.dumps(mock_auth_state)
-        mock_update_token_cache.return_value = mock_token_id
-        mock_get_token_cache.return_value = (json.dumps(mock_auth_state),{})
-
-        #simulate client to make the request
-        response = self.client.get("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/catalog",{},
-                                   HTTP_X_AUTH_TOKEN=mock_token_id)
-        self.failUnlessEqual(status.HTTP_200_OK, response.status_code)
-        context = response.json()
-
-        self.assertTrue(response['X-Subject-Token'] == mock_token_id)
-        self.assertTrue(context['catalog'] != None)

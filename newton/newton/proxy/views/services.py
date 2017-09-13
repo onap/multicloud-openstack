@@ -28,6 +28,7 @@ from rest_framework.views import APIView
 from newton.pub.exceptions import VimDriverNewtonException
 from newton.requests.views.util import VimDriverUtils
 from newton.pub.msapi import extsys
+from newton.proxy.views.proxy_utils import ProxyUtils
 
 logger = logging.getLogger(__name__)
 
@@ -144,13 +145,7 @@ class Services(APIView):
             #update token cache in case the token was required during the requests
             tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
             content = resp.json() if resp.content else None
-            if content:
-                #filter the resp content and replace all endpoint prefix
-                tmp_content = json.dumps(content)
-                tmp_pattern = re.compile(real_prefix)
-                tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
-                content = json.loads(tmp_content)
-
+            content = ProxyUtils.update_prefix(metadata_catalog, content)
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
             #return resp
         except VimDriverNewtonException as e:
@@ -222,13 +217,7 @@ class Services(APIView):
             # update token cache in case the token was required during the requests
             tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
             content = resp.json() if resp.content else None
-            if content:
-                #filter the resp content and replace all endpoint prefix
-                tmp_content = json.dumps(content)
-                tmp_pattern = re.compile(real_prefix)
-                tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
-                content = json.loads(tmp_content)
-
+            content = ProxyUtils.update_prefix(metadata_catalog, content)
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
 
         except VimDriverNewtonException as e:
@@ -300,13 +289,7 @@ class Services(APIView):
             # update token cache in case the token was required during the requests
             tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
             content = resp.json() if resp.content else None
-            if content:
-                #filter the resp content and replace all endpoint prefix
-                tmp_content = json.dumps(content)
-                tmp_pattern = re.compile(real_prefix)
-                tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
-                content = json.loads(tmp_content)
-
+            content = ProxyUtils.update_prefix(metadata_catalog, content)
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
 
         except VimDriverNewtonException as e:
@@ -379,13 +362,7 @@ class Services(APIView):
             # update token cache in case the token was required during the requests
             tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
             content = resp.json() if resp.content else None
-            if content:
-                #filter the resp content and replace all endpoint prefix
-                tmp_content = json.dumps(content)
-                tmp_pattern = re.compile(real_prefix)
-                tmp_content = tmp_pattern.sub(proxy_prefix, tmp_content)
-                content = json.loads(tmp_content)
-
+            content = ProxyUtils.update_prefix(metadata_catalog, content)
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
 
         except VimDriverNewtonException as e:

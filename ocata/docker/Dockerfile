@@ -23,6 +23,7 @@ RUN apt-get update && \
     cd /opt/ && \
     wget -O multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=LATEST" && \
     unzip -q -o -B multicloud-openstack-ocata.zip && \
+    chmod +x /opt/ocata/*.sh && \
     rm -f multicloud-openstack-ocata.zip && \
     pip install -r /opt/ocata/requirements.txt
 

@@ -13,7 +13,9 @@
 # limitations under the License.
 import logging
 
-from newton.pub.config import config
+from rest_framework import status
+
+from ocata.pub.config import config
 from newton.proxy.views import services as newton_services
 
 logger = logging.getLogger(__name__)
@@ -33,3 +35,11 @@ class GetTenants(newton_services.GetTenants):
 
     def __init__(self):
         self._logger = logger
+
+    def get(self, request, vimid="", servicetype="identity", requri='v3/projects'):
+        self._logger.debug("GetTenants--get::META> %s" % request.META)
+        self._logger.debug("GetTenants--get::data> %s" % request.data)
+        self._logger.debug("GetTenants--get::vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
+
+        return super(GetTenants,self).get(request, vimid, servicetype, requri)

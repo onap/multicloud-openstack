@@ -11,18 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 
-from django.conf.urls import url
-from rest_framework.urlpatterns import format_suffix_patterns
+from ocata.pub.config import config
+from newton.extensions.views import extensions as newton_extensions
 
-from ocata.extensions.views import extensions
-from ocata.extensions.views import epacaps
+logger = logging.getLogger(__name__)
 
-urlpatterns = [
-    url(r'^sions$', extensions.Extensions.as_view()),
-    url(r'^sions/$', extensions.Extensions.as_view()),
-    url(r'^sions/epa-caps$', epacaps.EpaCaps.as_view()),
-    url(r'^sions/epa-caps/$', epacaps.EpaCaps.as_view()),
-]
+DEBUG=True
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+class Extensions(newton_extensions.Extensions):
+
+    def __init__(self):
+        self._logger = logger
+        self.proxy_prefix = config.MULTICLOUD_PREFIX
+
