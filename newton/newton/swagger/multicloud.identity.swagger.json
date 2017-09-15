@@ -1,0 +1,59 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiCloud Identity Proxy rest API"
+    },
+    "basePath": "/api/multicloud-newton/v0/",
+    "tags": [
+        {
+            "name": "MultiCloud services"
+        }
+    ],
+    "paths": {
+        "/{vimid}/identity/v3/auth/tokens": {
+            "post": {
+                "tags": [
+                    "MultiCloud Identity Proxy"
+                ],
+                "summary": "Authenticate and get Catalog of endpoints",
+                "description": "Authenticate to get token and catalog of service endpoints",
+                "operationId": "authenticate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id, composed by {cloud-owner}_{cloud-region-id}",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenant_name",
+                        "in": "body",
+                        "description": "tenant name",
+                        "required": false,
+                        "type": "string"
+                    },
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "type": "string"
+                    },
+                    "404": {
+                        "description": "the vim id or tenant name is wrong"
+                    },
+                    "500": {
+                        "description": "the vim instance is not accessable"
+                    }
+                }
+            },
+        },
+    },
+}

@@ -83,7 +83,14 @@ class SwaggerJsonView(APIView):
         f.close()
         json_data["paths"].update(json_data_temp["paths"])
         json_data["definitions"].update(json_data_temp["definitions"])
+
+        json_file = os.path.join(os.path.dirname(__file__), 'multicloud.identity.swagger.json')
+        f = open(json_file)
+        json_data_temp = json.JSONDecoder().decode(f.read())
+        f.close()
+        json_data["paths"].update(json_data_temp["paths"])
+
         json_data["basePath"] = "/api/multicloud-newton/v0/"
-        json_data["info"]["title"] = "MultiVIM driver of OpenStack Newton Service NBI"
+        json_data["info"]["title"] = "Service NBI of MultiCloud plugin for OpenStack Newton"
         return Response(json_data)
 

@@ -49,9 +49,11 @@ class Tokens(APIView):
         resp = None
         resp_body = None
         try:
+            tenant_name = request.data.get("tenant_name")
+
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
-            sess = VimDriverUtils.get_session(vim)
+            sess = VimDriverUtils.get_session(vim, tenantname = tenant_name)
 
             tmp_auth_state = VimDriverUtils.get_auth_state(vim, sess)
             tmp_auth_info = json.loads(tmp_auth_state)
