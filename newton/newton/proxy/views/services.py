@@ -70,10 +70,13 @@ class Services(APIView):
                        'interface': interface,
                        'region_id': regionid}
 
+            self._logger.debug("service head request uri %s" % (req_resource))
+
             resp = sess.head(req_resource, endpoint_filter=service)
             #update token cache in case the token was required during the requests
-            tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
+            #tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
             content = resp.json() if resp.content else None
+            self._logger.debug("service head response: %s, %s" % (resp.status_code, content))
 
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
             #return resp
@@ -141,10 +144,14 @@ class Services(APIView):
                        'interface': interface,
                        'region_id': regionid}
 
+            self._logger.debug("service get request uri %s" % (req_resource))
+
             resp = sess.get(req_resource, endpoint_filter=service)
             #update token cache in case the token was required during the requests
-            tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
+            #tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
             content = resp.json() if resp.content else None
+            self._logger.debug("service get response: %s, %s" % (resp.status_code, content))
+
             content = ProxyUtils.update_prefix(metadata_catalog, content)
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
             #return resp
@@ -213,10 +220,14 @@ class Services(APIView):
                        'interface': interface,
                        'region_id': regionid}
 
+            self._logger.debug("service post request uri %s" % (req_resource))
+
             resp = sess.post(req_resource, data=json.JSONEncoder().encode(request.data),endpoint_filter=service)
             # update token cache in case the token was required during the requests
-            tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
+            #tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
             content = resp.json() if resp.content else None
+            self._logger.debug("service post response: %s, %s" % (resp.status_code, content))
+
             content = ProxyUtils.update_prefix(metadata_catalog, content)
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
 
@@ -285,10 +296,14 @@ class Services(APIView):
                        'interface': interface,
                        'region_id': regionid}
 
+            self._logger.debug("service put request uri %s" % (req_resource))
+
             resp = sess.put(req_resource, data=json.JSONEncoder().encode(request.data),endpoint_filter=service)
             # update token cache in case the token was required during the requests
-            tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
+            #tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
             content = resp.json() if resp.content else None
+            self._logger.debug("service put response: %s, %s" % (resp.status_code, content))
+
             content = ProxyUtils.update_prefix(metadata_catalog, content)
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
 
@@ -358,10 +373,14 @@ class Services(APIView):
                        'interface': interface,
                        'region_id': regionid}
 
+            self._logger.debug("service patch request uri %s" % (req_resource))
+
             resp = sess.patch(req_resource, data=json.JSONEncoder().encode(request.data),endpoint_filter=service)
             # update token cache in case the token was required during the requests
-            tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
+            #tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
             content = resp.json() if resp.content else None
+            self._logger.debug("service patch response: %s, %s" % (resp.status_code, content))
+
             content = ProxyUtils.update_prefix(metadata_catalog, content)
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
 
@@ -430,9 +449,11 @@ class Services(APIView):
                        'interface': interface,
                        'region_id': regionid}
 
+            self._logger.debug("service delete request uri %s" % (req_resource))
+
             resp = sess.delete(req_resource, endpoint_filter=service)
             # update token cache in case the token was required during the requests
-            tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
+            #tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state)
 
             return Response(headers={'X-Subject-Token': tmp_auth_token}, status=resp.status_code)
 
