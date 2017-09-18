@@ -11,19 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+import copy
 import json
 
+from django.test import Client
 import mock
+from rest_framework import status
 import unittest
 
-from django.test import Client
-from rest_framework import status
-
-from keystoneauth1 import session
-from keystoneauth1.exceptions import HttpError
 
 from newton.requests.views.util import VimDriverUtils
-from newton.proxy.views.services import Services, GetTenants
 
 MOCK_VIM_INFO = {
     "createTime": "2017-04-01 02:22:27",
@@ -696,7 +694,7 @@ MOCK_PATCH_IMAGE_RESPONSE = {
 }
 
 
-class mock_get_servers_response_specs(object):
+class MockResponse(object):
    status_code = 200
    content = ''
 
@@ -707,18 +705,73 @@ class mock_get_servers_response_specs(object):
 class TestServiceProxy(unittest.TestCase):
     def setUp(self):
         self.client = Client()
-        pass
 
-    def tearDown(self):
-        pass
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_token_cache')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_get_token(self, mock_get_vim_info, mock_get_token_cache, mock_get_session):
+       mock_session_specs = ["head"]
+       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
+       mock_get_servers_response_obj = mock.Mock(spec=MockResponse)
+       mock_get_servers_response_obj.status_code=200
+       mock_get_servers_response_obj.content = MOCK_GET_SERVERS_RESPONSE
+       mock_get_servers_response_obj.json.return_value=MOCK_GET_SERVERS_RESPONSE
+       mock_session.head.return_value = mock_get_servers_response_obj
 
+       mock_get_vim_info.return_value = MOCK_VIM_INFO
+       mock_get_session.return_value = mock_session
+       mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE),json.dumps(MOCK_INTERNAL_METADATA_CATALOG))
+       response = self.client.head(
+          "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+          {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_200_OK, response.status_code)
+
+    def test_unauthorized_access(self):
+       response = self.client.get(
+          "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers")
+       self.assertEquals(status.HTTP_403_FORBIDDEN, response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_expired_auth_token(self, mock_get_vim_info):
+       mock_get_vim_info.return_value = MOCK_VIM_INFO
+
+       response = self.client.get(
+          "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+          {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_403_FORBIDDEN, response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_token_cache')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_request_without_servicetype(self, mock_get_vim_info, mock_get_token_cache):
+       mock_get_vim_info.return_value = MOCK_VIM_INFO
+       mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), {})
+       servicetype = "compute"
+       url = ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/" + servicetype +
+              "/v2.1/fcca3cc49d5e42caae15459e27103efc/servers")
+       response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+
+       metadata_catalog = copy.deepcopy(MOCK_INTERNAL_METADATA_CATALOG)
+       metadata_catalog[servicetype] = None
+       mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), json.dumps(metadata_catalog))
+
+       response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+
+       metadata_catalog = copy.deepcopy(MOCK_INTERNAL_METADATA_CATALOG)
+       metadata_catalog[servicetype]['prefix'] = None
+       metadata_catalog[servicetype]['proxy_prefix'] = None
+       mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), json.dumps(metadata_catalog))
+
+       response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_auth_state')
     @mock.patch.object(VimDriverUtils, 'update_token_cache')
     @mock.patch.object(VimDriverUtils, 'get_token_cache')
-    def test_get(self, mock_get_token_cache, mock_update_token_cache, mock_get_auth_state, mock_get_session, mock_get_vim_info):
+    def test_crud_resources(self, mock_get_token_cache, mock_update_token_cache, mock_get_auth_state, mock_get_session, mock_get_vim_info):
        '''
        Test service proxy API: GET
 
@@ -731,62 +784,31 @@ class TestServiceProxy(unittest.TestCase):
        '''
 
        #mock VimDriverUtils APIs
-       mock_session_specs = ["get"]
+       mock_session_specs = ["get", "post", "put", "patch", "delete"]
 
-       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-       mock_get_servers_response_obj = mock.Mock(spec=mock_get_servers_response_specs)
+       mock_get_servers_response_obj = mock.Mock(spec=MockResponse)
        mock_get_servers_response_obj.status_code=200
        mock_get_servers_response_obj.content = MOCK_GET_SERVERS_RESPONSE
        mock_get_servers_response_obj.json.return_value=MOCK_GET_SERVERS_RESPONSE
-       mock_session.get.return_value = mock_get_servers_response_obj
 
-       mock_get_vim_info.return_value = MOCK_VIM_INFO
-       mock_get_session.return_value = mock_session
-       mock_get_auth_state.return_value = json.dumps(MOCK_AUTH_STATE)
-       mock_update_token_cache.return_value = MOCK_TOKEN_ID
-       mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE),json.dumps(MOCK_INTERNAL_METADATA_CATALOG))
-
-       #simulate client to make the request
-       response = self.client.get(
-           "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
-           {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
-
-       self.failUnlessEqual(status.HTTP_200_OK, response.status_code)
-       context = response.json()
-
-       self.assertTrue(response['X-Subject-Token'] == MOCK_TOKEN_ID)
-       self.assertTrue(context['servers'] != None)
-
-       pass
-
-
-
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_auth_state')
-    @mock.patch.object(VimDriverUtils, 'update_token_cache')
-    @mock.patch.object(VimDriverUtils, 'get_token_cache')
-    def test_post(self, mock_get_token_cache, mock_update_token_cache, mock_get_auth_state, mock_get_session, mock_get_vim_info):
-       '''
-       Test service proxy API: POST
-
-       :param mock_get_token_cache:
-       :param mock_update_token_cache:
-       :param mock_get_auth_state:
-       :param mock_get_session:
-       :param mock_get_vim_info:
-       :return:
-       '''
-
-       #mock VimDriverUtils APIs
-       mock_session_specs = ["post"]
-
-       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-       mock_post_server_response_obj = mock.Mock(spec=mock_get_servers_response_specs)
+       mock_post_server_response_obj = mock.Mock(spec=MockResponse)
        mock_post_server_response_obj.status_code=202
        mock_post_server_response_obj.content = MOCK_POST_SERVER_RESPONSE
        mock_post_server_response_obj.json.return_value=MOCK_POST_SERVER_RESPONSE
+
+       mock_patch_server_response_obj = mock.Mock(spec=MockResponse)
+       mock_patch_server_response_obj.status_code=202
+       mock_patch_server_response_obj.content = MOCK_PATCH_IMAGE_REQUEST
+       mock_patch_server_response_obj.json.return_value=MOCK_PATCH_IMAGE_REQUEST
+
+       mock_delete_server_response_obj = mock.Mock(spec=MockResponse)
+       mock_delete_server_response_obj.status_code=204
+
+       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
+       mock_session.get.return_value = mock_get_servers_response_obj
        mock_session.post.return_value = mock_post_server_response_obj
+       mock_session.patch.return_value = mock_patch_server_response_obj
+       mock_session.delete.return_value = mock_delete_server_response_obj
 
        mock_get_vim_info.return_value = MOCK_VIM_INFO
        mock_get_session.return_value = mock_session
@@ -794,57 +816,40 @@ class TestServiceProxy(unittest.TestCase):
        mock_update_token_cache.return_value = MOCK_TOKEN_ID
        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE),json.dumps(MOCK_INTERNAL_METADATA_CATALOG))
 
-       #simulate client to make the request
+       # Create resource
        response = self.client.post(
            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
            MOCK_POST_SERVER_REQUEST, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
 
-       self.failUnlessEqual(status.HTTP_202_ACCEPTED, response.status_code)
+       self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
+       context = response.json()
+       self.assertEquals(MOCK_TOKEN_ID, response['X-Subject-Token'])
+       self.assertIsNotNone(context['server'])
+
+       # Retrieve resource
+       response = self.client.get(
+           "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+           {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_200_OK, response.status_code)
        context = response.json()
 
-       self.assertTrue(response['X-Subject-Token'] == MOCK_TOKEN_ID)
-       self.assertTrue(context['server'] != None)
+       self.assertEquals(MOCK_TOKEN_ID, response['X-Subject-Token'])
+       self.assertIsNotNone(context['servers'])
 
-       pass
+       # Update resource
+       response = self.client.get(
+           "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+           {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_200_OK, response.status_code)
+       context = response.json()
 
-
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_auth_state')
-    @mock.patch.object(VimDriverUtils, 'update_token_cache')
-    @mock.patch.object(VimDriverUtils, 'get_token_cache')
-    def test_delete(self, mock_get_token_cache, mock_update_token_cache, mock_get_auth_state, mock_get_session, mock_get_vim_info):
-       '''
-       Test service proxy API: DELETE
-
-       :param mock_get_token_cache:
-       :param mock_update_token_cache:
-       :param mock_get_auth_state:
-       :param mock_get_session:
-       :param mock_get_vim_info:
-       :return:
-       '''
-
-       #mock VimDriverUtils APIs
-       mock_session_specs = ["delete"]
-
-       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-       mock_post_server_response_obj = mock.Mock(spec=mock_get_servers_response_specs)
-       mock_post_server_response_obj.status_code=204
-       mock_session.delete.return_value = mock_post_server_response_obj
-
-       mock_get_vim_info.return_value = MOCK_VIM_INFO
-       mock_get_session.return_value = mock_session
-       mock_get_auth_state.return_value = json.dumps(MOCK_AUTH_STATE)
-       mock_update_token_cache.return_value = MOCK_TOKEN_ID
-       mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE),json.dumps(MOCK_INTERNAL_METADATA_CATALOG))
+       self.assertEquals(MOCK_TOKEN_ID, response['X-Subject-Token'])
+       self.assertIsNotNone(context['servers'])
 
        #simulate client to make the request
        response = self.client.delete(
            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers/324dfb7d-f4a9-419a-9a19-237df04b443b",
            HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
 
-       self.failUnlessEqual(status.HTTP_204_NO_CONTENT, response.status_code)
-       self.assertTrue(response['X-Subject-Token'] == MOCK_TOKEN_ID)
-
-       pass
+       self.assertEquals(status.HTTP_204_NO_CONTENT, response.status_code)
+       self.assertEquals(MOCK_TOKEN_ID, response['X-Subject-Token'])
