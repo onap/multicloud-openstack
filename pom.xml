@@ -29,6 +29,7 @@
     
     <modules>
         <module>newton</module>
+        <module>ocata</module>
     </modules>
 
     <build>
