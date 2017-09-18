@@ -11,19 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+import copy
 import json
 
+from django.test import Client
 import mock
+from rest_framework import status
 import unittest
 
-from django.test import Client
-from rest_framework import status
-
-from keystoneauth1 import session
-from keystoneauth1.exceptions import HttpError
 
 from newton.requests.views.util import VimDriverUtils
-from newton.proxy.views.services import Services, GetTenants
 
 MOCK_VIM_INFO = {
     "createTime": "2017-04-01 02:22:27",
@@ -712,13 +710,53 @@ class TestServiceProxy(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_unauthorized_access(self):
+       response = self.client.get(
+          "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers")
+       self.assertEquals(status.HTTP_401_UNAUTHORIZED, response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_expired_auth_token(self, mock_get_vim_info):
+       mock_get_vim_info.return_value = MOCK_VIM_INFO
+
+       response = self.client.get(
+          "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+          {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_401_UNAUTHORIZED, response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_token_cache')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_get_request_without_servicetype(self, mock_get_vim_info, mock_get_token_cache):
+       mock_get_vim_info.return_value = MOCK_VIM_INFO
+       mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), {})
+       servicetype = "compute"
+       url = ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/" + servicetype +
+              "/v2.1/fcca3cc49d5e42caae15459e27103efc/servers")
+       response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+
+       metadata_catalog = copy.deepcopy(MOCK_INTERNAL_METADATA_CATALOG)
+       metadata_catalog[servicetype] = None
+       mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), json.dumps(metadata_catalog))
+
+       response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+
+       metadata_catalog = copy.deepcopy(MOCK_INTERNAL_METADATA_CATALOG)
+       metadata_catalog[servicetype]['prefix'] = None
+       metadata_catalog[servicetype]['proxy_prefix'] = None
+       mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), json.dumps(metadata_catalog))
+
+       response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+       self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_auth_state')
     @mock.patch.object(VimDriverUtils, 'update_token_cache')
     @mock.patch.object(VimDriverUtils, 'get_token_cache')
-    def test_get(self, mock_get_token_cache, mock_update_token_cache, mock_get_auth_state, mock_get_session, mock_get_vim_info):
+    def test_get_service_succesfuly(self, mock_get_token_cache, mock_update_token_cache, mock_get_auth_state, mock_get_session, mock_get_vim_info):
        '''
        Test service proxy API: GET
 
@@ -754,10 +792,8 @@ class TestServiceProxy(unittest.TestCase):
        self.failUnlessEqual(status.HTTP_200_OK, response.status_code)
        context = response.json()
 
-       self.assertTrue(response['X-Subject-Token'] == MOCK_TOKEN_ID)
+       self.assertEquals(MOCK_TOKEN_ID, response['X-Subject-Token'])
        self.assertTrue(context['servers'] != None)
-
-       pass
 
 
 
