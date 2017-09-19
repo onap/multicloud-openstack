@@ -11,11 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import logging
 import json
 import traceback
-
-from django.core.cache import cache
 
 from keystoneauth1.exceptions import HttpError
 from rest_framework import status
@@ -28,8 +27,6 @@ from newton.requests.views.util import VimDriverUtils
 from newton.pub.msapi import extsys
 
 logger = logging.getLogger(__name__)
-
-DEBUG=True
 
 
 class EpaCaps(APIView):
@@ -55,7 +52,6 @@ class EpaCaps(APIView):
                 "cloud-epa-caps": caps_json,
             }
             return Response(data=content, status=status.HTTP_200_OK)
-            #return resp
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:

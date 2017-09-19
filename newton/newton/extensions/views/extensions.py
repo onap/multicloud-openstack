@@ -52,7 +52,7 @@ class Extensions(APIView):
                         "alias": "epa-caps",
                         "description": "Multiple network support",
                         "name": "EPACapsQuery",
-                        "url": self.proxy_prefix+"/%s/extensions/epa-caps" \
+                        "url": self.proxy_prefix + "/%s/extensions/epa-caps" \
                                        % (vimid),
                         "spec": ""
                     }
