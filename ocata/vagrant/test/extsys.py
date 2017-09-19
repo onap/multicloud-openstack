@@ -27,7 +27,7 @@ tisr4 = {
     "password": "admin",
     "tenant": "admin",
     "type": "openstack",
-    "url": "http://192.168.0.10:5000/v3",
+    "url": "http://192.168.1.10:5000/v3",
     "userName": "admin",
     "vendor": "OpenStack",
     "version": "ocata",
