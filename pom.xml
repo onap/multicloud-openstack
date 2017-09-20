@@ -29,6 +29,8 @@
     
     <modules>
         <module>newton</module>
+        <module>ocata</module>
+        <module>windriver</module>
     </modules>
 
     <build>
