@@ -219,7 +219,7 @@ class Flavors(APIView):
                     resp_body.update({"extraSpecs":tmpSpecs})
                 else:
                     #rollback
-                    delete_flavor(self, request, vimid, tenantid, flavorid)
+                    self.delete_flavor(self, request, vimid, tenantid, flavorid)
                     return extraResp
 
             VimDriverUtils.replace_key_by_mapping(resp_body, self.keys_mapping)
