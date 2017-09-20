@@ -1,6 +1,8 @@
 #!/bin/bash
+set -ex
+
 sudo apt-get update -y
-sudo apt-get install -y docker.io 
+sudo apt-get install -y docker.io
 
 git clone http://gerrit.onap.org/r/multicloud/openstack
 cd openstack/ocata/docker

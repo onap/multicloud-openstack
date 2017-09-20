@@ -1,3 +1,6 @@
-test1.sh
 test-extensions.sh
-test-proxy.sh
+test-identity.sh
+test-compute.sh
+test-image.sh
+test-network.sh
+test-orchestration.sh
