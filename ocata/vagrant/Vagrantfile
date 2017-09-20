@@ -33,6 +33,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "onap" do |config|
     config.vm.hostname = "onap"
+    config.vm.synced_folder "../..", "/openstack"
     config.vm.network "private_network", ip: "192.168.0.30"
     config.vm.network :private_network,  ip: "192.168.1.30"
     config.vm.provision "shell", path: "test/test_multicloud.sh", privileged: false
