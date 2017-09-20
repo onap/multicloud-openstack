@@ -124,15 +124,13 @@ class VimDriverUtils(object):
 #        return auth.get_auth_ref(session)
 
     @staticmethod
-    def get_token_cache(vim, token):
+    def get_token_cache(token):
         '''
         get auth_state and metadata fromm cache
-        :param vim:
         :param token:
         :return:
         '''
-        metadata_key = "meta_%s" % token
-        return cache.get(token), cache.get(metadata_key)
+        return cache.get(token), cache.get("meta_%s" % token)
 
 
     @staticmethod
