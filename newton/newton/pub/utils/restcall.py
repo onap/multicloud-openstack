@@ -9,13 +9,13 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
-import sys
+import codecs
 import json
 import traceback
+import sys
+
 import logging
 from six.moves import urllib
-import uuid
-from six.moves import http_client
 import httplib2
 import uuid
 
@@ -32,15 +32,13 @@ MAX_RETRY_TIME = 3
 logger = logging.getLogger(__name__)
 
 
-def call_req(base_url, user, passwd, auth_type,
+def _call_req(base_url, user, passwd, auth_type,
              resource, method, extra_headers='', content=''):
     callid = str(uuid.uuid1())
-#    logger.debug("[%s]call_req('%s','%s','%s',%s,'%s','%s','%s')" % (
-#        callid, base_url, user, passwd, auth_type, resource, method, content))
     ret = None
     resp_status = None
     try:
-        full_url = combine_url(base_url, resource)
+        full_url = _combine_url(base_url, resource)
         headers = {
             'content-type': 'application/json',
             'accept': 'application/json'
@@ -50,7 +48,8 @@ def call_req(base_url, user, passwd, auth_type,
             headers.update(extra_headers)
         if user:
             headers['Authorization'] = \
-                'Basic ' + ('%s:%s' % (user, passwd)).encode("base64")
+                'Basic ' + str(codecs.encode('%s:%s' % (user, passwd), "ascii"))
+
         ca_certs = None
         for retry_times in range(MAX_RETRY_TIME):
             http = httplib2.Http(
@@ -63,9 +62,8 @@ def call_req(base_url, user, passwd, auth_type,
                                                   body=content,
                                                   headers=headers)
                 resp_status, resp_body = \
-                    resp['status'], resp_content.decode('UTF-8')
-#                logger.debug("[%s][%d]status=%s,resp_body=%s)" %
-#                             (callid, retry_times, resp_status, resp_body))
+                    resp['status'], codecs.decode(
+                        resp_content, 'UTF-8')
                 if resp_status in status_ok_list:
                     ret = [0, resp_body, resp_status]
                 else:
@@ -80,7 +78,7 @@ def call_req(base_url, user, passwd, auth_type,
                 raise ex
     except urllib.error.URLError as err:
         ret = [2, str(err), resp_status]
-    except Exception as ex:
+    except Exception:
         logger.error(traceback.format_exc())
         logger.error("[%s]ret=%s" % (callid, str(sys.exc_info())))
         if not resp_status:
@@ -89,21 +87,19 @@ def call_req(base_url, user, passwd, auth_type,
     except:
         logger.error(traceback.format_exc())
         ret = [4, str(sys.exc_info()), resp_status]
-
-#    logger.debug("[%s]ret=%s" % (callid, str(ret)))
     return ret
 
 
 def req_by_msb(resource, method, content=''):
     base_url = "http://%s:%s/" % (config.MSB_SERVICE_ADDR, config.MSB_SERVICE_PORT)
-#    logger.debug("requests--get::> %s" % "33")
-    return call_req(base_url, "", "", rest_no_auth,
+    return _call_req(base_url, "", "", rest_no_auth,
                     resource, method, "", content)
 
 
 def req_to_vim(base_url, resource, method, extra_headers='', content=''):
-    return call_req(base_url, "", "", rest_no_auth,
+    return _call_req(base_url, "", "", rest_no_auth,
                     resource, method, extra_headers, content)
+
 
 def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
     tmp_trasaction_id = str(uuid.uuid1())
@@ -115,11 +111,11 @@ def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
     }
 
     logger.debug("req_to_aai--%s::> %s, %s" % (tmp_trasaction_id, method, resource))
-    return call_req(config.AAI_BASE_URL, config.AAI_USERNAME, config.AAI_PASSWORD, rest_no_auth,
+    return _call_req(config.AAI_BASE_URL, config.AAI_USERNAME, config.AAI_PASSWORD, rest_no_auth,
                     resource, method, content=json.dumps(content), extra_headers=headers)
 
 
-def combine_url(base_url, resource):
+def _combine_url(base_url, resource):
     full_url = None
 
     if not resource:
