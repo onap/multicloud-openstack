@@ -13,9 +13,8 @@ import json
 import logging
 import re
 
-from rest_framework import status
 from newton.pub.exceptions import VimDriverNewtonException
-from newton.pub.utils.restcall import req_by_msb,req_to_aai
+from newton.pub.utils import restcall
 
 
 logger = logging.getLogger(__name__)
@@ -26,7 +25,7 @@ def get_vim_by_id(vim_id):
 
     if cloud_owner and cloud_region_id:
         retcode, content, status_code = \
-            req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
+            restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
                        % (cloud_owner,cloud_region_id),"GET")
         if retcode != 0:
             logger.error("Status code is %s, detail is %s.", status_code, content)
@@ -37,10 +36,9 @@ def get_vim_by_id(vim_id):
 
         #assume esr-system-info-id is composed by {cloud-owner} _ {cloud-region-id}
         retcode2,content2,status_code2 = \
-            req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
-                       + "/esr-system-info-list/esr-system-info/%s_%s" \
-                       % (cloud_owner,cloud_region_id,cloud_owner,cloud_region_id),
-                       "GET")
+            restcall.req_to_aai(("/cloud-infrastructure/cloud-regions/cloud-region/%(owner)s/%(region)s"
+                                 "/esr-system-info-list/esr-system-info/%(owner)s_%(region)s" % {
+                "owner": cloud_owner, "region": cloud_region_id}), "GET")
         if retcode2 != 0:
             logger.error("Status code is %s, detail is %s.", status_code, content)
             raise VimDriverNewtonException(
@@ -49,8 +47,7 @@ def get_vim_by_id(vim_id):
         tmp_authinfo = json.JSONDecoder().decode(content2)
 
         #convert vim information
-
-        if tmp_viminfo:
+        if tmp_viminfo and tmp_authinfo:
             viminfo = {}
             viminfo['vimId'] = vim_id
             viminfo['cloud_owner'] = cloud_owner
@@ -61,28 +58,22 @@ def get_vim_by_id(vim_id):
             viminfo['cloud_extra_info'] = tmp_viminfo['cloud-extra-info']
             viminfo['cloud_epa_caps'] = tmp_viminfo['cloud-epa-caps']
 
-            if tmp_authinfo:
-                viminfo['userName'] = tmp_authinfo['user-name']
-                viminfo['password'] = tmp_authinfo['password']
-                viminfo['domain'] = tmp_authinfo['cloud-domain']
-                viminfo['url'] = tmp_authinfo['service-url']
-                viminfo['tenant'] = tmp_authinfo['default-tenant']
-                viminfo['cacert'] = tmp_authinfo['ssl-cacert']
-                viminfo['insecure'] = tmp_authinfo['ssl-insecure']
-            else:
-                return None
+            viminfo['userName'] = tmp_authinfo['user-name']
+            viminfo['password'] = tmp_authinfo['password']
+            viminfo['domain'] = tmp_authinfo['cloud-domain']
+            viminfo['url'] = tmp_authinfo['service-url']
+            viminfo['tenant'] = tmp_authinfo['default-tenant']
+            viminfo['cacert'] = tmp_authinfo['ssl-cacert']
+            viminfo['insecure'] = tmp_authinfo['ssl-insecure']
 
             return viminfo
-        else:
-            return None
-    else:
-        return None
+    return None
 
 def delete_vim_by_id(vim_id):
     cloud_owner, cloud_region_id = decode_vim_id(vim_id)
     if cloud_owner and cloud_region_id:
         retcode, content, status_code = \
-            req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
+            restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
                        % ( cloud_owner, cloud_region_id), "DELETE")
         if retcode != 0:
             logger.error("Status code is %s, detail is %s.", status_code, content)
