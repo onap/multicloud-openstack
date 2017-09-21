@@ -19,6 +19,14 @@ if [ $HTTPS_PROXY ]; then
     BUILD_ARGS+=" --build-arg HTTPS_PROXY=${HTTPS_PROXY}"
 fi
 
+function build_artifact {
+    cd ..
+    mvn clean install
+    cp docker/Dockerfile target
+    cd target
+    mv multicloud-openstack-ocata*.zip multicloud-openstack-ocata.zip
+}
+
 function build_image {
     docker build ${BUILD_ARGS} -t ${IMAGE_NAME}:${VERSION} -t ${IMAGE_NAME}:latest .
 }
@@ -28,5 +36,6 @@ function push_image {
     docker push ${IMAGE_NAME}:latest
 }
 
+build_artifact
 build_image
 push_image

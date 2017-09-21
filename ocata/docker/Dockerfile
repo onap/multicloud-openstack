@@ -17,11 +17,11 @@ ENV AAI_PASSWORD "AAI"
 EXPOSE 9006
 
 # COPY ./ /opt/ocata/
+COPY multicloud-openstack-ocata.zip /opt
 RUN apt-get update && \
     apt-get install -y memcached && \
     apt-get install -y unzip && \
     cd /opt/ && \
-    wget -O multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=LATEST" && \
     unzip -q -o -B multicloud-openstack-ocata.zip && \
     chmod +x /opt/ocata/*.sh && \
     rm -f multicloud-openstack-ocata.zip && \
