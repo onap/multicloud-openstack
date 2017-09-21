@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/tenants$',
              tenants.Tenants.as_view()),
     url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/'
-        '(?P<tenantid>[0-9a-zA-Z_-]{8,})/', include('ocata.requests.urls')),
+        '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('ocata.requests.urls')),
 ]
 
 

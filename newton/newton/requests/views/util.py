@@ -70,11 +70,13 @@ class VimDriverUtils(object):
                 auth = keystone_v3.Password(auth_url=vim["url"],
                                             username=vim["userName"],
                                             password=vim["password"],
+                                            user_domain_name=vim["domain"],
                                             project_id=tenantid)
             elif '/identity' in vim["url"]:
                 auth = keystone_v3.Password(auth_url=vim["url"]+"/v3",
                                             username=vim["userName"],
                                             password=vim["password"],
+                                            user_domain_name=vim["domain"],
                                             project_id=tenantid)
         elif tenant_name:
             if '/v2' in vim["url"]:

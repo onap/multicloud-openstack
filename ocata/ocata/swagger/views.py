@@ -37,7 +37,7 @@ class SwaggerJsonView(newton_json_view.SwaggerJsonView):
         json_data = resp.data if resp else None
         if json_data:
             json_data["basePath"] = "/api/multicloud-ocata/v0/"
-            json_data["info"]["title"] = "Service NBI of MultiCloud plugin for OpenStack Newton"
+            json_data["info"]["title"] = "Service NBI of MultiCloud plugin for OpenStack Ocata"
             return Response(data=json_data, status=200)
         else:
             return Response(data={'error':'internal error'}, status=500)

@@ -25,7 +25,7 @@ urlpatterns = [
         identityV3.Tokens.as_view()),
     url(r'^identity/(?:v2.0/|)tenants/?$',
         services.GetTenants.as_view()),
-    url(r'^(?P<servicetype>[0-9a-zA-Z_-]+)/(?P<requri>[0-9a-zA-Z./_-]*)$',
+    url(r'^(?P<servicetype>[0-9a-zA-Z_-]{,18})/(?P<requri>[0-9a-zA-Z./_-]*)$',
         services.Services.as_view()),
 ]
 
