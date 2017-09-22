@@ -19,10 +19,8 @@ from newton.extensions.views import extensions
 from newton.extensions.views import epacaps
 
 urlpatterns = [
-    url(r'^sions$', extensions.Extensions.as_view()),
-    url(r'^sions/$', extensions.Extensions.as_view()),
-    url(r'^sions/epa-caps$', epacaps.EpaCaps.as_view()),
-    url(r'^sions/epa-caps/$', epacaps.EpaCaps.as_view()),
+    url(r'^sions/?$', extensions.Extensions.as_view()),
+    url(r'^sions/epa-caps/?$', epacaps.EpaCaps.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

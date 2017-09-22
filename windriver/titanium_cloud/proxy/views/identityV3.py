@@ -25,3 +25,9 @@ class Tokens(newton_identityV3.Tokens):
     def __init__(self):
         self.proxy_prefix = config.MULTICLOUD_PREFIX
         self._logger = logger
+
+class TokensV2(newton_identityV3.TokensV2):
+
+    def __init__(self):
+        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self._logger = logger
