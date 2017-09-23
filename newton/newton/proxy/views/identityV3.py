@@ -81,3 +81,79 @@ class Tokens(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class TokensV2(Tokens):
+    '''
+    Backward compatible API for /v2.0/tokens
+    '''
+
+    def __init__(self):
+        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self._logger = logger
+
+    def post(self, request, vimid=""):
+        self._logger.debug("TokensV2--post::META> %s" % request.META)
+        self._logger.debug("TokensV2--post::data> %s" % request.data)
+        self._logger.debug("TokensV2--post::vimid > %s" % (vimid))
+
+        try:
+            resp = super(TokensV2,self).post(request, vimid)
+            self._logger.debug("TokensV2--resp:: headers:%s, data:%s" % (resp._headers, resp.data))
+            if resp.status_code == status.HTTP_201_CREATED:
+                v3_content =  resp.data
+                v3_token = v3_content['token']
+
+                #convert catalog
+                v2_catalog = []
+                for v3_catalog in v3_token['catalog']:
+                    v2_catalog1 = {
+                        "type": v3_catalog["type"],
+                        "name": v3_catalog["name"],
+                        "endpoints": []
+                    }
+
+                    #convert endpoints
+                    v2_catalog1_endpoints = {"id": v3_catalog['id']}
+                    for v3_endpoint in v3_catalog['endpoints']:
+                        if v3_endpoint['interface'] == 'public':
+                            v2_catalog1_endpoints['publicURL'] = v3_endpoint['url']
+                        elif v3_endpoint['interface'] == 'admin':
+                            v2_catalog1_endpoints['adminURL'] = v3_endpoint['url']
+                        elif v3_endpoint['interface'] == 'internal':
+                            v2_catalog1_endpoints['internalURL'] = v3_endpoint['url']
+
+                    v2_catalog1['endpoints'].append(v2_catalog1_endpoints)
+
+                    v2_catalog.append(v2_catalog1)
+
+
+                #conversion between v3 tokens response and v2.0 tokens response
+                v3_token["project"]['enabled'] = 'true'
+                v2_content = {
+                    "access": {
+                        "token": {
+                            "id" : resp.get('X-Subject-Token', None),
+                            "issued_at": v3_token["issued_at"],
+                            "expires" : v3_token["expires_at"],
+                            "tenant" : v3_token["project"],
+                        },
+                        "serviceCatalog": v2_catalog,
+    #                    "user": v3_token["user"],
+                    }
+                }
+
+                return Response(data=v2_content, status=resp.status_code)
+
+            else:
+                return resp
+        except VimDriverNewtonException as e:
+
+            return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+
+            return Response(data={'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

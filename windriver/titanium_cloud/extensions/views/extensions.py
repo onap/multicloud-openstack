@@ -12,9 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+import traceback
+
+from keystoneauth1.exceptions import HttpError
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from titanium_cloud.pub.config import config
+from newton.pub.exceptions import VimDriverNewtonException
+from newton.requests.views.util import VimDriverUtils
 from newton.extensions.views import extensions as newton_extensions
+from newton.pub.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -39,17 +48,14 @@ class Extensions(newton_extensions.Extensions):
                         "alias": "epa-caps",
                         "description": "Multiple network support",
                         "name": "EPACapsQuery",
-                        "url": self.proxy_prefix + "/%s/extensions/epa-caps" \
-                                       % (vimid),
+                        "url": self.proxy_prefix + "/%s/extensions/epa-caps" % (vimid),
                         "spec": ""
                     },
                     {
                         "alias": "guest-monitor",
                         "description": "Multiple network support",
-                        "name": "EPACapsQuery",
-                        "url": self.proxy_prefix +\
-                               "/%s/extensions/guest-monitor/{server_id}" \
-                                       % (vimid),
+                        "name": "Guest Monitor",
+                        "url": self.proxy_prefix + "/%s/extensions/guest-monitor/{server_id}" % (vimid),
                         "spec": ""
                     }
                 ]
