@@ -90,7 +90,6 @@ class Flavors(APIView):
                        if wanted == flavor["name"]:
                            content["flavors"].append(flavor)
 
-
                 #iterate each flavor to get extra_specs
                 for flavor in content["flavors"]:
                     extraResp = self.get_flavor_extra_specs(sess, flavor["id"])
@@ -197,7 +196,7 @@ class Flavors(APIView):
             extraSpecs = request.data.pop("extraSpecs", None)
             #create flavor first
             resp = self.create_flavor(sess, request)
-            if resp.status_code == 200:
+            if resp.status_code == 202:
                 resp_body = resp.json()["flavor"]
             else:
                 return resp
