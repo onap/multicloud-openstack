@@ -20,26 +20,6 @@ from django.test import Client
 
 MOCK_TOKEN_ID = "1a62b3971d774404a504c5d9a3e506e3"
 
-MOCK_VIM_INFO = {
-    "createTime": "2017-04-01 02:22:27",
-    "domain": "Default",
-    "name": "TiS_R4",
-    "password": "admin",
-    "tenant": "admin",
-    "type": "openstack",
-    "url": "http://128.224.180.14:5000/v3",
-    "userName": "admin",
-    "vendor": "WindRiver",
-    "version": "newton",
-    "vimId": "windriver-hudson-dc_RegionOne",
-    'cloud_owner': 'windriver-hudson-dc',
-    'cloud_region_id': 'RegionOne',
-    'cloud_extra_info': '',
-    'cloud_epa_caps': '{"huge_page":"true","cpu_pinning":"true",\
-        "cpu_thread_policy":"true","numa_aware":"true","sriov":"true",\
-        "dpdk_vswitch":"true","rdt":"false","numa_locality_pci":"true"}',
-    'insecure': 'True',
-}
 
 class MockResponse(object):
     status_code = status.HTTP_200_OK
@@ -49,15 +29,17 @@ class MockResponse(object):
         pass
 
 
-def get_mock_session(http_actions, response):
-    mock_session_specs = http_actions
+def get_mock_session(http_actions, response_dict={}):
     mock_session = mock.Mock(
-        name='mock_session',spec=mock_session_specs)
-    mock_response_obj = mock.Mock(spec=MockResponse)
-    mock_response_obj.status_code = status.HTTP_200_OK
-    mock_response_obj.content = response
-    mock_response_obj.json.return_value = response
+        name='mock_session',spec=http_actions)
     for action in http_actions:
+        mock_response_obj = mock.Mock(spec=MockResponse)
+        mock_response_obj.content = response_dict.get(
+            action).get("content")
+        mock_response_obj.json.return_value = response_dict.get(
+            action).get("content")
+        mock_response_obj.status_code = response_dict.get(
+            action).get("status_code", status.HTTP_200_OK)
         if action == "get":
             mock_session.get.return_value = mock_response_obj
         if action == "post":
