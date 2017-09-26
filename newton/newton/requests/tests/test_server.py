@@ -16,8 +16,8 @@ import json
 
 import mock
 from rest_framework import status
-import six
 
+from newton.requests.tests import mock_info
 from newton.requests.tests import test_base
 from newton.requests.views.util import VimDriverUtils
 
@@ -95,7 +95,7 @@ class TestNetwork(test_base.TestRequest):
         response = self.client.get((
             "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
             "" + tenant_id + "/servers"),
-            {}, HTTP_X_AUTH_TOKEN=test_base.MOCK_TOKEN_ID)
+            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR,
                           response.status_code)
@@ -105,29 +105,32 @@ class TestNetwork(test_base.TestRequest):
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_get_list_servers(self, mock_get_vim_info,
                               mock_get_session):
-        mock_get_vim_info.return_value = test_base.MOCK_VIM_INFO
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.side_effect = [
             test_base.get_mock_session(
-                ["get"], MOCK_GET_SERVERS_RESPONSE),
+                ["get"],
+                {"get": { "content": MOCK_GET_SERVERS_RESPONSE }}),
             test_base.get_mock_session(
-                ["get"], MOCK_GET_PORTS_RESPONSE),
+                ["get"],
+                {"get": { "content":MOCK_GET_PORTS_RESPONSE}}),
             test_base.get_mock_session(
-                ["get"], None)
+                ["get"],
+                {"get": {"content": None}}),
         ]
         tenant_id = "fcca3cc49d5e42caae15459e27103efc"
 
         response = self.client.get((
             "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
             "" + tenant_id + "/servers"),
-            {}, HTTP_X_AUTH_TOKEN=test_base.MOCK_TOKEN_ID)
+            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         content = response.json()
         self.assertEquals(
-            test_base.MOCK_VIM_INFO["name"], content["vimName"])
+            mock_info.MOCK_VIM_INFO["name"], content["vimName"])
         self.assertEquals(tenant_id, content["tenantId"])
         self.assertEquals(
-            test_base.MOCK_VIM_INFO["vimId"], content["vimId"])
+            mock_info.MOCK_VIM_INFO["vimId"], content["vimId"])
         self.assertEquals(len(MOCK_GET_SERVERS_RESPONSE["servers"]),
                           len(content["servers"]))
 
@@ -135,12 +138,12 @@ class TestNetwork(test_base.TestRequest):
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_one_server_info(self, mock_get_vim_info,
                              mock_get_session):
-        mock_get_vim_info.return_value = test_base.MOCK_VIM_INFO
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.side_effect = [
             test_base.get_mock_session(
-                ["get"], MOCK_GET_SERVER_RESPONSE.copy()),
+                ["get"], {"get": {"content": MOCK_GET_SERVER_RESPONSE.copy()}}),
             test_base.get_mock_session(
-                ["get"], MOCK_GET_PORTS_RESPONSE.copy()),
+                ["get"], {"get": {"content": MOCK_GET_PORTS_RESPONSE.copy()}}),
         ]
         tenant_id = "fcca3cc49d5e42caae15459e27103efc"
         server_id = "f5dc173b-6804-445a-a6d8-c705dad5b5eb"
@@ -148,28 +151,29 @@ class TestNetwork(test_base.TestRequest):
         response = self.client.get((
             "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
             "" + tenant_id + "/servers/" + server_id),
-            {}, HTTP_X_AUTH_TOKEN=test_base.MOCK_TOKEN_ID)
+            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         content = response.json()
         self.assertEquals(
-            test_base.MOCK_VIM_INFO["name"], content["vimName"])
+            mock_info.MOCK_VIM_INFO["name"], content["vimName"])
         self.assertEquals(tenant_id, content["tenantId"])
         self.assertEquals(
-            test_base.MOCK_VIM_INFO["vimId"], content["vimId"])
+            mock_info.MOCK_VIM_INFO["vimId"], content["vimId"])
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_create_existing_server(self, mock_get_vim_info,
                                     mock_get_session):
-        mock_get_vim_info.return_value = test_base.MOCK_VIM_INFO
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.side_effect = [
             test_base.get_mock_session(
-                ["get"], MOCK_GET_SERVERS_RESPONSE),
+                ["get"],
+                {"get": {"content":MOCK_GET_SERVERS_RESPONSE}}),
             test_base.get_mock_session(
-                ["get"], None),
+                ["get"], {"get": {"content":None}}),
             test_base.get_mock_session(
-                ["get"], None),
+                ["get"], {"get": {"content": None}}),
         ]
 
         tenant_id = "fcca3cc49d5e42caae15459e27103efc"
@@ -180,7 +184,7 @@ class TestNetwork(test_base.TestRequest):
             "" + tenant_id + "/servers/" + server_id),
             data=json.dumps(TEST_CREATE_SERVER),
             content_type="application/json",
-            HTTP_X_AUTH_TOKEN=test_base.MOCK_TOKEN_ID)
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_200_OK,response.status_code)
@@ -196,33 +200,16 @@ class TestNetwork(test_base.TestRequest):
         self.assertEquals(0, context["returnCode"])
 
     @mock.patch.object(VimDriverUtils, 'get_session')
-    def test_create_server_sucessfuly(self, mock_get_session):
+    def test_create_server_successfully(self, mock_get_session):
         VimDriverUtils.get_vim_info = mock.Mock(
-            return_value=test_base.MOCK_VIM_INFO)
+            return_value=mock_info.MOCK_VIM_INFO)
 
-        def side_effect(items):
-            def func():
-                for item in items:
-                    yield item
-                yield test_base.get_mock_session(
-                ["post"], None)
-
-            generator = func()
-
-            def effect(*args, **kwargs):
-                return six.next(generator)
-
-            return effect
-
-        effects = [
+        mock_get_session.side_effect = [
             test_base.get_mock_session(
-                ["get"], {"servers":[]}),
+                ["get"], {"get": {"content": {"servers":[]}}}),
             test_base.get_mock_session(
-                ["post"], MOCK_POST_SERVER_RESPONSE.copy()),
-            test_base.get_mock_session(
-                ["get"], MOCK_POST_SERVER_CREATED_THREAD_RESPONSE.copy()),
+                ["post"], {"post": {"content": MOCK_POST_SERVER_RESPONSE.copy()}}),
         ]
-        mock_get_session.side_effect = side_effect(effects)
         tenant_id = "fcca3cc49d5e42caae15459e27103efc"
         server_id = "f5dc173b-6804-445a-a6d8-c705dad5b5eb"
 
@@ -231,12 +218,12 @@ class TestNetwork(test_base.TestRequest):
             "" + tenant_id + "/servers/" + server_id),
             data=json.dumps(TEST_CREATE_SERVER),
             content_type="application/json",
-            HTTP_X_AUTH_TOKEN=test_base.MOCK_TOKEN_ID)
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         self.assertEquals(
-            test_base.MOCK_VIM_INFO["vimId"], context["vimId"])
+            mock_info.MOCK_VIM_INFO["vimId"], context["vimId"])
         self.assertEquals(tenant_id, context["tenantId"])
         # self.assertEquals(len(TEST_CREATE_SERVER["volumeArray"]),
         #                   len(context['volumeArray']))
@@ -245,7 +232,7 @@ class TestNetwork(test_base.TestRequest):
         self.assertEquals(len(TEST_CREATE_SERVER["nicArray"]),
                           len(context["nicArray"]))
         self.assertEquals(
-            test_base.MOCK_VIM_INFO["name"], context["vimName"])
+            mock_info.MOCK_VIM_INFO["name"], context["vimName"])
         self.assertIsNotNone(TEST_CREATE_SERVER["boot"])
         self.assertEquals(TEST_CREATE_SERVER["boot"]["volumeId"],
                           context["boot"]["volumeId"])
@@ -260,16 +247,17 @@ class TestNetwork(test_base.TestRequest):
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_delete_existing_serever(self, mock_get_vim_info,
+    def test_delete_existing_server(self, mock_get_vim_info,
                                      mock_get_session):
-        mock_get_vim_info.return_value = test_base.MOCK_VIM_INFO
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.side_effect = [
             test_base.get_mock_session(
-                ["delete"], None),
+                ["delete"], {"delete": {"content": None}}),
             test_base.get_mock_session(
-                ["get"], MOCK_GET_SERVER_RESPONSE.copy()),
+                ["get"],
+                {"get": {"content": MOCK_GET_SERVER_RESPONSE.copy()}}),
             test_base.get_mock_session(
-                ["get"], None),
+                ["get"], {"get": {"content": None}}),
         ]
 
         tenant_id = "fcca3cc49d5e42caae15459e27103efc"
@@ -280,6 +268,6 @@ class TestNetwork(test_base.TestRequest):
             "" + tenant_id + "/servers/" + server_id),
             data=json.dumps(TEST_CREATE_SERVER),
             content_type="application/json",
-            HTTP_X_AUTH_TOKEN=test_base.MOCK_TOKEN_ID)
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)

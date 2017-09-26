@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 running_threads = {}
 running_thread_lock = threading.Lock()
 
+
 #assume volume is attached on server creation
 class ServerVolumeAttachThread (threading.Thread):
     service = {'service_type': 'compute',
