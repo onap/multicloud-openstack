@@ -11,18 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import logging
 import json
-from six.moves import urllib
 import threading
 import traceback
+
 from keystoneauth1.exceptions import HttpError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from newton.pub.exceptions import VimDriverNewtonException
-
 from newton.requests.views.util import VimDriverUtils
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ running_threads = {}
 running_thread_lock = threading.Lock()
 
 #assume volume is attached on server creation
-class serverThread (threading.Thread):
+class ServerVolumeAttachThread (threading.Thread):
     service = {'service_type': 'compute',
                'interface': 'public'}
     def __init__(self, vimid, tenantid, serverid, is_attach, *volumeids):
@@ -48,7 +48,7 @@ class serverThread (threading.Thread):
         if (self.is_attach):
             self.attach_volume(self.vimid, self.tenantid, self.serverid, *self.volumeids)
         else:
-            elf.detach_volume(self.vimid, self.tenantid, self.serverid, *self.volumeids)
+            self.detach_volume(self.vimid, self.tenantid, self.serverid, *self.volumeids)
         logger.debug("stop server thread %s, %s, %s" % (self.vimid, self.tenantid, self.serverid))
         running_thread_lock.acquire()
         running_threads.pop(self.serverid)
@@ -123,6 +123,7 @@ class serverThread (threading.Thread):
             logger.debug("Failed to detach_volume:%s" % str(e))
             return None
 
+
 class Servers(APIView):
     service = {'service_type': 'compute',
                'interface': 'public'}
@@ -135,16 +136,16 @@ class Servers(APIView):
         ("os-extended-volumes:volumes_attached", "volumeArray"),
     ]
 
-    def attachVolume(self, vimid, tenantid, serverId, *volumeIds):
+    def _attachVolume(self, vimid, tenantid, serverId, *volumeIds):
         #has to be async mode to wait server is ready to attach volume
         logger.debug("launch thread to attach volume: %s" % serverId)
-        tmp_thread = serverThread(vimid, tenantid, serverId, True, *volumeIds)
+        tmp_thread = ServerVolumeAttachThread(vimid, tenantid, serverId, True, *volumeIds)
         running_thread_lock.acquire()
         running_threads[serverId] = tmp_thread
         running_thread_lock.release()
         tmp_thread.start()
 
-    def dettachVolume(self, vimid, tenantid, serverId, *volumeIds):
+    def _dettach_volume(self, vimid, tenantid, serverId, *volumeIds):
         # assume attachment id is the same as volume id
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
@@ -158,21 +159,19 @@ class Servers(APIView):
                                         "Accept": "application/json"})
             logger.debug("Servers--dettachVolume resp status::>%s" % resp.status_code)
 
-
-    def convertMetadata(self, metadata, mata_data, reverse=False):
-        if reverse == False:
+    def _convert_metadata(self, metadata, metadata_output, reverse=True):
+        if not reverse:
             # from extraSpecs to extra_specs
             for spec in metadata:
-                mata_data[spec['keyName']] = spec['value']
+                metadata_output[spec['keyName']] = spec['value']
         else:
-            for k, v in mata_data.items():
+            for k, v in metadata_output.items():
                 spec = {}
                 spec['keyName'] = k
                 spec['value'] = v
                 metadata.append(spec)
 
-
-    def convert_resp(self, server):
+    def _convert_resp(self, server):
         #convert volumeArray
         volumeArray = server.pop("volumeArray", None)
         tmpVolumeArray = []
@@ -203,7 +202,7 @@ class Servers(APIView):
         try:
             # prepare request resource to vim instance
             query = VimDriverUtils.get_query_part(request)
-            content, status_code = self.get_servers(query, vimid, tenantid, serverid)
+            content, status_code = self._get_servers(query, vimid, tenantid, serverid)
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
@@ -215,7 +214,7 @@ class Servers(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_ports(self, vimid="", tenantid="", serverid=None):
+    def _get_ports(self, vimid="", tenantid="", serverid=None):
         # query attached ports
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
@@ -224,10 +223,9 @@ class Servers(APIView):
         ports = resp.json()
         if ports and ports["interfaceAttachments"] and len(ports["interfaceAttachments"]) > 0:
             return [{"portId":port["port_id"]} for port in ports["interfaceAttachments"]]
-        else:
-            return None
+        return None
 
-    def get_servers(self, query="", vimid="", tenantid="", serverid=None):
+    def _get_servers(self, query="", vimid="", tenantid="", serverid=None):
         logger.debug("Servers--get_servers::> %s,%s" % (tenantid, serverid))
 
         # prepare request resource to vim instance
@@ -256,12 +254,12 @@ class Servers(APIView):
                 metadata = server.pop("metadata", None)
                 if metadata:
                     meta_data = []
-                    self.convertMetadata(metadata, meta_data, True)
+                    self._convert_metadata(metadata, meta_data, False)
                     server["metadata"] = meta_data
                 VimDriverUtils.replace_key_by_mapping(server,
                                                       self.keys_mapping)
-                self.convert_resp(server)
-                server["nicArray"] = self.get_ports(vimid, tenantid, server["id"])
+                self._convert_resp(server)
+                server["nicArray"] = self._get_ports(vimid, tenantid, server["id"])
 
         else:
             # convert the key naming in the server specified by id
@@ -269,12 +267,12 @@ class Servers(APIView):
             metadata = server.pop("metadata", None)
             if metadata:
                 meta_data = []
-                self.convertMetadata(metadata, meta_data, True)
+                self._convert_metadata(metadata, meta_data)
                 server["metadata"] = meta_data
             VimDriverUtils.replace_key_by_mapping(server,
                                                   self.keys_mapping)
-            self.convert_resp(server)
-            server["nicArray"] = self.get_ports(vimid, tenantid, serverid)
+            self._convert_resp(server)
+            server["nicArray"] = self._get_ports(vimid, tenantid, serverid)
             content.update(server)
 
         return content, resp.status_code
@@ -285,14 +283,14 @@ class Servers(APIView):
             # check if created already: check name
             servername = request.data["name"]
             query = "name=%s" % servername
-            content, status_code = self.get_servers(query, vimid, tenantid)
+            content, status_code = self._get_servers(query, vimid, tenantid)
             existed = False
-            if status_code == 200:
+            if status_code == status.HTTP_200_OK:
                 for server in content["servers"]:
                     if server["name"] == request.data["name"]:
                         existed = True
                         break
-                if existed == True and server:
+                if existed and server:
                     vim_dict = {
                         "returnCode": 0,
                     }
@@ -301,9 +299,6 @@ class Servers(APIView):
 
             # prepare request resource to vim instance
             req_resouce = "servers"
-
-            vim = VimDriverUtils.get_vim_info(vimid)
-            sess = VimDriverUtils.get_session(vim, tenantid)
             server = request.data
 
             # convert parameters
@@ -326,20 +321,20 @@ class Servers(APIView):
             if not nicarray:
                 return Response(data={'error': "missing nicArray paramters"},
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            else:
-                networks = []
-                for nic in nicarray:
-                    networks.append({"port": nic["portId"]})
-                if len(networks) > 0:
-                    server["networks"] = networks
+            networks = []
+            for nic in nicarray:
+                networks.append({"port": nic["portId"]})
+            if len(networks) > 0:
+                server["networks"] = networks
 
             meta_data = server.pop("metadata", None)
             if meta_data:
                 metadata = {}
-                self.convertMetadata(metadata, meta_data, False)
+                self._convert_metadata(metadata, meta_data, False)
                 server["metadata"] = metadata
 
             contextarray = server.pop("contextArray", None)
+            volumearray = server.pop("volumeArray", None)
             if contextarray:
                 # now set "contextArray" array
                 personalities = []
@@ -348,11 +343,12 @@ class Servers(APIView):
                 if len(personalities) > 0:
                     server["personality"] = personalities
 
-            volumearray = server.pop("volumeArray", None)
-
             VimDriverUtils.replace_key_by_mapping(server,
                                                   self.keys_mapping, True)
             req_body = json.JSONEncoder().encode({"server": server})
+
+            vim = VimDriverUtils.get_vim_info(vimid)
+            sess = VimDriverUtils.get_session(vim, tenantid)
             resp = sess.post(req_resouce, data=req_body,
                              endpoint_filter=self.service,
                              headers={"Content-Type": "application/json",
@@ -361,16 +357,16 @@ class Servers(APIView):
             resp_body = resp.json().pop("server", None)
 
             logger.debug("Servers--post status::>%s, %s" % (resp_body["id"], resp.status_code))
-            if resp.status_code == 200 or resp.status_code == 201 or resp.status_code == 202 :
+            if resp.status_code in [status.HTTP_200_OK, status.HTTP_201_CREATED, status.HTTP_202_ACCEPTED]:
                 if volumearray and len(volumearray) > 0:
                     # server is created, now attach volumes
                     volumeIds = [extraVolume["volumeId"] for extraVolume in volumearray]
-                    self.attachVolume(vimid, tenantid, resp_body["id"], *volumeIds)
+                    self._attachVolume(vimid, tenantid, resp_body["id"], *volumeIds)
 
             metadata = resp_body.pop("metadata", None)
             if metadata:
                 meta_data = []
-                self.convertMetadata(metadata, meta_data, True)
+                self._convert_metadata(metadata, meta_data)
                 resp_body["metadata"] = meta_data
 
             VimDriverUtils.replace_key_by_mapping(resp_body, self.keys_mapping)
@@ -405,11 +401,11 @@ class Servers(APIView):
             sess = VimDriverUtils.get_session(vim, tenantid)
 
             #check and dettach them if volumes attached to server
-            server, status_code = self.get_servers("", vimid, tenantid, serverid)
+            server, status_code = self._get_servers("", vimid, tenantid, serverid)
             volumearray = server.pop("volumeArray", None)
             if volumearray and len(volumearray) > 0:
                 volumeIds = [extraVolume["volumeId"] for extraVolume in volumearray]
-                self.dettachVolume(vimid, tenantid, serverid, *volumeIds)
+                self._dettach_volume(vimid, tenantid, serverid, *volumeIds)
 
             #delete server now
             req_resouce = "servers"
