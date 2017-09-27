@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_ee3f96b2",
+        "filename": "newton/newton/requests/tests/test_volume.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-27T18:31:04Z",
+      "side": 1,
+      "message": "nit: Usually the imports are ordered alphabetically or at least is the OpenStack guidelines.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 43
+      },
+      "revId": "b8f556a45aefe139005cd7d727c91a580561eede",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_ae450e44",
+        "filename": "newton/newton/requests/tests/test_volume.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-27T18:31:04Z",
+      "side": 1,
+      "message": "nit: we can enforce later the number or characters per line, having a max of 72",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 108
+      },
+      "revId": "b8f556a45aefe139005cd7d727c91a580561eede",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_8e76caa2",
+        "filename": "newton/newton/requests/tests/test_volume.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-27T18:31:04Z",
+      "side": 1,
+      "message": "IMHO we should compare the values of every entry of the content to ensure that the respond is valid.",
+      "range": {
+        "startLine": 74,
+        "startChar": 8,
+        "endLine": 74,
+        "endChar": 48
+      },
+      "revId": "b8f556a45aefe139005cd7d727c91a580561eede",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_6e7ba68c",
+        "filename": "newton/newton/requests/tests/test_volume.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-27T18:31:04Z",
+      "side": 1,
+      "message": "s/test_create_volume_existing/test_create_existing_volume",
+      "range": {
+        "startLine": 135,
+        "startChar": 8,
+        "endLine": 135,
+        "endChar": 35
+      },
+      "revId": "b8f556a45aefe139005cd7d727c91a580561eede",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
