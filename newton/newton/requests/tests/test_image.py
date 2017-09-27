@@ -20,6 +20,7 @@ from django.test import Client
 from rest_framework import status
 
 from newton.requests.tests import mock_info
+from newton.requests.tests import test_base
 from newton.requests.views.image import imageThread
 from newton.requests.views.util import VimDriverUtils
 
@@ -56,14 +57,6 @@ MOCK_POST_IMAGE_RESPONSE = {
 }
 
 
-class MockResponse(object):
-    status_code = 200
-    content = ''
-
-    def json(self):
-        pass
-
-
 class TestImage(unittest.TestCase):
     def setUp(self):
         self.client = Client()
@@ -74,17 +67,12 @@ class TestImage(unittest.TestCase):
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_get_images(self, mock_get_vim_info, mock_get_session):
 
-        mock_session_specs = ["get"]
-        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-
-        mock_get_images_response_obj = mock.Mock(spec=MockResponse)
-        mock_get_images_response_obj.status_code = 200
-        mock_get_images_response_obj.content = MOCK_GET_IMAGES_RESPONSE
-        mock_get_images_response_obj.json.return_value = MOCK_GET_IMAGES_RESPONSE
-        mock_session.get.return_value = mock_get_images_response_obj
+        mock_get_session.side_effect = [
+            test_base.get_mock_session(
+                ["get"], {"get": {"content": MOCK_GET_IMAGES_RESPONSE}}),
+        ]
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
 
         response = self.client.get(
             "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/images",
@@ -99,17 +87,12 @@ class TestImage(unittest.TestCase):
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_get_image(self, mock_get_vim_info, mock_get_session):
 
-        mock_session_specs = ["get"]
-        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-
-        mock_get_image_response_obj = mock.Mock(spec=MockResponse)
-        mock_get_image_response_obj.status_code = 200
-        mock_get_image_response_obj.content = MOCK_GET_IMAGE_RESPONSE
-        mock_get_image_response_obj.json.return_value = MOCK_GET_IMAGE_RESPONSE
-        mock_session.get.return_value = mock_get_image_response_obj
+        mock_get_session.side_effect = [
+            test_base.get_mock_session(
+                ["get"], {"get": {"content": MOCK_GET_IMAGE_RESPONSE}}),
+        ]
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
 
         response = self.client.get(
             "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
@@ -124,20 +107,13 @@ class TestImage(unittest.TestCase):
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_get_image_not_found(self, mock_get_vim_info, mock_get_session):
 
-        mock_session_specs = ["get"]
-        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-
-        mock_get_image_response_obj = mock.Mock(spec=MockResponse)
-        mock_get_image_response_obj.status_code = 404
-        mock_get_image_response_obj.content = {}
-        mock_get_image_response_obj.json.return_value = {}
-        mock_session.get.return_value = mock_get_image_response_obj
+        mock_get_session.side_effect = [
+            test_base.get_mock_session(
+                ["get"], {"get": {"content": {},
+                                  "status_code": 404}})
+        ]
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
 
         response = self.client.get(
             "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
@@ -153,24 +129,17 @@ class TestImage(unittest.TestCase):
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_post_image(self, mock_get_vim_info, mock_get_session, mock_request, mock_run):
-        mock_session_specs = ["get", "post"]
-        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
 
-        mock_get_images_response_obj = mock.Mock(spec=MockResponse)
-        mock_get_images_response_obj.status_code = 200
-        mock_get_images_response_obj.content = MOCK_GET_IMAGES_RESPONSE
-        mock_get_images_response_obj.json.return_value = MOCK_GET_IMAGES_RESPONSE
-
-        mock_post_image_response_obj = mock.Mock(spec=MockResponse)
-        mock_post_image_response_obj.status_code = 201
-        mock_post_image_response_obj.content = MOCK_POST_IMAGE_RESPONSE
-        mock_post_image_response_obj.json.return_value = MOCK_POST_IMAGE_RESPONSE
-
-        mock_session.get.return_value = mock_get_images_response_obj
-        mock_session.post.return_value = mock_post_image_response_obj
+        mock_get_session.side_effect = [
+            test_base.get_mock_session(
+                ["get"], {"get": {"content": MOCK_GET_IMAGES_RESPONSE}}),
+            test_base.get_mock_session(
+                ["post"], {"post": {"content": MOCK_POST_IMAGE_RESPONSE,
+                                    "status_code": 201}}),
+        ]
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
+
         mock_request.urlopen.return_value = "image"
 
         response = self.client.post(
@@ -185,27 +154,16 @@ class TestImage(unittest.TestCase):
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_post_image_existing(self, mock_get_vim_info, mock_get_session):
-        mock_session_specs = ["get", "post"]
-        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
 
-        mock_get_images_response_obj = mock.Mock(spec=MockResponse)
-        mock_get_images_response_obj.status_code = 200
-        mock_get_images_response_obj.content = MOCK_GET_IMAGES_RESPONSE
-        mock_get_images_response_obj.json.return_value = MOCK_GET_IMAGES_RESPONSE
-
-        mock_post_image_response_obj = mock.Mock(spec=MockResponse)
-        mock_post_image_response_obj.status_code = 201
-        mock_post_image_response_obj.content = MOCK_POST_IMAGE_RESPONSE
-        mock_post_image_response_obj.json.return_value = MOCK_POST_IMAGE_RESPONSE
-
-        mock_session.get.return_value = mock_get_images_response_obj
-        mock_session.post.return_value = mock_post_image_response_obj
-
-        mock_session.get.return_value = mock_get_images_response_obj
-        mock_session.post.return_value = mock_post_image_response_obj
+        mock_get_session.side_effect = [
+            test_base.get_mock_session(
+                ["get"], {"get": {"content": MOCK_GET_IMAGES_RESPONSE}}),
+            test_base.get_mock_session(
+                ["post"], {"post": {"content": MOCK_POST_IMAGE_RESPONSE,
+                                    "status_code": 201}}),
+        ]
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
 
         response = self.client.post(
             "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/images",
@@ -219,27 +177,16 @@ class TestImage(unittest.TestCase):
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_post_image_empty(self, mock_get_vim_info, mock_get_session):
-        mock_session_specs = ["get", "post"]
-        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
 
-        mock_get_images_response_obj = mock.Mock(spec=MockResponse)
-        mock_get_images_response_obj.status_code = 200
-        mock_get_images_response_obj.content = MOCK_GET_IMAGES_RESPONSE
-        mock_get_images_response_obj.json.return_value = MOCK_GET_IMAGES_RESPONSE
-
-        mock_post_image_response_obj = mock.Mock(spec=MockResponse)
-        mock_post_image_response_obj.status_code = 201
-        mock_post_image_response_obj.content = MOCK_POST_IMAGE_RESPONSE
-        mock_post_image_response_obj.json.return_value = MOCK_POST_IMAGE_RESPONSE
-
-        mock_session.get.return_value = mock_get_images_response_obj
-        mock_session.post.return_value = mock_post_image_response_obj
-
-        mock_session.get.return_value = mock_get_images_response_obj
-        mock_session.post.return_value = mock_post_image_response_obj
+        mock_get_session.side_effect = [
+            test_base.get_mock_session(
+                ["get"], {"get": {"content": MOCK_GET_IMAGES_RESPONSE}}),
+            test_base.get_mock_session(
+                ["post"], {"post": {"content": MOCK_POST_IMAGE_RESPONSE,
+                                    "status_code": 201}}),
+        ]
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
 
         response = self.client.post(
             "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/images",
@@ -252,16 +199,14 @@ class TestImage(unittest.TestCase):
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_delete_image(self, mock_get_vim_info, mock_get_session):
-        mock_session_specs = ["delete"]
-        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
 
-        mock_delete_image_response_obj = mock.Mock(spec=MockResponse)
-        mock_delete_image_response_obj.status_code = 204
-
-        mock_session.delete.return_value = mock_delete_image_response_obj
+        mock_get_session.side_effect = [
+            test_base.get_mock_session(
+                ["delete"], {"delete": {"content": {},
+                                        "status_code": 204}})
+        ]
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
 
         response = self.client.delete(
             "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
