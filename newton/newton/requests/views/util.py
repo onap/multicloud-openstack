@@ -11,18 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import logging
 
-import datetime
-
 from django.core.cache import cache
-
-from keystoneauth1 import _utils as utils
 from keystoneauth1.identity import v2 as keystone_v2
 from keystoneauth1.identity import v3 as keystone_v3
 from keystoneauth1 import session
 
-#from newton.pub.msapi.extsys import get_vim_by_id
 from newton.pub.msapi import extsys
 
 logger = logging.getLogger(__name__)
