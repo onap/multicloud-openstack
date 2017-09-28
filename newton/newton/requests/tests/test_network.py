@@ -20,6 +20,7 @@ from rest_framework import status
 
 from newton.requests.views.util import VimDriverUtils
 from newton.requests.tests import mock_info
+from newton.requests.tests import test_base
 
 
 MOCK_GET_NETWORKS_RESPONSE = {
@@ -51,14 +52,6 @@ MOCK_POST_NETWORK_RESPONSE = {
 }
 
 
-class MockResponse(object):
-    status_code = 200
-    content = ''
-
-    def json(self):
-        pass
-
-
 class TestNetwork(unittest.TestCase):
    def setUp(self):
       self.client = Client()
@@ -70,16 +63,12 @@ class TestNetwork(unittest.TestCase):
    @mock.patch.object(VimDriverUtils, 'get_vim_info')
    def test_get_networks(self, mock_get_vim_info, mock_get_session):
 
-       mock_session_specs = ["get"]
-       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-       mock_get_networks_response_obj = mock.Mock(spec=MockResponse)
-       mock_get_networks_response_obj.status_code = 200
-       mock_get_networks_response_obj.content = MOCK_GET_NETWORKS_RESPONSE
-       mock_get_networks_response_obj.json.return_value = MOCK_GET_NETWORKS_RESPONSE
-       mock_session.get.return_value = mock_get_networks_response_obj
+       mock_get_session.side_effect = [
+           test_base.get_mock_session(
+               ["get"], {"get": {"content": MOCK_GET_NETWORKS_RESPONSE}}),
+       ]
 
        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-       mock_get_session.return_value = mock_session
 
        response = self.client.get(
          "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/networks",
@@ -94,16 +83,12 @@ class TestNetwork(unittest.TestCase):
    @mock.patch.object(VimDriverUtils, 'get_vim_info')
    def test_get_network(self, mock_get_vim_info, mock_get_session):
 
-       mock_session_specs = ["get"]
-       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-       mock_get_network_response_obj = mock.Mock(spec=MockResponse)
-       mock_get_network_response_obj.status_code = 200
-       mock_get_network_response_obj.content = MOCK_GET_NETWORK_RESPONSE
-       mock_get_network_response_obj.json.return_value = MOCK_GET_NETWORK_RESPONSE
-       mock_session.get.return_value = mock_get_network_response_obj
+       mock_get_session.side_effect = [
+           test_base.get_mock_session(
+               ["get"], {"get": {"content": MOCK_GET_NETWORK_RESPONSE}}),
+       ]
 
        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-       mock_get_session.return_value = mock_session
 
        response = self.client.get(
            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
@@ -118,16 +103,13 @@ class TestNetwork(unittest.TestCase):
    @mock.patch.object(VimDriverUtils, 'get_vim_info')
    def test_get_network_not_found(self, mock_get_vim_info, mock_get_session):
 
-       mock_session_specs = ["get"]
-       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-       mock_get_network_response_obj = mock.Mock(spec=MockResponse)
-       mock_get_network_response_obj.status_code = 404
-       mock_get_network_response_obj.context = {}
-       mock_get_network_response_obj.json.return_value = {}
-       mock_session.get.return_value = mock_get_network_response_obj
+       mock_get_session.side_effect = [
+           test_base.get_mock_session(
+               ["get"], {"get": {"content": {},
+                                 "status_code": 404}}),
+       ]
 
        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-       mock_get_session.return_value = mock_session
 
        response = self.client.get(
            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
@@ -142,24 +124,15 @@ class TestNetwork(unittest.TestCase):
    @mock.patch.object(VimDriverUtils, 'get_vim_info')
    def test_post(self, mock_get_vim_info, mock_get_session):
 
-       mock_session_specs = ["get", "post"]
-       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-
-       mock_get_networks_response_obj = mock.Mock(spec=MockResponse)
-       mock_get_networks_response_obj.status_code = 200
-       mock_get_networks_response_obj.content = MOCK_GET_NETWORKS_RESPONSE
-       mock_get_networks_response_obj.json.return_value = MOCK_GET_NETWORKS_RESPONSE
-
-       mock_post_network_response_obj = mock.Mock(spec=MockResponse)
-       mock_post_network_response_obj.status_code = 202
-       mock_post_network_response_obj.content = MOCK_POST_NETWORK_RESPONSE
-       mock_post_network_response_obj.json.return_value = MOCK_POST_NETWORK_RESPONSE
-
-       mock_session.get.return_value = mock_get_networks_response_obj
-       mock_session.post.return_value = mock_post_network_response_obj
+       mock_get_session.side_effect = [
+           test_base.get_mock_session(
+               ["get"], {"get": {"content": MOCK_GET_NETWORKS_RESPONSE}}),
+           test_base.get_mock_session(
+               ["post"], {"post": {"content": MOCK_POST_NETWORK_RESPONSE,
+                                   "status_code": 202}}),
+       ]
 
        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-       mock_get_session.return_value = mock_session
 
        response = self.client.post(
            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/networks",
@@ -173,24 +146,16 @@ class TestNetwork(unittest.TestCase):
    @mock.patch.object(VimDriverUtils, 'get_session')
    @mock.patch.object(VimDriverUtils, 'get_vim_info')
    def test_post_existing(self, mock_get_vim_info, mock_get_session):
-       mock_session_specs = ["get", "post"]
-       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
 
-       mock_get_networks_response_obj = mock.Mock(spec=MockResponse)
-       mock_get_networks_response_obj.status_code = 200
-       mock_get_networks_response_obj.content = MOCK_GET_NETWORKS_RESPONSE
-       mock_get_networks_response_obj.json.return_value = MOCK_GET_NETWORKS_RESPONSE
-
-       mock_post_network_response_obj = mock.Mock(spec=MockResponse)
-       mock_post_network_response_obj.status_code = 202
-       mock_post_network_response_obj.content = MOCK_POST_NETWORK_RESPONSE
-       mock_post_network_response_obj.json.return_value = MOCK_POST_NETWORK_RESPONSE
-
-       mock_session.get.return_value = mock_get_networks_response_obj
-       mock_session.post.return_value = mock_post_network_response_obj
+       mock_get_session.side_effect = [
+           test_base.get_mock_session(
+               ["get"], {"get": {"content": MOCK_GET_NETWORKS_RESPONSE}}),
+           test_base.get_mock_session(
+               ["post"], {"post": {"content": MOCK_POST_NETWORK_RESPONSE,
+                                   "status_code": 202}}),
+       ]
 
        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-       mock_get_session.return_value = mock_session
 
        response = self.client.post(
            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/networks",
@@ -204,24 +169,16 @@ class TestNetwork(unittest.TestCase):
    @mock.patch.object(VimDriverUtils, 'get_session')
    @mock.patch.object(VimDriverUtils, 'get_vim_info')
    def test_post_empty_body(self, mock_get_vim_info, mock_get_session):
-       mock_session_specs = ["get", "post"]
-       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
 
-       mock_get_networks_response_obj = mock.Mock(spec=MockResponse)
-       mock_get_networks_response_obj.status_code = 200
-       mock_get_networks_response_obj.content = MOCK_GET_NETWORKS_RESPONSE
-       mock_get_networks_response_obj.json.return_value = MOCK_GET_NETWORKS_RESPONSE
-
-       mock_post_network_response_obj = mock.Mock(spec=MockResponse)
-       mock_post_network_response_obj.status_code = 202
-       mock_post_network_response_obj.content = MOCK_POST_NETWORK_RESPONSE
-       mock_post_network_response_obj.json.return_value = MOCK_POST_NETWORK_RESPONSE
-
-       mock_session.get.return_value = mock_get_networks_response_obj
-       mock_session.post.return_value = mock_post_network_response_obj
+       mock_get_session.side_effect = [
+           test_base.get_mock_session(
+               ["get"], {"get": {"content": MOCK_GET_NETWORKS_RESPONSE}}),
+           test_base.get_mock_session(
+               ["post"], {"post": {"content": MOCK_POST_NETWORK_RESPONSE,
+                                   "status_code": 202}}),
+       ]
 
        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-       mock_get_session.return_value = mock_session
 
        response = self.client.post(
            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/networks",
@@ -234,17 +191,13 @@ class TestNetwork(unittest.TestCase):
    @mock.patch.object(VimDriverUtils, 'get_session')
    @mock.patch.object(VimDriverUtils, 'get_vim_info')
    def test_delete(self, mock_get_vim_info, mock_get_session):
-
-       mock_session_specs = ["delete"]
-       mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-
-       mock_delete_network_response_obj = mock.Mock(spec=MockResponse)
-       mock_delete_network_response_obj.status_code = 204
-
-       mock_session.delete.return_value = mock_delete_network_response_obj
+       mock_get_session.side_effect = [
+           test_base.get_mock_session(
+               ["delete"], {"delete": {"content": {},
+                                       "status_code": 204}})
+       ]
 
        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-       mock_get_session.return_value = mock_session
 
        response = self.client.delete(
            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
