@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a437d4f_f6ec03bd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-28T20:10:07Z",
+      "side": 1,
+      "message": "nit: Usually this paragraph provides a detailed description.\n\n    * https://wiki.openstack.org/wiki/GitCommitMessages#Summary_of_Git_commit_message_structure",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 30
+      },
+      "revId": "ece8168a4174378f6387a06c10191774f413bf83",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_76ea53ad",
+        "filename": "newton/newton/requests/tests/test_vport.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-28T20:10:07Z",
+      "side": 1,
+      "message": "Some of the imports are not used:\n\nimport mock\n\nfrom rest_framework import status\n\nfrom newton.requests.tests import mock_info\nfrom newton.requests.tests import test_base\nfrom newton.requests.views.util import VimDriverUtils",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 46
+      },
+      "revId": "ece8168a4174378f6387a06c10191774f413bf83",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_16d9c721",
+        "filename": "newton/newton/requests/tests/test_vport.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-28T20:10:07Z",
+      "side": 1,
+      "message": "you can use status constant here\n\n    status.HTTP_404_NOT_FOUND",
+      "range": {
+        "startLine": 103,
+        "startChar": 53,
+        "endLine": 103,
+        "endChar": 56
+      },
+      "revId": "ece8168a4174378f6387a06c10191774f413bf83",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_f6d523e5",
+        "filename": "newton/newton/requests/tests/test_vport.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-28T20:10:07Z",
+      "side": 1,
+      "message": "ditto: line 103",
+      "range": {
+        "startLine": 121,
+        "startChar": 74,
+        "endLine": 121,
+        "endChar": 77
+      },
+      "revId": "ece8168a4174378f6387a06c10191774f413bf83",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_b60b1b8d",
+        "filename": "newton/newton/requests/tests/test_vport.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-28T20:10:07Z",
+      "side": 1,
+      "message": "ditto: line 103",
+      "range": {
+        "startLine": 142,
+        "startChar": 74,
+        "endLine": 142,
+        "endChar": 77
+      },
+      "revId": "ece8168a4174378f6387a06c10191774f413bf83",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_96fc9773",
+        "filename": "newton/newton/requests/tests/test_vport.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-28T20:10:07Z",
+      "side": 1,
+      "message": "ditto: line 103",
+      "range": {
+        "startLine": 163,
+        "startChar": 74,
+        "endLine": 163,
+        "endChar": 77
+      },
+      "revId": "ece8168a4174378f6387a06c10191774f413bf83",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a437d4f_76013369",
+        "filename": "newton/newton/requests/tests/test_vport.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-09-28T20:10:07Z",
+      "side": 1,
+      "message": "ditto: line 103",
+      "range": {
+        "startLine": 181,
+        "startChar": 57,
+        "endLine": 181,
+        "endChar": 60
+      },
+      "revId": "ece8168a4174378f6387a06c10191774f413bf83",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
