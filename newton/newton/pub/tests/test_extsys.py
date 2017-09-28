@@ -15,6 +15,7 @@
 import json
 
 import mock
+from rest_framework import status
 import six
 import unittest
 
@@ -68,9 +69,13 @@ class TestEpaCaps(unittest.TestCase):
 
     def test_get_vim_by_id(self):
         values = [
-            (1, "test_content", 500), # Failure first call
-            (0, json.dumps(MOCK_VIM_INFO), None), (1, "test_content", 500), # Failure second call
-            (0, json.dumps(MOCK_VIM_INFO), None), (0, json.dumps(MOCK_ESR_SYSTEM_INFO), None)  # Success calls
+            (1, "test_content",
+             status.HTTP_500_INTERNAL_SERVER_ERROR), # Failure first call
+            (0, json.dumps(MOCK_VIM_INFO), None),
+            (1, "test_content",
+             status.HTTP_500_INTERNAL_SERVER_ERROR), # Failure second call
+            (0, json.dumps(MOCK_VIM_INFO), None),
+            (0, json.dumps(MOCK_ESR_SYSTEM_INFO), None)  # Success calls
         ]
 
         restcall.req_to_aai = mock.Mock(side_effect=returnList(values))

@@ -31,23 +31,20 @@ def get_mock_session(http_actions, response_dict={}):
     mock_session = mock.Mock(
         name='mock_session',spec=http_actions)
     for action in http_actions:
-        mock_response_obj = mock.Mock(spec=MockResponse)
-        mock_response_obj.content = response_dict.get(
-            action).get("content")
-        mock_response_obj.json.return_value = response_dict.get(
-            action).get("content")
-        mock_response_obj.status_code = response_dict.get(
-            action).get("status_code", status.HTTP_200_OK)
-        if action == "get":
-            mock_session.get.return_value = mock_response_obj
-        if action == "post":
-            mock_session.post.return_value = mock_response_obj
-        if action == "put":
-            mock_session.put.return_value = mock_response_obj
-        if action == "delete":
-            mock_session.delete.return_value = mock_response_obj
-        if action == "head":
-            mock_session.head.return_value = mock_response_obj
+        side_effect = response_dict.get("side_effect")
+        if side_effect and isinstance(side_effect, list):
+            mock_session.__getattr__(action).__setattr__(
+                "side_effect", side_effect)
+        else:
+            mock_response_obj = mock.Mock(spec=MockResponse)
+            mock_response_obj.content = response_dict.get(
+                action).get("content")
+            mock_response_obj.json.return_value = response_dict.get(
+                action).get("content")
+            mock_response_obj.status_code = response_dict.get(
+                action).get("status_code", status.HTTP_200_OK)
+            mock_session.__getattr__(action).__setattr__(
+                "return_value", mock_response_obj)
 
     return mock_session
 

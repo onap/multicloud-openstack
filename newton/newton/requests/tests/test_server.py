@@ -84,6 +84,7 @@ MOCK_POST_SERVER_CREATED_THREAD_RESPONSE = {
     }
 }
 
+
 class TestNetwork(test_base.TestRequest):
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
