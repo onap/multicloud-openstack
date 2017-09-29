@@ -51,6 +51,10 @@ class Tokens(APIView):
         try:
             tenant_name = request.data.get("tenant_name")
 
+            #backward support for keystone v2.0 API
+            if not tenant_name and request.data.get("auth"):
+                tenant_name = request.data["auth"].get("tenant_name")
+
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantname = tenant_name)
