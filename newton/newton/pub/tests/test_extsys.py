@@ -23,22 +23,29 @@ from newton.pub.exceptions import VimDriverNewtonException
 from newton.pub.msapi import extsys
 from newton.pub.utils import restcall
 
+
+MOCK_ESR_SYSTEM_INFO = {
+    "user-name": "test",
+    "password": "secret",
+    "cloud-domain": "Default",
+    "service-url": "http://localhost",
+    "default-tenant": "demo",
+    "ssl-cacert": None,
+    "ssl-insecure": None
+}
+
 MOCK_VIM_INFO = {
     "cloud-type": "openstack",
     "complex-name": "complex",
     "cloud-region-version": "Regionv1",
     "cloud-extra-info": "type",
-    "cloud-epa-caps": "epa"
-}
-
-MOCK_ESR_SYSTEM_INFO = {
-    "user-name": "test",
-    "password": "secret",
-    "cloud-domain": "default",
-    "service-url": "http://localhost",
-    "default-tenant": "demo",
-    "ssl-cacert": None,
-    "ssl-insecure": None
+    "cloud-epa-caps": "epa",
+    "esr-system-info-list" :
+        {
+            "esr-system-info": [
+                MOCK_ESR_SYSTEM_INFO
+            ]
+        }
 }
 
 
@@ -82,7 +89,7 @@ class TestEpaCaps(unittest.TestCase):
         self.assertRaises(VimDriverNewtonException, extsys.get_vim_by_id, self.vim_id)
         restcall.req_to_aai.assert_called_once()
 
-        self.assertRaises(VimDriverNewtonException, extsys.get_vim_by_id, self.vim_id)
+        #self.assertRaises(VimDriverNewtonException, extsys.get_vim_by_id, self.vim_id)
 
         viminfo = extsys.get_vim_by_id(self.vim_id)
         self.assertIsNotNone(viminfo)

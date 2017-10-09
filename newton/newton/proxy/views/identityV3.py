@@ -50,14 +50,26 @@ class Tokens(APIView):
         resp_body = None
         try:
             tenant_name = request.data.get("tenant_name")
+            tenant_id = request.data.get("tenant_id")
 
             #backward support for keystone v2.0 API
             if not tenant_name and request.data.get("auth"):
-                tenant_name = request.data["auth"].get("tenant_name")
+                tenant_name = request.data["auth"].get("tenantName")
+
+            #keystone v3 API
+            if not tenant_name and request.data.get("auth") \
+                    and request.data["auth"].get("scope")\
+                    and request["auth"]["scope"].get("project"):
+                if request["auth"]["scope"]["project"].get("name"):
+                    tenant_name = request["auth"]["scope"]["project"].get("name")
+                else:
+                    tenant_id = request["auth"]["scope"]["project"].get("id")
+
+
 
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
-            sess = VimDriverUtils.get_session(vim, tenantname = tenant_name)
+            sess = VimDriverUtils.get_session(vim, tenantname = tenant_name, tenantid=tenant_id)
 
             tmp_auth_state = VimDriverUtils.get_auth_state(vim, sess)
             tmp_auth_info = json.loads(tmp_auth_state)
@@ -85,6 +97,21 @@ class Tokens(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+version_detail = {
+    "version": {
+        "status": "stable",
+        "updated": "2014-04-17T00:00:00Z",
+        "media-types": [
+            {
+                "base": "application/json",
+                "type": "application/vnd.openstack.identity-v2.0+json"
+            }
+        ],
+        "id": "v2.0",
+        "links": [
+        ]
+    }
+}
 
 class TokensV2(Tokens):
     '''
@@ -94,6 +121,11 @@ class TokensV2(Tokens):
     def __init__(self):
         self.proxy_prefix = config.MULTICLOUD_PREFIX
         self._logger = logger
+
+    def get(self, request, vimid=""):
+        self._logger.debug("TokensV2--get::META> %s" % request.META)
+
+        return Response(data=version_detail, status=status.HTTP_200_OK)
 
     def post(self, request, vimid=""):
         self._logger.debug("TokensV2--post::META> %s" % request.META)
@@ -142,11 +174,14 @@ class TokensV2(Tokens):
                             "tenant" : v3_token["project"],
                         },
                         "serviceCatalog": v2_catalog,
-    #                    "user": v3_token["user"],
+                        "user": v3_token["user"],
                     }
                 }
 
-                return Response(data=v2_content, status=resp.status_code)
+                return Response(data=v2_content,
+                                status=status.HTTP_200_OK \
+                                    if resp.status_code==status.HTTP_201_CREATED \
+                                    else resp.status_code)
 
             else:
                 return resp

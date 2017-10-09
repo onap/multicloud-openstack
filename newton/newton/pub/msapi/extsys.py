@@ -25,7 +25,7 @@ def get_vim_by_id(vim_id):
 
     if cloud_owner and cloud_region_id:
         retcode, content, status_code = \
-            restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
+            restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s?depth=1"
                        % (cloud_owner,cloud_region_id),"GET")
         if retcode != 0:
             logger.error("Status code is %s, detail is %s.", status_code, content)
@@ -35,16 +35,17 @@ def get_vim_by_id(vim_id):
         tmp_viminfo = json.JSONDecoder().decode(content)
 
         #assume esr-system-info-id is composed by {cloud-owner} _ {cloud-region-id}
-        retcode2,content2,status_code2 = \
-            restcall.req_to_aai(("/cloud-infrastructure/cloud-regions/cloud-region/%(owner)s/%(region)s"
-                                 "/esr-system-info-list/esr-system-info/%(owner)s_%(region)s" % {
-                "owner": cloud_owner, "region": cloud_region_id}), "GET")
-        if retcode2 != 0:
-            logger.error("Status code is %s, detail is %s.", status_code, content)
-            raise VimDriverNewtonException(
-                "Failed to query ESR system with id (%s:%s,%s)." % (vim_id,cloud_owner,cloud_region_id),
-                status_code, content)
-        tmp_authinfo = json.JSONDecoder().decode(content2)
+#        retcode2,content2,status_code2 = \
+#            restcall.req_to_aai(("/cloud-infrastructure/cloud-regions/cloud-region/%(owner)s/%(region)s"
+#                                 "/esr-system-info-list/esr-system-info/%(owner)s_%(region)s" % {
+#                "owner": cloud_owner, "region": cloud_region_id}), "GET")
+#        if retcode2 != 0:
+#            logger.error("Status code is %s, detail is %s.", status_code, content)
+#            raise VimDriverNewtonException(
+#                "Failed to query ESR system with id (%s:%s,%s)." % (vim_id,cloud_owner,cloud_region_id),
+#                status_code2, content2)
+#        tmp_authinfo = json.JSONDecoder().decode(content2)
+        tmp_authinfo = tmp_viminfo['esr-system-info-list']['esr-system-info'][0] if tmp_viminfo else None
 
         #convert vim information
         if tmp_viminfo and tmp_authinfo:
@@ -52,19 +53,19 @@ def get_vim_by_id(vim_id):
             viminfo['vimId'] = vim_id
             viminfo['cloud_owner'] = cloud_owner
             viminfo['cloud_region_id'] = cloud_region_id
-            viminfo['type'] = tmp_viminfo['cloud-type']
-            viminfo['name'] = tmp_viminfo['complex-name']
-            viminfo['version'] = tmp_viminfo['cloud-region-version']
-            viminfo['cloud_extra_info'] = tmp_viminfo['cloud-extra-info']
-            viminfo['cloud_epa_caps'] = tmp_viminfo['cloud-epa-caps']
+            viminfo['type'] = tmp_viminfo.get('cloud-type')
+            viminfo['name'] = tmp_viminfo.get('complex-name')
+            viminfo['version'] = tmp_viminfo.get('cloud-region-version')
+            viminfo['cloud_extra_info'] = tmp_viminfo.get('cloud-extra-info')
+            viminfo['cloud_epa_caps'] = tmp_viminfo.get('cloud-epa-caps')
 
             viminfo['userName'] = tmp_authinfo['user-name']
             viminfo['password'] = tmp_authinfo['password']
-            viminfo['domain'] = tmp_authinfo['cloud-domain']
-            viminfo['url'] = tmp_authinfo['service-url']
-            viminfo['tenant'] = tmp_authinfo['default-tenant']
-            viminfo['cacert'] = tmp_authinfo['ssl-cacert']
-            viminfo['insecure'] = tmp_authinfo['ssl-insecure']
+            viminfo['domain'] = tmp_authinfo.get('cloud-domain')
+            viminfo['url'] = tmp_authinfo.get('service-url')
+            viminfo['tenant'] = tmp_authinfo.get('default-tenant')
+            viminfo['cacert'] = tmp_authinfo.get('ssl-cacert')
+            viminfo['insecure'] = tmp_authinfo.get('ssl-insecure')
 
             return viminfo
     return None

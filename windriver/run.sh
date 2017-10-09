@@ -20,6 +20,14 @@ sed -i "s/AAI_SCHEMA_VERSION =.*/AAI_SCHEMA_VERSION = \"${AAI_SCHEMA_VERSION}\"/
 sed -i "s/AAI_USERNAME =.*/AAI_USERNAME = \"${AAI_USERNAME}\"/g" titanium_cloud/pub/config/config.py
 sed -i "s/AAI_PASSWORD =.*/AAI_PASSWORD = \"${AAI_PASSWORD}\"/g" titanium_cloud/pub/config/config.py
 
+sed -i "s/MSB_SERVICE_ADDR =.*/MSB_SERVICE_ADDR = \"${MSB_ADDR}\"/g" lib/newton/newton/pub/config/config.py
+sed -i "s/MSB_SERVICE_PORT =.*/MSB_SERVICE_PORT = \"${MSB_PORT}\"/g" lib/newton/newton/pub/config/config.py
+sed -i "s/AAI_ADDR =.*/AAI_ADDR = \"${AAI_ADDR}\"/g" lib/newton/newton/pub/config/config.py
+sed -i "s/AAI_PORT =.*/AAI_PORT = \"${AAI_PORT}\"/g" lib/newton/newton/pub/config/config.py
+sed -i "s/AAI_SCHEMA_VERSION =.*/AAI_SCHEMA_VERSION = \"${AAI_SCHEMA_VERSION}\"/g" lib/newton/newton/pub/config/config.py
+sed -i "s/AAI_USERNAME =.*/AAI_USERNAME = \"${AAI_USERNAME}\"/g" lib/newton/newton/pub/config/config.py
+sed -i "s/AAI_PASSWORD =.*/AAI_PASSWORD = \"${AAI_PASSWORD}\"/g" lib/newton/newton/pub/config/config.py
+
 memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
 export PYTHONPATH=lib/newton
 nohup python manage.py runserver 0.0.0.0:9005 2>&1 &
