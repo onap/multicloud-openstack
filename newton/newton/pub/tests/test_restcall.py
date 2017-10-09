@@ -19,6 +19,7 @@ import unittest
 
 from newton.pub.utils import restcall
 
+rest_no_auth, rest_oneway_auth, rest_bothway_auth = 0, 1, 2
 
 class TestRestCall(unittest.TestCase):
     base_url = "http://localhost"
@@ -29,7 +30,7 @@ class TestRestCall(unittest.TestCase):
         mock_http.raiseError.side_effect = mock.Mock(
             side_effect=Exception('Test'))
         args = [
-            self.base_url, "user", "password", "auth_type",
+            self.base_url, None, None, rest_no_auth,
             self.resource, "get", {"extra": "test"}
         ]
 
@@ -41,7 +42,7 @@ class TestRestCall(unittest.TestCase):
     @mock.patch.object(Http, 'request')
     def test_invalid_output_call_req(self, mock_http):
         args = [
-            self.base_url, "user", "password", "auth_type",
+            self.base_url, None, None, rest_no_auth,
             self.resource, "get", {"extra": "test"}
         ]
 
@@ -56,7 +57,7 @@ class TestRestCall(unittest.TestCase):
     @mock.patch.object(Http, 'request')
     def test_req_by_msb(self, mock_http):
         resp_body = "test_body"
-        resp_status=status.HTTP_200_OK
+        resp_status='200' #status.HTTP_200_OK
         mock_http.return_value = (
             {'status': resp_status},
             str.encode(resp_body, 'utf-8'))
@@ -70,7 +71,7 @@ class TestRestCall(unittest.TestCase):
     @mock.patch.object(Http, 'request')
     def test_req_to_vim(self, mock_http):
         resp_body = "test_body"
-        resp_status=status.HTTP_200_OK
+        resp_status='200' #status.HTTP_200_OK
         mock_http.return_value = (
             {'status': resp_status},
             str.encode(resp_body, 'utf-8'))
@@ -83,7 +84,7 @@ class TestRestCall(unittest.TestCase):
     @mock.patch.object(Http, 'request')
     def test_req_to_aai(self, mock_http):
         resp_body = "test_body"
-        resp_status=status.HTTP_200_OK
+        resp_status='200' #status.HTTP_200_OK
         mock_http.return_value = (
             {'status': resp_status},
             str.encode(resp_body, 'utf-8'))

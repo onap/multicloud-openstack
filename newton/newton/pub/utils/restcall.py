@@ -9,6 +9,9 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
+import six
+import base64
+
 import codecs
 import json
 import traceback
@@ -23,9 +26,12 @@ from rest_framework import status
 from newton.pub.config import config
 
 rest_no_auth, rest_oneway_auth, rest_bothway_auth = 0, 1, 2
-
-status_ok_list \
-    = [status.HTTP_200_OK, status.HTTP_201_CREATED, status.HTTP_204_NO_CONTENT, status.HTTP_202_ACCEPTED]
+HTTP_200_OK, HTTP_201_CREATED = '200', '201'
+HTTP_204_NO_CONTENT, HTTP_202_ACCEPTED = '204', '202'
+status_ok_list = [HTTP_200_OK, HTTP_201_CREATED,
+                  HTTP_204_NO_CONTENT, HTTP_202_ACCEPTED]
+HTTP_404_NOTFOUND, HTTP_403_FORBIDDEN = '404', '403'
+HTTP_401_UNAUTHORIZED, HTTP_400_BADREQUEST = '401', '400'
 
 MAX_RETRY_TIME = 3
 
@@ -46,9 +52,16 @@ def _call_req(base_url, user, passwd, auth_type,
 
         if extra_headers:
             headers.update(extra_headers)
+#        if user:
+#            headers['Authorization'] = \
+#                'Basic ' + str(codecs.encode('%s:%s' % (user, passwd), "ascii"))
+
         if user:
-            headers['Authorization'] = \
-                'Basic ' + str(codecs.encode('%s:%s' % (user, passwd), "ascii"))
+            tmpauthsource = '%s:%s' % (user, passwd)
+            if six.PY3:
+                tmpauthsource = tmpauthsource.encode('utf-8')
+            headers['Authorization'] = 'Basic ' + \
+                base64.b64encode(tmpauthsource).decode('utf-8')
 
         ca_certs = None
         for retry_times in range(MAX_RETRY_TIME):
@@ -102,7 +115,7 @@ def req_to_vim(base_url, resource, method, extra_headers='', content=''):
 
 
 def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
-    tmp_trasaction_id = str(uuid.uuid1())
+    tmp_trasaction_id = '9003' #str(uuid.uuid1())
     headers = {
         'X-FromAppId': appid,
         'X-TransactionId': tmp_trasaction_id,
@@ -110,7 +123,8 @@ def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
         'accept': 'application/json'
     }
 
-    logger.debug("req_to_aai--%s::> %s, %s" % (tmp_trasaction_id, method, resource))
+    logger.debug("req_to_aai--%s::> %s, %s" %
+                 (tmp_trasaction_id, method, _combine_url(config.AAI_BASE_URL,resource)))
     return _call_req(config.AAI_BASE_URL, config.AAI_USERNAME, config.AAI_PASSWORD, rest_no_auth,
                     resource, method, content=json.dumps(content), extra_headers=headers)
 
