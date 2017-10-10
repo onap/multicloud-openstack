@@ -99,17 +99,34 @@ class Services(APIView):
                        'region_id': regionid
             }
 
+            querystr = VimDriverUtils.get_query_part(request)
+            if querystr:
+                req_resource += "?" + querystr
+
             self._logger.debug("service " + action + " request uri %s" % (req_resource))
             if(action == "get"):
-                resp = sess.get(req_resource, endpoint_filter=service)
+                resp = sess.get(req_resource, endpoint_filter=service,
+                                headers={"Content-Type": "application/json",
+                                         "Accept": "application/json"})
             elif(action == "post"):
-                resp = sess.post(req_resource, data=json.JSONEncoder().encode(request.data), endpoint_filter=service)
+                resp = sess.post(req_resource, data=json.JSONEncoder().encode(request.data),
+                                 endpoint_filter=service,
+                                 headers={"Content-Type": "application/json",
+                                          "Accept": "application/json"})
             elif(action == "put"):
-                resp = sess.put(req_resource, data=json.JSONEncoder().encode(request.data), endpoint_filter=service)
+                resp = sess.put(req_resource, data=json.JSONEncoder().encode(request.data),
+                                endpoint_filter=service,
+                                headers={"Content-Type": "application/json",
+                                         "Accept": "application/json"})
             elif(action == "patch"):
-                resp = sess.patch(req_resource, data=json.JSONEncoder().encode(request.data), endpoint_filter=service)
+                resp = sess.patch(req_resource, data=json.JSONEncoder().encode(request.data),
+                                  endpoint_filter=service,
+                                headers={"Content-Type": "application/json",
+                                         "Accept": "application/json"})
             elif (action == "delete"):
-                resp = sess.delete(req_resource, endpoint_filter=service)
+                resp = sess.delete(req_resource, endpoint_filter=service,
+                                headers={"Content-Type": "application/json",
+                                         "Accept": "application/json"})
             content = resp.json() if resp.content else None
             self._logger.debug("service " + action + " response: %s, %s" % (resp.status_code, content))
 
