@@ -99,6 +99,10 @@ class Services(APIView):
                        'region_id': regionid
             }
 
+            querystr = VimDriverUtils.get_query_part(request)
+            if querystr:
+                req_resource += "?" + querystr
+
             self._logger.debug("service " + action + " request uri %s" % (req_resource))
             if(action == "get"):
                 resp = sess.get(req_resource, endpoint_filter=service)
