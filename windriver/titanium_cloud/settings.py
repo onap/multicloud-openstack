@@ -99,6 +99,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False
         },
+        'newton': {
+            'handlers': ['titanium_cloud_handler'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
     }
 }
 

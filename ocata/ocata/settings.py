@@ -99,6 +99,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False
         },
+        'newton': {
+            'handlers': ['ocata_handler'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
     }
 }
 
