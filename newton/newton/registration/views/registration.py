@@ -55,16 +55,19 @@ class Registry(APIView):
     def _update_resoure(self, cloud_owner, cloud_region_id,
                         resoure_id, resource_info, resource_type):
         if cloud_owner and cloud_region_id:
+            #get the resource first
+
+            #add resource
+            #then update the resource
             retcode, content, status_code = \
                 restcall.req_to_aai(
                     ("/cloud-infrastructure/cloud-regions/"
                      "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                     "%(resource_type)s/%(resource_type)ss/%(resoure_id)s"
+                     "%(resource_type)ss/%(resource_type)s/%(resoure_id)s"
                      % {
                          "cloud_owner": cloud_owner,
                          "cloud_region_id": cloud_region_id,
                          "resoure_id": resoure_id,
-                         "resource_info": resource_info,
                          "resource_type": resource_type,
                      })
                     , "PUT", content=resource_info)
@@ -441,7 +444,7 @@ class Registry(APIView):
             self._logger.debug("failed to populate EPA CAPs info into AAI: %s, ret:%s"
                                % (vimid, ret))
 
-    def _update_proxy_identity_endpoint(self, cloud_owner, cloud_region_id, url):
+    def _update_proxy_identity_endpoint(self, viminfo):
         '''
         update cloud_region's identity url
         :param cloud_owner:
@@ -449,13 +452,17 @@ class Registry(APIView):
         :param url:
         :return:
         '''
+
+        vimid = viminfo['vimId']
+        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
         if cloud_owner and cloud_region_id:
+            viminfo['identity-url'] = self.proxy_prefix + "/%s/identity/v3" % vimid
             retcode, content, status_code = \
                 restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
-                           % (cloud_owner, cloud_region_id), "PUT", content={'identity-url': url})
+                           % (cloud_owner, cloud_region_id), "PUT", content=viminfo)
 
-            self._logger.debug("update_proxy_identity_endpoint,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
-                               % (cloud_owner,cloud_region_id, url, retcode, content, status_code))
+            self._logger.debug("update_proxy_identity_endpoint,vimid:%s req_to_aai: %s, return %s, %s, %s"
+                               % (vimid, viminfo['identity-url'], retcode, content, status_code))
 
     def post(self, request, vimid=""):
         self._logger.debug("Registration--post::data> %s" % request.data)
@@ -463,16 +470,20 @@ class Registry(APIView):
 
         try:
             # populate proxy identity url
-            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-            self._update_proxy_identity_endpoint(cloud_owner, cloud_region_id,
-                                                 self.proxy_prefix + "/%s/identity/v3" % vimid)
+            viminfo = VimDriverUtils.get_vim_info(vimid)
+            if not viminfo:
+                raise VimDriverNewtonException(
+                    "There is no cloud-region with {cloud-owner}_{cloud-region-id}=%s in AAI" % vimid)
+
+            #cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            self._update_proxy_identity_endpoint(viminfo)
 
             # prepare request resource to vim instance
             # get token:
             viminfo = VimDriverUtils.get_vim_info(vimid)
             # set the default tenant since there is no tenant info in the VIM yet
             sess = VimDriverUtils.get_session(
-                viminfo, tenantname=request.data['defaultTenant'])
+                viminfo, tenantname=viminfo['tenant'])
 
             # step 1. discover all projects and populate into AAI
             self._discover_tenants(vimid, sess, viminfo)

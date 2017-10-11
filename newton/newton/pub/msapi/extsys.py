@@ -51,6 +51,7 @@ def get_vim_by_id(vim_id):
         if tmp_viminfo and tmp_authinfo:
             viminfo = {}
             viminfo['vimId'] = vim_id
+            viminfo['resource-version'] = tmp_viminfo.get('resource-version')
             viminfo['cloud_owner'] = cloud_owner
             viminfo['cloud_region_id'] = cloud_region_id
             viminfo['type'] = tmp_viminfo.get('cloud-type')
@@ -73,9 +74,14 @@ def get_vim_by_id(vim_id):
 def delete_vim_by_id(vim_id):
     cloud_owner, cloud_region_id = decode_vim_id(vim_id)
     if cloud_owner and cloud_region_id:
+        #get the vim info
+        viminfo = get_vim_by_id(vim_id)
+        if not viminfo or not viminfo['resource-version']:
+            return 0
+
         retcode, content, status_code = \
-            restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
-                       % ( cloud_owner, cloud_region_id), "DELETE")
+            restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s?resource-version=%s"
+                       % ( cloud_owner, cloud_region_id, viminfo['resource-version']), "DELETE")
         if retcode != 0:
             logger.error("Status code is %s, detail is %s.", status_code, content)
             raise VimDriverNewtonException(
