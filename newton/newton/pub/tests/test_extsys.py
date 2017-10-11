@@ -31,10 +31,12 @@ MOCK_ESR_SYSTEM_INFO = {
     "service-url": "http://localhost",
     "default-tenant": "demo",
     "ssl-cacert": None,
-    "ssl-insecure": None
+    "ssl-insecure": None,
+    "resource-version":"1978882"
 }
 
 MOCK_VIM_INFO = {
+    "resource-version":"1978883",
     "cloud-type": "openstack",
     "complex-name": "complex",
     "cloud-region-version": "Regionv1",
@@ -47,6 +49,7 @@ MOCK_VIM_INFO = {
             ]
         }
 }
+
 
 
 def returnList(items):
@@ -111,7 +114,12 @@ class TestEpaCaps(unittest.TestCase):
         self.assertEquals(MOCK_ESR_SYSTEM_INFO['ssl-insecure'], viminfo['insecure'])
 
     def test_delete_vim_by_id(self):
-        values = [(1, "test_content", 500),(0, None, None)]
+        values = [
+            (0, json.dumps(MOCK_VIM_INFO), None),
+            (1, "test_content", 500),
+            (0, json.dumps(MOCK_VIM_INFO), None),
+            (0, None, None)
+        ]
 
         restcall.req_to_aai = mock.Mock(side_effect=returnList(values))
         self.assertRaises(VimDriverNewtonException, extsys.delete_vim_by_id, self.vim_id)
