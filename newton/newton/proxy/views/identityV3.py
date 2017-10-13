@@ -59,11 +59,11 @@ class Tokens(APIView):
             #keystone v3 API
             if not tenant_name and request.data.get("auth") \
                     and request.data["auth"].get("scope")\
-                    and request["auth"]["scope"].get("project"):
-                if request["auth"]["scope"]["project"].get("name"):
-                    tenant_name = request["auth"]["scope"]["project"].get("name")
+                    and request.data["auth"]["scope"].get("project"):
+                if request.data["auth"]["scope"]["project"].get("name"):
+                    tenant_name = request.data["auth"]["scope"]["project"].get("name")
                 else:
-                    tenant_id = request["auth"]["scope"]["project"].get("id")
+                    tenant_id = request.data["auth"]["scope"]["project"].get("id")
 
 
 
