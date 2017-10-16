@@ -55,13 +55,20 @@ class Registry(APIView):
     def _update_resoure(self, cloud_owner, cloud_region_id,
                         resoure_id, resource_info, resource_type):
         if cloud_owner and cloud_region_id:
-            #get the resource first
+            self._logger.debug(
+                ("_update_resoure,vimid:%(cloud_owner)s"
+                 "_%(cloud_region_id)s req_to_aai: %(resoure_id)s, "
+                 "%(resource_type)s, %(resource_info)s")
+                % {
+                    "cloud_owner": cloud_owner,
+                    "cloud_region_id": cloud_region_id,
+                    "resoure_id": resoure_id,
+                    "resource_type": resource_type,
+                    "resource_info": resource_info,
+                })
 
-            #add resource
-            #then update the resource
-            retcode, content, status_code = \
-                restcall.req_to_aai(
-                    ("/cloud-infrastructure/cloud-regions/"
+            #get the resource first
+            resource_url = ("/cloud-infrastructure/cloud-regions/"
                      "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
                      "%(resource_type)ss/%(resource_type)s/%(resoure_id)s"
                      % {
@@ -70,10 +77,24 @@ class Registry(APIView):
                          "resoure_id": resoure_id,
                          "resource_type": resource_type,
                      })
-                    , "PUT", content=resource_info)
+
+            # get cloud-region
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "GET")
+
+            # add resource-version
+            if retcode == 0 and content:
+                content = json.JSONDecoder().decode(content)
+                #resource_info["resource-version"] = content["resource-version"]
+                content.update(resource_info)
+                resource_info = content
+
+            #then update the resource
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "PUT", content=resource_info)
 
             self._logger.debug(
-                ("update_tenant,vimid:%(cloud_owner)s"
+                ("_update_resoure,vimid:%(cloud_owner)s"
                  "_%(cloud_region_id)s req_to_aai: %(resoure_id)s, "
                  "return %(retcode)s, %(content)s, %(status_code)s")
                 % {
@@ -88,42 +109,66 @@ class Registry(APIView):
         return 1  # unknown cloud owner,region_id
 
     def _discover_tenants(self, vimid="", session=None, viminfo=None):
-        # iterate all projects and populate them into AAI
-        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        for tenant in self._get_list_resources(
-                "projects", "identity", session, viminfo, vimid,
-                "projects"):
-            tenant_info = {
-                'tenant-id': tenant['id'],
-                'tenant-name': tenant['name'],
-            }
-            self._update_resoure(
-                cloud_owner, cloud_region_id, tenant['id'],
-                tenant_info, "tenant")
+        try:
+            # iterate all projects and populate them into AAI
+            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            for tenant in self._get_list_resources(
+                    "projects", "identity", session, viminfo, vimid,
+                    "projects"):
+                tenant_info = {
+                    'tenant-id': tenant['id'],
+                    'tenant-name': tenant['name'],
+                }
+                self._update_resoure(
+                    cloud_owner, cloud_region_id, tenant['id'],
+                    tenant_info, "tenant")
+
+        except VimDriverNewtonException as e:
+            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            return
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return
 
     def _discover_flavors(self, vimid="", session=None, viminfo=None):
-        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        for flavor in self._get_list_resources(
-                "/flavors/detail", "compute", session, viminfo, vimid,
-                "flavors"):
-            flavor_info = {
-                'flavor-id': flavor['id'],
-                'flavor-name': flavor['name'],
-                'flavor-vcpus': flavor['vcpus'],
-                'flavor-ram': flavor['ram'],
-                'flavor-disk': flavor['disk'],
-                'flavor-ephemeral': flavor['OS-FLV-EXT-DATA:ephemeral'],
-                'flavor-swap': flavor['swap'],
-                'flavor-is-public': flavor['os-flavor-access:is_public'],
-                'flavor-disabled': flavor['OS-FLV-DISABLED:disabled'],
-            }
+        try:
+            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            for flavor in self._get_list_resources(
+                    "/flavors/detail", "compute", session, viminfo, vimid,
+                    "flavors"):
+                flavor_info = {
+                    'flavor-id': flavor['id'],
+                    'flavor-name': flavor['name'],
+                    'flavor-vcpus': flavor['vcpus'],
+                    'flavor-ram': flavor['ram'],
+                    'flavor-disk': flavor['disk'],
+                    'flavor-ephemeral': flavor['OS-FLV-EXT-DATA:ephemeral'],
+                    'flavor-swap': flavor['swap'],
+                    'flavor-is-public': flavor['os-flavor-access:is_public'],
+                    'flavor-disabled': flavor['OS-FLV-DISABLED:disabled'],
+                }
 
-            if flavor.get('link') and len(flavor['link']) > 0:
-                flavor_info['flavor-selflink'] = flavor['link'][0]['href'],
+                if flavor.get('link') and len(flavor['link']) > 0:
+                    flavor_info['flavor-selflink'] = flavor['link'][0]['href'] or 'http://0.0.0.0',
+                else:
+                    flavor_info['flavor-selflink'] = 'http://0.0.0.0',
 
-            self._update_resoure(
-                cloud_owner, cloud_region_id, flavor['id'],
-                flavor_info, "flavor")
+                self._update_resoure(
+                    cloud_owner, cloud_region_id, flavor['id'],
+                    flavor_info, "flavor")
+
+        except VimDriverNewtonException as e:
+            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            return
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return
 
     # def update_image_metadata(self, cloud_owner, cloud_region_id, image_id, metadatainfo):
     #     '''
@@ -152,85 +197,106 @@ class Registry(APIView):
     #     return 1
 
     def _discover_images(self, vimid="", session=None, viminfo=None):
+        try:
+            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            for image in self._get_list_resources(
+                    "/v2/images", "image", session, viminfo, vimid,
+                    "images"):
+                image_info = {
+                    'image-id': image['id'],
+                    'image-name': image['name'],
+                    'image-selflink': image['self'],
 
-        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        for image in self._get_list_resources(
-                "/v2/images", "image", session, viminfo, vimid,
-                "images"):
-            image_info = {
-                'image-id': image['id'],
-                'image-name': image['name'],
-                'image-selflink': image['self'],
+                    'image-os-distro': image.get('os_distro') or 'Unknown',
+                    'image-os-version': image.get('os_version') or 'Unknown',
+                    'application': image.get('application'),
+                    'application-vendor': image.get('application_vendor'),
+                    'application-version': image.get('application_version'),
+                    'image-architecture': image.get('architecture'),
+                }
 
-                'image-os-distro': image.get('os_distro'),
-                'image-os-version': image.get('os_version'),
-                'application': image.get('application'),
-                'application-vendor': image.get('application_vendor'),
-                'application-version': image.get('application_version'),
-                'image-architecture': image.get('architecture'),
-            }
+                ret = self._update_resoure(
+                    cloud_owner, cloud_region_id, image['id'], image_info,
+                    "image")
+                if ret != 0:
+                    # failed to update image
+                    self._logger.debug("failed to populate image info into AAI: %s, image id: %s, ret:%s"
+                                       % (vimid, image_info['image-id'], ret))
+                    continue
 
-            ret = self._update_resoure(
-                cloud_owner, cloud_region_id, image['id'], image_info,
-                "image")
-            if ret != 0:
-                # failed to update image
-                self._logger.debug("failed to populate image info into AAI: %s, image id: %s, ret:%s"
-                                   % (vimid, image_info['image-id'], ret))
-                continue
-
-            schema = image['schema']
-            if schema:
-                req_resource = schema
-                service = {'service_type': "image",
-                           'interface': 'public',
-                           'region_id': viminfo['cloud_region_id']}
-                resp = session.get(req_resource, endpoint_filter=service)
-                content = resp.json()
-
-                self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
-                                   % (vimid, req_resource, resp.status_code, content))
-                # if resp.status_code == status.HTTP_200_OK:
-                    # parse the schema? TBD
-                    # self.update_image(cloud_owner, cloud_region_id, image_info)
-                    #metadata_info = {}
-
-    def _discover_availability_zones(self, vimid="", session=None,
-                                     viminfo=None):
-        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        for az in self._get_list_resources(
-                "/os-availability-zone/detail", "compute", session,
-                viminfo, vimid,
-                "availabilityZoneInfo"):
-            az_info = {
-                'availability-zone-name': az['zoneName'],
-                'operational-status': az['zoneState']['available']
-                if az.get('zoneState') else '',
-                'hypervisor-type': '',
-            }
-            if az.get('hosts'):
-                for (k, v) in az['hosts'].items():
-                    req_resource = "/os-hypervisors/detail?hypervisor_hostname_pattern=%s" % k
-                    service = {'service_type': "compute",
+                schema = image['schema']
+                if schema:
+                    req_resource = schema
+                    service = {'service_type': "image",
                                'interface': 'public',
                                'region_id': viminfo['cloud_region_id']}
                     resp = session.get(req_resource, endpoint_filter=service)
                     content = resp.json()
+
                     self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
                                        % (vimid, req_resource, resp.status_code, content))
-                    if resp.status_code != status.HTTP_200_OK and not content[0]:
-                        continue
-                    az_info['hypervisor-type'] = content['hypervisors'][0]['hypervisor_type']\
-                        if len(content.get('hypervisors')) else ''
+                    # if resp.status_code == status.HTTP_200_OK:
+                        # parse the schema? TBD
+                        # self.update_image(cloud_owner, cloud_region_id, image_info)
+                        #metadata_info = {}
 
-                    break
-            ret = self._update_resoure(
-                cloud_owner, cloud_region_id, az['zoneName'], az_info,
-                "availability-zone")
-            if ret != 0:
-                # failed to update image
-                self._logger.debug("failed to populate az info into AAI: %s, az name: %s, ret:%s"
-                                   % (vimid, az_info['availability-zone-name'], ret))
+        except VimDriverNewtonException as e:
+            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            return
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return
+
+    def _discover_availability_zones(self, vimid="", session=None,
+                                     viminfo=None):
+        try:
+            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            for az in self._get_list_resources(
+                    "/os-availability-zone/detail", "compute", session,
+                    viminfo, vimid,
+                    "availabilityZoneInfo"):
+                az_info = {
+                    'availability-zone-name': az['zoneName'],
+                    'operational-status': az['zoneState']['available']
+                    if az.get('zoneState') else '',
+                    'hypervisor-type': '',
+                }
+                if az.get('hosts'):
+                    for (k, v) in az['hosts'].items():
+                        req_resource = "/os-hypervisors/detail?hypervisor_hostname_pattern=%s" % k
+                        service = {'service_type': "compute",
+                                   'interface': 'public',
+                                   'region_id': viminfo['cloud_region_id']}
+                        resp = session.get(req_resource, endpoint_filter=service)
+                        content = resp.json()
+                        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
+                                           % (vimid, req_resource, resp.status_code, content))
+                        if resp.status_code != status.HTTP_200_OK and not content[0]:
+                            continue
+                        az_info['hypervisor-type'] = content['hypervisors'][0]['hypervisor_type']\
+                            if len(content.get('hypervisors')) else ''
+
+                        break
+                ret = self._update_resoure(
+                    cloud_owner, cloud_region_id, az['zoneName'], az_info,
+                    "availability-zone")
+                if ret != 0:
+                    # failed to update image
+                    self._logger.debug("failed to populate az info into AAI: %s, az name: %s, ret:%s"
+                                       % (vimid, az_info['availability-zone-name'], ret))
+
+        except VimDriverNewtonException as e:
+            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            return
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return
 
     # def _discover_volumegroups(self, vimid="", session=None, viminfo=None):
     #     cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
@@ -253,32 +319,43 @@ class Registry(APIView):
     #                                % (vimid, vg_info['volume-group-id'], ret))
 
     def _discover_snapshots(self, vimid="", session=None, viminfo=None):
-        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        for ss in self._get_list_resources(
-                "/snapshots/detail", "volumev3", session,
-                viminfo, vimid,
-                "snapshots"):
-            snapshot_info = {
-                'snapshot-id': ss['id'],
-                'snapshot-name': ss['name'],
-            }
-            if ss.get('metadata'):
-                snapshot_info['snapshot-architecture'] = ss['metadata'].get('architecture')
-                snapshot_info['application'] = ss['metadata'].get('architecture')
-                snapshot_info['snapshot-os-distro'] = ss['metadata'].get('os-distro')
-                snapshot_info['snapshot-os-version'] = ss['metadata'].get('os-version')
-                snapshot_info['application-vendor'] = ss['metadata'].get('vendor')
-                snapshot_info['application-version'] = ss['metadata'].get('version')
-                snapshot_info['snapshot-selflink'] = ss['metadata'].get('selflink')
-                snapshot_info['prev-snapshot-id'] = ss['metadata'].get('prev-snapshot-id')
+        try:
+            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            for ss in self._get_list_resources(
+                    "/snapshots/detail", "volumev3", session,
+                    viminfo, vimid,
+                    "snapshots"):
+                snapshot_info = {
+                    'snapshot-id': ss['id'],
+                    'snapshot-name': ss['name'],
+                }
+                if ss.get('metadata'):
+                    snapshot_info['snapshot-architecture'] = ss['metadata'].get('architecture')
+                    snapshot_info['application'] = ss['metadata'].get('architecture')
+                    snapshot_info['snapshot-os-distro'] = ss['metadata'].get('os-distro')
+                    snapshot_info['snapshot-os-version'] = ss['metadata'].get('os-version')
+                    snapshot_info['application-vendor'] = ss['metadata'].get('vendor')
+                    snapshot_info['application-version'] = ss['metadata'].get('version')
+                    snapshot_info['snapshot-selflink'] = ss['metadata'].get('selflink')
+                    snapshot_info['prev-snapshot-id'] = ss['metadata'].get('prev-snapshot-id')
 
-            ret = self._update_resoure(
-                cloud_owner, cloud_region_id, ss['id'], snapshot_info,
-                "snapshot")
-            if ret != 0:
-                # failed to update image
-                self._logger.debug("failed to populate snapshot info into AAI: %s, snapshot-id: %s, ret:%s"
-                                   % (vimid, snapshot_info['snapshot-id'], ret))
+                ret = self._update_resoure(
+                    cloud_owner, cloud_region_id, ss['id'], snapshot_info,
+                    "snapshot")
+                if ret != 0:
+                    # failed to update image
+                    self._logger.debug("failed to populate snapshot info into AAI: %s, snapshot-id: %s, ret:%s"
+                                       % (vimid, snapshot_info['snapshot-id'], ret))
+
+        except VimDriverNewtonException as e:
+            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            return
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return
 
     # def _discover_servergroups(self, vimid="", session=None, viminfo=None):
     #     for sg in self._get_list_resources(
@@ -324,9 +401,23 @@ class Registry(APIView):
         '''
 
         if cloud_owner and cloud_region_id:
+            resource_url = "/cloud-infrastructure/pservers/pserver/%s" \
+                           % (pserverinfo['hostname'])
+
+            # get cloud-region
             retcode, content, status_code = \
-                restcall.req_to_aai("/cloud-infrastructure/pservers/pserver/%s"
-                           % (pserverinfo['hostname']), "PUT", content=pserverinfo)
+                restcall.req_to_aai(resource_url, "GET")
+
+            # add resource-version to url
+            if retcode == 0 and content:
+                content = json.JSONDecoder().decode(content)
+                #pserverinfo["resource-version"] = content["resource-version"]
+                content.update(pserverinfo)
+                pserverinfo = content
+
+
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "PUT", content=pserverinfo)
 
             self._logger.debug("update_snapshot,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
                                % (cloud_owner,cloud_region_id, pserverinfo['hostname'], retcode, content, status_code))
@@ -375,34 +466,51 @@ class Registry(APIView):
         return 1  # unknown cloud owner,region_id
 
     def _discover_pservers(self, vimid="", session=None, viminfo=None):
-        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        for hypervisor in self._get_list_resources(
-                "/os-hypervisors/detail", "compute", session,
-                viminfo, vimid,
-                "hypervisors"):
-            hypervisor_info = {
-                'hostname': hypervisor['hypervisor_hostname'],
-                'in-maint': hypervisor['state'],
+        try:
+            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            for hypervisor in self._get_list_resources(
+                    "/os-hypervisors/detail", "compute", session,
+                    viminfo, vimid,
+                    "hypervisors"):
+                hypervisor_info = {
+                    'hostname': hypervisor['hypervisor_hostname'],
+                    'in-maint': hypervisor['state'],
 
-                'pserver-id': hypervisor.get('id'),
-                'ptnii-equip-name': hypervisor.get('id'),
-                'disk-in-gigabytes': hypervisor.get('local_gb'),
-                'ram-in-megabytes': hypervisor.get('memory_mb'),
-                'pserver-selflink': hypervisor.get('hypervisor_links'),
-                'ipv4-oam-address': hypervisor.get('host_ip'),
-            }
+                    'pserver-id': hypervisor.get('id'),
+                    'ptnii-equip-name': hypervisor.get('id'),
+                    'disk-in-gigabytes': hypervisor.get('local_gb'),
+                    'ram-in-megabytes': hypervisor.get('memory_mb'),
+                    'pserver-selflink': hypervisor.get('hypervisor_links'),
+                    'ipv4-oam-address': hypervisor.get('host_ip'),
+                }
 
-            if hypervisor.get('cpu_info') and hypervisor.get('cpu_info').get('topology'):
-                cputopo = hypervisor.get('cpu_info').get('topology')
-                n_cpus = cputopo['cores'] * cputopo['threads'] * cputopo['sockets']
-                hypervisor_info['number-of-cpus'] = n_cpus
+    #            if hypervisor.get('cpu_info') and hypervisor['cpu_info'].get('topology'):
+    #                cputopo = hypervisor['cpu_info'].get('topology')
+    #                n_cpus = cputopo['cores'] * cputopo['threads'] * cputopo['sockets']
+    #                hypervisor_info['number-of-cpus'] = n_cpus
+                if hypervisor.get('cpu_info'):
+                    cpu_info = json.loads(hypervisor['cpu_info'])
+                    if cpu_info.get('topology'):
+                        cputopo = cpu_info.get('topology')
+                        n_cpus = cputopo['cores'] * cputopo['threads'] * cputopo['sockets']
+                        hypervisor_info['number-of-cpus'] = n_cpus
 
-            ret = self._update_pserver(cloud_owner, cloud_region_id,
-                                      hypervisor_info)
-            if ret != 0:
-                # failed to update image
-                self._logger.debug("failed to populate pserver info into AAI: %s, hostname: %s, ret:%s"
-                                   % (vimid, hypervisor_info['hostname'], ret))
+                ret = self._update_pserver(cloud_owner, cloud_region_id,
+                                          hypervisor_info)
+                if ret != 0:
+                    # failed to update image
+                    self._logger.debug("failed to populate pserver info into AAI: %s, hostname: %s, ret:%s"
+                                       % (vimid, hypervisor_info['hostname'], ret))
+
+        except VimDriverNewtonException as e:
+            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            return
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return
 
     def _update_epa_caps(self, cloud_owner, cloud_region_id, epa_caps_info):
         '''
@@ -419,9 +527,23 @@ class Registry(APIView):
         }
 
         if cloud_owner and cloud_region_id:
+            resource_url = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s" \
+                           % (cloud_owner, cloud_region_id)
+
+            # get cloud-region
             retcode, content, status_code = \
-                restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/"
-                           % (cloud_owner, cloud_region_id, ), "PUT", content=cloud_epa_caps)
+                restcall.req_to_aai(resource_url, "GET")
+
+            #add resource-version to url
+            if retcode == 0 and content:
+                content = json.JSONDecoder().decode(content)
+                #cloud_epa_caps["resource-version"] = content["resource-version"]
+                content.update(cloud_epa_caps)
+                cloud_epa_caps = content
+
+            #update cloud-region
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "PUT", content=cloud_epa_caps)
 
             self._logger.debug(
                 "update_epa_caps,vimid:%s_%s req_to_aai: update cloud-epa-caps, return %s, %s, %s"
@@ -431,20 +553,31 @@ class Registry(APIView):
         return 1  # unknown cloud owner,region_id
 
     def _discover_epa_resources(self, vimid="", viminfo=None):
-        cloud_epa_caps_info = {}
-        cloud_extra_info = viminfo.get('cloud_extra_info')
-        if cloud_extra_info:
-            cloud_epa_caps_info.update(json.loads(cloud_extra_info))
+        try:
+            cloud_epa_caps_info = {}
+            cloud_extra_info = viminfo.get('cloud_extra_info')
+            if cloud_extra_info:
+                cloud_epa_caps_info.update(json.loads(cloud_extra_info))
 
-        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        ret = self._update_epa_caps(cloud_owner, cloud_region_id,
-                                    cloud_epa_caps_info)
-        if ret != 0:
-            # failed to update image
-            self._logger.debug("failed to populate EPA CAPs info into AAI: %s, ret:%s"
-                               % (vimid, ret))
+            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            ret = self._update_epa_caps(cloud_owner, cloud_region_id,
+                                        cloud_epa_caps_info)
+            if ret != 0:
+                # failed to update image
+                self._logger.debug("failed to populate EPA CAPs info into AAI: %s, ret:%s"
+                                   % (vimid, ret))
 
-    def _update_proxy_identity_endpoint(self, viminfo):
+        except VimDriverNewtonException as e:
+            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            return
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return
+
+    def _update_proxy_identity_endpoint(self, vimid):
         '''
         update cloud_region's identity url
         :param cloud_owner:
@@ -452,17 +585,41 @@ class Registry(APIView):
         :param url:
         :return:
         '''
+        try:
+            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            if cloud_owner and cloud_region_id:
+                resource_url = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s" \
+                               % (cloud_owner, cloud_region_id)
 
-        vimid = viminfo['vimId']
-        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        if cloud_owner and cloud_region_id:
-            viminfo['identity-url'] = self.proxy_prefix + "/%s/identity/v3" % vimid
-            retcode, content, status_code = \
-                restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
-                           % (cloud_owner, cloud_region_id), "PUT", content=viminfo)
+                # get cloud-region
+                retcode, content, status_code = \
+                    restcall.req_to_aai(resource_url, "GET")
 
-            self._logger.debug("update_proxy_identity_endpoint,vimid:%s req_to_aai: %s, return %s, %s, %s"
-                               % (vimid, viminfo['identity-url'], retcode, content, status_code))
+                # add resource-version to url
+                if retcode == 0 and content:
+                    viminfo = json.JSONDecoder().decode(content)
+                    # cloud_epa_caps["resource-version"] = content["resource-version"]
+                    viminfo['identity-url'] = self.proxy_prefix + "/%s/identity/v3" % vimid
+
+                    retcode, content, status_code = \
+                        restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
+                                   % (cloud_owner, cloud_region_id), "PUT", content=viminfo)
+
+                    self._logger.debug("update_proxy_identity_endpoint,vimid:%s req_to_aai: %s, return %s, %s, %s"
+                                       % (vimid, viminfo['identity-url'], retcode, content, status_code))
+                else:
+                    self._logger.debug("failure: update_proxy_identity_endpoint,vimid:%s req_to_aai: return %s, %s, %s"
+                                       % (vimid, retcode, content, status_code))
+
+        except VimDriverNewtonException as e:
+            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            return
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return
 
     def post(self, request, vimid=""):
         self._logger.debug("Registration--post::data> %s" % request.data)
@@ -470,17 +627,15 @@ class Registry(APIView):
 
         try:
             # populate proxy identity url
+            self._update_proxy_identity_endpoint(vimid)
+
+            # prepare request resource to vim instance
+            # get token:
             viminfo = VimDriverUtils.get_vim_info(vimid)
             if not viminfo:
                 raise VimDriverNewtonException(
                     "There is no cloud-region with {cloud-owner}_{cloud-region-id}=%s in AAI" % vimid)
 
-            #cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-            self._update_proxy_identity_endpoint(viminfo)
-
-            # prepare request resource to vim instance
-            # get token:
-            viminfo = VimDriverUtils.get_vim_info(vimid)
             # set the default tenant since there is no tenant info in the VIM yet
             sess = VimDriverUtils.get_session(
                 viminfo, tenantname=viminfo['tenant'])

@@ -103,11 +103,7 @@ MOCK_GET_HYPERVISOR_RESPONSE = {
             "hypervisor_hostname": "testing", "state": "ACTIVE",
             "id": 1, "local_gb": 256, "memory_mb": 1024,
             "hypervisor_links": "link", "host_ip": "127.0.0.1",
-            "cpu_info": {
-                "topology": {
-                    "cores": 8, "threads": 16, "sockets": 4
-                }
-            }
+            "cpu_info": u'{"topology": {"cores": 8, "threads": 16, "sockets": 4}}'
         },
         {
             "hypervisor_hostname": "testing2", "state": "XXX",
