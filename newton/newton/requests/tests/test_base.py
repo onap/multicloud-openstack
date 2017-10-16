@@ -16,7 +16,11 @@ import mock
 from rest_framework import status
 import unittest
 
+from abc import ABCMeta
 from django.test import Client
+
+from newton.requests.tests import mock_info
+from newton.requests.views.util import VimDriverUtils
 
 
 class MockResponse(object):
@@ -53,3 +57,171 @@ class TestRequest(unittest.TestCase):
 
     def setUp(self):
         self.client = Client()
+
+
+class AbstractTestResource(object):
+    __metaclass__ = ABCMeta
+
+    def __init__(self):
+        self.openstack_version = ""
+        self.resource_name = ""
+
+        self.MOCK_GET_RESOURCES_RESPONSE = {}
+        self.MOCK_GET_RESOURCE_RESPONSE = {}
+
+        self.MOCK_POST_RESOURCE_REQUEST = {}
+        self.MOCK_POST_RESOURCE_REQUEST_EXISTING = {}
+
+        self.MOCK_POST_RESOURCE_RESPONSE = {}
+
+        self.assert_keys = ""
+        self.assert_key = ""
+
+        self.HTTP_not_found = 404
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_get_resources_list(self, mock_get_vim_info, mock_get_session):
+        mock_get_session.side_effect = [
+            get_mock_session(
+                ["get"], {"get": {"content": self.MOCK_GET_RESOURCES_RESPONSE}}),
+        ]
+
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+
+        url = "/api/multicloud-" + self.openstack_version + \
+              "/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/" + self.resource_name
+
+        response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        context = response.json()
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertIsNotNone(context[self.assert_keys])
+        self.assertEqual(
+            self.MOCK_GET_RESOURCES_RESPONSE[self.assert_keys], context[self.assert_keys])
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_get_resource_info(self, mock_get_vim_info, mock_get_session):
+        mock_get_session.side_effect = [
+            get_mock_session(
+                ["get"], {"get": {"content": self.MOCK_GET_RESOURCE_RESPONSE}}),
+        ]
+
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+
+        url = "/api/multicloud-" + self.openstack_version + \
+              "/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/" + self.resource_name
+
+        response = self.client.get(url + "/uuid_1", {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        context = response.json()
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals(
+            self.MOCK_GET_RESOURCE_RESPONSE[self.assert_key], context[self.assert_key])
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_get_resource_not_found(self, mock_get_vim_info, mock_get_session):
+        mock_get_session.side_effect = [
+            get_mock_session(
+                ["get"], {"get": {"content": {},
+                                  "status_code": 404}}),
+        ]
+
+        url = "/api/multicloud-" + self.openstack_version + \
+              "/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/" + self.resource_name
+
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+
+        response = self.client.get(url + "/uuid_3", {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(self.HTTP_not_found, response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_post_resource(self, mock_get_vim_info, mock_get_session):
+        mock_get_session.side_effect = [
+            get_mock_session(
+                ["get"], {"get": {"content": self.MOCK_GET_RESOURCE_RESPONSE}}),
+            get_mock_session(
+                ["post"], {"post": {"content": self.MOCK_POST_RESOURCE_RESPONSE,
+                                    "status_code": 202}}),
+        ]
+
+        url = "/api/multicloud-" + self.openstack_version + \
+              "/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/" + self.resource_name
+
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+
+        response = self.client.post(url, self.MOCK_POST_RESOURCE_REQUEST, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        context = response.json()
+        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
+        self.assertIsNotNone(context['id'])
+        self.assertEqual(1, context['returnCode'])
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_post_resource_existing(self, mock_get_vim_info, mock_get_session):
+        mock_get_session.side_effect = [
+            get_mock_session(
+                ["get"], {"get": {"content": self.MOCK_GET_RESOURCES_RESPONSE}}),
+            get_mock_session(
+                ["post"], {"post": {"content": self.MOCK_POST_RESOURCE_RESPONSE,
+                                    "status_code": 201}}),
+        ]
+
+        url = "/api/multicloud-" + self.openstack_version + \
+              "/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/" + self.resource_name
+
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+
+        response = self.client.post(url, self.MOCK_POST_RESOURCE_REQUEST_EXISTING, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        context = response.json()
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertIsNotNone(context['returnCode'])
+        self.assertEqual(0, context['returnCode'])
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_post_resource_empty(self, mock_get_vim_info, mock_get_session):
+        mock_get_session.side_effect = [
+            get_mock_session(
+                ["get"], {"get": {"content": self.MOCK_GET_RESOURCE_RESPONSE}}),
+            get_mock_session(
+                ["post"], {"post": {"content": self.MOCK_POST_RESOURCE_RESPONSE,
+                                    "status_code": 202}}),
+        ]
+
+        url = "/api/multicloud-" + self.openstack_version + \
+              "/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/" + self.resource_name
+
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+
+        response = self.client.post(url, {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        context = response.json()
+        self.assertIn('error', context)
+        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_delete_resource(self, mock_get_vim_info, mock_get_session):
+
+        mock_get_session.side_effect = [
+            get_mock_session(
+                ["delete"], {"delete": {"content": {},
+                                        "status_code": 204}})
+        ]
+
+        url = "/api/multicloud-" + self.openstack_version + \
+              "/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/" + self.resource_name
+
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+
+        response = self.client.delete(url + "/uuid_1", HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertIsNone(response.data)

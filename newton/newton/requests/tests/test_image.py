@@ -24,105 +24,52 @@ from newton.requests.tests import test_base
 from newton.requests.views.image import imageThread
 from newton.requests.views.util import VimDriverUtils
 
-
-MOCK_GET_IMAGES_RESPONSE = {
-    "images": [
-        {"id": "uuid_1", "name": "image_1"},
-        {"id": "uuid_2", "name": "image_2"}
-    ]
-}
-
-MOCK_GET_IMAGE_RESPONSE = {
-    "image": {
-        "id": "uuid_1",
-        "name": "image_1"
-    }
-}
-
-MOCK_POST_IMAGE_REQUEST = {
-    "id": "uuid_3",
-    "name": "image_3",
-    "imagePath": "test.com/image_3"
-}
-
-MOCK_POST_IMAGE_REQUEST_EXISTING = {
-    "id": "uuid_1",
-    "name": "image_1",
-    "imagePath": "test.com/image_1"
-}
-
-MOCK_POST_IMAGE_RESPONSE = {
-    "id": "uuid_3",
-    "name": "image_3"
-}
+from newton.requests.tests.test_base import AbstractTestResource
 
 
-class TestImage(unittest.TestCase):
+class TestImageNewton(unittest.TestCase, AbstractTestResource):
+
     def setUp(self):
         self.client = Client()
-    def tearDown(self):
-        pass
 
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_get_images(self, mock_get_vim_info, mock_get_session):
+        self.openstack_version = "newton"
+        self.resource_name = "images"
 
-        mock_get_session.side_effect = [
-            test_base.get_mock_session(
-                ["get"], {"get": {"content": MOCK_GET_IMAGES_RESPONSE}}),
-        ]
+        self.MOCK_GET_RESOURCES_RESPONSE = {
+            "images": [
+                {"id": "uuid_1", "name": "image_1"},
+                {"id": "uuid_2", "name": "image_2"}
+            ]
+        }
 
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        self.MOCK_GET_RESOURCE_RESPONSE = {
+            "image": {
+                "id": "uuid_1",
+                "name": "image_1"
+            }
+        }
 
-        response = self.client.get(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/images",
-            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+        self.MOCK_POST_RESOURCE_REQUEST = {
+            "id": "uuid_3",
+            "name": "image_3",
+            "imagePath": "test.com/image_3"
+        }
 
-        context = response.json()
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertIsNotNone(context['images'])
-        self.assertEqual(MOCK_GET_IMAGES_RESPONSE["images"], context["images"])
+        self.MOCK_POST_RESOURCE_REQUEST_EXISTING = {
+            "id": "uuid_1",
+            "name": "image_1",
+            "imagePath": "test.com/image_1"
+        }
 
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_get_image(self, mock_get_vim_info, mock_get_session):
+        self.MOCK_POST_RESOURCE_RESPONSE = {
+            "id": "uuid_3",
+            "name": "image_3"
+        }
 
-        mock_get_session.side_effect = [
-            test_base.get_mock_session(
-                ["get"], {"get": {"content": MOCK_GET_IMAGE_RESPONSE}}),
-        ]
+        self.assert_keys = "images"
+        self.assert_key = "image"
 
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-        response = self.client.get(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
-            "/images/uuid_1",
-            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-        context = response.json()
-
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual(MOCK_GET_IMAGE_RESPONSE["image"], context["image"])
-
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_get_image_not_found(self, mock_get_vim_info, mock_get_session):
-
-        mock_get_session.side_effect = [
-            test_base.get_mock_session(
-                ["get"], {"get": {"content": {},
-                                  "status_code": 404}})
-        ]
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-        response = self.client.get(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
-            "/images/uuid_3",
-            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-        context = response.json()
-
-        self.assertEquals(status.HTTP_404_NOT_FOUND, response.status_code)
-        self.assertIsNone(context.get("image"))
+        self.HTTP_not_found = 404
 
     @mock.patch.object(imageThread, 'run')
     @mock.patch.object(urllib, 'request')
@@ -132,9 +79,9 @@ class TestImage(unittest.TestCase):
 
         mock_get_session.side_effect = [
             test_base.get_mock_session(
-                ["get"], {"get": {"content": MOCK_GET_IMAGES_RESPONSE}}),
+                ["get"], {"get": {"content": self.MOCK_GET_RESOURCES_RESPONSE}}),
             test_base.get_mock_session(
-                ["post"], {"post": {"content": MOCK_POST_IMAGE_RESPONSE,
+                ["post"], {"post": {"content": self.MOCK_POST_RESOURCE_RESPONSE,
                                     "status_code": 201}}),
         ]
 
@@ -144,73 +91,13 @@ class TestImage(unittest.TestCase):
 
         response = self.client.post(
             "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/images",
-            MOCK_POST_IMAGE_REQUEST, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+            self.MOCK_POST_RESOURCE_REQUEST, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_201_CREATED, response.status_code)
         self.assertIsNotNone(context['id'])
         self.assertEqual(1, context['returnCode'])
 
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_post_image_existing(self, mock_get_vim_info, mock_get_session):
-
-        mock_get_session.side_effect = [
-            test_base.get_mock_session(
-                ["get"], {"get": {"content": MOCK_GET_IMAGES_RESPONSE}}),
-            test_base.get_mock_session(
-                ["post"], {"post": {"content": MOCK_POST_IMAGE_RESPONSE,
-                                    "status_code": 201}}),
-        ]
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-        response = self.client.post(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/images",
-            MOCK_POST_IMAGE_REQUEST_EXISTING, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-        context = response.json()
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertIsNotNone(context['returnCode'])
-        self.assertEqual(0, context['returnCode'])
-
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_post_image_empty(self, mock_get_vim_info, mock_get_session):
-
-        mock_get_session.side_effect = [
-            test_base.get_mock_session(
-                ["get"], {"get": {"content": MOCK_GET_IMAGES_RESPONSE}}),
-            test_base.get_mock_session(
-                ["post"], {"post": {"content": MOCK_POST_IMAGE_RESPONSE,
-                                    "status_code": 201}}),
-        ]
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-        response = self.client.post(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/images",
-            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-        context = response.json()
-        self.assertIn('error', context)
-        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
-
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_delete_image(self, mock_get_vim_info, mock_get_session):
-
-        mock_get_session.side_effect = [
-            test_base.get_mock_session(
-                ["delete"], {"delete": {"content": {},
-                                        "status_code": 204}})
-        ]
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-        response = self.client.delete(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
-            "/images/uuid_1", HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
-        self.assertIsNone(response.data)
+    # Overridden method from test base to not make it run for current test case.
+    def test_post_resource(self):
+        pass
