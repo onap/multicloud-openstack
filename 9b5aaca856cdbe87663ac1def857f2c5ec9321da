@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_af87d50e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-10-17T16:13:32Z",
+      "side": 1,
+      "message": "In other words, we are trying to reuse code as much as possible.",
+      "range": {
+        "startLine": 10,
+        "startChar": 41,
+        "endLine": 11,
+        "endChar": 60
+      },
+      "revId": "9b5aaca856cdbe87663ac1def857f2c5ec9321da",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_6fcb2d73",
+        "filename": "newton/newton/requests/tests/test_base.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-10-17T16:13:32Z",
+      "side": 1,
+      "message": "Apparently all the methods define the url in the same way,\n\n    url \u003d \"/api/multicloud-\" + self.openstack_version + \\\n              \"/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/\"\n\nShouldn\u0027t be better to have the url defined in the constructor of the class as a instance property.\n\nBy other hand, the value \"windriver-hudson-dc_RegionOne\" can be externalized with variables as well. Lastly, we should try to reduce the number of characters per line to 72.",
+      "revId": "9b5aaca856cdbe87663ac1def857f2c5ec9321da",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_cf822100",
+        "filename": "newton/newton/requests/tests/test_image.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-10-17T16:13:32Z",
+      "side": 1,
+      "message": "This import should be placed in the line 24",
+      "revId": "9b5aaca856cdbe87663ac1def857f2c5ec9321da",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_afb0f5f4",
+        "filename": "newton/newton/requests/tests/test_image.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-10-17T16:13:32Z",
+      "side": 1,
+      "message": "I think that this value came from status constants.",
+      "range": {
+        "startLine": 72,
+        "startChar": 30,
+        "endLine": 72,
+        "endChar": 33
+      },
+      "revId": "9b5aaca856cdbe87663ac1def857f2c5ec9321da",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
