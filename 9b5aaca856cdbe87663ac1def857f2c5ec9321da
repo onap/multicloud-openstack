@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "1a2f8d8d_92543e55",
+        "filename": "newton/newton/requests/tests/test_base.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 991
+      },
+      "writtenOn": "2017-10-18T20:50:32Z",
+      "side": 1,
+      "message": "So the url gets populated from the child test classes. It seems if I implement it here, it doesn\u0027t get populated in there.",
+      "parentUuid": "1a2f8d8d_6fcb2d73",
+      "revId": "9b5aaca856cdbe87663ac1def857f2c5ec9321da",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a2f8d8d_cf822100",
         "filename": "newton/newton/requests/tests/test_image.py",
         "patchSetId": 1
@@ -59,6 +77,24 @@
     },
     {
       "key": {
+        "uuid": "1a2f8d8d_fe2b4980",
+        "filename": "newton/newton/requests/tests/test_image.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 991
+      },
+      "writtenOn": "2017-10-18T20:50:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a2f8d8d_cf822100",
+      "revId": "9b5aaca856cdbe87663ac1def857f2c5ec9321da",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a2f8d8d_afb0f5f4",
         "filename": "newton/newton/requests/tests/test_image.py",
         "patchSetId": 1
@@ -70,6 +106,30 @@
       "writtenOn": "2017-10-17T16:13:32Z",
       "side": 1,
       "message": "I think that this value came from status constants.",
+      "range": {
+        "startLine": 72,
+        "startChar": 30,
+        "endLine": 72,
+        "endChar": 33
+      },
+      "revId": "9b5aaca856cdbe87663ac1def857f2c5ec9321da",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_de208d9d",
+        "filename": "newton/newton/requests/tests/test_image.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 991
+      },
+      "writtenOn": "2017-10-18T20:50:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a2f8d8d_afb0f5f4",
       "range": {
         "startLine": 72,
         "startChar": 30,
