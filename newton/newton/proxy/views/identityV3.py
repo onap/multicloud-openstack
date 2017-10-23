@@ -80,10 +80,17 @@ class Tokens(APIView):
             #set expiring in 1 hour
 
             #update the catalog
-            tmp_auth_data['token']['catalog'], tmp_metadata_catalog = ProxyUtils.update_catalog(vimid, tmp_auth_data['token']['catalog'], self.proxy_prefix)
-            tmp_auth_token = VimDriverUtils.update_token_cache(vim, sess, tmp_auth_token, tmp_auth_state, json.dumps(tmp_metadata_catalog))
+            tmp_auth_data['token']['catalog'], tmp_metadata_catalog = ProxyUtils.update_catalog(
+                vimid, tmp_auth_data['token']['catalog'], self.proxy_prefix)
 
-            resp = Response(headers={'X-Subject-Token': tmp_auth_token}, data=tmp_auth_data, status=status.HTTP_201_CREATED)
+            tmp_auth_token = VimDriverUtils.update_token_cache(
+                vim, sess, tmp_auth_token, tmp_auth_state, json.dumps(tmp_metadata_catalog))
+
+            tmp_auth_data['token']['catalog'] = ProxyUtils.update_catalog_dnsaas(
+                vimid,tmp_auth_data['token']['catalog'], self.proxy_prefix, vim)
+
+            resp = Response(headers={'X-Subject-Token': tmp_auth_token},
+                            data=tmp_auth_data, status=status.HTTP_201_CREATED)
             return resp
         except VimDriverNewtonException as e:
 

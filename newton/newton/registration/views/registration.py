@@ -555,9 +555,10 @@ class Registry(APIView):
     def _discover_epa_resources(self, vimid="", viminfo=None):
         try:
             cloud_epa_caps_info = {}
-            cloud_extra_info = viminfo.get('cloud_extra_info')
-            if cloud_extra_info:
-                cloud_epa_caps_info.update(json.loads(cloud_extra_info))
+            cloud_extra_info_str = viminfo.get('cloud_extra_info')
+            if cloud_extra_info_str:
+                cloud_extra_info = json.loads(cloud_extra_info_str)
+                cloud_epa_caps_info.update(cloud_extra_info.get("epa-caps"))
 
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
             ret = self._update_epa_caps(cloud_owner, cloud_region_id,

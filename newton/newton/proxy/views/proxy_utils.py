@@ -15,6 +15,8 @@ import logging
 import json
 import traceback
 import re
+import uuid
+
 from rest_framework import status
 
 from newton.pub.exceptions import VimDriverNewtonException
@@ -128,4 +130,47 @@ class ProxyUtils(object):
             return None
 
 
+    @staticmethod
+    def update_catalog_dnsaas(vimid, catalog, multicould_namespace, viminfo):
+        '''
+        append DNSaaS delegate endpoints to catalog
+        :param vimid:
+        :param catalog: service catalog to be updated
+        :param multicould_namespace: multicloud namespace prefix to replace the real one in catalog endpoints url
+        :param viminfo: vim information
+        :return:updated catalog
+        '''
+
+        try:
+            cloud_dns_delegate_info = None
+            cloud_extra_info_str = viminfo.get('cloud_extra_info')
+            if cloud_extra_info_str:
+                cloud_extra_info = json.loads(cloud_extra_info_str)
+                cloud_dns_delegate_info = cloud_extra_info.get("dns-delegate")
+
+            if not cloud_dns_delegate_info\
+                    or not cloud_dns_delegate_info.get("cloud-owner") \
+                    or not cloud_dns_delegate_info.get("cloud-region-id"):
+                #DNSaaS deleget was not configured yet
+                return catalog
+
+            dns_catalog = {
+                "name":"dns-delegate",
+                "type":"dns",
+                "id": str(uuid.uuid1()),
+                "endpoints": {
+                    "interface": "public",
+                    "region": cloud_dns_delegate_info.get("cloud-region-id"),
+                    "region_id": cloud_dns_delegate_info.get("cloud-region-id"),
+                    "id": str(uuid.uuid1()),
+                    "url": multicould_namespace + "/%s/dns-delegate" % vimid,
+                }
+            }
+            catalog.append(dns_catalog)
+
+            return catalog
+
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return catalog
 
