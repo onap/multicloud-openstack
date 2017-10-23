@@ -158,13 +158,13 @@ class ProxyUtils(object):
                 "name":"dns-delegate",
                 "type":"dns",
                 "id": str(uuid.uuid1()),
-                "endpoints": {
+                "endpoints": [{
                     "interface": "public",
                     "region": cloud_dns_delegate_info.get("cloud-region-id"),
                     "region_id": cloud_dns_delegate_info.get("cloud-region-id"),
                     "id": str(uuid.uuid1()),
                     "url": multicould_namespace + "/%s/dns-delegate" % vimid,
-                }
+                }]
             }
             catalog.append(dns_catalog)
 
