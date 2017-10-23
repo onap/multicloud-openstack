@@ -156,8 +156,14 @@ class TokensV2(Tokens):
                     }
 
                     #convert endpoints
-                    v2_catalog1_endpoints = {"id": v3_catalog['id']}
+                    v2_catalog1_endpoints = None
                     for v3_endpoint in v3_catalog['endpoints']:
+                        v2_catalog1_endpoints = {
+                            "id": v3_endpoint['id'],
+                            "region":v3_endpoint['region'],
+                            "region_id": v3_endpoint['region_id'],
+                            'interface':v3_endpoint['interface']
+                        }
                         if v3_endpoint['interface'] == 'public':
                             v2_catalog1_endpoints['publicURL'] = v3_endpoint['url']
                         elif v3_endpoint['interface'] == 'admin':
@@ -165,7 +171,8 @@ class TokensV2(Tokens):
                         elif v3_endpoint['interface'] == 'internal':
                             v2_catalog1_endpoints['internalURL'] = v3_endpoint['url']
 
-                    v2_catalog1['endpoints'].append(v2_catalog1_endpoints)
+                    if v2_catalog1_endpoints:
+                        v2_catalog1['endpoints'].append(v2_catalog1_endpoints)
 
                     v2_catalog.append(v2_catalog1)
 
