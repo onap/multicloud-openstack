@@ -63,12 +63,17 @@ class AbstractTestResource(object):
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        self.openstack_version = ""
-        self.region = ""
-        self.resource_name = ""
+
+        self.client = Client()
+
+        self.openstack_version = "newton"
+        self.region = "windriver-hudson-dc_RegionOne"
+        self.url = "/api/multicloud-{}/v0/{}/fcca3cc49d5e42caae15459e27103efc/".format(
+            self.openstack_version, self.region)
 
         self.MOCK_GET_RESOURCES_RESPONSE = {}
         self.MOCK_GET_RESOURCE_RESPONSE = {}
+        self.MOCK_GET_RESOURCE_RESPONSE_NOT_FOUND = {}
 
         self.MOCK_POST_RESOURCE_REQUEST = {}
         self.MOCK_POST_RESOURCE_REQUEST_EXISTING = {}
@@ -90,11 +95,7 @@ class AbstractTestResource(object):
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
-        url = "/api/multicloud-{}/v0/{}/fcca3cc49d5e42caae15459e27103efc/{}".format(
-            self.openstack_version, self.region, self.resource_name
-        )
-
-        response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+        response = self.client.get(self.url, {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_200_OK, response.status_code)
@@ -112,11 +113,7 @@ class AbstractTestResource(object):
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
-        url = "/api/multicloud-{}/v0/{}/fcca3cc49d5e42caae15459e27103efc/{}".format(
-            self.openstack_version, self.region, self.resource_name
-        )
-
-        response = self.client.get(url + "/uuid_1", {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+        response = self.client.get(self.url + "/uuid_1", {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_200_OK, response.status_code)
@@ -128,17 +125,13 @@ class AbstractTestResource(object):
     def test_get_resource_not_found(self, mock_get_vim_info, mock_get_session):
         mock_get_session.side_effect = [
             get_mock_session(
-                ["get"], {"get": {"content": {},
+                ["get"], {"get": {"content": self.MOCK_GET_RESOURCE_RESPONSE_NOT_FOUND,
                                   "status_code": 404}}),
         ]
 
-        url = "/api/multicloud-{}/v0/{}/fcca3cc49d5e42caae15459e27103efc/{}".format(
-            self.openstack_version, self.region, self.resource_name
-        )
-
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
-        response = self.client.get(url + "/uuid_3", {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+        response = self.client.get(self.url + "/uuid_3", {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(self.HTTP_not_found, response.status_code)
 
@@ -147,19 +140,15 @@ class AbstractTestResource(object):
     def test_post_resource(self, mock_get_vim_info, mock_get_session):
         mock_get_session.side_effect = [
             get_mock_session(
-                ["get"], {"get": {"content": self.MOCK_GET_RESOURCE_RESPONSE}}),
+                ["get"], {"get": {"content": self.MOCK_GET_RESOURCES_RESPONSE}}),
             get_mock_session(
                 ["post"], {"post": {"content": self.MOCK_POST_RESOURCE_RESPONSE,
                                     "status_code": 202}}),
         ]
 
-        url = "/api/multicloud-{}/v0/{}/fcca3cc49d5e42caae15459e27103efc/{}".format(
-            self.openstack_version, self.region, self.resource_name
-        )
-
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
-        response = self.client.post(url, self.MOCK_POST_RESOURCE_REQUEST, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+        response = self.client.post(self.url, self.MOCK_POST_RESOURCE_REQUEST, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
@@ -177,13 +166,9 @@ class AbstractTestResource(object):
                                     "status_code": 201}}),
         ]
 
-        url = "/api/multicloud-{}/v0/{}/fcca3cc49d5e42caae15459e27103efc/{}".format(
-            self.openstack_version, self.region, self.resource_name
-        )
-
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
-        response = self.client.post(url, self.MOCK_POST_RESOURCE_REQUEST_EXISTING, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+        response = self.client.post(self.url, self.MOCK_POST_RESOURCE_REQUEST_EXISTING, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_200_OK, response.status_code)
@@ -201,13 +186,9 @@ class AbstractTestResource(object):
                                     "status_code": 202}}),
         ]
 
-        url = "/api/multicloud-{}/v0/{}/fcca3cc49d5e42caae15459e27103efc/{}".format(
-            self.openstack_version, self.region, self.resource_name
-        )
-
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
-        response = self.client.post(url, {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+        response = self.client.post(self.url, {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertIn('error', context)
@@ -223,13 +204,9 @@ class AbstractTestResource(object):
                                         "status_code": 204}})
         ]
 
-        url = "/api/multicloud-{}/v0/{}/fcca3cc49d5e42caae15459e27103efc/{}".format(
-            self.openstack_version, self.region, self.resource_name
-        )
-
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
-        response = self.client.delete(url + "/uuid_1", HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+        response = self.client.delete(self.url + "/uuid_1", HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
         self.assertIsNone(response.data)
