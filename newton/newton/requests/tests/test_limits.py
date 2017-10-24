@@ -20,28 +20,29 @@ from rest_framework import status
 
 from newton.requests.tests import mock_info
 from newton.requests.tests import test_base
+from newton.requests.tests.test_base import AbstractTestResource
 from newton.requests.views.util import VimDriverUtils
 
 
-MOCK_GET_LIMITS_RESPONSE = {
-    "limits": {
-        "absolute": {
-            "id": "uuid_1", "name": "limit_1"
-        }
-    }
-}
-
-MOCK_GET_QUOTAS_RESPONSE = {
-    "quota": {"limit": "1"}
-}
-
-
-class TestLimit(unittest.TestCase):
+class TestLimitNewton(unittest.TestCase, AbstractTestResource):
     def setUp(self):
         self.client = Client()
 
-    def tearDown(self):
-        pass
+        self.openstack_version = "newton"
+        self.region = "windriver-hudson-dc_RegionOne"
+        self.resource_name = "limits"
+
+        self.MOCK_GET_LIMITS_RESPONSE = {
+            "limits": {
+                "absolute": {
+                    "id": "uuid_1", "name": "limit_1"
+                }
+            }
+        }
+
+        self.MOCK_GET_QUOTAS_RESPONSE = {
+            "quota": {"limit": "1"}
+        }
 
     @staticmethod
     def _get_mock_response(return_value=None):
@@ -57,9 +58,9 @@ class TestLimit(unittest.TestCase):
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
                 "side_effect": [
-                    self._get_mock_response(MOCK_GET_LIMITS_RESPONSE),
-                    self._get_mock_response(MOCK_GET_QUOTAS_RESPONSE),
-                    self._get_mock_response(MOCK_GET_LIMITS_RESPONSE)
+                    self._get_mock_response(self.MOCK_GET_LIMITS_RESPONSE),
+                    self._get_mock_response(self.MOCK_GET_QUOTAS_RESPONSE),
+                    self._get_mock_response(self.MOCK_GET_LIMITS_RESPONSE)
                 ]
             })
 
@@ -73,7 +74,7 @@ class TestLimit(unittest.TestCase):
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         self.assertIsNotNone(context)
         self.assertIn(
-            MOCK_GET_LIMITS_RESPONSE["limits"]["absolute"]['id'], context['id'])
+            self.MOCK_GET_LIMITS_RESPONSE["limits"]["absolute"]['id'], context['id'])
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -82,9 +83,9 @@ class TestLimit(unittest.TestCase):
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
                 "side_effect": [
-                    self._get_mock_response(MOCK_GET_LIMITS_RESPONSE),
+                    self._get_mock_response(self.MOCK_GET_LIMITS_RESPONSE),
                     self._get_mock_response({}),
-                    self._get_mock_response(MOCK_GET_LIMITS_RESPONSE)
+                    self._get_mock_response(self.MOCK_GET_LIMITS_RESPONSE)
                 ]
             })
 
@@ -97,3 +98,24 @@ class TestLimit(unittest.TestCase):
         context = response.json()
         self.assertIn('error', context)
         self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+
+    def test_get_resources_list(self):
+        pass
+
+    def test_get_resource_info(self):
+        pass
+
+    def test_get_resource_not_found(self):
+        pass
+
+    def test_post_resource(self):
+        pass
+
+    def test_post_resource_existing(self):
+        pass
+
+    def test_post_resource_empty(self):
+        pass
+
+    def test_delete_resource(self):
+        pass
