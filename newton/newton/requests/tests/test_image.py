@@ -16,7 +16,6 @@ import mock
 import unittest
 
 from six.moves import urllib
-from django.test import Client
 from rest_framework import status
 
 from newton.requests.tests import mock_info
@@ -29,11 +28,9 @@ from newton.requests.views.util import VimDriverUtils
 class TestImageNewton(unittest.TestCase, AbstractTestResource):
 
     def setUp(self):
-        self.client = Client()
+        AbstractTestResource.__init__(self)
 
-        self.openstack_version = "newton"
-        self.region = "windriver-hudson-dc_RegionOne"
-        self.resource_name = "images"
+        self.url += "images"
 
         self.MOCK_GET_RESOURCES_RESPONSE = {
             "images": [
@@ -48,6 +45,8 @@ class TestImageNewton(unittest.TestCase, AbstractTestResource):
                 "name": "image_1"
             }
         }
+
+        self.MOCK_GET_RESOURCE_RESPONSE_NOT_FOUND = {}
 
         self.MOCK_POST_RESOURCE_REQUEST = {
             "id": "uuid_3",
