@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_15e826b3",
+        "filename": "newton/newton/requests/tests/test_flavor.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-10-24T23:59:31Z",
+      "side": 1,
+      "message": "FYI you can use the inflect python module for plurals\n\n    https://pypi.python.org/pypi/inflect",
+      "range": {
+        "startLine": 75,
+        "startChar": 13,
+        "endLine": 75,
+        "endChar": 24
+      },
+      "revId": "6df5fa6422ab6624ecbb3e02ee933818b8a3c902",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_d5d17efc",
+        "filename": "newton/newton/requests/tests/test_hosts.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-10-24T23:59:31Z",
+      "side": 1,
+      "message": "This method should\u0027t start with super(TestHostNewton, self).setUp() to guarantee that the base method class are called?",
+      "revId": "6df5fa6422ab6624ecbb3e02ee933818b8a3c902",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_f5ec7ac9",
+        "filename": "newton/newton/requests/tests/test_hosts.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2017-10-24T23:59:31Z",
+      "side": 1,
+      "message": "AFAIK this is not a Region value, it\u0027s an identifier created by the region and other value.",
+      "range": {
+        "startLine": 27,
+        "startChar": 13,
+        "endLine": 27,
+        "endChar": 19
+      },
+      "revId": "6df5fa6422ab6624ecbb3e02ee933818b8a3c902",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
