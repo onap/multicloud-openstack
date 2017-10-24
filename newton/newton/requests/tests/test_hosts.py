@@ -12,90 +12,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
 import unittest
 
 from django.test import Client
 from rest_framework import status
 
-from newton.requests.tests import mock_info
-from newton.requests.tests import test_base
-from newton.requests.views.util import VimDriverUtils
+from newton.requests.tests.test_base import AbstractTestResource
 
 
-MOCK_GET_HOSTS_RESPONSE = {
-    "hosts": [
-        {"id": "uuid_1", "name": "host_1"},
-        {"id": "uuid_2", "name": "host_2"}
-    ]
-}
-
-MOCK_GET_HOST_RESPONSE = {
-    "host": [
-        {"resource": {"id": "uuid_1", "name": "host_1"}}
-    ]
-}
-
-
-class TestHost(unittest.TestCase):
+class TestHostNewton(unittest.TestCase, AbstractTestResource):
     def setUp(self):
         self.client = Client()
-    def tearDown(self):
+        self.openstack_version = "newton"
+        self.region = "windriver-hudson-dc_RegionOne"
+        self.resource_name = "hosts"
+
+        self.MOCK_GET_RESOURCES_RESPONSE = {
+            "hosts": [
+            {"id": "uuid_1", "name": "host_1"},
+            {"id": "uuid_2", "name": "host_2"}
+            ]
+        }
+
+        self.MOCK_GET_RESOURCE_RESPONSE = {
+            "host": [
+                {"resource": {"id": "uuid_1", "name": "host_1"}}
+            ]
+        }
+
+        self.MOCK_GET_RESOURCE_RESPONSE_NOT_FOUND = {}
+
+        self.assert_keys = "hosts"
+        self.assert_key = "host"
+
+        self.HTTP_not_found = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    # Overridden methods from test base to not make it run for current test case.
+    def test_post_resource(self):
         pass
 
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_get_hosts_list(self, mock_get_vim_info, mock_get_session):
-        mock_get_session.side_effect = [
-            test_base.get_mock_session(
-                ["get"], {"get": {"content": MOCK_GET_HOSTS_RESPONSE}}),
-        ]
+    def test_post_resource_existing(self):
+        pass
 
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+    def test_post_resource_empty(self):
+        pass
 
-        response = self.client.get(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/hosts",
-            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-        context = response.json()
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertIsNotNone(context['hosts'])
-        self.assertEqual(MOCK_GET_HOSTS_RESPONSE["hosts"], context["hosts"])
-
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_get_host_info(self, mock_get_vim_info, mock_get_session):
-        mock_get_session.side_effect = [
-            test_base.get_mock_session(
-                ["get"], {"get": {"content": MOCK_GET_HOST_RESPONSE}}),
-        ]
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-        response = self.client.get(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/hosts"
-            "/uuid_1",
-            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-        context = response.json()
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(MOCK_GET_HOST_RESPONSE['host'], context['host'])
-
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_get_host_not_found(self, mock_get_vim_info, mock_get_session):
-        mock_get_session.side_effect = [
-            test_base.get_mock_session(
-                ["get"], {"get": {"content": {},
-                                  "status_code": 404}}),
-        ]
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-        response = self.client.get(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/hosts"
-            "/uuid_3",
-            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
-        self.assertIn('error', response.data)
+    def test_delete_resource(self):
+        pass

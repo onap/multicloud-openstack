@@ -69,6 +69,7 @@ class AbstractTestResource(object):
 
         self.MOCK_GET_RESOURCES_RESPONSE = {}
         self.MOCK_GET_RESOURCE_RESPONSE = {}
+        self.MOCK_GET_RESOURCE_RESPONSE_NOT_FOUND = {}
 
         self.MOCK_POST_RESOURCE_REQUEST = {}
         self.MOCK_POST_RESOURCE_REQUEST_EXISTING = {}
@@ -128,7 +129,7 @@ class AbstractTestResource(object):
     def test_get_resource_not_found(self, mock_get_vim_info, mock_get_session):
         mock_get_session.side_effect = [
             get_mock_session(
-                ["get"], {"get": {"content": {},
+                ["get"], {"get": {"content": self.MOCK_GET_RESOURCE_RESPONSE_NOT_FOUND,
                                   "status_code": 404}}),
         ]
 
@@ -147,7 +148,7 @@ class AbstractTestResource(object):
     def test_post_resource(self, mock_get_vim_info, mock_get_session):
         mock_get_session.side_effect = [
             get_mock_session(
-                ["get"], {"get": {"content": self.MOCK_GET_RESOURCE_RESPONSE}}),
+                ["get"], {"get": {"content": self.MOCK_GET_RESOURCES_RESPONSE}}),
             get_mock_session(
                 ["post"], {"post": {"content": self.MOCK_POST_RESOURCE_RESPONSE,
                                     "status_code": 202}}),

@@ -12,197 +12,53 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
 import unittest
 
 from django.test import Client
 from rest_framework import status
 
-from newton.requests.views.util import VimDriverUtils
-from newton.requests.tests import mock_info
-from newton.requests.tests import test_base
+from newton.requests.tests.test_base import AbstractTestResource
 
 
-MOCK_GET_NETWORKS_RESPONSE = {
-    "networks": [
-        {"name": "network_1"},
-        {"name": "network_2"}
-    ]
-}
+class TestNetworkNewton(unittest.TestCase, AbstractTestResource):
+    def setUp(self):
+        self.client = Client()
 
-MOCK_GET_NETWORK_RESPONSE = {
-    "network": {
-        "network_id": "f5dc173b-6804-445a-a6d8-c705dad5b5eb",
-        "name": "network_3"
-    }
-}
+        self.openstack_version = "newton"
+        self.region = "windriver-hudson-dc_RegionOne"
+        self.resource_name = "networks"
 
-MOCK_POST_NETWORK_REQUEST = {
-    "name": "network_3"
-}
+        self.MOCK_GET_RESOURCES_RESPONSE = {
+            "networks": [
+                {"name": "network_1"},
+                {"name": "network_2"}
+            ]
+        }
 
-MOCK_POST_NETWORK_REQUEST_EXISTING = {
-    "name": "network_1"
-}
+        self.MOCK_GET_RESOURCE_RESPONSE = {
+            "network": {
+            "id": "f5dc173b-6804-445a-a6d8-c705dad5b5eb",
+            "name": "network_3"
+            }
+        }
 
-MOCK_POST_NETWORK_RESPONSE = {
-    "network": {
-        "network_id": "f5dc173b-6804-445a-a6d8-c705dad5b5eb"
-    }
-}
+        self.MOCK_GET_RESOURCE_RESPONSE_NOT_FOUND = {}
 
+        self.MOCK_POST_RESOURCE_REQUEST = {
+            "name": "network_3"
+        }
 
-class TestNetwork(unittest.TestCase):
-   def setUp(self):
-      self.client = Client()
+        self.MOCK_POST_RESOURCE_REQUEST_EXISTING = {
+            "name": "network_1"
+        }
 
-   def tearDown(self):
-      pass
+        self.MOCK_POST_RESOURCE_RESPONSE = {
+            "network": {
+            "id": "f5dc173b-6804-445a-a6d8-c705dad5b5eb"
+            }
+        }
 
-   @mock.patch.object(VimDriverUtils, 'get_session')
-   @mock.patch.object(VimDriverUtils, 'get_vim_info')
-   def test_get_networks(self, mock_get_vim_info, mock_get_session):
+        self.assert_keys = "networks"
+        self.assert_key = "id"
 
-       mock_get_session.side_effect = [
-           test_base.get_mock_session(
-               ["get"], {"get": {"content": MOCK_GET_NETWORKS_RESPONSE}}),
-       ]
-
-       mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-       response = self.client.get(
-         "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/networks",
-          {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-       context = response.json()
-       self.assertEquals(status.HTTP_200_OK, response.status_code)
-       self.assertIsNotNone(context['networks'])
-       self.assertEqual(MOCK_GET_NETWORKS_RESPONSE["networks"], context['networks'])
-
-   @mock.patch.object(VimDriverUtils, 'get_session')
-   @mock.patch.object(VimDriverUtils, 'get_vim_info')
-   def test_get_network(self, mock_get_vim_info, mock_get_session):
-
-       mock_get_session.side_effect = [
-           test_base.get_mock_session(
-               ["get"], {"get": {"content": MOCK_GET_NETWORK_RESPONSE}}),
-       ]
-
-       mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-       response = self.client.get(
-           "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
-           "/networks/f5dc173b-6804-445a-a6d8-c705dad5b5eb",
-           {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-       context = response.json()
-       self.assertEquals(status.HTTP_200_OK, response.status_code)
-       self.assertEquals(MOCK_GET_NETWORK_RESPONSE['network_id'], context['network_id'])
-
-   @mock.patch.object(VimDriverUtils, 'get_session')
-   @mock.patch.object(VimDriverUtils, 'get_vim_info')
-   def test_get_network_not_found(self, mock_get_vim_info, mock_get_session):
-
-       mock_get_session.side_effect = [
-           test_base.get_mock_session(
-               ["get"], {"get": {"content": {},
-                                 "status_code": 404}}),
-       ]
-
-       mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-       response = self.client.get(
-           "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
-           "/networks/f5dc173b-6804-445a-a6d8-c705dad5b5eb",
-           {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-       # TODO(sshank): 404 status is not possible.
-       self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
-       self.assertIn('error', response.data)
-
-   @mock.patch.object(VimDriverUtils, 'get_session')
-   @mock.patch.object(VimDriverUtils, 'get_vim_info')
-   def test_post(self, mock_get_vim_info, mock_get_session):
-
-       mock_get_session.side_effect = [
-           test_base.get_mock_session(
-               ["get"], {"get": {"content": MOCK_GET_NETWORKS_RESPONSE}}),
-           test_base.get_mock_session(
-               ["post"], {"post": {"content": MOCK_POST_NETWORK_RESPONSE,
-                                   "status_code": 202}}),
-       ]
-
-       mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-       response = self.client.post(
-           "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/networks",
-           MOCK_POST_NETWORK_REQUEST, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-       context = response.json()
-       self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
-       self.assertIsNotNone(context['network_id'])
-       self.assertEqual(1, context['returnCode'])
-
-   @mock.patch.object(VimDriverUtils, 'get_session')
-   @mock.patch.object(VimDriverUtils, 'get_vim_info')
-   def test_post_existing(self, mock_get_vim_info, mock_get_session):
-
-       mock_get_session.side_effect = [
-           test_base.get_mock_session(
-               ["get"], {"get": {"content": MOCK_GET_NETWORKS_RESPONSE}}),
-           test_base.get_mock_session(
-               ["post"], {"post": {"content": MOCK_POST_NETWORK_RESPONSE,
-                                   "status_code": 202}}),
-       ]
-
-       mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-       response = self.client.post(
-           "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/networks",
-           MOCK_POST_NETWORK_REQUEST_EXISTING, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-       context = response.json()
-       self.assertEquals(status.HTTP_200_OK, response.status_code)
-       self.assertIsNotNone(context['returnCode'])
-       self.assertEqual(0, context['returnCode'])
-
-   @mock.patch.object(VimDriverUtils, 'get_session')
-   @mock.patch.object(VimDriverUtils, 'get_vim_info')
-   def test_post_empty_body(self, mock_get_vim_info, mock_get_session):
-
-       mock_get_session.side_effect = [
-           test_base.get_mock_session(
-               ["get"], {"get": {"content": MOCK_GET_NETWORKS_RESPONSE}}),
-           test_base.get_mock_session(
-               ["post"], {"post": {"content": MOCK_POST_NETWORK_RESPONSE,
-                                   "status_code": 202}}),
-       ]
-
-       mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-       response = self.client.post(
-           "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/networks",
-           {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-       context = response.json()
-       self.assertIn('error', context)
-       self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
-
-   @mock.patch.object(VimDriverUtils, 'get_session')
-   @mock.patch.object(VimDriverUtils, 'get_vim_info')
-   def test_delete(self, mock_get_vim_info, mock_get_session):
-       mock_get_session.side_effect = [
-           test_base.get_mock_session(
-               ["delete"], {"delete": {"content": {},
-                                       "status_code": 204}})
-       ]
-
-       mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-
-       response = self.client.delete(
-           "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc"
-           "/networks/f5dc173b-6804-445a-a6d8-c705dad5b5eb",
-           HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-       self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
-       self.assertIsNone(response.data)
+        self.HTTP_not_found = status.HTTP_500_INTERNAL_SERVER_ERROR

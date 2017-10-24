@@ -49,6 +49,8 @@ class TestImageNewton(unittest.TestCase, AbstractTestResource):
             }
         }
 
+        self.MOCK_GET_RESOURCE_RESPONSE_NOT_FOUND = {}
+
         self.MOCK_POST_RESOURCE_REQUEST = {
             "id": "uuid_3",
             "name": "image_3",
