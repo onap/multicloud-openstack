@@ -24,6 +24,8 @@ urlpatterns = [
     #        identityV2.Tokens.as_view()),
     url(r'^identity/v3/auth/tokens/?$',
         identityV3.Tokens.as_view()),
+    url(r'^identity/v3/?$',
+        identityV3.Tokens.as_view()),
     url(r'^identity/v2.0/?$',
         identityV3.TokensV2.as_view()),
     url(r'^identity/v2.0/tokens/?$',
