@@ -33,6 +33,22 @@ logger = logging.getLogger(__name__)
 
 DEBUG=True
 
+v3_version_detail = {
+    "version": {
+        "status": "stable",
+        "updated": "2014-04-17T00:00:00Z",
+        "media-types": [
+            {
+                "base": "application/json",
+                "type": "application/vnd.openstack.identity-v3+json"
+            }
+        ],
+        "id": "v3",
+        "links": [
+        ]
+    }
+}
+
 class Tokens(APIView):
     service = {'service_type': 'identity',
                'interface': 'public'}
@@ -40,6 +56,11 @@ class Tokens(APIView):
     def __init__(self):
         self.proxy_prefix = config.MULTICLOUD_PREFIX
         self._logger = logger
+
+    def get(self, request, vimid=""):
+        self._logger.debug("identityV3--get::META> %s" % request.META)
+
+        return Response(data=v3_version_detail, status=status.HTTP_200_OK)
 
     def post(self, request, vimid=""):
         self._logger.debug("identityV3--post::META> %s" % request.META)
@@ -55,6 +76,7 @@ class Tokens(APIView):
             #backward support for keystone v2.0 API
             if not tenant_name and request.data.get("auth"):
                 tenant_name = request.data["auth"].get("tenantName")
+                tenant_id = request.data["auth"].get("tenantId")
 
             #keystone v3 API
             if not tenant_name and request.data.get("auth") \
@@ -104,7 +126,7 @@ class Tokens(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-version_detail = {
+v2_version_detail = {
     "version": {
         "status": "stable",
         "updated": "2014-04-17T00:00:00Z",
@@ -132,7 +154,7 @@ class TokensV2(Tokens):
     def get(self, request, vimid=""):
         self._logger.debug("TokensV2--get::META> %s" % request.META)
 
-        return Response(data=version_detail, status=status.HTTP_200_OK)
+        return Response(data=v2_version_detail, status=status.HTTP_200_OK)
 
     def post(self, request, vimid=""):
         self._logger.debug("TokensV2--post::META> %s" % request.META)
