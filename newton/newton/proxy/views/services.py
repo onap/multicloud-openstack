@@ -132,6 +132,12 @@ class Services(APIView):
 
             if (action != "delete"):
                 content = ProxyUtils.update_prefix(metadata_catalog, content)
+
+            if (action == "get"):
+                if requri == '/v3/auth/catalog' and content and content.get("catalog"):
+                    content['catalog'] = ProxyUtils.update_catalog_dnsaas(
+                        vim_id, content['catalog'], self.proxy_prefix, vim)
+
                 return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
             return Response(headers={'X-Subject-Token': tmp_auth_token}, status=resp.status_code)
         except VimDriverNewtonException as e:
