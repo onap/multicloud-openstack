@@ -35,6 +35,7 @@ DEBUG=True
 class HasValidToken(BasePermission):
 
     def has_permission(self, request, view):
+        logger.debug("HasValidToken--has_permission::META> %s" % request.META)
         token = request.META.get('HTTP_X_AUTH_TOKEN', None)
         if token:
             state, metadata = VimDriverUtils.get_token_cache(token)
@@ -151,7 +152,7 @@ class Services(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def head(self, request, vimid="", servicetype="", requri=""):
-        self._logger.debug("Services--head::META> %s" % request.META)
+        #self._logger.debug("Services--head::META> %s" % request.META)
         self._logger.debug("Services--head::data> %s" % request.data)
         self._logger.debug("Services--head::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
@@ -190,14 +191,14 @@ class Services(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, vimid="", servicetype="", requri=""):
-        self._logger.debug("Services--get::META> %s" % request.META)
+        #self._logger.debug("Services--get::META> %s" % request.META)
         self._logger.debug("Services--get::data> %s" % request.data)
         self._logger.debug("Services--get::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
         return self._do_action("get", request, vimid, servicetype, requri)
 
     def post(self, request, vimid="", servicetype="", requri=""):
-        self._logger.debug("Services--post::META> %s" % request.META)
+        #self._logger.debug("Services--post::META> %s" % request.META)
         self._logger.debug("Services--post::data> %s" % request.data)
         self._logger.debug("Services--post::vimid, servicetype,  requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
@@ -205,21 +206,21 @@ class Services(APIView):
         return self._do_action("post", request, vimid, servicetype, requri)
 
     def put(self, request, vimid="", servicetype="", requri=""):
-        self._logger.debug("Services--put::META> %s" % request.META)
+        #self._logger.debug("Services--put::META> %s" % request.META)
         self._logger.debug("Services--put::data> %s" % request.data)
         self._logger.debug("Services--put::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
         return self._do_action("put", request, vimid, servicetype, requri)
 
     def patch(self, request, vimid="", servicetype="", requri=""):
-        self._logger.debug("Services--patch::META> %s" % request.META)
+        #self._logger.debug("Services--patch::META> %s" % request.META)
         self._logger.debug("Services--patch::data> %s" % request.data)
         self._logger.debug("Services--patch::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
         return self._do_action("patch", request, vimid, servicetype, requri)
 
     def delete(self, request, vimid="", servicetype="", requri=""):
-        self._logger.debug("Services--delete::META> %s" % request.META)
+        #self._logger.debug("Services--delete::META> %s" % request.META)
         self._logger.debug("Services--delete::data> %s" % request.data)
         self._logger.debug("Services--delete::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
@@ -235,7 +236,7 @@ class GetTenants(Services):
         self._logger = logger
 
     def get(self, request, vimid="", servicetype="identity", requri='projects'):
-        self._logger.debug("GetTenants--get::META> %s" % request.META)
+        #self._logger.debug("GetTenants--get::META> %s" % request.META)
         self._logger.debug("GetTenants--get::data> %s" % request.data)
         self._logger.debug("GetTenants--get::vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))

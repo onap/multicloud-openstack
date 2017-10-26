@@ -62,6 +62,7 @@ class DnsaasDelegate(Services):
                                 status=status.HTTP_404_NOT_FOUND)
 
             tenant_name = auth_state['body']['token']['project']['name']
+            #tenant_id = auth_state['body']['token']['project']['id']
 
             #find out the delegated DNSaaS provider
             viminfo = VimDriverUtils.get_vim_info(vim_id)
@@ -135,9 +136,12 @@ class DnsaasDelegate(Services):
             content = resp.json() if resp.content else None
             self._logger.debug("service " + action + " response: %s, %s" % (resp.status_code, content))
 
-            if (action != "delete"):
+            if (action == "delete"):
+                return Response(headers={'X-Subject-Token': tmp_auth_token}, status=resp.status_code)
+            else:
+                #content = ProxyUtils.update_dnsaas_project_id(content, tenant_id)
                 return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
-            return Response(headers={'X-Subject-Token': tmp_auth_token}, status=resp.status_code)
+
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:

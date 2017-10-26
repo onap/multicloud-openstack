@@ -600,7 +600,7 @@ class Registry(APIView):
                 if retcode == 0 and content:
                     viminfo = json.JSONDecoder().decode(content)
                     # cloud_epa_caps["resource-version"] = content["resource-version"]
-                    viminfo['identity-url'] = self.proxy_prefix + "/%s/identity/v3" % vimid
+                    viminfo['identity-url'] = self.proxy_prefix + "/%s/identity/v2.0" % vimid
 
                     retcode, content, status_code = \
                         restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"

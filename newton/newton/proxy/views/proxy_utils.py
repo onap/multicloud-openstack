@@ -174,3 +174,22 @@ class ProxyUtils(object):
             logger.error(traceback.format_exc())
             return catalog
 
+
+#    @staticmethod
+#    def update_dnsaas_project_id(content, new_project_id):
+#        '''
+#        update project id in DNSaaS delegate content
+#        '''
+#        try:
+#            if content:
+#                # filter the resp content and replace all endpoint prefix
+#                tmp_content = json.dumps(content)
+#                tmp_pattern = re.compile(r'(^.*)"project_id"\s*:\s*"' + r'[\w-]+'+r'"(.*$)')
+#                part1 = tmp_pattern.sub(r'\1', tmp_content)
+#                part2 = tmp_pattern.sub(r'"project_id":"'+new_project_id +r'"\2', tmp_content)
+#                #logger.debug("jsonstr:%s,part1:%s,part2:%s"%(tmp_content,part1,part2))
+#                content = json.loads(part1+part2)
+#            return content
+#        except Exception as e:
+#            logger.error(traceback.format_exc())
+#            return content
