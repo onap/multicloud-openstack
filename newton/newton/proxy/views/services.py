@@ -86,6 +86,12 @@ class Services(APIView):
     def _do_action(self, action, request, vim_id, servicetype, requri):
         tmp_auth_token = self._get_token(request)
         try:
+            #special handling of compute/v2 request from APPC, temp solution for A release
+            if servicetype == 'compute':
+                tmp_pattern = re.compile(r'^v2/(.+)')
+                requri = tmp_pattern.sub(r'v2.1/' + r'\1', requri)
+
+
             vim = VimDriverUtils.get_vim_info(vim_id)
             # fetch the auth_state out of cache
             auth_state, metadata_catalog = VimDriverUtils.get_token_cache(tmp_auth_token)
