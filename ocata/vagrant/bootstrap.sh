@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-set -e
+set -ex
 
 sudo apt-get update -y
 sudo apt-get install git -y
