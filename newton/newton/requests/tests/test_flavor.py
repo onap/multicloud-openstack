@@ -13,54 +13,67 @@
 # limitations under the License.
 
 import mock
+import unittest
 
 from rest_framework import status
 
 from newton.requests.tests import mock_info
 from newton.requests.tests import test_base
+from newton.requests.tests.test_base import AbstractTestResource
 from newton.requests.views.flavor import Flavors
 from newton.requests.views.util import VimDriverUtils
 
 
-MOCK_GET_FLAVORS_RESPONSE = {
-    "flavors": [
-        {"id": "uuid_1", "name": "flavor_1"},
-        {"id": "uuid_2", "name": "flavor_2"}
-    ]
-}
+class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
 
-MOCK_GET_FLAVOR_RESPONSE = {
-    "flavor": {
-        "id": "uuid_1",
-        "name": "flavor_1"
-    }
-}
+    def setUp(self):
+        AbstractTestResource.__init__(self)
 
-MOCK_GET_EXTRA_SPECS =  {
-    "extra_specs": {
-        "key": "test"
-    }
-}
+        self.url += "flavors"
 
-MOCK_POST_FLAVOR_REQUEST = {
-    "id": "uuid_3",
-    "name": "flavor_3"
-}
+        self.MOCK_GET_RESOURCES_RESPONSE = {
+            "flavors": [
+                {"id": "uuid_1", "name": "flavor_1"},
+                {"id": "uuid_2", "name": "flavor_2"}
+            ]
+        }
 
-MOCK_POST_FLAVOR_REQUEST_EXISTING = {
-    "id": "uuid_1",
-    "name": "flavor_1"
-}
+        self.MOCK_GET_RESOURCE_RESPONSE = {
+            "flavor": {
+                "id": "uuid_1",
+                "name": "flavor_1"
+            }
+        }
 
-MOCK_POST_FLAVOR_RESPONSE = {
-    "flavor": {
-        "id": "uuid_3",
-        "name": "flavor_3"
-    }
-}
+        self.MOCK_GET_RESOURCE_RESPONSE_NOT_FOUND = {}
 
+        self.MOCK_POST_RESOURCE_REQUEST = {
+            "id": "uuid_3",
+            "name": "flavor_3"
+        }
 
-class TestFlavors(test_base.TestRequest):
+        self.MOCK_POST_RESOURCE_REQUEST_EXISTING = {
+            "id": "uuid_1",
+            "name": "flavor_1"
+        }
+
+        self.MOCK_POST_RESOURCE_RESPONSE = {
+             "flavor": {
+            "id": "uuid_3",
+            "name": "flavor_3"
+            }
+        }
+
+        self.MOCK_GET_EXTRA_SPECS = {
+            "extra_specs": {
+                "key": "test"
+            }
+        }
+
+        self.assert_keys = "flavors"
+        self.assert_key = "flavor"
+
+        self.HTTP_not_found = status.HTTP_404_NOT_FOUND
 
     @mock.patch.object(Flavors, '_get_flavor_extra_specs')
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -69,7 +82,7 @@ class TestFlavors(test_base.TestRequest):
                           mock_get_flavor_extra_specs):
         mock_get_session.side_effect = [
             test_base.get_mock_session(
-            ["get"], {"get": {"content": MOCK_GET_FLAVORS_RESPONSE}}),
+            ["get"], {"get": {"content": self.MOCK_GET_RESOURCES_RESPONSE}}),
         ]
 
         mock_extra_specs = mock.Mock(spec=test_base.MockResponse)
@@ -86,7 +99,7 @@ class TestFlavors(test_base.TestRequest):
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         self.assertIsNotNone(context['flavors'])
-        self.assertEqual(MOCK_GET_FLAVORS_RESPONSE["flavors"],
+        self.assertEqual(self.MOCK_GET_RESOURCES_RESPONSE["flavors"],
                          context['flavors'])
 
     @mock.patch.object(Flavors, '_get_flavor_extra_specs')
@@ -97,7 +110,7 @@ class TestFlavors(test_base.TestRequest):
         mock_get_session.side_effect = [
             test_base.get_mock_session(
                 ["get"],
-                {"get": {"content": MOCK_GET_FLAVOR_RESPONSE}}),
+                {"get": {"content": self.MOCK_GET_RESOURCE_RESPONSE}}),
         ]
 
         mock_extra_specs = mock.Mock(spec=test_base.MockResponse)
@@ -113,7 +126,7 @@ class TestFlavors(test_base.TestRequest):
         context = response.json()
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual(MOCK_GET_FLAVOR_RESPONSE["id"], context["id"])
+        self.assertEqual(self.MOCK_GET_RESOURCE_RESPONSE["id"], context["id"])
 
     @mock.patch.object(Flavors, '_get_flavor_extra_specs')
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -149,9 +162,9 @@ class TestFlavors(test_base.TestRequest):
         mock_get_session.side_effect = [
             test_base.get_mock_session(
                 ["get", "post"], {
-                    "get": {"content": MOCK_GET_FLAVORS_RESPONSE},
+                    "get": {"content": self.MOCK_GET_RESOURCES_RESPONSE},
                     "post": {
-                        "content": MOCK_POST_FLAVOR_RESPONSE,
+                        "content": self.MOCK_POST_RESOURCE_RESPONSE,
                         "status_code": status.HTTP_202_ACCEPTED,
                     }
                 }
@@ -162,7 +175,7 @@ class TestFlavors(test_base.TestRequest):
         response = self.client.post(
             ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne"
              "/fcca3cc49d5e42caae15459e27103efc/flavors"),
-            MOCK_POST_FLAVOR_REQUEST,
+            self.MOCK_POST_RESOURCE_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
         context = response.json()
 
@@ -170,7 +183,6 @@ class TestFlavors(test_base.TestRequest):
                           response.status_code)
         self.assertIsNotNone(context['id'])
         self.assertEqual(1, context['returnCode'])
-
 
     @mock.patch.object(Flavors, '_get_flavor_extra_specs')
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -181,9 +193,9 @@ class TestFlavors(test_base.TestRequest):
        mock_get_session.side_effect = [
            test_base.get_mock_session(
                ["get", "post"], {
-                   "get": {"content":  MOCK_GET_FLAVORS_RESPONSE},
+                   "get": {"content":  self.MOCK_GET_RESOURCES_RESPONSE},
                    "post": {
-                       "content": MOCK_POST_FLAVOR_RESPONSE,
+                       "content": self.MOCK_POST_RESOURCE_RESPONSE,
                        "status_code": status.HTTP_202_ACCEPTED,
                    }
                }),
@@ -197,7 +209,7 @@ class TestFlavors(test_base.TestRequest):
        response = self.client.post(
            ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
             "fcca3cc49d5e42caae15459e27103efc/flavors"),
-           MOCK_POST_FLAVOR_REQUEST_EXISTING,
+           self.MOCK_POST_RESOURCE_REQUEST_EXISTING,
            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
        context = response.json()
@@ -207,42 +219,13 @@ class TestFlavors(test_base.TestRequest):
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_create_empty_flavor(
-           self, mock_get_vim_info,mock_get_session):
-        mock_get_session.side_effect = [
-            test_base.get_mock_session(
-                ["get", "post"],
-                {
-                    "get": {"content": MOCK_GET_FLAVORS_RESPONSE},
-                    "post": {
-                        "content": MOCK_POST_FLAVOR_RESPONSE,
-                        "status_code": status.HTTP_202_ACCEPTED
-                    }
-                })
-        ]
-        mock_extra_specs = mock.Mock(spec=test_base.MockResponse)
-        mock_extra_specs.json.return_value = {"extra_specs": {}}
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        response = self.client.post(
-            ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
-             "fcca3cc49d5e42caae15459e27103efc/flavors"),
-            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-        context = response.json()
-        self.assertIn('error', context)
-        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR,
-                          response.status_code)
-
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_delete_flavor(self, mock_get_vim_info, mock_get_session):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.side_effect = [
             test_base.get_mock_session(
                 ["get", "delete"],
                 {
-                    "get": { "content": MOCK_GET_EXTRA_SPECS },
+                    "get": { "content": self.MOCK_GET_EXTRA_SPECS },
                     "delete": {"status_code": status.HTTP_204_NO_CONTENT }
                 }),
         ]
@@ -255,3 +238,22 @@ class TestFlavors(test_base.TestRequest):
         self.assertEqual(status.HTTP_204_NO_CONTENT,
                         response.status_code)
         self.assertIsNone(response.data)
+
+    # Overridden methods from test base to not make it run for current test case.
+    def test_get_resources_list(self):
+        pass
+
+    def test_get_resource_info(self):
+        pass
+
+    def test_get_resource_not_found(self):
+        pass
+
+    def test_post_resource(self):
+        pass
+
+    def test_post_resource_existing(self):
+        pass
+
+    def test_delete_resource(self):
+        pass
