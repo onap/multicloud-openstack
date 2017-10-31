@@ -1,10 +1,10 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-set -e
+set -ex
 
 sudo apt-get update -y
 sudo apt-get install git -y
-git clone https://github.com/openstack-dev/devstack 
+git clone https://github.com/openstack-dev/devstack
 cd devstack; git checkout stable/ocata
 sudo apt-get install openvswitch-switch -y
 sudo ovs-vsctl add-br br-ex

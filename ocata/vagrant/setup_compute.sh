@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-set -e
+set -ex
 
 cd devstack
 cp /vagrant/compute.conf local.conf
