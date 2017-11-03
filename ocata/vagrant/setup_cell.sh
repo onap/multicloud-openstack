@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 source ~/devstack/openrc admin admin
 nova-manage cell_v2 discover_hosts
