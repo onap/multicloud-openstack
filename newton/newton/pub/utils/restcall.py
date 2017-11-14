@@ -9,21 +9,20 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
-import six
 import base64
-
 import codecs
 import json
-import traceback
-import sys
-
 import logging
-from six.moves import urllib
-import httplib2
 import uuid
+import six
+from six.moves import urllib
+import sys
+import traceback
 
+from django.conf import settings
+import httplib2
 from rest_framework import status
-from newton.pub.config import config
+
 
 rest_no_auth, rest_oneway_auth, rest_bothway_auth = 0, 1, 2
 HTTP_200_OK, HTTP_201_CREATED = '200', '201'
@@ -104,7 +103,8 @@ def _call_req(base_url, user, passwd, auth_type,
 
 
 def req_by_msb(resource, method, content=''):
-    base_url = "http://%s:%s/" % (config.MSB_SERVICE_ADDR, config.MSB_SERVICE_PORT)
+    base_url = "http://%s:%s/" % (settings.MSB_SERVICE_ADDR,
+                                  settings.MSB_SERVICE_PORT)
     return _call_req(base_url, "", "", rest_no_auth,
                     resource, method, "", content)
 
@@ -114,7 +114,8 @@ def req_to_vim(base_url, resource, method, extra_headers='', content=''):
                     resource, method, extra_headers, content)
 
 
-def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
+def req_to_aai(resource, method, content='',
+               appid=settings.MULTICLOUD_APP_ID):
     tmp_trasaction_id = '9003' #str(uuid.uuid1())
     headers = {
         'X-FromAppId': appid,
@@ -124,9 +125,12 @@ def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
     }
 
     logger.debug("req_to_aai--%s::> %s, %s" %
-                 (tmp_trasaction_id, method, _combine_url(config.AAI_BASE_URL,resource)))
-    return _call_req(config.AAI_BASE_URL, config.AAI_USERNAME, config.AAI_PASSWORD, rest_no_auth,
-                    resource, method, content=json.dumps(content), extra_headers=headers)
+                 (tmp_trasaction_id, method,
+                  _combine_url(settings.AAI_BASE_URL,resource)))
+    return _call_req(settings.AAI_BASE_URL, settings.AAI_USERNAME,
+                     settings.AAI_PASSWORD, rest_no_auth, resource,
+                     method, content=json.dumps(content),
+                     extra_headers=headers)
 
 
 def _combine_url(base_url, resource):

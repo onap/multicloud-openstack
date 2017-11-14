@@ -16,12 +16,12 @@ import logging
 import json
 import traceback
 
+from django.conf import settings
 from keystoneauth1.exceptions import HttpError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from newton.pub.config import config
 from newton.pub.exceptions import VimDriverNewtonException
 from newton.requests.views.util import VimDriverUtils
 from newton.pub.msapi import extsys
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 class EpaCaps(APIView):
 
     def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self._logger = logger
 
     def get(self, request, vimid=""):

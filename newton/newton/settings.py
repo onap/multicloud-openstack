@@ -116,9 +116,30 @@ CACHES = {
     }
 }
 
-if 'test' in sys.argv:
-    from newton.pub.config import config
+# [MSB]
+MSB_SERVICE_ADDR = os.environ.get('MSB_ADDR', "127.0.0.1")
+MSB_SERVICE_PORT = os.environ.get('MSB_PORT', "80")
 
+#[Multicloud]
+MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-newton/v0" % (
+    MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
+
+# [A&AI]
+AAI_ADDR = os.environ.get('AAI_ADDR', "")
+AAI_PORT = os.environ.get('AAI_PORT', "")
+AAI_SERVICE_URL = 'https://%s:%s/aai' % (AAI_ADDR, AAI_PORT)
+AAI_SCHEMA_VERSION = os.environ.get('AAI_SCHEMA_VERSION', "")
+AAI_USERNAME = os.environ.get('AAI_USERNAME', "")
+AAI_PASSWORD = os.environ.get('AAI_PASSWORD', "")
+
+AAI_BASE_URL = "%s/%s" % (AAI_SERVICE_URL, AAI_SCHEMA_VERSION)
+
+MULTICLOUD_APP_ID = 'MultiCloud-Newton'
+
+# [IMAGE LOCAL PATH]
+ROOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+if 'test' in sys.argv:
     REST_FRAMEWORK = {}
     import platform
 

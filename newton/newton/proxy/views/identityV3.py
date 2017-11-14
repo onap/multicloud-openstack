@@ -15,16 +15,12 @@ import logging
 import json
 import traceback
 
-from django.core.cache import cache
-
-from keystoneauth1 import access
-from keystoneauth1.access import service_catalog
+from django.conf import settings
 from keystoneauth1.exceptions import HttpError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from newton.pub.config import config
 from newton.pub.exceptions import VimDriverNewtonException
 from newton.requests.views.util import VimDriverUtils
 from newton.proxy.views.proxy_utils import ProxyUtils
@@ -54,7 +50,7 @@ class Tokens(APIView):
                'interface': 'public'}
 
     def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self._logger = logger
 
     def get(self, request, vimid=""):
@@ -148,7 +144,7 @@ class TokensV2(Tokens):
     '''
 
     def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self._logger = logger
 
     def get(self, request, vimid=""):

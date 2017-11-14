@@ -16,12 +16,12 @@ import logging
 import json
 import traceback
 
+from django.conf import settings
 from keystoneauth1.exceptions import HttpError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from newton.pub.config import config
 from newton.pub.exceptions import VimDriverNewtonException
 from newton.pub.msapi import extsys
 from newton.pub.utils import restcall
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 class Registry(APIView):
 
     def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self._logger = logger
 
     def _get_list_resources(
@@ -427,7 +427,8 @@ class Registry(APIView):
 
                 related_link = ("%s/cloud-infrastructure/cloud-regions/"
                                 "cloud-region/%s/%s" % (
-                                    config.AAI_BASE_URL, cloud_owner,
+                                    settings.AAI_BASE_URL,
+                                    cloud_owner,
                                     cloud_region_id))
 
                 relationship_data = \

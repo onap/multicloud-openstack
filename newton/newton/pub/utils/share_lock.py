@@ -13,13 +13,14 @@
 
 import time
 
+from django.conf import settings
 import redis
-
-from newton.pub.config.config import REDIS_HOST, REDIS_PORT, REDIS_PASSWD
 
 
 class SharedLock:
-    def __init__(self, lock_key, host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWD, db=9, lock_timeout=5 * 60):
+    def __init__(self, lock_key, host=settings.REDIS_HOST,
+                 port=settings.REDIS_PORT,
+                 password=settings.REDIS_PASSWD, db=9, lock_timeout=5 * 60):
         self.lock_key = lock_key
         self.lock_timeout = lock_timeout
         self.redis = redis.Redis(host=host, port=port, db=db, password=password)
