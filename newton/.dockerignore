@@ -1,0 +1,12 @@
+.project                         
+.classpath                       
+.settings/                       
+.checkstyle                      
+target/                          
+logs/*                       
+*.pyc                            
+.tox                             
+.coverage                        
+htmlcov/
+.git
+*tests*
