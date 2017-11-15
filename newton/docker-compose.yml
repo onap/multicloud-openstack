@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  memcached:
+    image: memcached
+    ports:
+      - "11211:11211"
+    entrypoint:
+      - memcached
+      - -m 2048
+      - -u root
+      - -c 1024
+  webservice:
+    env_file:
+      - multicloud-variables.env
+    image: onap/multicloud/openstack-newton
+    build:
+      context: .
+      args:
+        HTTP_PROXY: $HTTP_PROXY
+        HTTPS_PROXY: $HTTPS_PROXY
+    command: python manage.py runserver 0.0.0.0:9003
+    ports:
+      - "9003:9003"
+    depends_on:
+      - memcached
