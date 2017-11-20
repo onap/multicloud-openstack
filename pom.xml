@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.onap.multicloud.openstack</groupId>
     <artifactId>multicloud-openstack-root</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>multicloud-openstack</name>
     <packaging>pom</packaging>
     <description>multicloud openstack</description>
