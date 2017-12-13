@@ -25,7 +25,7 @@ memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
 nohup python manage.py runserver 0.0.0.0:9003 2>&1 &
 
 while [ ! -f logs/runtime_newton.log ]; do
-    sleep 1
+    sleep 2
 done
 
 tail -F logs/runtime_newton.log
