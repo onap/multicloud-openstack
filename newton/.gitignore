@@ -8,4 +8,10 @@ logs/*.log
 .tox
 .coverage
 htmlcov/
-
+AUTHORS
+ChangeLog
+nohup.out
+openstack_multicloud.egg-info/
+.eggs/
+build/
+test-reports/

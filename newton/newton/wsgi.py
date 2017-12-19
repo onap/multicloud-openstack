@@ -17,3 +17,7 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "newton.settings")
 
 application = get_wsgi_application()
+
+
+def get_application():
+    return application
