@@ -22,7 +22,7 @@ from newton.requests.tests import test_base
 from newton.requests.views.util import VimDriverUtils
 
 MOCK_GET_TENANT_RESPONSE = {
-    "projects":[
+    "projects": [
         {"id": "1", "name": "project"},
         {"id": "2", "name": "project2"},
     ]
@@ -34,8 +34,8 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "id": "1", "name": "micro", "vcpus": 1, "ram": "1MB",
             "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
             "swap": True, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}]
-         },
+            "OS-FLV-DISABLED:disabled": True, "link": [{"href": 1}]
+        },
         {
             "id": "2", "name": "mini", "vcpus": 2, "ram": "2MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
@@ -69,7 +69,7 @@ MOCK_GET_AZ_RESPONSE = {
         {
             "zoneName": "production",
             "zoneState": {"available": True},
-            "hosts": { "hypervisor": "kvm" }
+            "hosts": {"hypervisor": "kvm"}
         },
         {
             "zoneName": "testing",
@@ -88,9 +88,9 @@ MOCK_GET_SNAPSHOT_RESPONSE = {
         {
             "id": 1, "name": "test", "metadata":
             {
-            "architecture": "x86", "os-distro": "clearlinux",
-            "os-version": "276", "vendor": "intel", "version": 3,
-            "selflink": "test", "prev-snapshot-id": "test-id"
+                "architecture": "x86", "os-distro": "clearlinux",
+                "os-version": "276", "vendor": "intel", "version": 3,
+                "selflink": "test", "prev-snapshot-id": "test-id"
             }
         },
         {"id": 2, "name": "test2"}
@@ -103,7 +103,9 @@ MOCK_GET_HYPERVISOR_RESPONSE = {
             "hypervisor_hostname": "testing", "state": "ACTIVE",
             "id": 1, "local_gb": 256, "memory_mb": 1024,
             "hypervisor_links": "link", "host_ip": "127.0.0.1",
-            "cpu_info": u'{"topology": {"cores": 8, "threads": 16, "sockets": 4}}'
+            "cpu_info":
+                u'{"topology": {"cores": 8, "threads": 16,'
+                u'"sockets": 4}}'
         },
         {
             "hypervisor_hostname": "testing2", "state": "XXX",
@@ -117,8 +119,8 @@ TEST_REGISTER_ENDPOINT_REQUEST = {
     "defaultTenant": "project1"
 }
 
-class TestFlavors(test_base.TestRequest):
 
+class TestFlavors(test_base.TestRequest):
     def setUp(self):
         super(TestFlavors, self).setUp()
         self.req_to_aai_backup = restcall.req_to_aai
@@ -149,14 +151,17 @@ class TestFlavors(test_base.TestRequest):
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
                     self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
-                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
-                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                    self._get_mock_response(
+                        MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(
+                        MOCK_GET_HYPERVISOR_RESPONSE)
                 ]
             })
 
         response = self.client.post((
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "registry" % test_base.MULTIVIM_VERSION),
+            TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_202_ACCEPTED,
@@ -168,13 +173,13 @@ class TestFlavors(test_base.TestRequest):
         mock_delete_vim_info.return_value = 0
 
         response = self.client.delete((
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), "{}", content_type="application/json",
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "registry" % test_base.MULTIVIM_VERSION),
+            "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_202_ACCEPTED,
                           response.status_code)
-
 
     @mock.patch.object(VimDriverUtils, 'delete_vim_info')
     def test_fail_unregister_endpoint(
@@ -182,8 +187,9 @@ class TestFlavors(test_base.TestRequest):
         mock_delete_vim_info.return_value = 1
 
         response = self.client.delete((
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), "{}", content_type="application/json",
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "registry" % test_base.MULTIVIM_VERSION),
+            "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -53,51 +53,62 @@ class TestLimitNewton(unittest.TestCase, AbstractTestResource):
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_get_limits_list(self, mock_get_vim_info, mock_get_session):
-
+    def test_get_limits_list(
+            self, mock_get_vim_info, mock_get_session):
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
                 "side_effect": [
-                    self._get_mock_response(self.MOCK_GET_LIMITS_RESPONSE),
-                    self._get_mock_response(self.MOCK_GET_QUOTAS_RESPONSE),
-                    self._get_mock_response(self.MOCK_GET_LIMITS_RESPONSE)
+                    self._get_mock_response(
+                        self.MOCK_GET_LIMITS_RESPONSE),
+                    self._get_mock_response(
+                        self.MOCK_GET_QUOTAS_RESPONSE),
+                    self._get_mock_response(
+                        self.MOCK_GET_LIMITS_RESPONSE)
                 ]
             })
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
         response = self.client.get(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/limits",
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "fcca3cc49d5e42caae15459e27103efc/"
+            "limits" % test_base.MULTIVIM_VERSION,
             {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         self.assertIsNotNone(context)
         self.assertIn(
-            self.MOCK_GET_LIMITS_RESPONSE["limits"]["absolute"]['id'], context['id'])
+            self.MOCK_GET_LIMITS_RESPONSE["limits"]["absolute"]['id'],
+            context['id'])
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_get_limits_list_failure(self, mock_get_vim_info, mock_get_session):
-
+    def test_get_limits_list_failure(
+            self, mock_get_vim_info, mock_get_session):
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
                 "side_effect": [
-                    self._get_mock_response(self.MOCK_GET_LIMITS_RESPONSE),
+                    self._get_mock_response(
+                        self.MOCK_GET_LIMITS_RESPONSE),
                     self._get_mock_response({}),
-                    self._get_mock_response(self.MOCK_GET_LIMITS_RESPONSE)
+                    self._get_mock_response(
+                        self.MOCK_GET_LIMITS_RESPONSE)
                 ]
             })
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
         response = self.client.get(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/limits",
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "fcca3cc49d5e42caae15459e27103efc/"
+            "limits" % test_base.MULTIVIM_VERSION,
             {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertIn('error', context)
-        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                          response.status_code)
 
     def test_get_resources_list(self):
         pass

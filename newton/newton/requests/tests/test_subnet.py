@@ -80,13 +80,15 @@ class TestSubnetNewton(unittest.TestCase, AbstractTestResource):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
         response = self.client.get(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/subnets"
-            "/uuid_1",
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "fcca3cc49d5e42caae15459e27103efc/subnets/"
+            "uuid_1" % test_base.MULTIVIM_VERSION,
             {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual(self.MOCK_GET_RESOURCE_RESPONSE["id"], context["id"])
+        self.assertEqual(self.MOCK_GET_RESOURCE_RESPONSE["id"],
+                         context["id"])
 
     # Overridden method from test base to not make it run for current test case.
     def test_get_resource_info(self):

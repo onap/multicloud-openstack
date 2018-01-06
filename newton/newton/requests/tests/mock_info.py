@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from django.conf import settings
+
 MOCK_VIM_INFO = {
     "createTime": "2017-04-01 02:22:27",
     "domain": "Default",
@@ -27,9 +29,17 @@ MOCK_VIM_INFO = {
     'cloud_owner': 'windriver-hudson-dc',
     'cloud_region_id': 'RegionOne',
     'cloud_extra_info': '',
-    'cloud_epa_caps': '{"huge_page":"true","cpu_pinning":"true",\
-        "cpu_thread_policy":"true","numa_aware":"true","sriov":"true",\
-        "dpdk_vswitch":"true","rdt":"false","numa_locality_pci":"true"}',
+    'cloud_epa_caps':
+        '{'
+        '"huge_page":"true",'
+        '"cpu_pinning":"true",'
+        '"cpu_thread_policy":"true",'
+        '"numa_aware":"true",'
+        '"sriov":"true",'
+        '"dpdk_vswitch":"true",'
+        '"rdt":"false",'
+        '"numa_locality_pci":"true"'
+        '}',
     'insecure': 'True',
 }
 
@@ -480,74 +490,78 @@ MOCK_AUTH_STATE = {
     "auth_token": MOCK_TOKEN_ID
 }
 
+BASE_URL = ("http://172.16.77.20:9003/api/%s/v0/"
+            "windriver-hudson-dc_RegionOne/"
+            % settings.MULTIVIM_VERSION)
+
 MOCK_INTERNAL_METADATA_CATALOG = {
     "identity": {
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/identity",
+        "proxy_prefix": BASE_URL + "identity",
         "prefix": "http://128.224.180.14:5000",
         "suffix": "v3"
     },
     "patching": {
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/patching",
+        "proxy_prefix": BASE_URL + "patching",
         "suffix": "",
         "prefix": "http://128.224.180.14:15491"
     },
     "orchestration": {
         "suffix": "v1/fcca3cc49d5e42caae15459e27103efc",
         "prefix": "http://128.224.180.14:8004",
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/orchestration"
+        "proxy_prefix": BASE_URL + "orchestration"
     },
     "volume": {
         "prefix": "http://128.224.180.14:8776",
         "suffix": "v1/fcca3cc49d5e42caae15459e27103efc",
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/volume"
+        "proxy_prefix": BASE_URL + "volume"
     },
     "metering": {
         "suffix": "",
         "prefix": "http://128.224.180.14:8777",
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/metering"
+        "proxy_prefix": BASE_URL + "metering"
     },
     "volumev3": {
         "prefix": "http://128.224.180.14:8776",
         "suffix": "v3/fcca3cc49d5e42caae15459e27103efc",
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/volumev3"
+        "proxy_prefix": BASE_URL + "volumev3"
     },
     "compute": {
         "suffix": "v2.1/fcca3cc49d5e42caae15459e27103efc",
         "prefix": "http://128.224.180.14:8774",
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/compute"
+        "proxy_prefix": BASE_URL + "compute"
     },
     "platform": {
         "prefix": "http://128.224.180.14:6385",
         "suffix": "v1",
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/platform"
+        "proxy_prefix": BASE_URL + "platform"
     },
     "nfv": {
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/nfv",
+        "proxy_prefix": BASE_URL + "nfv",
         "prefix": "http://128.224.180.14:4545",
         "suffix": ""
     },
     "volumev2": {
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/volumev2",
+        "proxy_prefix": BASE_URL + "volumev2",
         "suffix": "v2/fcca3cc49d5e42caae15459e27103efc",
         "prefix": "http://128.224.180.14:8776"
     },
     "image": {
         "suffix": "",
         "prefix": "http://128.224.180.14:9292",
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/image"
+        "proxy_prefix": BASE_URL + "image"
     },
     "network": {
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/network",
+        "proxy_prefix": BASE_URL + "network",
         "prefix": "http://128.224.180.14:9696",
         "suffix": ""
     },
     "alarming": {
         "suffix": "",
         "prefix": "http://128.224.180.14:8042",
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/alarming"
+        "proxy_prefix": BASE_URL + "alarming"
     },
     "cloudformation": {
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/cloudformation",
+        "proxy_prefix": BASE_URL + "cloudformation",
         "prefix": "http://128.224.180.14:8000",
         "suffix": "v1/fcca3cc49d5e42caae15459e27103efc"
     }

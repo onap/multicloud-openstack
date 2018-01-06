@@ -78,12 +78,15 @@ class TestVolumesNewton(unittest.TestCase, AbstractTestResource):
             {"get": {"content": self.MOCK_GET_RESOURCE_RESPONSE}})
 
         response = self.client.get(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/"
-            "volumes/uuid_1", {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "fcca3cc49d5e42caae15459e27103efc/volumes/"
+            "uuid_1" % test_base.MULTIVIM_VERSION, {},
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(self.MOCK_GET_RESOURCE_RESPONSE['id'], context['id'])
+        self.assertEquals(self.MOCK_GET_RESOURCE_RESPONSE['id'],
+                          context['id'])
 
     # Overridden method from test base to not make it run for current test case.
     def test_get_resource_info(self):
