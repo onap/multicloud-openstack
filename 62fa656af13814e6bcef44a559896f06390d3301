@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_0c88281e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-01-08T16:26:11Z",
+      "side": 1,
+      "message": "Usually it\u0027s better to submit a single change per commit, in this case it seems like this commit is trying change two things at the same time",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 44
+      },
+      "revId": "62fa656af13814e6bcef44a559896f06390d3301",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
