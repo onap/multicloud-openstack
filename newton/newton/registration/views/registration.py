@@ -639,7 +639,7 @@ class Registry(APIView):
 
             # set the default tenant since there is no tenant info in the VIM yet
             sess = VimDriverUtils.get_session(
-                viminfo, tenantname=viminfo['tenant'])
+                viminfo, tenant_name=viminfo['tenant'])
 
             # step 1. discover all projects and populate into AAI
             self._discover_tenants(vimid, sess, viminfo)

@@ -14,6 +14,7 @@
 
 import logging
 
+from django.conf import settings
 from django.core.cache import cache
 from keystoneauth1.identity import v2 as keystone_v2
 from keystoneauth1.identity import v3 as keystone_v3
@@ -27,10 +28,14 @@ logger = logging.getLogger(__name__)
 class VimDriverUtils(object):
     @staticmethod
     def get_vim_info(vimid):
-        # get vim info from local cache firstly
-        # if cache miss, get it from ESR service
-        vim = extsys.get_vim_by_id(vimid)
-        return vim
+        """
+        Retrieve VIM information.
+
+        :param vimid: VIM Identifier
+        :return: VIM information
+        """
+        # TODO: get vim info from local cache firstly later from ESR
+        return extsys.get_vim_by_id(vimid)
 
     @staticmethod
     def delete_vim_info(vimid):
@@ -41,65 +46,45 @@ class VimDriverUtils(object):
         query = ""
         full_path = request.get_full_path()
         if '?' in full_path:
-            _, query = request.get_full_path().split('?')
+            _, query = full_path.split('?')
         return query
 
     @staticmethod
-    def get_session(vim, tenantid=None, tenantname=None, auth_state=None):
+    def get_session(
+            vim, tenant_id=None, tenant_name=None, auth_state=None):
         """
         get session object and optionally preload auth_state
         """
         auth = None
 
-        #tenantid takes precedence over tenantname
-        if not tenantid:
-            #input tenant name takes precedence over the default one from AAI data store
-            tenant_name = tenantname if tenantname else vim['tenant']
+        params = {
+            "auth_url": vim["url"],
+            "username": vim["userName"],
+            "password": vim["password"],
+        }
 
-        if tenantid:
-            if '/v2' in vim["url"]:
-                auth = keystone_v2.Password(auth_url=vim["url"],
-                                            username=vim["userName"],
-                                            password=vim["password"],
-                                            tenant_id=tenantid)
-            elif '/v3' in vim["url"]:
-                auth = keystone_v3.Password(auth_url=vim["url"],
-                                            username=vim["userName"],
-                                            password=vim["password"],
-                                            user_domain_name=vim["domain"],
-                                            project_id=tenantid)
-            #elif '/identity' in vim["url"]:
-            else:
-                auth = keystone_v3.Password(auth_url=vim["url"]+"/v3",
-                                            username=vim["userName"],
-                                            password=vim["password"],
-                                            user_domain_name=vim["domain"],
-                                            project_id=tenantid)
-        elif tenant_name:
-            if '/v2' in vim["url"]:
-                auth = keystone_v2.Password(auth_url=vim["url"],
-                                            username=vim["userName"],
-                                            password=vim["password"],
-                                            tenant_name=tenant_name)
-            elif '/v3' in vim["url"]:
-                auth = keystone_v3.Password(auth_url=vim["url"],
-                                            username=vim["userName"],
-                                            password=vim["password"],
-                                            project_name=tenant_name,
-                                            user_domain_name=vim["domain"],
-                                            project_domain_name=vim["domain"])
-            #elif '/identity' in vim["url"]:
-            else:
-                auth = keystone_v3.Password(auth_url=vim["url"]+"/v3",
-                                            username=vim["userName"],
-                                            password=vim["password"],
-                                            project_name=tenant_name,
-                                            user_domain_name=vim["domain"],
-                                            project_domain_name=vim["domain"])
-
+        # tenantid takes precedence over tenantname
+        if tenant_id:
+            params["tenant_id"] = tenant_id
         else:
-            #something wrong
-            return None
+            # input tenant name takes precedence over the default one
+            # from AAI data store
+            params["tenant_name"] = (tenant_name if tenant_name
+                                     else vim['tenant'])
+
+        if '/v2' in params["auth_url"]:
+            auth = keystone_v2.Password(**params)
+        else:
+            params["user_domain_name"] = vim["domain"]
+            params["project_domain_name"] = vim["domain"]
+
+            if 'tenant_id' in params:
+                params["project_id"] = params.pop("tenant_id")
+            if 'tenant_name' in params:
+                params["project_name"] = params.pop("tenant_name")
+            if '/v3' not in params["auth_url"]:
+                params["auth_url"] = params["auth_url"] + "/v3",
+            auth = keystone_v3.Password(**params)
 
         #preload auth_state which was acquired in last requests
         if auth_state:
@@ -107,71 +92,58 @@ class VimDriverUtils(object):
 
         return session.Session(auth=auth)
 
-
     @staticmethod
-    def get_auth_state(vim, session):
-        auth = session._auth_required(None, 'fetch a token')
-        if not auth:
-            return None
+    def get_auth_state(session_obj):
+        """
+        Retrieve the authorization state
+        :param session: OpenStack Session object
+        :return: return a string dump of json object with token and
+        resp_data of authentication request
+        """
+        auth = session_obj._auth_required(None, 'fetch a token')
+        if auth:
+            #trigger the authenticate request
+            session_obj.get_auth_headers(auth)
 
-        #trigger the authenticate request
-        session.get_auth_headers(auth)
-
-#        norm_expires = utils.normalize_time(auth.expires)
-
-        #return a string dump of json object with token and resp_data of authentication request
-        return auth.get_auth_state()
-#        return auth.get_auth_ref(session)
+            # norm_expires = utils.normalize_time(auth.expires)
+            return auth.get_auth_state()
 
     @staticmethod
     def get_token_cache(token):
-        '''
+        """
         get auth_state and metadata fromm cache
         :param token:
         :return:
-        '''
+        """
         return cache.get(token), cache.get("meta_%s" % token)
 
+    @staticmethod
+    def update_token_cache(token, auth_state, metadata):
+        """
+        Stores into the cache the auth_state and metadata_catalog
+        information.
+
+        :param token: Base token to be used as an identifier
+        :param auth_state: Authorization information
+        :param metadata: Metadata Catalog information
+        """
+        if metadata and not cache.get(token):
+            cache.set(
+                token, auth_state, settings.CACHE_EXPIRATION_TIME)
+            cache.set(
+                "meta_%s" % token, metadata,
+                settings.CACHE_EXPIRATION_TIME)
 
     @staticmethod
-    def update_token_cache(vim, session, token, auth_state, metadata=None):
-        '''
-        cache the auth_state as well as metadata_catalog
-        :param vim:
-        :param session:
-        :param token:
-        :param auth_state:
-        :param matadata:
-        :return:
-        '''
+    def _replace_a_key(dict_obj, key_pair, reverse):
+        old_key = key_pair[1] if reverse else key_pair[0]
+        new_key = key_pair[0] if reverse else key_pair[1]
 
-        if metadata == None: #do not update token any more
-            return token
-
-        metadata_key = "meta_%s" % token
-
-        if not cache.get(token):
-            # store the auth_state, memcached
-            # set expiring in 1 hour
-            cache.set(token, auth_state, 3600)
-            cache.set(metadata_key, metadata, 3600)
-
-        return token
-
-
-    @staticmethod
-    def replace_a_key(dict_obj, keypair, reverse=False):
-        old_key, new_key = None, None
-        if reverse:
-            old_key, new_key = keypair[1], keypair[0]
-        else:
-            old_key, new_key = keypair[0], keypair[1]
-
-        v = dict_obj.pop(old_key, None)
-        if v:
-            dict_obj[new_key] = v
+        old_value = dict_obj.pop(old_key, None)
+        if old_value:
+            dict_obj[new_key] = old_value
 
     @staticmethod
     def replace_key_by_mapping(dict_obj, mapping, reverse=False):
         for k in mapping:
-            VimDriverUtils.replace_a_key(dict_obj, k, reverse)
+            VimDriverUtils._replace_a_key(dict_obj, k, reverse)

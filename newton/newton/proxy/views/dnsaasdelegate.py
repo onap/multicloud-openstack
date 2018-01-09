@@ -94,7 +94,7 @@ class DnsaasDelegate(Services):
                 return Response(data={'error': "vimid %s is not found" % (vimid_delegate)},
                                 status=status.HTTP_404_NOT_FOUND)
 
-            sess = VimDriverUtils.get_session(vim, tenantname=tenant_name, auth_state=None)
+            sess = VimDriverUtils.get_session(vim, tenant_name=tenant_name)
 
             cloud_owner, regionid = extsys.decode_vim_id(vimid_delegate)
             interface = 'public'

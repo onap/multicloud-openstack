@@ -96,7 +96,7 @@ class Services(APIView):
             # fetch the auth_state out of cache
             auth_state, metadata_catalog = VimDriverUtils.get_token_cache(tmp_auth_token)
             req_resource, metadata_catalog = self._get_resource_and_metadata(servicetype, metadata_catalog, requri)
-            sess = VimDriverUtils.get_session(vim, tenantid=None, auth_state=auth_state)
+            sess = VimDriverUtils.get_session(vim, auth_state=auth_state)
 
             cloud_owner, regionid = extsys.decode_vim_id(vim_id)
             interface = 'public'
