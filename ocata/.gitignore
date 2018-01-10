@@ -3,9 +3,9 @@
 .settings/
 .checkstyle
 target/
-logs/*.log
+*.log
 *.pyc
 .tox
 .coverage
 htmlcov/
-
+.vagrant
