@@ -11,3 +11,4 @@ htmlcov/
 .idea/
 mydatabase
 .DS_Store
+*.swp
