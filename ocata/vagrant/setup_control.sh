@@ -2,10 +2,10 @@
 
 set -ex
 
-cd devstack
-cp /vagrant/control.conf  local.conf
-./stack.sh
+cd /opt/stack/devstack
+cp /vagrant/control.conf ./local.conf
+su stack -c "./stack.sh"
 
-sudo sed -i "s/recursion no;/recursion yes;\n    forwarders { 8.8.8.8; 8.8.8.4; };/" \
+sed -i "s/recursion no;/recursion yes;\n    forwarders { 8.8.8.8; 8.8.8.4; };/" \
     /etc/bind/named.conf.options
-sudo service bind9 restart
+service bind9 restart
