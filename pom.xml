@@ -38,6 +38,7 @@
         <module>newton</module>
         <module>ocata</module>
         <module>windriver</module>
+        <module>common</module>
     </modules>
 
     <build>
