@@ -16,6 +16,8 @@ from django.test import Client
 from rest_framework import status
 import unittest
 
+from newton.requests.tests import test_base
+
 
 class TestExtensions(unittest.TestCase):
     def setUp(self):
@@ -27,19 +29,27 @@ class TestExtensions(unittest.TestCase):
         vimid = cloud_owner + "_" + cloud_region_id
 
         response = self.client.get(
-            "/api/multicloud-newton/v0/" + vimid + "/extensions/")
+            "/api/%s/v0/%s/extensions/" % (
+                test_base.MULTIVIM_VERSION, vimid))
         json_content = response.json()
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         self.assertEquals(4, len(json_content.keys()))
 
         self.assertEquals(cloud_owner, json_content["cloud-owner"])
-        self.assertEquals(cloud_region_id, json_content["cloud-region-id"])
+        self.assertEquals(cloud_region_id,
+                          json_content["cloud-region-id"])
         self.assertEquals(vimid, json_content["vimid"])
 
-        self.assertEquals("epa-caps", json_content["extensions"][0]["alias"])
-        self.assertEquals("Multiple network support", json_content["extensions"][0]["description"])
-        self.assertEquals("EPACapsQuery", json_content["extensions"][0]["name"])
-        self.assertEquals("http://127.0.0.1:80/api/multicloud-newton/v0/%s/extensions/epa-caps" % vimid,
-                          json_content["extensions"][0]["url"])
+        self.assertEquals("epa-caps",
+                          json_content["extensions"][0]["alias"])
+        self.assertEquals("Multiple network support",
+                          json_content["extensions"][0][
+                              "description"])
+        self.assertEquals("EPACapsQuery",
+                          json_content["extensions"][0]["name"])
+        self.assertEquals(
+            "http://127.0.0.1:80/api/%s/v0/%s/extensions/epa-caps" % (
+                test_base.MULTIVIM_VERSION, vimid),
+            json_content["extensions"][0]["url"])
         self.assertEquals("", json_content["extensions"][0]["spec"])

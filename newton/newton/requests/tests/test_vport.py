@@ -53,8 +53,8 @@ MOCK_POST_VPORT_RESPONSE = {
 
 class Testvports(test_base.TestRequest):
 
-    url = ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
-           "fcca3cc49d5e42caae15459e27103efc/")
+    url = ("/api/%s/v0/windriver-hudson-dc_RegionOne/"
+           "fcca3cc49d5e42caae15459e27103efc/" % test_base.MULTIVIM_VERSION)
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_get_vports(self, mock_get_vim_info, mock_get_session):

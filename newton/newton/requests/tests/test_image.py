@@ -26,7 +26,6 @@ from newton.requests.views.util import VimDriverUtils
 
 
 class TestImageNewton(unittest.TestCase, AbstractTestResource):
-
     def setUp(self):
         AbstractTestResource.__init__(self)
 
@@ -74,14 +73,16 @@ class TestImageNewton(unittest.TestCase, AbstractTestResource):
     @mock.patch.object(urllib, 'request')
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_post_image(self, mock_get_vim_info, mock_get_session, mock_request, mock_run):
-
+    def test_post_image(self, mock_get_vim_info, mock_get_session,
+                        mock_request, mock_run):
         mock_get_session.side_effect = [
             test_base.get_mock_session(
-                ["get"], {"get": {"content": self.MOCK_GET_RESOURCES_RESPONSE}}),
+                ["get"], {"get": {
+                    "content": self.MOCK_GET_RESOURCES_RESPONSE}}),
             test_base.get_mock_session(
-                ["post"], {"post": {"content": self.MOCK_POST_RESOURCE_RESPONSE,
-                                    "status_code": 201}}),
+                ["post"],
+                {"post": {"content": self.MOCK_POST_RESOURCE_RESPONSE,
+                          "status_code": 201}}),
         ]
 
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
@@ -89,11 +90,15 @@ class TestImageNewton(unittest.TestCase, AbstractTestResource):
         mock_request.urlopen.return_value = "image"
 
         response = self.client.post(
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/fcca3cc49d5e42caae15459e27103efc/images",
-            self.MOCK_POST_RESOURCE_REQUEST, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "fcca3cc49d5e42caae15459e27103efc/"
+            "images" % test_base.MULTIVIM_VERSION,
+            self.MOCK_POST_RESOURCE_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
-        self.assertEquals(status.HTTP_201_CREATED, response.status_code)
+        self.assertEquals(status.HTTP_201_CREATED,
+                          response.status_code)
         self.assertIsNotNone(context['id'])
         self.assertEqual(1, context['returnCode'])
 

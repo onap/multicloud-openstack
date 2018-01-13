@@ -19,28 +19,9 @@ from django.test import Client
 from rest_framework import status
 import unittest
 
+from newton.requests.tests import test_base
+from newton.requests.tests import mock_info
 from newton.requests.views.util import VimDriverUtils
-
-MOCK_VIM_INFO = {
-    "createTime": "2017-04-01 02:22:27",
-    "domain": "Default",
-    "name": "TiS_R4",
-    "password": "admin",
-    "tenant": "admin",
-    "type": "openstack",
-    "url": "http://128.224.180.14:5000/v3",
-    "userName": "admin",
-    "vendor": "WindRiver",
-    "version": "newton",
-    "vimId": "windriver-hudson-dc_RegionOne",
-    'cloud_owner':'windriver-hudson-dc',
-    'cloud_region_id':'RegionOne',
-    'cloud_extra_info':'',
-    'cloud_epa_caps':'{"huge_page":"true","cpu_pinning":"true",\
-        "cpu_thread_policy":"true","numa_aware":"true","sriov":"true",\
-        "dpdk_vswitch":"true","rdt":"false","numa_locality_pci":"true"}',
-    'insecure':'True',
-}
 
 
 class TestEpaCaps(unittest.TestCase):
@@ -49,19 +30,23 @@ class TestEpaCaps(unittest.TestCase):
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_get_epa_caps_info(self, mock_get_vim_info):
-        mock_get_vim_info.return_value = MOCK_VIM_INFO
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         cloud_owner = "windriver-hudson-dc"
         cloud_region_id = "RegionOne"
         vimid = cloud_owner + "_" + cloud_region_id
 
         response = self.client.get(
-            "/api/multicloud-newton/v0/" + vimid + "/extensions/epa-caps")
+            "/api/%s/v0/%s/extensions/epa-caps" % (
+                test_base.MULTIVIM_VERSION,
+                vimid))
         json_content = response.json()
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         self.assertEquals(4, len(json_content.keys()))
         self.assertEquals(cloud_owner, json_content["cloud-owner"])
-        self.assertEquals(cloud_region_id, json_content["cloud-region-id"])
+        self.assertEquals(cloud_region_id,
+                          json_content["cloud-region-id"])
         self.assertEquals(vimid, json_content["vimid"])
-        self.assertEquals(json.loads(MOCK_VIM_INFO['cloud_epa_caps']),
-                          json_content["cloud-epa-caps"])
+        self.assertEquals(
+            json.loads(mock_info.MOCK_VIM_INFO['cloud_epa_caps']),
+            json_content["cloud-epa-caps"])

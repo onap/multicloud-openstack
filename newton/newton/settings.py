@@ -118,6 +118,10 @@ CACHES = {
     }
 }
 
+OPENSTACK_VERSION = "newton"
+MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
+
+
 if 'test' in sys.argv:
     from newton.pub.config import config
 

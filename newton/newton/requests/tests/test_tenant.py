@@ -20,7 +20,7 @@ from newton.requests.tests import test_base
 from newton.requests.views.util import VimDriverUtils
 
 MOCK_GET_PROJECTS_RESPONSE = {
-    "tenants":[
+    "tenants": [
         {"id": "1", "name": "project"},
         {"id": "2", "name": "project2"},
     ]
@@ -28,7 +28,6 @@ MOCK_GET_PROJECTS_RESPONSE = {
 
 
 class TestNetwork(test_base.TestRequest):
-
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_retrieve_projects(
@@ -37,12 +36,12 @@ class TestNetwork(test_base.TestRequest):
         mock_get_session.side_effect = [
             test_base.get_mock_session(
                 ["get"],
-                {"get": { "content": MOCK_GET_PROJECTS_RESPONSE }}),
+                {"get": {"content": MOCK_GET_PROJECTS_RESPONSE}}),
         ]
 
         response = self.client.get((
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
-            "tenants"), {},
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "tenants" % test_base.MULTIVIM_VERSION), {},
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
@@ -71,8 +70,8 @@ class TestNetwork(test_base.TestRequest):
         ]
 
         response = self.client.get((
-            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
-            "tenants?name=project"), {},
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "tenants?name=project" % test_base.MULTIVIM_VERSION), {},
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)

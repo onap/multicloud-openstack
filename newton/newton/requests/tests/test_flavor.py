@@ -82,7 +82,8 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
                           mock_get_flavor_extra_specs):
         mock_get_session.side_effect = [
             test_base.get_mock_session(
-            ["get"], {"get": {"content": self.MOCK_GET_RESOURCES_RESPONSE}}),
+            ["get"], {"get": {
+                    "content": self.MOCK_GET_RESOURCES_RESPONSE}}),
         ]
 
         mock_extra_specs = mock.Mock(spec=test_base.MockResponse)
@@ -92,8 +93,9 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
         response = self.client.get(
-            ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne"
-             "/fcca3cc49d5e42caae15459e27103efc/flavors"),
+            ("/api/%s/v0/windriver-hudson-dc_RegionOne"
+             "/fcca3cc49d5e42caae15459e27103efc/"
+             "flavors" % test_base.MULTIVIM_VERSION),
             {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
         context = response.json()
 
@@ -110,7 +112,8 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
         mock_get_session.side_effect = [
             test_base.get_mock_session(
                 ["get"],
-                {"get": {"content": self.MOCK_GET_RESOURCE_RESPONSE}}),
+                {"get": {
+                    "content": self.MOCK_GET_RESOURCE_RESPONSE}}),
         ]
 
         mock_extra_specs = mock.Mock(spec=test_base.MockResponse)
@@ -120,13 +123,15 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
         response = self.client.get(
-            ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne"
-             "/fcca3cc49d5e42caae15459e27103efc/flavors/uuid_1"),
+            ("/api/%s/v0/windriver-hudson-dc_RegionOne"
+             "/fcca3cc49d5e42caae15459e27103efc/flavors/"
+             "uuid_1" % test_base.MULTIVIM_VERSION),
             {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
         context = response.json()
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual(self.MOCK_GET_RESOURCE_RESPONSE["id"], context["id"])
+        self.assertEqual(self.MOCK_GET_RESOURCE_RESPONSE["id"],
+                         context["id"])
 
     @mock.patch.object(Flavors, '_get_flavor_extra_specs')
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -147,8 +152,9 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
         response = self.client.get(
-            ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne"
-             "/fcca3cc49d5e42caae15459e27103efc/flavors/uuid_1"),
+            ("/api/%s/v0/windriver-hudson-dc_RegionOne"
+             "/fcca3cc49d5e42caae15459e27103efc/flavors/"
+             "uuid_1" % test_base.MULTIVIM_VERSION),
             {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         # TODO(sshank): 404 status is not possible.
@@ -158,11 +164,13 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_create_flavor(self, mock_get_vim_info, mock_get_session):
+    def test_create_flavor(
+            self, mock_get_vim_info, mock_get_session):
         mock_get_session.side_effect = [
             test_base.get_mock_session(
                 ["get", "post"], {
-                    "get": {"content": self.MOCK_GET_RESOURCES_RESPONSE},
+                    "get": {
+                        "content": self.MOCK_GET_RESOURCES_RESPONSE},
                     "post": {
                         "content": self.MOCK_POST_RESOURCE_RESPONSE,
                         "status_code": status.HTTP_202_ACCEPTED,
@@ -173,8 +181,9 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
         response = self.client.post(
-            ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne"
-             "/fcca3cc49d5e42caae15459e27103efc/flavors"),
+            ("/api/%s/v0/windriver-hudson-dc_RegionOne"
+             "/fcca3cc49d5e42caae15459e27103efc/"
+             "flavors" % test_base.MULTIVIM_VERSION),
             self.MOCK_POST_RESOURCE_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
         context = response.json()
@@ -193,7 +202,8 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
        mock_get_session.side_effect = [
            test_base.get_mock_session(
                ["get", "post"], {
-                   "get": {"content":  self.MOCK_GET_RESOURCES_RESPONSE},
+                   "get": {
+                       "content":  self.MOCK_GET_RESOURCES_RESPONSE},
                    "post": {
                        "content": self.MOCK_POST_RESOURCE_RESPONSE,
                        "status_code": status.HTTP_202_ACCEPTED,
@@ -207,8 +217,9 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
        response = self.client.post(
-           ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
-            "fcca3cc49d5e42caae15459e27103efc/flavors"),
+           ("/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "fcca3cc49d5e42caae15459e27103efc/"
+            "flavors" % test_base.MULTIVIM_VERSION),
            self.MOCK_POST_RESOURCE_REQUEST_EXISTING,
            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
@@ -219,20 +230,23 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_delete_flavor(self, mock_get_vim_info, mock_get_session):
+    def test_delete_flavor(
+            self, mock_get_vim_info, mock_get_session):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.side_effect = [
             test_base.get_mock_session(
                 ["get", "delete"],
                 {
                     "get": { "content": self.MOCK_GET_EXTRA_SPECS },
-                    "delete": {"status_code": status.HTTP_204_NO_CONTENT }
+                    "delete": {
+                        "status_code": status.HTTP_204_NO_CONTENT }
                 }),
         ]
 
         response = self.client.delete(
-            ("/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
-             "fcca3cc49d5e42caae15459e27103efc/flavors/uuid_1"),
+            ("/api/%s/v0/windriver-hudson-dc_RegionOne/"
+             "fcca3cc49d5e42caae15459e27103efc/flavors/"
+             "uuid_1" % test_base.MULTIVIM_VERSION),
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEqual(status.HTTP_204_NO_CONTENT,
