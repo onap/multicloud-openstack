@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_f22a697d",
+        "filename": "common/__init__.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-01-16T18:17:01Z",
+      "side": 1,
+      "message": "I don\u0027t think that you have to place a header in this files",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 74
+      },
+      "revId": "4df347154e8484268e5b31208eb9f93be4e7e104",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_9221a5a1",
+        "filename": "common/utils/__init__.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-01-16T18:17:01Z",
+      "side": 1,
+      "message": "ditto: Previous __init__.py file",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 74
+      },
+      "revId": "4df347154e8484268e5b31208eb9f93be4e7e104",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_b224e1af",
+        "filename": "common/utils/timeutil.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-01-16T18:17:01Z",
+      "side": 1,
+      "message": "Shouldn\u0027t need to be 2018 Intel Corporation?",
+      "range": {
+        "startLine": 1,
+        "startChar": 16,
+        "endLine": 2,
+        "endChar": 1
+      },
+      "revId": "4df347154e8484268e5b31208eb9f93be4e7e104",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
