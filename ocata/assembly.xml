@@ -31,6 +31,18 @@
             </includes>
         </fileSet>
         <fileSet>
+            <directory>../share</directory>
+            <outputDirectory>/lib/share</outputDirectory>
+            <includes>
+                <include>**/*.py</include>
+                <include>**/*.json</include>
+                <include>**/*.xml</include>
+                <include>**/*.wsdl</include>
+                <include>**/*.xsd</include>
+                <include>**/*.bpel</include>
+            </includes>
+        </fileSet>
+        <fileSet>
             <directory>logs</directory>
             <outputDirectory>/logs</outputDirectory>
             <includes>

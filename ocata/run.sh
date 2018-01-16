@@ -29,7 +29,7 @@ sed -i "s/AAI_USERNAME =.*/AAI_USERNAME = \"${AAI_USERNAME}\"/g" lib/newton/newt
 sed -i "s/AAI_PASSWORD =.*/AAI_PASSWORD = \"${AAI_PASSWORD}\"/g" lib/newton/newton/pub/config/config.py
 
 memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
-export PYTHONPATH=lib/newton
+export PYTHONPATH=lib/newton:lib/share
 nohup python manage.py runserver 0.0.0.0:9006 2>&1 &
 
 while [ ! -f logs/runtime_ocata.log ]; do

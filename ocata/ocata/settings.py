@@ -114,6 +114,9 @@ CACHES = {
     }
 }
 
+OPENSTACK_VERSION = "ocata"
+MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
+
 if 'test' in sys.argv:
     from ocata.pub.config import config
 

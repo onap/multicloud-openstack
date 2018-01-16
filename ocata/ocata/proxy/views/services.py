@@ -16,7 +16,7 @@ import logging
 from rest_framework import status
 
 from ocata.pub.config import config
-from newton.proxy.views import services as newton_services
+from newton_base.proxy import services as newton_services
 
 logger = logging.getLogger(__name__)
 
