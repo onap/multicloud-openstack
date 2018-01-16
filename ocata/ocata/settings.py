@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -113,6 +113,9 @@ CACHES = {
         'LOCATION': '127.0.0.1:11211',
     }
 }
+
+OPENSTACK_VERSION = "ocata"
+MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
 
 if 'test' in sys.argv:
     from ocata.pub.config import config
