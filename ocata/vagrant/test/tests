@@ -1,4 +1,4 @@
-test-extensions.sh
+#test-extensions.sh
 test-identity.sh
 test-compute.sh
 test-image.sh
