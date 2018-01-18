@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_23e96080",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-01-18T18:09:00Z",
+      "side": 1,
+      "message": "what do you mean by pretends to reduce? Does it not really reduce the number of lines?",
+      "range": {
+        "startLine": 10,
+        "startChar": 48,
+        "endLine": 11,
+        "endChar": 6
+      },
+      "revId": "56aaa18383e237f483db459f31fb9a771dcf81c3",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_43ecac8f",
+        "filename": "ocata/vagrant/Vagrantfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-01-18T18:09:00Z",
+      "side": 1,
+      "message": "What\u0027s the reason for changing the IP here, this wasn\u0027t mentioned in the commit message. It does make for better differentiation between the two networks though for sure.",
+      "range": {
+        "startLine": 17,
+        "startChar": 45,
+        "endLine": 17,
+        "endChar": 55
+      },
+      "revId": "56aaa18383e237f483db459f31fb9a771dcf81c3",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
