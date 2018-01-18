@@ -22,7 +22,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 
-from newton.proxy.views.proxy_utils import ProxyUtils
+from newton_base.proxy.proxy_utils import ProxyUtils
 from newton.pub.exceptions import VimDriverNewtonException
 from newton.pub.msapi import extsys
 from newton.requests.views.util import VimDriverUtils
