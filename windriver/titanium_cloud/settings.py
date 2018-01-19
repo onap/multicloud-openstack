@@ -114,6 +114,9 @@ CACHES = {
     }
 }
 
+OPENSTACK_VERSION = "windriver"
+MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
+
 if 'test' in sys.argv:
     from titanium_cloud.pub.config import config
 
