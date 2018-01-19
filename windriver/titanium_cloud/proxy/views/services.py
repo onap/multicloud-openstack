@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ import logging
 from rest_framework import status
 
 from titanium_cloud.pub.config import config
-from newton.proxy.views import services as newton_services
+from newton_base.proxy import services as newton_services
 
 logger = logging.getLogger(__name__)
 
