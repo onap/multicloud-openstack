@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_ec25a5c2",
+        "filename": "ocata/share",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-01-25T02:38:23Z",
+      "side": 1,
+      "message": "why need this empty directory?",
+      "revId": "e75d4c862d1c24b9d874d011579eca3853947c50",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
