@@ -14,7 +14,7 @@
 import logging
 
 from ocata.pub.config import config
-from newton.proxy.views import identityV3 as newton_identityV3
+from newton_base.proxy import identityV3 as newton_identityV3
 
 logger = logging.getLogger(__name__)
 
