@@ -15,7 +15,7 @@ import logging
 
 from ocata.pub.config import config
 
-from newton.registration.views import registration as newton_registration
+from newton_base.registration import registration as newton_registration
 
 logger = logging.getLogger(__name__)
 
@@ -25,4 +25,5 @@ class Registry(newton_registration.Registry):
 
     def __init__(self):
         self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.aai_base_url = config.AAI_BASE_URL
         self._logger = logger
