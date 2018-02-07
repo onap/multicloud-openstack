@@ -14,7 +14,7 @@
 import logging
 
 from ocata.pub.config import config
-from newton.extensions.views import extensions as newton_extensions
+from newton_base.extensions import extensions as newton_extensions
 
 logger = logging.getLogger(__name__)
 
