@@ -24,6 +24,7 @@ from newton.requests.views import vport
 from newton.requests.views import limits
 from newton.requests.views import hosts
 from newton.requests.views import flavor
+from ocata.requests.views import trait
 
 urlpatterns = [
     url(r'^networks(/(?P<networkid>[0-9a-zA-Z_-]+))?',
@@ -42,6 +43,7 @@ urlpatterns = [
         flavor.Flavors.as_view()),
     url(r'^limits$', limits.Limits.as_view()),
     url(r'^hosts(/(?P<hostname>[0-9a-zA-Z_-]+))?', hosts.Hosts.as_view()),
+    url(r'^traits(/(?P<traitname>[0-9a-zA-Z_-]+))?', trait.Traits.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
