@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import traceback
 from ocata.pub.config import config
 
 
-from newton.extensions.views import epacaps as newton_epacaps
+from newton_base.extensions import epacaps as newton_epacaps
 
 logger = logging.getLogger(__name__)
 
