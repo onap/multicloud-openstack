@@ -83,6 +83,10 @@ class AbstractTestResource(object):
 
         self.MOCK_POST_RESOURCE_RESPONSE = {}
 
+        self.MOCK_PUT_RESOURCE_REQUEST = {}
+
+        self.MOCK_PUT_RESOURCE_RESPONSE = {}
+
         self.assert_keys = ""
         self.assert_key = ""
 
