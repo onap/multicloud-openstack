@@ -12,6 +12,8 @@
 import os
 import sys
 
+CACHE_EXPIRATION_TIME = 3600
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -113,6 +115,9 @@ CACHES = {
         'LOCATION': '127.0.0.1:11211',
     }
 }
+
+OPENSTACK_VERSION = "newton"
+MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
 
 if 'test' in sys.argv:
     from titanium_cloud.pub.config import config
