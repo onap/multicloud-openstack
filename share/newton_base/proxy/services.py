@@ -23,9 +23,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 
 from newton_base.proxy.proxy_utils import ProxyUtils
-from newton.pub.exceptions import VimDriverNewtonException
-from newton.pub.msapi import extsys
-from newton.requests.views.util import VimDriverUtils
+from common.exceptions import VimDriverNewtonException
+from common.msapi import extsys
+from newton_base.util import VimDriverUtils
 
 logger = logging.getLogger(__name__)
 

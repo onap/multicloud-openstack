@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,11 +21,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from newton.pub.config import config
-from newton.pub.exceptions import VimDriverNewtonException
-from newton.pub.msapi import extsys
-from newton.pub.utils import restcall
-from newton.requests.views.util import VimDriverUtils
+from common.exceptions import VimDriverNewtonException
+from common.msapi import extsys
+from common.utils import restcall
+from newton_base.util import VimDriverUtils
 
 logger = logging.getLogger(__name__)
 

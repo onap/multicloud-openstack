@@ -19,7 +19,7 @@ import uuid
 
 from rest_framework import status
 
-from newton.pub.exceptions import VimDriverNewtonException
+from common.exceptions import VimDriverNewtonException
 
 logger = logging.getLogger(__name__)
 
