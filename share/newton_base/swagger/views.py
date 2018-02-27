@@ -18,7 +18,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from newton.pub.exceptions import VimDriverNewtonException
+from common.exceptions import VimDriverNewtonException
 
 logger = logging.getLogger(__name__)
 

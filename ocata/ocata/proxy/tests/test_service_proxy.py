@@ -21,7 +21,7 @@ from rest_framework import status
 import unittest
 
 
-from newton.requests.views.util import VimDriverUtils
+from newton_base.util import VimDriverUtils
 
 MOCK_VIM_INFO = {
     "createTime": "2017-04-01 02:22:27",

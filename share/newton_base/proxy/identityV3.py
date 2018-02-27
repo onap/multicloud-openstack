@@ -24,8 +24,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from newton.pub.exceptions import VimDriverNewtonException
-from newton.requests.views.util import VimDriverUtils
+from common.exceptions import VimDriverNewtonException
+from newton_base.util import VimDriverUtils
 from newton_base.proxy.proxy_utils import ProxyUtils
 
 logger = logging.getLogger(__name__)
@@ -90,9 +90,10 @@ class Tokens(APIView):
 
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
-            sess = VimDriverUtils.get_session(vim, tenantname = tenant_name, tenantid=tenant_id)
+            sess = VimDriverUtils.get_session(vim, tenant_name = tenant_name, tenant_id=tenant_id)
 
-            tmp_auth_state = VimDriverUtils.get_auth_state(vim, sess)
+            #tmp_auth_state = VimDriverUtils.get_auth_state(vim, sess)
+            tmp_auth_state = VimDriverUtils.get_auth_state(sess)
             tmp_auth_info = json.loads(tmp_auth_state)
             tmp_auth_token = tmp_auth_info['auth_token']
             tmp_auth_data = tmp_auth_info['body']
@@ -104,8 +105,8 @@ class Tokens(APIView):
             tmp_auth_data['token']['catalog'], tmp_metadata_catalog = ProxyUtils.update_catalog(
                 vimid, tmp_auth_data['token']['catalog'], self.proxy_prefix)
 
-            tmp_auth_token = VimDriverUtils.update_token_cache(
-                vim, sess, tmp_auth_token, tmp_auth_state, json.dumps(tmp_metadata_catalog))
+            VimDriverUtils.update_token_cache(
+                tmp_auth_token, tmp_auth_state, json.dumps(tmp_metadata_catalog))
 
             tmp_auth_data['token']['catalog'] = ProxyUtils.update_catalog_dnsaas(
                 vimid,tmp_auth_data['token']['catalog'], self.proxy_prefix, vim)

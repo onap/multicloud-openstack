@@ -22,7 +22,7 @@ from rest_framework import status
 from keystoneauth1 import session
 from keystoneauth1.exceptions import HttpError
 
-from newton.requests.views.util import VimDriverUtils
+from newton_base.util import VimDriverUtils
 from ocata.proxy.views.identityV3 import Tokens
 
 mock_viminfo = {

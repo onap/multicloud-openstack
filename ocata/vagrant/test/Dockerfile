@@ -19,7 +19,7 @@ RUN apt-get update && \
     rm -f multicloud-openstack-ocata.zip && \
     pip install -r /opt/ocata/requirements.txt
 
-ADD extsys.py /opt/ocata/lib/newton/newton/pub/msapi/extsys.py
+ADD extsys.py /opt/ocata/lib/share/common/msapi/extsys.py
 
 WORKDIR /opt/ocata
 CMD /bin/sh -c /opt/ocata/run.sh
