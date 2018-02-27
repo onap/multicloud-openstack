@@ -19,7 +19,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from newton.pub.exceptions import VimDriverNewtonException
-from newton.swagger import views as newton_json_view
+from newton_base.swagger import views as newton_json_view
 
 logger = logging.getLogger(__name__)
 

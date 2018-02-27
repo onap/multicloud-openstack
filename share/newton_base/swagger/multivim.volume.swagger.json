@@ -1,0 +1,378 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/api/multicloud-newton/v0/",
+    "tags": [
+        {
+            "name": "MultiVIM services"
+        }
+    ],
+    "paths": {
+        "/{vimid}/{tenantid}/volumes": {
+            "post": {
+                "tags": [
+                    "vim volumes"
+                ],
+                "summary": "create a volume",
+                "description": "create a volume",
+                "operationId": "create_vim_volume",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "create vim volume request param",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateVimVolume"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimVolumeInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim volume is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim volumes"
+                ],
+                "summary": "query vim volumes list",
+                "description": "query vim volumes list",
+                "operationId": "query_vim_volumes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in":  "query",
+                        "description": "volumn name to filter list",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "in":  "query",
+                        "description": "Requests a page size of items",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "marker",
+                        "in":  "query",
+                        "description": "image ID of the last-seen item",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimVolumesInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim volume is not accessable"
+                    }
+                }
+            }
+        },
+        "/{vimid}/{tenantid}/volumes/{volumeid}": {
+            "delete": {
+                "tags": [
+                    "vim volumes"
+                 ],
+                 "summary": "delete specific vim volume",
+                "description": "delete specific vim volume",
+                "operationId": "delete_vim_volume",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "volumeid",
+                        "in": "path",
+                        "description": "vim volume id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim volume is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "vim volumes"
+                ],
+                "summary": "query specific vim volume",
+                "description": "query specific vim volume",
+                "operationId": "query_vim_volume",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "volumeid",
+                        "in": "path",
+                        "description": "vim volume id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/VimVolumeInfo"
+                        }
+                    },
+                    "404": {
+                        "description": "the vim id or tenant UUID is wrong"
+                    },
+                    "500": {
+                        "description": "the vim volume is not accessable"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CreateVimVolume": {
+            "type": "object",
+            "required": [
+                "name",
+                "volumeSize"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "volume name"
+                },
+                "volumeSize": {
+                    "type": "integer",
+                    "description": "volume size"
+                },
+                "imageId": {
+                    "type": "string",
+                    "description": "image UUID to create volume"
+                },
+                "volumeType": {
+                    "type": "string",
+                    "description": "volume type"
+                },
+                "availabilityZone": {
+                    "type": "integer",
+                    "description": "available zone for volume"
+                }
+            }
+        },
+        "VimVolumesInfo": {
+            "type": "object",
+            "required": [
+                "vimId",
+                "tenantId",
+                "volumes"
+            ],
+            "properties": {
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "volumes": {
+                    "type": "array",
+                    "description": "volume list information",
+                    "items": {
+                       "$ref": "#/definitions/VimVolumeInfo"
+                    }
+                }
+            }
+        },
+        "VimVolumeInfo": {
+            "type": "object",
+            "required": [
+                "name",
+                "id",
+                "status"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "volume name"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "volume UUID"
+                },
+                "createTime": {
+                    "type": "string",
+                    "description": "created time"
+                },
+                "volumeSize": {
+                    "type": "integer",
+                    "description": "volume size"
+                },
+                "volumeType": {
+                    "type": "string",
+                    "description": "volume type"
+                },
+                "availabilityZone": {
+                    "type": "integer",
+                    "description": "available zone for volume"
+                },
+                "attachments": {
+                    "type": "array",
+                    "description": "attachment list information",
+                    "items": {
+                       "$ref": "#/definitions/VimVolumeAttachmentInfo"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "description": "volume status"
+                },
+                "vimId": {
+                    "type": "string"
+                },
+                "vimName": {
+                    "type": "string"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "description": "tenant UUID"
+                },
+                "returnCode": {
+                    "type": "integer",
+                    "description": "return code: 0: Already exist 1: Newly created"
+                }
+            }
+        },
+        "VimVolumeAttachmentInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "attachment UUID"
+                },
+                "serverId": {
+                    "type": "string",
+                    "description": "server UUID"
+                },
+                "volumeId": {
+                    "type": "string",
+                    "description": "volume UUID"
+                },
+                "device": {
+                    "type": "string",
+                    "description": "device to be attached"
+                },
+                "hostName": {
+                    "type": "string",
+                    "description": "host name"
+                }
+            }
+        }
+    }
+}
