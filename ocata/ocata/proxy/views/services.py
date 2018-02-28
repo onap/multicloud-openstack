@@ -15,7 +15,7 @@ import logging
 
 from rest_framework import status
 
-from ocata.pub.config import config
+from django.conf import settings
 from newton_base.proxy import services as newton_services
 
 logger = logging.getLogger(__name__)

@@ -15,7 +15,7 @@ import logging
 import json
 import traceback
 
-from ocata.pub.config import config
+from django.conf import settings
 
 
 from newton_base.extensions import epacaps as newton_epacaps
@@ -28,5 +28,5 @@ DEBUG=True
 class EpaCaps(newton_epacaps.EpaCaps):
 
     def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self._logger = logger

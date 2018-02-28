@@ -23,7 +23,7 @@ import httplib2
 import uuid
 
 from rest_framework import status
-from common import config
+from django.conf import settings
 
 rest_no_auth, rest_oneway_auth, rest_bothway_auth = 0, 1, 2
 HTTP_200_OK, HTTP_201_CREATED = '200', '201'
@@ -104,7 +104,7 @@ def _call_req(base_url, user, passwd, auth_type,
 
 
 def req_by_msb(resource, method, content=''):
-    base_url = "http://%s:%s/" % (config.MSB_SERVICE_ADDR, config.MSB_SERVICE_PORT)
+    base_url = "http://%s:%s/" % (settings.MSB_SERVICE_ADDR, settings.MSB_SERVICE_PORT)
     return _call_req(base_url, "", "", rest_no_auth,
                     resource, method, "", content)
 
@@ -114,7 +114,7 @@ def req_to_vim(base_url, resource, method, extra_headers='', content=''):
                     resource, method, extra_headers, content)
 
 
-def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
+def req_to_aai(resource, method, content='', appid=settings.MULTICLOUD_APP_ID):
     tmp_trasaction_id = '9003' #str(uuid.uuid1())
     headers = {
         'X-FromAppId': appid,
@@ -124,8 +124,8 @@ def req_to_aai(resource, method, content='', appid=config.MULTICLOUD_APP_ID):
     }
 
     logger.debug("req_to_aai--%s::> %s, %s" %
-                 (tmp_trasaction_id, method, _combine_url(config.AAI_BASE_URL,resource)))
-    return _call_req(config.AAI_BASE_URL, config.AAI_USERNAME, config.AAI_PASSWORD, rest_no_auth,
+                 (tmp_trasaction_id, method, _combine_url(settings.AAI_BASE_URL,resource)))
+    return _call_req(settings.AAI_BASE_URL, settings.AAI_USERNAME, settings.AAI_PASSWORD, rest_no_auth,
                     resource, method, content=json.dumps(content), extra_headers=headers)
 
 

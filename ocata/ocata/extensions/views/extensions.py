@@ -13,7 +13,7 @@
 # limitations under the License.
 import logging
 
-from ocata.pub.config import config
+from django.conf import settings
 from newton_base.extensions import extensions as newton_extensions
 
 logger = logging.getLogger(__name__)
@@ -24,5 +24,5 @@ class Extensions(newton_extensions.Extensions):
 
     def __init__(self):
         self._logger = logger
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
 
