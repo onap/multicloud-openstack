@@ -41,6 +41,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <nexusproxy>https://nexus.onap.org</nexusproxy>
+        <sonar.sources>.</sonar.sources>
+        <sonar.junit.reportsPath>xunit-results.xml</sonar.junit.reportsPath>
+        <sonar.python.coverage.reportPath>coverage.xml</sonar.python.coverage.reportPath>
+        <sonar.language>py</sonar.language>
+        <sonar.pluginName>Python</sonar.pluginName>
+        <sonar.inclusions>**/*.py</sonar.inclusions>
+        <sonar.exclusions>tests/*,setup.py</sonar.exclusions>
     </properties>
     <build>
       <plugins>
