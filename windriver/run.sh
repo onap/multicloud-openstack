@@ -39,3 +39,4 @@ done
 
 tail -F logs/runtime_titanium_cloud.log
 
+
