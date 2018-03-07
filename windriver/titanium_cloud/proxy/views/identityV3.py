@@ -14,8 +14,8 @@
 
 import logging
 
-from titanium_cloud.pub.config import config
-from newton.proxy.views import identityV3 as newton_identityV3
+from django.conf import settings
+from newton_base.proxy import identityV3 as newton_identityV3
 
 logger = logging.getLogger(__name__)
 
@@ -24,11 +24,11 @@ DEBUG=True
 class Tokens(newton_identityV3.Tokens):
 
     def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self._logger = logger
 
 class TokensV2(newton_identityV3.TokensV2):
 
     def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self._logger = logger

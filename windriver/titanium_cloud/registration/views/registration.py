@@ -14,9 +14,9 @@
 
 import logging
 
-from titanium_cloud.pub.config import config
+from django.conf import settings
 
-from newton.registration.views import registration as newton_registration
+from newton_base.registration import registration as newton_registration
 
 logger = logging.getLogger(__name__)
 
@@ -25,5 +25,5 @@ DEBUG=True
 class Registry(newton_registration.Registry):
 
     def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self._logger = logger

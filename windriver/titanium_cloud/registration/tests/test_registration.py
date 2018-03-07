@@ -16,10 +16,10 @@ import mock
 
 from rest_framework import status
 
-from newton.pub.utils import restcall
+from common.utils import restcall
 from newton.requests.tests import mock_info
 from newton.requests.tests import test_base
-from newton.requests.views.util import VimDriverUtils
+from newton_base.util import VimDriverUtils
 
 MOCK_GET_TENANT_RESPONSE = {
     "projects":[

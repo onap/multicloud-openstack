@@ -16,10 +16,10 @@ import logging
 import json
 import traceback
 
-from titanium_cloud.pub.config import config
+from django.conf import settings
 
 
-from newton.extensions.views import epacaps as newton_epacaps
+from newton_base.extensions import epacaps as newton_epacaps
 
 logger = logging.getLogger(__name__)
 
@@ -29,5 +29,5 @@ DEBUG=True
 class EpaCaps(newton_epacaps.EpaCaps):
 
     def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self._logger = logger

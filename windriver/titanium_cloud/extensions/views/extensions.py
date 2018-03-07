@@ -20,11 +20,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from titanium_cloud.pub.config import config
-from newton.pub.exceptions import VimDriverNewtonException
-from newton.requests.views.util import VimDriverUtils
-from newton.extensions.views import extensions as newton_extensions
-from newton.pub.msapi import extsys
+from django.conf import settings
+from common.exceptions import VimDriverNewtonException
+from common.msapi import extsys
+from newton_base.extensions import extensions as newton_extensions
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,7 @@ class Extensions(newton_extensions.Extensions):
 
     def __init__(self):
         self._logger = logger
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
 
 
     def get(self, request, vimid=""):

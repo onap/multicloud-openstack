@@ -17,7 +17,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from titanium_cloud.proxy.views import identityV3
 from titanium_cloud.proxy.views import services
-from newton.proxy.views import dnsaasdelegate
+from newton_base.proxy import dnsaasdelegate
 
 urlpatterns = [
     #    url(r'^identity/v2)$',

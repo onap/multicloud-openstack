@@ -15,7 +15,7 @@
 from django.conf.urls import include, url
 
 from titanium_cloud.registration.views import registration
-from newton.requests.views import tenants
+from newton_base.openoapi import tenants
 
 urlpatterns = [
     url(r'^', include('titanium_cloud.swagger.urls')),

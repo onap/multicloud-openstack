@@ -11,27 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import os
-
-# [MSB]
-MSB_SERVICE_ADDR = '127.0.0.1'
-MSB_SERVICE_PORT = '80'
-
-#[Multicloud]
-MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-titanium_cloud/v0" %(MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
-
-# [A&AI]
-AAI_ADDR = "aai.api.simpledemo.openecomp.org"
-AAI_PORT = "8443"
-AAI_SERVICE_URL = 'https://%s:%s/aai' % (AAI_ADDR, AAI_PORT)
-AAI_SCHEMA_VERSION = "v11"
-AAI_USERNAME = 'AAI'
-AAI_PASSWORD = 'AAI'
-
-AAI_BASE_URL = "%s/%s" % (AAI_SERVICE_URL, AAI_SCHEMA_VERSION)
-
-MULTICLOUD_APP_ID = 'MultiCloud-Titanium_Cloud'
-
-# [IMAGE LOCAL PATH]
-ROOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

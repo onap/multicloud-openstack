@@ -24,10 +24,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from titanium_cloud.pub.config import config
-from newton.pub.exceptions import VimDriverNewtonException
-from newton.requests.views.util import VimDriverUtils
-from newton.pub.msapi import extsys
+from django.conf import settings
+from common.exceptions import VimDriverNewtonException
+from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 
 
@@ -126,7 +126,7 @@ class GuestMonitorWorker (threading.Thread):
 class GuestMonitor(APIView):
 
     def __init__(self):
-        self.proxy_prefix = config.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self._logger = logger
 
     def post(self, request, vimid="", vserverid=""):
