@@ -22,6 +22,30 @@
       "revId": "6cf4f97763a1668769c00f6da1bf7a78ec1e1189",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_3c481fb2",
+        "filename": "windriver/assembly.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-03-07T14:30:19Z",
+      "side": 0,
+      "message": "It is still there (you can expand the collapsed lines above), this patch is just remove the lib/newton from deployment",
+      "parentUuid": "5a93c517_dca49bbb",
+      "range": {
+        "startLine": 75,
+        "startChar": 19,
+        "endLine": 75,
+        "endChar": 20
+      },
+      "revId": "6cf4f97763a1668769c00f6da1bf7a78ec1e1189",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
