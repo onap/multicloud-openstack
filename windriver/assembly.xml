@@ -72,14 +72,5 @@
             </includes>
         </fileSet>
     </fileSets>
-    <dependencySets>
-    <dependencySet>
-        <unpack>true</unpack>
-      <outputDirectory>/lib</outputDirectory>
-      <includes>
-        <include>org.onap.multicloud.openstack:multicloud-openstack-newton</include>
-      </includes>
-    </dependencySet>
-  </dependencySets>
     <baseDirectory>windriver</baseDirectory>
 </assembly>
