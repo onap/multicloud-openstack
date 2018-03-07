@@ -10,3 +10,5 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 # Micro service of network service life cycle management.
+
+Note: This MultiCloud Plugin service for OpenStack Kilo was inherited from OPEN-O repo and never enabled for ONAP.
