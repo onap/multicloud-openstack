@@ -15,7 +15,7 @@
 from django.conf.urls import include, url
 
 from ocata.registration.views import registration
-from newton.requests.views import tenants
+from newton_base.openoapi import tenants
 
 urlpatterns = [
     url(r'^', include('ocata.swagger.urls')),
