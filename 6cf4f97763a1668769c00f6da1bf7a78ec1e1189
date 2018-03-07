@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_dca49bbb",
+        "filename": "windriver/assembly.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-03-07T13:06:04Z",
+      "side": 0,
+      "message": "you should assemble /lib/share, I don\u0027t see it.\nI think it like below.\n\n        \u003cfileSet\u003e\n            \u003cdirectory\u003e../share\u003c/directory\u003e\n            \u003coutputDirectory\u003e/lib/share\u003c/outputDirectory\u003e\n            \u003cincludes\u003e\n                \u003cinclude\u003e**/*.py\u003c/include\u003e\n                \u003cinclude\u003e**/*.json\u003c/include\u003e\n                \u003cinclude\u003e**/*.xml\u003c/include\u003e\n                \u003cinclude\u003e**/*.wsdl\u003c/include\u003e\n                \u003cinclude\u003e**/*.xsd\u003c/include\u003e\n                \u003cinclude\u003e**/*.bpel\u003c/include\u003e\n            \u003c/includes\u003e\n        \u003c/fileSet\u003e",
+      "range": {
+        "startLine": 75,
+        "startChar": 19,
+        "endLine": 75,
+        "endChar": 20
+      },
+      "revId": "6cf4f97763a1668769c00f6da1bf7a78ec1e1189",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
