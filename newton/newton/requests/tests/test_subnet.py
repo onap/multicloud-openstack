@@ -17,10 +17,10 @@ import unittest
 
 from rest_framework import status
 
-from newton.requests.tests import test_base
-from newton.requests.tests import mock_info
-from newton.requests.tests.test_base import AbstractTestResource
-from newton.requests.views.util import VimDriverUtils
+from newton_base.tests import test_base
+from newton_base.tests import mock_info
+from newton_base.tests.test_base import AbstractTestResource
+from newton_base.util import VimDriverUtils
 
 
 class TestSubnetNewton(unittest.TestCase, AbstractTestResource):

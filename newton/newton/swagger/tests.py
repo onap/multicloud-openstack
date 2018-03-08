@@ -16,7 +16,7 @@ import unittest
 from django.test import Client
 from rest_framework import status
 
-from newton.requests.tests import test_base
+from newton_base.tests import test_base
 
 
 class SampleViewTest(unittest.TestCase):
