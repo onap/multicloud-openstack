@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Intel Corporation, Inc.
+# Copyright (c) 2017-2018 Intel Corporation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@ import unittest
 
 from rest_framework import status
 
-from newton.requests.tests import mock_info
-from newton.requests.tests import test_base
-from newton.requests.tests.test_base import AbstractTestResource
-from newton.requests.views.flavor import Flavors
-from newton.requests.views.util import VimDriverUtils
+from newton_base.tests import mock_info
+from newton_base.tests import test_base
+from newton_base.tests.test_base import AbstractTestResource
+from newton_base.openoapi.flavor import Flavors
+from newton_base.util import VimDriverUtils
 
 
 class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
