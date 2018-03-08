@@ -91,7 +91,7 @@ LOGGING = {
         'titanium_cloud_handler': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/runtime_titanium_cloud.log'),
+            'filename': '/var/log/onap/multicloud/openstack/windriver/titanium_cloud.log',
             'formatter': 'standard',
             'maxBytes': 1024 * 1024 * 50,
             'backupCount': 5,
@@ -104,7 +104,12 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False
         },
-        'newton': {
+        'newton_base': {
+            'handlers': ['titanium_cloud_handler'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'common': {
             'handlers': ['titanium_cloud_handler'],
             'level': 'DEBUG',
             'propagate': False
@@ -146,6 +151,8 @@ OPENSTACK_VERSION = "titanium_cloud"
 MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
 
 if 'test' in sys.argv:
+
+    LOGGING['handlers']['titanium_cloud_handler']['filename'] = 'logs/titanium_cloud.log'
 
     REST_FRAMEWORK = {}
     import platform
