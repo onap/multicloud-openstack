@@ -14,7 +14,7 @@
 # limitations under the License.
 
 memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
-export PYTHONPATH=lib/newton:lib/share
+export PYTHONPATH=lib/share
 nohup python manage.py runserver 0.0.0.0:9006 2>&1 &
 
 while [ ! -f logs/runtime_ocata.log ]; do
