@@ -17,10 +17,14 @@ memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
 export PYTHONPATH=lib/share
 nohup python manage.py runserver 0.0.0.0:9005 2>&1 &
 
-while [ ! -f logs/runtime_titanium_cloud.log ]; do
+logDir="/var/log/onap/multicloud/openstack/windriver"
+if [ ! -x  $logDir  ]; then
+       mkdir -p $logDir
+fi
+while [ ! -f $logDir/titanium_cloud.log ]; do
     sleep 1
 done
 
-tail -F logs/runtime_titanium_cloud.log
+tail -F $logDir/titanium_cloud.log
 
 
