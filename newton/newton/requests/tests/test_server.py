@@ -17,9 +17,9 @@ import json
 import mock
 from rest_framework import status
 
-from newton.requests.tests import mock_info
-from newton.requests.tests import test_base
-from newton.requests.views.util import VimDriverUtils
+from newton_base.tests import mock_info
+from newton_base.tests import test_base
+from newton_base.util import VimDriverUtils
 
 MOCK_GET_SERVERS_RESPONSE = {
     "servers": [
