@@ -19,9 +19,9 @@ from django.test import Client
 from rest_framework import status
 import unittest
 
-from newton.requests.tests import test_base
-from newton.requests.tests import mock_info
-from newton.requests.views.util import VimDriverUtils
+from newton_base.tests import test_base
+from newton_base.tests import mock_info
+from newton_base.util import VimDriverUtils
 
 
 class TestEpaCaps(unittest.TestCase):
