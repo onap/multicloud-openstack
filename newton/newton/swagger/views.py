@@ -21,79 +21,28 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from newton.pub.exceptions import VimDriverNewtonException
+from common.exceptions import VimDriverNewtonException
+from newton_base.swagger import views as newton_json_view
 
 logger = logging.getLogger(__name__)
 
 
-class SwaggerJsonView(APIView):
+class SwaggerJsonView(newton_json_view.SwaggerJsonView):
+
     def get(self, request):
-        json_file = os.path.join(os.path.dirname(__file__), 'multivim.flavor.swagger.json')
-        f = open(json_file)
-        json_data = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_file = os.path.join(os.path.dirname(__file__), 'multivim.image.swagger.json')
-        f = open(json_file)
-        json_data_temp = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_data["paths"].update(json_data_temp["paths"])
-        json_data["definitions"].update(json_data_temp["definitions"])
-        json_file = os.path.join(os.path.dirname(__file__), 'multivim.network.swagger.json')
-        f = open(json_file)
-        json_data_temp = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_data["paths"].update(json_data_temp["paths"])
-        json_data["definitions"].update(json_data_temp["definitions"])
-        json_file = os.path.join(os.path.dirname(__file__), 'multivim.subnet.swagger.json')
-        f = open(json_file)
-        json_data_temp = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_data["paths"].update(json_data_temp["paths"])
-        json_data["definitions"].update(json_data_temp["definitions"])
-        json_file = os.path.join(os.path.dirname(__file__), 'multivim.server.swagger.json')
-        f = open(json_file)
-        json_data_temp = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_data["paths"].update(json_data_temp["paths"])
-        json_data["definitions"].update(json_data_temp["definitions"])
-        json_file = os.path.join(os.path.dirname(__file__), 'multivim.volume.swagger.json')
-        f = open(json_file)
-        json_data_temp = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_data["paths"].update(json_data_temp["paths"])
-        json_data["definitions"].update(json_data_temp["definitions"])
-        json_file = os.path.join(os.path.dirname(__file__), 'multivim.vport.swagger.json')
-        f = open(json_file)
-        json_data_temp = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_data["paths"].update(json_data_temp["paths"])
-        json_data["definitions"].update(json_data_temp["definitions"])
-        json_file = os.path.join(os.path.dirname(__file__), 'multivim.tenant.swagger.json')
-        f = open(json_file)
-        json_data_temp = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_data["paths"].update(json_data_temp["paths"])
-        json_data["definitions"].update(json_data_temp["definitions"])
-        json_file = os.path.join(os.path.dirname(__file__), 'multivim.host.swagger.json')
-        f = open(json_file)
-        json_data_temp = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_data["paths"].update(json_data_temp["paths"])
-        json_data["definitions"].update(json_data_temp["definitions"])
-        json_file = os.path.join(os.path.dirname(__file__), 'multivim.limit.swagger.json')
-        f = open(json_file)
-        json_data_temp = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_data["paths"].update(json_data_temp["paths"])
-        json_data["definitions"].update(json_data_temp["definitions"])
+        '''
+        reuse newton code and update the basePath
+        :param request:
+        :return:
+        '''
 
-        json_file = os.path.join(os.path.dirname(__file__), 'multicloud.identity.swagger.json')
-        f = open(json_file)
-        json_data_temp = json.JSONDecoder().decode(f.read())
-        f.close()
-        json_data["paths"].update(json_data_temp["paths"])
+        resp = super(SwaggerJsonView,self).get(request)
+        json_data = resp.data if resp else None
+        if json_data:
+            json_data["basePath"] = "/api/multicloud-ocata/v0/"
+            json_data["info"]["title"] = "Service NBI of MultiCloud plugin for OpenStack Ocata"
+            return Response(data=json_data, status=200)
+        else:
+            return Response(data={'error':'internal error'}, status=500)
 
-        json_data["basePath"] = "/api/multicloud-newton/v0/"
-        json_data["info"]["title"] = "Service NBI of MultiCloud plugin for OpenStack Newton"
-        return Response(json_data)
 

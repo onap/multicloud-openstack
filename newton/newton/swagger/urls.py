@@ -15,7 +15,6 @@
 from django.conf.urls import patterns, url
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from newton.swagger import views
 from newton.swagger.views import SwaggerJsonView
 
 urlpatterns = [
