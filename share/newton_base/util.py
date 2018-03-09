@@ -90,7 +90,7 @@ class VimDriverUtils(object):
         if auth_state:
            auth.set_auth_state(auth_state)
 
-        return session.Session(auth=auth)
+        return session.Session(auth=auth, verify=False)
 
     @staticmethod
     def get_auth_state(session_obj):
