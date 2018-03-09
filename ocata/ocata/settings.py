@@ -91,7 +91,7 @@ LOGGING = {
         'ocata_handler': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/runtime_ocata.log'),
+            'filename': '/var/log/onap/multicloud/openstack/ocata/ocata.log',
             'formatter': 'standard',
             'maxBytes': 1024 * 1024 * 50,
             'backupCount': 5,
@@ -104,7 +104,12 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False
         },
-        'newton': {
+        'newton_base': {
+            'handlers': ['ocata_handler'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'common': {
             'handlers': ['ocata_handler'],
             'level': 'DEBUG',
             'propagate': False
@@ -146,6 +151,8 @@ OPENSTACK_VERSION = "ocata"
 MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
 
 if 'test' in sys.argv:
+
+    LOGGING['handlers']['ocata_handler']['filename'] = 'logs/ocata.log'
 
     REST_FRAMEWORK = {}
     import platform
