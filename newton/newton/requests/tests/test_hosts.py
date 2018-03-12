@@ -16,7 +16,7 @@ import unittest
 
 from rest_framework import status
 
-from newton.requests.tests.test_base import AbstractTestResource
+from newton_base.tests.test_base import AbstractTestResource
 
 
 class TestHostNewton(unittest.TestCase, AbstractTestResource):

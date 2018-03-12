@@ -16,8 +16,8 @@ from django.core.cache import cache
 import mock
 import unittest
 
-from newton.requests.views import util
-from newton.requests.tests import mock_info
+from newton_base import util
+from newton_base.tests import mock_info
 
 
 class TestUtil(unittest.TestCase):
