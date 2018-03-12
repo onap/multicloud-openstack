@@ -16,6 +16,7 @@ from django.conf.urls import include, url
 
 from titanium_cloud.registration.views import registration
 from newton_base.openoapi import tenants
+from titanium_cloud.resource.views import capacity
 
 urlpatterns = [
     url(r'^', include('titanium_cloud.swagger.urls')),
@@ -32,6 +33,9 @@ urlpatterns = [
              tenants.Tenants.as_view()),
     url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/'
         '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('titanium_cloud.requests.urls')),
+    # CapacityCheck
+    url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/capacity_check/?$',
+        capacity.CapacityCheck.as_view()),
 ]
 
 
