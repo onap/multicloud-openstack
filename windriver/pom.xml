@@ -47,7 +47,7 @@
         <sonar.language>py</sonar.language>
         <sonar.pluginName>Python</sonar.pluginName>
         <sonar.inclusions>**/*.py</sonar.inclusions>
-        <sonar.exclusions>tests/*,setup.py</sonar.exclusions>
+        <sonar.exclusions>venv-tox/*,.tox/*, */tests/*,setup.py</sonar.exclusions>
     </properties>
     <build>
       <pluginManagement>
