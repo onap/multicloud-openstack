@@ -65,8 +65,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.MultiPartParser',
-        # 'rest_framework.parsers.FormParser',
-        # 'rest_framework.parsers.FileUploadParser',
     )
 }
 
@@ -117,15 +115,18 @@ LOGGING = {
     }
 }
 
+DEFAULT_MSB_ADDR = "127.0.0.1"
+DEFAULT_CACHE_BACKEND_LOCATION = '127.0.0.1:11211'
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': DEFAULT_CACHE_BACKEND_LOCATION,
     }
 }
 
 # [MSB]
-MSB_SERVICE_ADDR = os.environ.get('MSB_ADDR', "127.0.0.1")
+MSB_SERVICE_ADDR = os.environ.get('MSB_ADDR', DEFAULT_MSB_ADDR)
 MSB_SERVICE_PORT = os.environ.get('MSB_PORT', "80")
 
 #[Multicloud]
