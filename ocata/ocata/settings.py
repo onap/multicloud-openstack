@@ -15,6 +15,10 @@
 import os
 import sys
 
+from logging import config
+from onaplogging import monkey
+monkey.patch_all()
+
 CACHE_EXPIRATION_TIME = 3600
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -77,46 +81,6 @@ TIME_ZONE = 'UTC'
 
 STATIC_URL = '/static/'
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s:[%(name)s]:[%(filename)s]-[%(lineno)d] [%(levelname)s]:%(message)s',
-        },
-    },
-    'filters': {
-    },
-    'handlers': {
-        'ocata_handler': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/onap/multicloud/openstack/ocata/ocata.log',
-            'formatter': 'standard',
-            'maxBytes': 1024 * 1024 * 50,
-            'backupCount': 5,
-        },
-    },
-
-    'loggers': {
-        'ocata': {
-            'handlers': ['ocata_handler'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-        'newton_base': {
-            'handlers': ['ocata_handler'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-        'common': {
-            'handlers': ['ocata_handler'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-    }
-}
-
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
@@ -150,9 +114,14 @@ ROOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 OPENSTACK_VERSION = "ocata"
 MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
 
+LOGGING_CONFIG = None
+# yaml configuration of logging
+LOGGING_FILE = os.path.join(BASE_DIR, 'ocata/pub/config/log.yml')
+config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
+
 if 'test' in sys.argv:
 
-    LOGGING['handlers']['ocata_handler']['filename'] = 'logs/ocata.log'
+    #LOGGING['handlers']['ocata_handler']['filename'] = 'logs/ocata.log'
 
     REST_FRAMEWORK = {}
     import platform
