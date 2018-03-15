@@ -34,14 +34,24 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "id": "1", "name": "micro", "vcpus": 1, "ram": "1MB",
             "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
             "swap": True, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}]
+            "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}],
+            "properties": "hw:cpu_policy, hw:cpu_thread_policy"
          },
         {
             "id": "2", "name": "mini", "vcpus": 2, "ram": "2MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True
+            "OS-FLV-DISABLED:disabled": True,
+            "properties": "hw:cpu_policy, hw:cpu_thread_policy"
         },
+        {
+            "id": "3", "name": "onap.cpu_pinning", "vcpus": 2, "ram": "2MB",
+            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
+            "swap": False, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True,
+            "properties": "hw:cpu_policy, hw:cpu_thread_policy"
+        },
+
     ]
 }
 
