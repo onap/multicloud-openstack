@@ -98,7 +98,7 @@ LOGGING = {
         'newton_handler': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/runtime_newton.log'),
+            'filename': '/var/log/onap/multicloud/openstack/newton/newton.log',
             'formatter': 'standard',
             'maxBytes': 1024 * 1024 * 50,
             'backupCount': 5,
