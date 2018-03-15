@@ -15,6 +15,11 @@
 import os
 import sys
 
+from logging import config
+from onaplogging import monkey
+monkey.patch_all()
+
+
 CACHE_EXPIRATION_TIME = 3600
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -75,45 +80,6 @@ TIME_ZONE = 'UTC'
 
 STATIC_URL = '/static/'
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s:[%(name)s]:[%(filename)s]-[%(lineno)d] [%(levelname)s]:%(message)s',
-        },
-    },
-    'filters': {
-    },
-    'handlers': {
-        'titanium_cloud_handler': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/onap/multicloud/openstack/windriver/titanium_cloud.log',
-            'formatter': 'standard',
-            'maxBytes': 1024 * 1024 * 50,
-            'backupCount': 5,
-        },
-    },
-
-    'loggers': {
-        'titanium_cloud': {
-            'handlers': ['titanium_cloud_handler'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-        'newton_base': {
-            'handlers': ['titanium_cloud_handler'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-        'common': {
-            'handlers': ['titanium_cloud_handler'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-    }
-}
 
 DEFAULT_MSB_ADDR = "127.0.0.1"
 DEFAULT_CACHE_BACKEND_LOCATION = '127.0.0.1:11211'
@@ -151,9 +117,15 @@ ROOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 OPENSTACK_VERSION = "titanium_cloud"
 MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
 
+
+LOGGING_CONFIG = None
+# yaml configuration of logging
+LOGGING_FILE = os.path.join(BASE_DIR, 'titanium_cloud/pub/config/log.yml')
+config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
+
 if 'test' in sys.argv:
 
-    LOGGING['handlers']['titanium_cloud_handler']['filename'] = 'logs/titanium_cloud.log'
+    #LOGGING['handlers']['titanium_cloud_handler']['filename'] = 'logs/titanium_cloud.log'
 
     REST_FRAMEWORK = {}
     import platform
