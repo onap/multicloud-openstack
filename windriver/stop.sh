@@ -13,5 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ps auxww | grep 'manage.py runserver 0.0.0.0:9005' | awk '{print $2}' | xargs kill -9
+#ps auxww | grep 'manage.py runserver 0.0.0.0:9005' | awk '{print $2}' | xargs kill -9
+ps auxww |grep 'uwsgi --http :9005 --module titanium_cloud.wsgi --master' |awk '{print $2}' |xargs kill -9
 ps auxww | grep 'memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid' | awk '{print $2}' | xargs kill -9

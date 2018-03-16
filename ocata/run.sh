@@ -15,7 +15,8 @@
 
 memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
 export PYTHONPATH=lib/share
-nohup python manage.py runserver 0.0.0.0:9006 2>&1 &
+#nohup python manage.py runserver 0.0.0.0:9006 2>&1 &
+nohup uwsgi --http :9006 --module ocata.wsgi --master --processes 4 &
 
 logDir="/var/log/onap/multicloud/openstack/ocata"
 if [ ! -x  $logDir  ]; then

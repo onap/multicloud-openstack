@@ -13,6 +13,9 @@ keystoneauth1==2.19.0
 #python-memcached
 python-memcached
 
+#uwsgi for parallel processing
+uwsgi
+
 # for unit test
 coverage==4.2
 mock==2.0.0
