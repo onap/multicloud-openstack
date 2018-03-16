@@ -43,7 +43,7 @@ class Registry(newton_registration.Registry):
             for flavor in self._get_list_resources(
                     "/flavors/detail", "compute", session, viminfo, vimid,
                     "flavors"):
-                
+
                 flavor_info = {
                     'flavor-id': flavor['id'],
                     'flavor-name': flavor['name'],
@@ -55,37 +55,57 @@ class Registry(newton_registration.Registry):
                     'flavor-is-public': flavor['os-flavor-access:is_public'],
                     'flavor-disabled': flavor['OS-FLV-DISABLED:disabled'],
                 }
-                
 
                 if flavor.get('link') and len(flavor['link']) > 0:
                     flavor_info['flavor-selflink'] = flavor['link'][0]['href'] or 'http://0.0.0.0',
                 else:
                     flavor_info['flavor-selflink'] = 'http://0.0.0.0',
-                
+
                 # add hpa capabilities
                 if (flavor['name'].find('onap.') == -1):
                     continue
-                
+
                 properties = flavor['properties'].split(', ')
                 if len(properties):
                     flavor_info['flavor-properties'] = flavor['properties']
+                    uuid4 = uuid.uuid4()
                     # add hpa capability cpu pinning
                     if (flavor['name'].find('onap.cpu_pinning') != -1):
-                        uuid1 = uuid.uuid4()
-                        hpa_caps.append("{'hpaCapabilityID': '" + str(uuid1) + "', ")
+                        hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
                         hpa_caps.append("'hpaFeature': 'cpuPinning', ")
                         hpa_caps.append("'hardwareArchitecture': 'generic', ")
                         hpa_caps.append("'version': 'v1', ")
 
                         hpa_caps.append("[")
+                        values = flavor['name'].split('_')
                         for p in range(len(properties)):
                             if (properties[p] == "hw:cpu_policy") :
                                 hpa_caps.append("{'hpa-attribute-key':'logicalCpuThreadPinningPolicy', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'prefer'}}, ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[1]) + "'}}, ")
                             if (properties[p] == "hw:cpu_thread_policy") :
                                 hpa_caps.append("{'hpa-attribute-key':'logicalCpuPinningPolicy', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'dedicated'}}, ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[2]) + "'}}, ")
                         hpa_caps.append("]},")
+                    elif (flavor['name'].find('onap.cpu_topology') != -1):
+                        hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
+                        hpa_caps.append("'hpaFeature': 'cpuTopology', ")
+                        hpa_caps.append("'hardwareArchitecture': 'generic', ")
+                        hpa_caps.append("'version': 'v1', ")
+
+                        hpa_caps.append("[")
+                        values = flavor['name'].split('_')
+                        for p in range(len(properties)):
+                            if (properties[p] == "hw:cpu_sockets") :
+                                hpa_caps.append("{'hpa-attribute-key':'numCpuSockets', ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[1]) + "'}}, ")
+                            if (properties[p] == "hw:cpu_cores") :
+                                hpa_caps.append("{'hpa-attribute-key':'numCpuCores', ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[2]) + "'}}, ")
+                            if (properties[p] == "hw:cpu_threads") :
+                                hpa_caps.append("{'hpa-attribute-key':'numCpuThreads', ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[3]) + "'}}, ")
+                        hpa_caps.append("]},")
+
                     else:
                         self._logger.info("can not support this properties")
                 else:
@@ -94,7 +114,7 @@ class Registry(newton_registration.Registry):
                 str_hpa_caps = ''
                 flavor_info['hpa_capabilities'] = str_hpa_caps.join(hpa_caps)
                 self._logger.debug("flavor_info: %s" % flavor_info)
-  
+
                 self._update_resoure(
                     cloud_owner, cloud_region_id, flavor['id'],
                     flavor_info, "flavor")
