@@ -20,5 +20,5 @@ mock==2.0.0
 unittest_xml_reporting==1.12.0
 
 # for onap logging
-onappylog>=1.0.5
+onappylog>=1.0.6
 
