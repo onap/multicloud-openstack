@@ -156,6 +156,12 @@ class Registry(APIView):
                 else:
                     flavor_info['flavor-selflink'] = 'http://0.0.0.0',
 
+                if config.AAI_SCHEMA_VERSION == "v13":
+                    extraResp = Flavors._get_flavor_extra_specs(session, flavor['id'])
+                    extraContent = extraResp.json()
+                    hpa_capabilities = self._get_hpa_capabilities(vimid, flavor,
+                                                                  extraContent["extra_specs"])
+
                 self._update_resoure(
                     cloud_owner, cloud_region_id, flavor['id'],
                     flavor_info, "flavor")
@@ -169,6 +175,138 @@ class Registry(APIView):
         except Exception as e:
             self._logger.error(traceback.format_exc())
             return
+
+    def _get_hpa_capabilities(self, flavor, extraSpecs):
+        """Convert flavor information to HPA capabilities for AAI"""
+        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+
+        json_data = open(hpa.json).read()
+        hpa_dict = json.loads(json_data)
+
+        # Basic Capabilities
+        if set(hpa_dict['basicCapabilities']['hpa-attributes']).intersection(flavor):
+            capability = hpa_dict['basicCapabilities']['info']
+            capability['hpa-capability-id'] = str(uuid.uuid4())
+            capability['hpa-feature-attributes'] = self._get_capability_attributes(
+                                                       flavor,
+                                                       hpa_dict['basicCapabilities']['hpa-attributes'])
+            self.update_resoure(cloud_owner, cloud_region_id, capability['hpa-capability-id'],
+                                capability, 'hpa-capability')
+
+        # Local Storage
+        if set(hpa_dict['localStorage']['hpa-attributes']).intersection(flavor):
+            capability = hpa_dict['localStorage']['info']
+            capability['hpa-capability-id'] = str(uuid.uuid4())
+            capability['hpa-feature-attributes'] = self._get_capability_attributes(
+                                                       flavor,
+                                                       hpa_dict['localStorage']['hpa-attributes'])
+            self.update_resoure(cloud_owner, cloud_region_id, capability['hpa-capability-id'],
+                                capability, 'hpa-capability')
+
+        # CPU Topology
+        if set(hpa_dict['cpuTopology']['hpa-attributes']).intersection(extra_specs):
+            capability = hpa_dict['cpuTopology']['info']
+            capability['hpa-capability-id'] = str(uuid.uuid4())
+            capability['hpa-features-attributes'] = self._get_capability_attributes(
+                                                        extra_specs,
+                                                        hpa_dict['cpuTopology']['hpa-attributes'])
+            self.update_resoure(cloud_owner, cloud_region_id, capability['hpa-capability-id'],
+                                capability, 'hpa-capability')
+
+        # CPU Pinning
+        if set(hpa_dict['cpuTopology']['hpa-attributes']).intersection(extra_specs):
+            capability = hpa_dict['cpuPinning']['info']
+            capability['hpa-capability-id'] = str(uuid.uuid4())
+            capability['hpa-features-attributes'] = self._get_capability_attributes(
+                                                        extra_specs,
+                                                        hpa_dict['cpuTopology']['hpa-attributes'])
+            self.update_resoure(cloud_owner, cloud_region_id, capability['hpa-capability-id'],
+                                capability, 'hpa-capability')
+
+        # Huge Pages
+        if set(hpa_dict['hugePages']['hpa-attributes']).intersection(extra_specs):
+            capability = hpa_dict['hugePages']['info']
+            capability['hpa-capability-id'] = str(uuid.uuid4())
+            capability['hpa-features-attributes'] = self._get_capability_attributes(
+                                                        extra_specs,
+                                                        hpa_dict['hugePages']['hpa-attributes'])
+            self.update_resoure(cloud_owner, cloud_region_id, capability['hpa-capability-id'],
+                                capability, 'hpa-capability')
+
+        # NUMA
+        if "hw:numa_nodes" in extra_specs:
+            capability = hpa_dict['numa']['info']
+            capability['hpa-capability-id'] = str(uuid.uuid4())
+            # NUMA nodes are a special case and can't use the generic get attrs function
+            attributes = []
+            attributes.append({
+                'hpa-attribute-key': hpa_dict['numa']['hpa-attributes']['hw:numa_nodes']['key'],
+                'hpa-attribute-value': "{\"value\":\"{0}\"}".format(extra_specs['hw:numa_nodes'])
+            })
+            for spec in extra_specs:
+                if spec.startswith('hw:numa_cpus'):
+                    cpu_num = spec.split(":")[-1]
+                    attributes.append({
+                        'hpa-attribute-key': 'numaCpu-' + cpu_num,
+                        'hpa-attribute-value': "{\"value\":\"{0}\"}".format(extra_specs[spec])
+                    })
+                elif spec.startswith('hw:numa_mem'):
+                    mem_num = spec.split(":")[-1]
+                    attributes.append({
+                        'hpa-attribute-key': 'numaMem-' + mem_num,
+                        'hpa-attribute-value': "{\"value\":\"{0}\",\"unit\":\"{1}\"}".format(extra_specs[spec],
+                                                                                             "GB")
+                    })
+            capability['hpa-features-attributes'] = attributes
+            self.update_resoure(cloud_owner, cloud_region_id, capability['hpa-capability-id'],
+                                capability, 'hpa-capability')
+
+        # PCIe Passthrough
+        pci_devices = [spec for spec in extra_specs if spec.startswith("pci_passthrough:alias")]
+        for device in pci_devices:
+            capability = hpa_dict['pciePassthrough']['info']
+            capability['hpa-capability-id'] = str(uuid.uuid4())
+            # device will be in the form pci_passthrough:alias=ALIAS:COUNT,
+            # ALIAS is expected to be in the form <NAME>-<VENDOR_ID>-<DEVICE_ID>
+            device_info = device.split("=")[-1].split(":")
+            count = device_info[-1]
+            vendor_id = device_info.split(":")[0].split("-")[1]
+            device_id = device_info.split(":")[0].split("-")[2]
+
+            attributes = [
+                {
+                    'hpa-attribute-key': 'pciCount',
+                    'hpa-attribute-value': "{\"value\":\"{0}\"}".format(count)
+                },
+                {
+                    'hpa-attribute-key': 'pciVendorId',
+                    'hpa-attribute-value': "{\"value\":\"{0}\"}".format(vendor_id)
+                },
+                {
+                    'hpa-attribute-key': 'pciDeviceId',
+                    'hpa-attribute-value': "{\"value\":\"{0}\"}".format(device_id)
+                }
+            ]
+
+            capability['hpa-features-attributes'] = attributes
+            self.update_resoure(cloud_owner, cloud_region_id, capability['hpa-capability-id'],
+                                capability, 'hpa-capability')
+
+    def _get_capability_attributes(self, cloud_info, attributes):
+        result = []
+        for attr in attributes:
+            if attr in cloud_info:
+                attribute = {'hpa-attribute-key': attributes[attr][key]}
+                if attributes[attr][unit]:
+                    attribute['hpa-attribute-value'] = (
+                        "{\"value\":\"{0}\",\"unit\":\"{1}\"").format(cloud_info[attr],
+                                                                         hpa_dict[attr][unit])
+                else:
+                    attribute['hpa-attribute-value'] = (
+                        "{\"value\": \"{0}\"}").format(cloud_info[attr])
+
+                result.append(attribute)
+        return result
 
     # def update_image_metadata(self, cloud_owner, cloud_region_id, image_id, metadatainfo):
     #     '''
