@@ -17,6 +17,7 @@ import mock
 from rest_framework import status
 
 from common.utils import restcall
+from newton_base.openoapi.flavor import Flavors
 from newton_base.tests import mock_info
 from newton_base.tests import test_base
 from newton_base.util import VimDriverUtils
@@ -43,6 +44,19 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "OS-FLV-DISABLED:disabled": True
         },
     ]
+}
+
+MOCK_GET_EXTRA_SPECS_RESPONSE = {
+    "extra_specs": {
+        "hw:cpu_sockets": 4,
+        "hw:cpu_cores": 4,
+        "hw:cpu_policy": "dedicated",
+        "hw:numa_nodes": 3,
+        "hw:numa_cpus.1": [0, 1],
+        "hw:numa_mem.1": 2,
+        "pci_passthrough:alias": "mycrypto-8086-0443",
+        "hw:mem_page_size": "1GB"
+    }
 }
 
 MOCK_GET_IMAGE_RESPONSE = {
@@ -135,10 +149,12 @@ class TestFlavors(test_base.TestRequest):
         mock_response.json.return_value = return_value
         return mock_response
 
+    @mock.patch.object(Flavors, '_get_flavor_extra_specs')
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_register_endpoint_successfully(
-            self, mock_get_vim_info, mock_get_session):
+            self, mock_get_vim_info, mock_get_session,
+            mock_get_extra_specs):
         restcall.req_to_aai = mock.Mock()
         restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
@@ -157,6 +173,7 @@ class TestFlavors(test_base.TestRequest):
                         MOCK_GET_HYPERVISOR_RESPONSE)
                 ]
             })
+        mock_get_extra_specs.return_value = MOCK_GET_EXTRA_SPECS_RESPONSE
 
         response = self.client.post((
             "/api/%s/v0/windriver-hudson-dc_RegionOne/"

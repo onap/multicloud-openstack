@@ -1,0 +1,129 @@
+{
+    "basicCapabilities": {
+        "info": {
+            "hpa-feature": "basicCapabilities",
+            "hpa-version": "v1",
+            "architecture": "generic"
+        },
+        "hpa-attributes": {
+            "vcpus": {
+                "key": "numVirtualCpu",
+                "unit": null
+            },
+            "ram": {
+                "key": "virtualMemSize",
+                "unit": "GB"
+            }
+        }
+    },
+    "localStorage": {
+        "info": {
+            "hpa-feature": "localStorage",
+            "hpa-version": "v1",
+            "architecture": "generic"
+        },
+        "hpa-attributes": {
+            "disk": {
+                "key": "diskSize",
+                "unit": "GB"
+            },
+            "swap": {
+                "key": "swapMemSize",
+                "unit": "MB"
+            }
+        }
+    },
+    "cpuTopology": {
+        "info": {
+            "hpa-feature": "cpuTopology",
+            "hpa-version": "v1",
+            "architecture": "generic"
+        },
+        "hpa-attributes": {
+            "hw:cpu_sockets": {
+                "key": "numCpuSockets",
+                "unit": null
+            },
+            "hw:cpu_cores": {
+                "key": "numCpuCores",
+                "unit": null
+            },
+            "hw:cpu_threads": { 
+                "key": "numCpuThreads",
+                "unit": null
+            }
+        }
+    },
+    "cpuPinning": {
+        "info": {
+            "hpa-feature": "cpuPinning",
+            "hpa-version": "v1",
+            "architecture": "generic"
+        },
+        "hpa-attributes": {
+            "hw:cpu_thread_policy": {
+                "key": "logicalCpuThreadPinningPolicy",
+                "unit": null
+            },
+            "hw:cpu_policy": {
+                "key": "logicalCpuPinningPolicy",
+                "unit": null
+            }
+        }
+    },
+    "numa": {
+        "info": {
+            "hpa-feature": "numa",
+            "hpa-version": "v1",
+            "architecture": "generic"
+        },
+        "hpa-attributes": {
+            "hw:numa_nodes": {
+                "key": "numaNodes",
+                "unit": null
+            },
+            "hw:numa_cpus": {
+                "key": "numaCpu",
+                "unit": null
+            },
+            "hw:numa_mem": {
+                "key": "numaMem",
+                "unit": "GB"
+            }
+        }
+    },
+    "hugePages": {
+        "info": {
+            "hpa-feature": "hugePages",
+            "hpa-version": "v1",
+            "architecture": "generic"
+        },
+        "hpa-attributes": {
+            "hw:mem_page_size": {
+                "key": "memoryPageSize",
+                "unit": null
+            }
+        }
+    },
+    "pciePassthrough": {
+        "info": {
+            "hpa-feature": "pciePassthrough",
+            "hpa-version": "v1",
+            "architecture": "generic"
+        },
+        "hpa-attributes": {
+            "pci_count": {
+                "key": "pciCount",
+                "unit": null
+            },
+            "pci_vendor_id": {
+                "key": "pciVendorId",
+                "unit": null
+            },
+            "pci_device_id": {
+                "key": "pciDeviceId",
+                "unit": null
+            }
+        }
+    }
+}
