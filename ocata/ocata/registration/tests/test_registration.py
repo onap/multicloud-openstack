@@ -45,12 +45,20 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "properties": "hw:cpu_policy, hw:cpu_thread_policy"
         },
         {
-            "id": "3", "name": "onap.cpu_pinning", "vcpus": 2, "ram": "2MB",
+            "id": "3", "name": "onap.cpu_pinning_prefer_dedicated", "vcpus": 2, "ram": "2MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
             "properties": "hw:cpu_policy, hw:cpu_thread_policy"
         },
+        {
+            "id": "4", "name": "onap.cpu_topology_4_4_8", "vcpus": 2, "ram": "2MB",
+            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
+            "swap": False, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True,
+            "properties": "hw:cpu_sockets, hw:cpu_cores, hw:cpu_threads"
+        },
+
 
     ]
 }
