@@ -66,48 +66,65 @@ class Registry(newton_registration.Registry):
                     continue
 
                 properties = flavor['properties'].split(', ')
-                if len(properties):
-                    flavor_info['flavor-properties'] = flavor['properties']
-                    uuid4 = uuid.uuid4()
-                    # add hpa capability cpu pinning
-                    if (flavor['name'].find('onap.cpu_pinning') != -1):
-                        hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
-                        hpa_caps.append("'hpaFeature': 'cpuPinning', ")
-                        hpa_caps.append("'hardwareArchitecture': 'generic', ")
-                        hpa_caps.append("'version': 'v1', ")
+                uuid4 = uuid.uuid4()
+                # add hpa capability cpu pinning
+                if (flavor['name'].find('onap.cpu_pinning') != -1):
+                    hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
+                    hpa_caps.append("'hpaFeature': 'cpuPinning', ")
+                    hpa_caps.append("'hardwareArchitecture': 'generic', ")
+                    hpa_caps.append("'version': 'v1', ")
 
+                    if len(properties):
+                        flavor_info['flavor-properties'] = flavor['properties']
                         hpa_caps.append("[")
                         values = flavor['name'].split('_')
                         for p in range(len(properties)):
                             if (properties[p] == "hw:cpu_policy") :
                                 hpa_caps.append("{'hpa-attribute-key':'logicalCpuThreadPinningPolicy', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[1]) + "'}}, ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[2]) + "'}}, ")
                             if (properties[p] == "hw:cpu_thread_policy") :
                                 hpa_caps.append("{'hpa-attribute-key':'logicalCpuPinningPolicy', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[2]) + "'}}, ")
-                        hpa_caps.append("]},")
-                    elif (flavor['name'].find('onap.cpu_topology') != -1):
-                        hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
-                        hpa_caps.append("'hpaFeature': 'cpuTopology', ")
-                        hpa_caps.append("'hardwareArchitecture': 'generic', ")
-                        hpa_caps.append("'version': 'v1', ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[3]) + "'}}, ")
+                        hpa_caps.append("]")
+                    hpa_caps.append("},")
 
+                elif (flavor['name'].find('onap.cpu_topology') != -1):
+                    hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
+                    hpa_caps.append("'hpaFeature': 'cpuTopology', ")
+                    hpa_caps.append("'hardwareArchitecture': 'generic', ")
+                    hpa_caps.append("'version': 'v1', ")
+
+                    if len(properties):
+                        flavor_info['flavor-properties'] = flavor['properties']
                         hpa_caps.append("[")
                         values = flavor['name'].split('_')
                         for p in range(len(properties)):
                             if (properties[p] == "hw:cpu_sockets") :
                                 hpa_caps.append("{'hpa-attribute-key':'numCpuSockets', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[1]) + "'}}, ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[2]) + "'}}, ")
                             if (properties[p] == "hw:cpu_cores") :
                                 hpa_caps.append("{'hpa-attribute-key':'numCpuCores', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[2]) + "'}}, ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[3]) + "'}}, ")
                             if (properties[p] == "hw:cpu_threads") :
                                 hpa_caps.append("{'hpa-attribute-key':'numCpuThreads', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[3]) + "'}}, ")
-                        hpa_caps.append("]},")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[4]) + "'}}, ")
+                        hpa_caps.append("]")
+                    hpa_caps.append("},")
 
-                    else:
-                        self._logger.info("can not support this properties")
+                elif (flavor['name'].find('onap.base_capabilities') != -1):
+                    hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
+                    hpa_caps.append("'hpaFeature': 'baseCapabilities', ")
+                    hpa_caps.append("'hardwareArchitecture': 'generic', ")
+                    hpa_caps.append("'version': 'v1', ")
+
+                    hpa_caps.append("[")
+                    hpa_caps.append("{'hpa-attribute-key':'numVirtualCpu', ")
+                    hpa_caps.append("'hpa-attribute-value': {'value':'" + str(flavor_info['vcpus']) + "'}}, ")
+                    hpa_caps.append("{'hpa-attribute-key':'virtualMemSize', ")
+                    hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['mem']) + ", unit:'MB'}}, ")
+                    hpa_caps.append("]")
+                    hpa_caps.append("},")
+
                 else:
                     self._logger.info("can not support this flavor type")
                 hpa_caps.append("]")
