@@ -58,7 +58,12 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "OS-FLV-DISABLED:disabled": True,
             "properties": "hw:cpu_sockets, hw:cpu_cores, hw:cpu_threads"
         },
-
+        {
+            "id": "5", "name": "onap.base_capabilities", "vcpus": 2, "ram": "2MB",
+            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
+            "swap": False, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True,
+        },
 
     ]
 }
