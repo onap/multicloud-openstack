@@ -125,6 +125,31 @@ class Registry(newton_registration.Registry):
                     hpa_caps.append("]")
                     hpa_caps.append("},")
 
+                elif (flavor['name'].find('onap.numa') != -1):
+                    hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
+                    hpa_caps.append("'hpaFeature': 'numa', ")
+                    hpa_caps.append("'hardwareArchitecture': 'generic', ")
+                    hpa_caps.append("'version': 'v1', ")
+
+                    if len(properties):
+                        flavor_info['flavor-properties'] = flavor['properties']
+                        hpa_caps.append("[")
+                        for p in range(len(properties)):
+                            p_arr = properties[p].split('=')
+                            value = p_arr[1]
+                            index = p_arr[0].split('.')[1]
+                            if (properties[p].find("hw:numa_nodes") != -1) :
+                                hpa_caps.append("{'hpa-attribute-key':'numNodes', ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
+                            if (properties[p].find("hw:numa_cpus") != -1) :
+                                hpa_caps.append("{'hpa-attribute-key':'numaCpus-" + index + "', ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'[" + value + "]'}}, ")
+                            if (properties[p] == ("hw:numa_mem") != -1) :
+                                hpa_caps.append("{'hpa-attribute-key':'numaMem-"+ index +"', ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + ", unit:'MB'}}, ")
+                        hpa_caps.append("]")
+                    hpa_caps.append("},")
+
                 else:
                     self._logger.info("can not support this flavor type")
                 hpa_caps.append("]")
