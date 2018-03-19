@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_cf7912c9",
+        "filename": "share/newton_base/registration/registration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-03-19T01:31:14Z",
+      "side": 1,
+      "message": "you can\u0027t update many times. if you do like this, they will save the last times, not all info. so I think we should combine these HPAs into one and then update them all at once.",
+      "revId": "4bc5649b18ba37cf415369bee7bf4c58303aae39",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_cfb27293",
+        "filename": "share/newton_base/registration/registration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-03-19T01:31:14Z",
+      "side": 1,
+      "message": "extra_spec not the value. we need to extract from extra_spec and then convert it.",
+      "range": {
+        "startLine": 302,
+        "startChar": 70,
+        "endLine": 302,
+        "endChar": 80
+      },
+      "revId": "4bc5649b18ba37cf415369bee7bf4c58303aae39",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
