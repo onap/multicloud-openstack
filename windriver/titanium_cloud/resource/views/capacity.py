@@ -43,7 +43,7 @@ class CapacityCheck(APIView):
 
         hasEnoughResource = False
         try :
-            resource_demand = json.load(request.data)
+            resource_demand = request.data
 
             #get token:
             cloud_owner, regionid = extsys.decode_vim_id(vimid)
@@ -93,11 +93,11 @@ class CapacityCheck(APIView):
                 remainStorage = hypervisor_statistics['free_disk_gb']
 
             # compare resource demanded with available
-            if (resource_demand['vCPU'] >= remainVCPU):
+            if (int(resource_demand['vCPU']) >= remainVCPU):
                 hasEnoughResource = False
-            elif (resource_demand['Memory'] >= remainMEM):
+            elif (int(resource_demand['Memory']) >= remainMEM):
                 hasEnoughResource = False
-            elif (resource_demand['Storage'] >= remainStorage):
+            elif (int(resource_demand['Storage']) >= remainStorage):
                 hasEnoughResource = False
             else:
                 hasEnoughResource = True
