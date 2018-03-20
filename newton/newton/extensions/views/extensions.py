@@ -19,7 +19,7 @@ from newton_base.extensions import extensions as newton_extensions
 
 logger = logging.getLogger(__name__)
 
-DEBUG=True
+#DEBUG=True
 
 class Extensions(newton_extensions.Extensions):
 
