@@ -183,6 +183,23 @@ class Registry(newton_registration.Registry):
                         hpa_caps.append("]")
                     hpa_caps.append("},")
 
+                elif (flavor['name'].find('onap.iax') != -1):
+                    hpa_caps.append("{'hpaCapabilityId': '" + str(uuid4) + "', ")
+                    hpa_caps.append("'hpaFeature': 'instructionSetExtensions', ")
+                    hpa_caps.append("'hardwareArchitecture': 'Intel64', ")
+                    hpa_caps.append("'version': 'v1', ")
+
+                    if len(properties):
+                        flavor_info['flavor-properties'] = flavor['properties']
+                        hpa_caps.append("[")
+                        value = flavor['properties'].split('=')[1]
+                        for p in range(len(properties)):
+                            if (properties[p].find("hw:capabilities:cpu_info:features") != -1) :
+                                hpa_caps.append("{'hpa-attribute-key':'instructionSetExtensions', ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':[" + value + "]}}, ")
+                        hpa_caps.append("]")
+                    hpa_caps.append("},")
+
                 else:
                     self._logger.info("can not support this flavor type")
                 hpa_caps.append("]")
