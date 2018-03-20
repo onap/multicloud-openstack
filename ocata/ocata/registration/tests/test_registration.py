@@ -84,6 +84,13 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "OS-FLV-DISABLED:disabled": True,
             "properties": "hw:huge_page_size"
         },
+        {
+            "id": "9", "name": "onap.iax", "vcpus": 2, "ram": "2MB",
+            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
+            "swap": False, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True,
+            "properties": "hw:capabilities:cpu_info:features=aes"
+        },
     ]
 }
 
