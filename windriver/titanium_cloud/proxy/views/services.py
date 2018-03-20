@@ -21,7 +21,7 @@ from newton_base.proxy import services as newton_services
 
 logger = logging.getLogger(__name__)
 
-DEBUG=True
+#DEBUG=True
 
 class Services(newton_services.Services):
 

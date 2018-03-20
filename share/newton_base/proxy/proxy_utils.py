@@ -23,7 +23,7 @@ from common.exceptions import VimDriverNewtonException
 
 logger = logging.getLogger(__name__)
 
-DEBUG=True
+#DEBUG=True
 #MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-newton/v0" %(config.MSB_SERVICE_IP, config.MSB_SERVICE_PORT)
 
 class ProxyUtils(object):
