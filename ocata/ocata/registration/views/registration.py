@@ -77,14 +77,14 @@ class Registry(newton_registration.Registry):
                     if len(properties):
                         flavor_info['flavor-properties'] = flavor['properties']
                         hpa_caps.append("[")
-                        values = flavor['name'].split('_')
                         for p in range(len(properties)):
-                            if (properties[p] == "hw:cpu_policy") :
+                            value = properties[p].split('=')[1]
+                            if (properties[p].find("hw:cpu_policy") != -1) :
                                 hpa_caps.append("{'hpa-attribute-key':'logicalCpuThreadPinningPolicy', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[2]) + "'}}, ")
-                            if (properties[p] == "hw:cpu_thread_policy") :
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
+                            if (properties[p].find("hw:cpu_thread_policy") != -1) :
                                 hpa_caps.append("{'hpa-attribute-key':'logicalCpuPinningPolicy', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[3]) + "'}}, ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value) + "'}}, ")
                         hpa_caps.append("]")
                     hpa_caps.append("},")
 
@@ -97,17 +97,17 @@ class Registry(newton_registration.Registry):
                     if len(properties):
                         flavor_info['flavor-properties'] = flavor['properties']
                         hpa_caps.append("[")
-                        values = flavor['name'].split('_')
                         for p in range(len(properties)):
-                            if (properties[p] == "hw:cpu_sockets") :
+                            value = properties[p].split('=')[1]
+                            if (properties[p].find("hw:cpu_sockets") != -1) :
                                 hpa_caps.append("{'hpa-attribute-key':'numCpuSockets', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[2]) + "'}}, ")
-                            if (properties[p] == "hw:cpu_cores") :
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
+                            if (properties[p].find("hw:cpu_cores") != -1) :
                                 hpa_caps.append("{'hpa-attribute-key':'numCpuCores', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[3]) + "'}}, ")
-                            if (properties[p] == "hw:cpu_threads") :
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
+                            if (properties[p].find("hw:cpu_threads") != -1) :
                                 hpa_caps.append("{'hpa-attribute-key':'numCpuThreads', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(values[4]) + "'}}, ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
                         hpa_caps.append("]")
                     hpa_caps.append("},")
 
@@ -197,6 +197,26 @@ class Registry(newton_registration.Registry):
                             if (properties[p].find("hw:capabilities:cpu_info:features") != -1) :
                                 hpa_caps.append("{'hpa-attribute-key':'instructionSetExtensions', ")
                                 hpa_caps.append("'hpa-attribute-value': {'value':[" + value + "]}}, ")
+                        hpa_caps.append("]")
+                    hpa_caps.append("},")
+
+                elif (flavor['name'].find('onap.pci_passthrough') != -1) :
+                    hpa_caps.append("{'hpaCapabilityId': '" + str(uuid4) + "', ")
+                    hpa_caps.append("'hpaFeature': 'pciPassthrough', ")
+                    hpa_caps.append("'version': 'v1', ")
+                    if len(properties):
+                        values = properties[0].split('-')
+                        hpa_caps.append("'hardwareArchitecture': '" + values[2] + "', ")
+
+                        flavor_info['flavor-properties'] = flavor['properties']
+                        hpa_caps.append("[")
+                        value = values[4].split(':')
+                        hpa_caps.append("{'hpa-attribute-key':'pciCount', ")
+                        hpa_caps.append("'hpa-attribute-value': {'value':'" + value[1] + "'}}, ")
+                        hpa_caps.append("{'hpa-attribute-key':'pciVendorId', ")
+                        hpa_caps.append("'hpa-attribute-value': {'value':'" + values[3] + "'}}, ")
+                        hpa_caps.append("{'hpa-attribute-key':'pciDeviceId', ")
+                        hpa_caps.append("'hpa-attribute-value': {'value':'" + value[0] + "'}}, ")
                         hpa_caps.append("]")
                     hpa_caps.append("},")
 
