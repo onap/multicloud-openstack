@@ -64,6 +64,14 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
         },
+        {
+            "id": "6", "name": "onap.numa", "vcpus": 6, "ram": "6144MB",
+            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
+            "swap": False, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True,
+            "properties": "hw:numa_nodes=2, hw:numa_cpus.0=0,1, hw:numa_mem.0=2048, hw:numa_cpus.1=2,3,4,5 hw:numa_mem.1=4096"
+        },
+
 
     ]
 }
