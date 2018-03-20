@@ -166,6 +166,23 @@ class Registry(newton_registration.Registry):
                         hpa_caps.append("]")
                     hpa_caps.append("},")
 
+                elif (flavor['name'].find('onap.huge_page') != -1):
+                    hpa_caps.append("{'hpaCapabilityId': '" + str(uuid4) + "', ")
+                    hpa_caps.append("'hpaFeature': 'hugePages', ")
+                    hpa_caps.append("'hardwareArchitecture': 'generic', ")
+                    hpa_caps.append("'version': 'v1', ")
+
+                    if len(properties):
+                        flavor_info['flavor-properties'] = flavor['properties']
+                        hpa_caps.append("[")
+                        values = flavor['name'].split('_')
+                        for p in range(len(properties)):
+                            if (properties[p] == "hw:mem_page_size") :
+                                hpa_caps.append("{'hpa-attribute-key':'memoryPageSize', ")
+                                hpa_caps.append("'hpa-attribute-value': {'value':'" + values[2] + "'}}, ")
+                        hpa_caps.append("]")
+                    hpa_caps.append("},")
+
                 else:
                     self._logger.info("can not support this flavor type")
                 hpa_caps.append("]")
