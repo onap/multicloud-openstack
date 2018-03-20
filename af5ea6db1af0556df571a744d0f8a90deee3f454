@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_5034b549",
+        "filename": "newton/newton/registration/views/hpa.json",
+        "patchSetId": 6
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1361
+      },
+      "writtenOn": "2018-03-20T21:47:51Z",
+      "side": 1,
+      "message": "Huge pages may or may not have unit. As per the Supported HPA Capability Requirements the values supported by memoryPageSize are ANY, 4KB, 2MB, 1GB etc. But openstack can have these values or a simple integer (in which case KB unit is assumed) and one of these \u0027any\u0027, \u0027small\u0027, \u0027large\u0027",
+      "range": {
+        "startLine": 104,
+        "startChar": 24,
+        "endLine": 104,
+        "endChar": 28
+      },
+      "revId": "af5ea6db1af0556df571a744d0f8a90deee3f454",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_303b293a",
+        "filename": "newton/newton/registration/views/registration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1361
+      },
+      "writtenOn": "2018-03-20T21:47:51Z",
+      "side": 1,
+      "message": "cpuPinning?",
+      "range": {
+        "startLine": 116,
+        "startChar": 25,
+        "endLine": 116,
+        "endChar": 36
+      },
+      "revId": "af5ea6db1af0556df571a744d0f8a90deee3f454",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_f044e1b8",
+        "filename": "newton/newton/registration/views/registration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1361
+      },
+      "writtenOn": "2018-03-20T21:47:51Z",
+      "side": 1,
+      "message": "cpuPinning?",
+      "range": {
+        "startLine": 121,
+        "startChar": 66,
+        "endLine": 121,
+        "endChar": 77
+      },
+      "revId": "af5ea6db1af0556df571a744d0f8a90deee3f454",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_7010d1a8",
+        "filename": "newton/newton/registration/views/registration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1361
+      },
+      "writtenOn": "2018-03-20T21:47:51Z",
+      "side": 1,
+      "message": "unit is required for some cases and sometimes has a default unit (KB) if the value is an integer.",
+      "range": {
+        "startLine": 125,
+        "startChar": 7,
+        "endLine": 131,
+        "endChar": 43
+      },
+      "revId": "af5ea6db1af0556df571a744d0f8a90deee3f454",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
