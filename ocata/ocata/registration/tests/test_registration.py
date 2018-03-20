@@ -71,6 +71,12 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "OS-FLV-DISABLED:disabled": True,
             "properties": "hw:numa_nodes=2, hw:numa_cpus.0=0,1, hw:numa_mem.0=2048, hw:numa_cpus.1=2,3,4,5 hw:numa_mem.1=4096"
         },
+        {
+            "id": "7", "name": "onap.local_storage", "vcpus": 2, "ram": "2MB",
+            "disk": "4096", "OS-FLV-EXT-DATA:ephemeral": "163840",
+            "swap": "8192", "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True,
+        },
 
 
     ]
