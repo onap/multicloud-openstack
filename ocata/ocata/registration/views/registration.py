@@ -125,6 +125,22 @@ class Registry(newton_registration.Registry):
                     hpa_caps.append("]")
                     hpa_caps.append("},")
 
+                elif (flavor['name'].find('onap.local_storage') != -1):
+                    hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
+                    hpa_caps.append("'hpaFeature': 'localStorage', ")
+                    hpa_caps.append("'hardwareArchitecture': 'generic', ")
+                    hpa_caps.append("'version': 'v1', ")
+
+                    hpa_caps.append("[")
+                    hpa_caps.append("{'hpa-attribute-key':'diskSize', ")
+                    hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['disk']) + ", unit:'MB'}}, ")
+                    hpa_caps.append("{'hpa-attribute-key':'ephemeralDiskSize', ")
+                    hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['OS-FLV-EXT-DATA:ephemeral']) + ", unit:'MB'}}, ")
+                    hpa_caps.append("{'hpa-attribute-key':'swapMemSize', ")
+                    hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['swap']) + ", unit:'MB'}}, ")
+                    hpa_caps.append("]")
+                    hpa_caps.append("},")
+
                 elif (flavor['name'].find('onap.numa') != -1):
                     hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
                     hpa_caps.append("'hpaFeature': 'numa', ")
