@@ -77,8 +77,13 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "swap": "8192", "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
         },
-
-
+        {
+            "id": "8", "name": "onap.huge_page", "vcpus": 2, "ram": "2MB",
+            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
+            "swap": False, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True,
+            "properties": "hw:huge_page_size"
+        },
     ]
 }
 
