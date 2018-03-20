@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "5a93c517_d01e85bb",
+        "filename": "newton/newton/registration/views/registration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-03-20T21:55:26Z",
+      "side": 1,
+      "message": "Ah typo, thanks.",
+      "parentUuid": "5a93c517_303b293a",
+      "range": {
+        "startLine": 116,
+        "startChar": 25,
+        "endLine": 116,
+        "endChar": 36
+      },
+      "revId": "af5ea6db1af0556df571a744d0f8a90deee3f454",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a93c517_f044e1b8",
         "filename": "newton/newton/registration/views/registration.py",
         "patchSetId": 6
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "5a93c517_f01b81c8",
+        "filename": "newton/newton/registration/views/registration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-03-20T21:55:26Z",
+      "side": 1,
+      "message": "Ditto.",
+      "parentUuid": "5a93c517_f044e1b8",
+      "range": {
+        "startLine": 121,
+        "startChar": 66,
+        "endLine": 121,
+        "endChar": 77
+      },
+      "revId": "af5ea6db1af0556df571a744d0f8a90deee3f454",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a93c517_7010d1a8",
         "filename": "newton/newton/registration/views/registration.py",
         "patchSetId": 6
@@ -82,6 +130,30 @@
       "writtenOn": "2018-03-20T21:47:51Z",
       "side": 1,
       "message": "unit is required for some cases and sometimes has a default unit (KB) if the value is an integer.",
+      "range": {
+        "startLine": 125,
+        "startChar": 7,
+        "endLine": 131,
+        "endChar": 43
+      },
+      "revId": "af5ea6db1af0556df571a744d0f8a90deee3f454",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_9078fdf9",
+        "filename": "newton/newton/registration/views/registration.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-03-20T21:55:26Z",
+      "side": 1,
+      "message": "I\u0027ll look into a fix for this now.",
+      "parentUuid": "5a93c517_7010d1a8",
       "range": {
         "startLine": 125,
         "startChar": 7,
