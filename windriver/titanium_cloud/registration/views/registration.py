@@ -20,7 +20,7 @@ from newton_base.registration import registration as newton_registration
 
 logger = logging.getLogger(__name__)
 
-DEBUG=True
+#DEBUG=True
 
 class Registry(newton_registration.Registry):
 
