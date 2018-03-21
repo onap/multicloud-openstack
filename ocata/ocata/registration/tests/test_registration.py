@@ -45,18 +45,18 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "properties": "hw:cpu_policy, hw:cpu_thread_policy"
         },
         {
-            "id": "3", "name": "onap.cpu_pinning_prefer_dedicated", "vcpus": 2, "ram": "2MB",
+            "id": "3", "name": "onap.cpu_pinning", "vcpus": 2, "ram": "2MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
-            "properties": "hw:cpu_policy, hw:cpu_thread_policy"
+            "properties": "hw:cpu_policy=dedicated, hw:cpu_thread_policy=prefer"
         },
         {
-            "id": "4", "name": "onap.cpu_topology_4_4_8", "vcpus": 2, "ram": "2MB",
+            "id": "4", "name": "onap.cpu_topology", "vcpus": 128, "ram": "2MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
-            "properties": "hw:cpu_sockets, hw:cpu_cores, hw:cpu_threads"
+            "properties": "hw:cpu_sockets=4, hw:cpu_cores=4, hw:cpu_threads=8"
         },
         {
             "id": "5", "name": "onap.base_capabilities", "vcpus": 2, "ram": "2MB",
@@ -90,6 +90,13 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
             "properties": "hw:capabilities:cpu_info:features=aes"
+        },
+        {
+            "id": "10", "name": "onap.pci_passthrough", "vcpus": 2, "ram": "2MB",
+            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
+            "swap": False, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True,
+            "properties": "pci_passthrough:alias=sriov-pf-intel-8086-10fb:1"
         },
     ]
 }
