@@ -15,3 +15,5 @@ openstack_multicloud.egg-info/
 .eggs/
 build/
 test-reports/
+coverage.xml
+
