@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5a93c517_88aa0484",
+        "filename": "newton/newton/registration/tests/test_registration.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-03-22T17:27:55Z",
+      "side": 1,
+      "message": "That might be good for a different patch, I don\u0027t think it would add much to the testing of this patch.",
+      "parentUuid": "5a93c517_c516bca7",
+      "revId": "c862afffece71c1d222672f798526744611dc337",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a93c517_650b287e",
         "filename": "newton/newton/registration/views/registration.py",
         "patchSetId": 10
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "5a93c517_08c7d465",
+        "filename": "newton/newton/registration/views/registration.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-03-22T17:27:55Z",
+      "side": 1,
+      "message": "I can\u0027t seem to find the actual API spec for newton, when you go to https://docs.openstack.org/newton/api/ and click on the API ref for compute, it brings you to the same page you find otherwise, https://developer.openstack.org/api-ref/compute/#list-extra-specs-for-a-flavor. I\u0027ll ask around about this and see if I can find info somewhere else.",
+      "parentUuid": "5a93c517_650b287e",
+      "range": {
+        "startLine": 62,
+        "startChar": 80,
+        "endLine": 62,
+        "endChar": 91
+      },
+      "revId": "c862afffece71c1d222672f798526744611dc337",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a93c517_a51130b1",
         "filename": "newton/newton/registration/views/registration.py",
         "patchSetId": 10
@@ -53,6 +95,24 @@
       "writtenOn": "2018-03-22T01:24:21Z",
       "side": 1,
       "message": "I think you should put open *.json file to _discover_flavors function. we just open one time enough.",
+      "revId": "c862afffece71c1d222672f798526744611dc337",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_28c4105e",
+        "filename": "newton/newton/registration/views/registration.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-03-22T17:27:55Z",
+      "side": 1,
+      "message": "Only this function cares about that information though, and we\u0027re still only opening it once. Why do you think it would be better to open it in _discover_flavors? I think this way makes this function more standalone which is better.",
+      "parentUuid": "5a93c517_a51130b1",
       "revId": "c862afffece71c1d222672f798526744611dc337",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
