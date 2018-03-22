@@ -58,6 +58,13 @@ TEST_REQ_SUCCESS_SOURCE = {
     "Storage": "200"
 }
 
+
+TEST_REQ_FAILED_SOURCE = {
+    "vCPU": "17",
+    "Memory": "4096",
+    "Storage": "200"
+}
+
 class TestCapacity(test_base.TestRequest):
     def setUp(self):
         super(TestCapacity, self).setUp()
@@ -89,4 +96,26 @@ class TestCapacity(test_base.TestRequest):
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         self.assertEqual({"result": True}, response.data)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_capacity_check_nova_limits_failed(self, mock_get_vim_info, mock_get_session):
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_LIMIT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPER_STATATICS_RESPONSE),
+                    self._get_mock_response(MOCK_GET_STORAGE_RESPONSE),
+                ]
+            })
+
+        response = self.client.post((
+            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
+            "capacity_check" % test_base.MULTIVIM_VERSION),
+            TEST_REQ_FAILED_SOURCE,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual({"result": False}, response.data)
 
