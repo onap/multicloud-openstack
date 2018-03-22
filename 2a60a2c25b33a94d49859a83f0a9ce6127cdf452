@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_7e34124a",
+        "filename": "newton/newton/registration/tests/test_registration.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-03-22T23:40:09Z",
+      "side": 1,
+      "message": "flavors response like below.\n\nMOCK_GET_FLAVOR_RESPONSE \u003d {\n    \"flavors\": [\n        {\n            \"id\": \"1\", \"name\": \"micro\", \"vcpus\": 1, \"ram\": \"1MB\",\n            \"disk\": \"1G\", \"OS-FLV-EXT-DATA:ephemeral\": False,\n            \"swap\": True, \"os-flavor-access:is_public\": True,\n            \"OS-FLV-DISABLED:disabled\": True, \"link\": [{\"href\":1}],\n            \"properties\": \"hw:cpu_policy, hw:cpu_thread_policy\"\n         },\n        {\n            \"id\": \"2\", \"name\": \"mini\", \"vcpus\": 2, \"ram\": \"2MB\",\n            \"disk\": \"2G\", \"OS-FLV-EXT-DATA:ephemeral\": True,\n            \"swap\": False, \"os-flavor-access:is_public\": True,\n            \"OS-FLV-DISABLED:disabled\": True,\n            \"properties\": \"hw:cpu_policy, hw:cpu_thread_policy\"\n        },\n        {\n            \"id\": \"3\", \"name\": \"onap.cpu_pinning\", \"vcpus\": 2, \"ram\": \"2MB\",\n            \"disk\": \"2G\", \"OS-FLV-EXT-DATA:ephemeral\": True,\n            \"swap\": False, \"os-flavor-access:is_public\": True,\n            \"OS-FLV-DISABLED:disabled\": True,\n            \"properties\": \"hw:cpu_policy\u003ddedicated, hw:cpu_thread_policy\u003dprefer\"\n        },\n        {\n            \"id\": \"4\", \"name\": \"onap.cpu_topology\", \"vcpus\": 128, \"ram\": \"2MB\",\n            \"disk\": \"2G\", \"OS-FLV-EXT-DATA:ephemeral\": True,\n            \"swap\": False, \"os-flavor-access:is_public\": True,\n            \"OS-FLV-DISABLED:disabled\": True,\n            \"properties\": \"hw:cpu_sockets\u003d4, hw:cpu_cores\u003d4, hw:cpu_threads\u003d8\"\n        },",
+      "revId": "2a60a2c25b33a94d49859a83f0a9ce6127cdf452",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
