@@ -8,4 +8,5 @@ logs/*.log
 .tox
 .coverage
 htmlcov/
-
+coverage.xml
+test-reports/
