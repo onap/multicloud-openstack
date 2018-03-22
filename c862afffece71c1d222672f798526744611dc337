@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_c516bca7",
+        "filename": "newton/newton/registration/tests/test_registration.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-03-22T01:24:21Z",
+      "side": 1,
+      "message": "I think you should modify MOCK_GET_FLAVOR_RESPONSE and add many flavors.",
+      "revId": "c862afffece71c1d222672f798526744611dc337",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_650b287e",
+        "filename": "newton/newton/registration/views/registration.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-03-22T01:24:21Z",
+      "side": 1,
+      "message": "I think this is \"properties\" not extra_specs for newton. can you sure?",
+      "range": {
+        "startLine": 62,
+        "startChar": 80,
+        "endLine": 62,
+        "endChar": 91
+      },
+      "revId": "c862afffece71c1d222672f798526744611dc337",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_a51130b1",
+        "filename": "newton/newton/registration/views/registration.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-03-22T01:24:21Z",
+      "side": 1,
+      "message": "I think you should put open *.json file to _discover_flavors function. we just open one time enough.",
+      "revId": "c862afffece71c1d222672f798526744611dc337",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
