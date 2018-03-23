@@ -512,7 +512,7 @@ class Registry(APIView):
             self._logger.error(traceback.format_exc())
             return
 
-    def _update_epa_caps(self, cloud_owner, cloud_region_id, epa_caps_info):
+    def _update_epa_caps(self, cloud_owner, cloud_region_id, cloud_extra_info):
         '''
         populate cloud EPA Capabilities information into AAI
         :param cloud_owner:
@@ -522,8 +522,10 @@ class Registry(APIView):
         :return:
         '''
 
+        cloud_epa_caps_info = {}
+        cloud_epa_caps_info.update(cloud_extra_info.get("epa-caps"))
         cloud_epa_caps = {
-            'cloud-epa-caps': json.dumps(epa_caps_info),
+            'cloud-epa-caps': json.dumps(cloud_epa_caps_info),
         }
 
         if cloud_owner and cloud_region_id:
@@ -554,15 +556,13 @@ class Registry(APIView):
 
     def _discover_epa_resources(self, vimid="", viminfo=None):
         try:
-            cloud_epa_caps_info = {}
             cloud_extra_info_str = viminfo.get('cloud_extra_info')
             if cloud_extra_info_str:
                 cloud_extra_info = json.loads(cloud_extra_info_str)
-                cloud_epa_caps_info.update(cloud_extra_info.get("epa-caps"))
 
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
             ret = self._update_epa_caps(cloud_owner, cloud_region_id,
-                                        cloud_epa_caps_info)
+                                        cloud_extra_info)
             if ret != 0:
                 # failed to update image
                 self._logger.debug("failed to populate EPA CAPs info into AAI: %s, ret:%s"
