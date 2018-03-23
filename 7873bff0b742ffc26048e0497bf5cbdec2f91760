@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_f5f7dcf3",
+        "filename": "ocata/ocata/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-03-23T15:42:44Z",
+      "side": 1,
+      "message": "Is there something about ovsdpdk that requires we create the _update_epa_caps function again?",
+      "revId": "7873bff0b742ffc26048e0497bf5cbdec2f91760",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_35eea423",
+        "filename": "ocata/ocata/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-03-23T15:42:44Z",
+      "side": 1,
+      "message": "could_extra_info",
+      "range": {
+        "startLine": 249,
+        "startChar": 15,
+        "endLine": 249,
+        "endChar": 28
+      },
+      "revId": "7873bff0b742ffc26048e0497bf5cbdec2f91760",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_35878463",
+        "filename": "ocata/ocata/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-03-23T15:42:44Z",
+      "side": 1,
+      "message": "Why is this line commented out here?",
+      "revId": "7873bff0b742ffc26048e0497bf5cbdec2f91760",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_558fb075",
+        "filename": "share/newton_base/registration/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 299
+      },
+      "writtenOn": "2018-03-23T15:42:44Z",
+      "side": 1,
+      "message": "Why are you making changes to this function in this file, and why in this change that\u0027s supposed to be adding ovsdpdk specifically? I don\u0027t think we want to be making any changes to _update_epa_caps at all, that was the old way of doing things and we\u0027re setting up a new way for the new schema. That was what was discussed with Dileep I think.",
+      "revId": "7873bff0b742ffc26048e0497bf5cbdec2f91760",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
