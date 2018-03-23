@@ -240,3 +240,72 @@ class Registry(newton_registration.Registry):
         except Exception as e:
             self._logger.error(traceback.format_exc())
             return
+
+    def _update_epa_caps(self, cloud_owner, cloud_region_id, cloud_extra_info):
+        '''
+        populate cloud EPA Capabilities information into AAI
+        :param cloud_owner:
+        :param cloud_region_id:
+        :param epa_caps_info: dict of meta data about cloud-region's epa caps
+
+        :return:
+        '''
+        cloud_epa_caps_info = {}
+        cloud_epa_caps_info.update(cloud_extra_info.get("epa-caps"))
+        cloud_hpa_info = cloud_extra_info.get("ovsDpdk")
+        cloud_epa_caps = {
+            'cloud-epa-caps': json.dumps(epa_caps_info),
+        }
+
+        if cloud_hpa_info:
+            attributes = [
+                {
+                    'hpa-attribute-key': cloud_hpa_info.get("libname"),
+                    'hpa-attribute-value': cloud_hpa_info.get("libvalue"),
+                }
+            ]
+
+            hpa_capability = [
+                {
+                    'hpa-capability-id': str(uuid.uuid4()),
+                    'hpa-feature': 'ovsDpdk',
+                    'hpa-version': 'version',
+                    'architecture': 'arch',
+                    'hpa-feature-attributes': attributes
+                },
+            ]
+
+            hpa_capabilities = {
+                'hpa-capability': hpa_capability
+            }
+
+            cloud_hpa_caps = {
+                'hpa_capabilities': hpa_capabilities
+            }
+
+        if cloud_owner and cloud_region_id:
+            resource_url = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s" \
+                           % (cloud_owner, cloud_region_id)
+
+            # get cloud-region
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "GET")
+
+            #add resource-version to url
+            if retcode == 0 and content:
+                content = json.JSONDecoder().decode(content)
+                #cloud_epa_caps["resource-version"] = content["resource-version"]
+                content.update(cloud_epa_caps)
+                content.update(cloud_hpa_caps)
+                cloud_epa_caps = content
+
+            #update cloud-region
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "PUT", content=cloud_epa_caps)
+
+            self._logger.debug(
+                "update_epa_caps,vimid:%s_%s req_to_aai: update cloud-epa-caps, return %s, %s, %s"
+                % (cloud_owner,cloud_region_id, retcode, content, status_code))
+
+            return retcode
+        return 1  # unknown cloud owner,region_id

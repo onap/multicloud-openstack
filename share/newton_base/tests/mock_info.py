@@ -28,7 +28,16 @@ MOCK_VIM_INFO = {
     "vimId": "windriver-hudson-dc_RegionOne",
     'cloud_owner': 'windriver-hudson-dc',
     'cloud_region_id': 'RegionOne',
-    'cloud_extra_info': '',
+    'cloud_extra_info':
+        '{'
+        '"ovsDpdk":'
+            '{'
+            '"arch": "Intel64",'
+            '"version": "v1",'
+            '"libname": "dataProcessingAccelerationLibrary",'
+            '"libvalue": "v12.1",'
+            '}'
+        '}',
     'cloud_epa_caps':
         '{'
         '"huge_page":"true",'
