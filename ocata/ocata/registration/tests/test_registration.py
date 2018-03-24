@@ -21,6 +21,43 @@ from newton_base.tests import mock_info
 from newton_base.tests import test_base
 from newton_base.util import VimDriverUtils
 
+OCATA_MOCK_VIM_INFO = {
+    "createTime": "2017-04-01 02:22:27",
+    "domain": "Default",
+    "name": "TiS_R4",
+    "password": "admin",
+    "tenant": "admin",
+    "type": "openstack",
+    "url": "http://128.224.180.14:5000/v3",
+    "userName": "admin",
+    "vendor": "WindRiver",
+    "version": "newton",
+    "vimId": "windriver-hudson-dc_RegionOne",
+    'cloud_owner': 'windriver-hudson-dc',
+    'cloud_region_id': 'RegionOne',
+    'cloud_extra_info':
+        '{'
+        '"ovsDpdk":{'
+          '"version": "v1",'
+          '"arch": "Intel64",'
+          '"libname":"dataProcessingAccelerationLibrary",'
+          '"libvalue":"v12.1",'
+          '}'
+        '}',
+    'cloud_epa_caps':
+        '{'
+        '"huge_page":"true",'
+        '"cpu_pinning":"true",'
+        '"cpu_thread_policy":"true",'
+        '"numa_aware":"true",'
+        '"sriov":"true",'
+        '"dpdk_vswitch":"true",'
+        '"rdt":"false",'
+        '"numa_locality_pci":"true"'
+        '}',
+    'insecure': 'True',
+}
+
 MOCK_GET_TENANT_RESPONSE = {
     "projects":[
         {"id": "1", "name": "project"},
@@ -195,7 +232,7 @@ class TestFlavors(test_base.TestRequest):
             self, mock_get_vim_info, mock_get_session):
         restcall.req_to_aai = mock.Mock()
         restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_vim_info.return_value = OCATA_MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
                 "side_effect": [
