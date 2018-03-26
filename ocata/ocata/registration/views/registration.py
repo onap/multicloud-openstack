@@ -65,164 +65,163 @@ class Registry(newton_registration.Registry):
                 if (flavor['name'].find('onap.') == -1):
                     continue
 
-                properties = flavor['properties'].split(', ')
+                if (flavor['extra_specs'] == ""):
+                    continue
+
+                flavor_info['extra_specs'] = flavor['extra_specs']
+                extra_specs = flavor['extra_specs']
+                extra_arr = extra_specs.split(', ')
                 uuid4 = uuid.uuid4()
+
+                # add basic Capabilities
+                hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
+                hpa_caps.append("'hpaFeature': 'baseCapabilities', ")
+                hpa_caps.append("'hardwareArchitecture': 'generic', ")
+                hpa_caps.append("'version': 'v1', ")
+                hpa_caps.append("[")
+                hpa_caps.append("{'hpa-attribute-key':'numVirtualCpu', ")
+                hpa_caps.append("'hpa-attribute-value': {'value':'" + str(flavor_info['vcpus']) + "'}}, ")
+                hpa_caps.append("{'hpa-attribute-key':'virtualMemSize', ")
+                hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['mem']) + ", unit:'MB'}}, ")
+                hpa_caps.append("]")
+                hpa_caps.append("},")
+
+                # add local storage
+                hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
+                hpa_caps.append("'hpaFeature': 'localStorage', ")
+                hpa_caps.append("'hardwareArchitecture': 'generic', ")
+                hpa_caps.append("'version': 'v1', ")
+                hpa_caps.append("[")
+                hpa_caps.append("{'hpa-attribute-key':'diskSize', ")
+                hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['disk']) + ", unit:'MB'}}, ")
+                hpa_caps.append("{'hpa-attribute-key':'ephemeralDiskSize', ")
+                hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['OS-FLV-EXT-DATA:ephemeral']) + ", unit:'MB'}}, ")
+                hpa_caps.append("{'hpa-attribute-key':'swapMemSize', ")
+                hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['swap']) + ", unit:'MB'}}, ")
+                hpa_caps.append("]")
+                hpa_caps.append("},")
+
                 # add hpa capability cpu pinning
-                if (flavor['name'].find('onap.cpu_pinning') != -1):
+                if (extra_specs.find('hw:cpu_policy') != -1):
                     hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
                     hpa_caps.append("'hpaFeature': 'cpuPinning', ")
                     hpa_caps.append("'hardwareArchitecture': 'generic', ")
                     hpa_caps.append("'version': 'v1', ")
-
-                    if len(properties):
-                        flavor_info['flavor-properties'] = flavor['properties']
-                        hpa_caps.append("[")
-                        for p in range(len(properties)):
-                            value = properties[p].split('=')[1]
-                            if (properties[p].find("hw:cpu_policy") != -1) :
-                                hpa_caps.append("{'hpa-attribute-key':'logicalCpuThreadPinningPolicy', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
-                            if (properties[p].find("hw:cpu_thread_policy") != -1) :
-                                hpa_caps.append("{'hpa-attribute-key':'logicalCpuPinningPolicy', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
-                        hpa_caps.append("]")
+                    hpa_caps.append("[")
+                    for p in range(len(extra_arr)):
+                        if (extra_arr[p].find("hw:cpu_policy") != -1) :
+                            value = extra_arr[p].split('=')[1]
+                            hpa_caps.append("{'hpa-attribute-key':'logicalCpuThreadPinningPolicy', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
+                        if (extra_arr[p].find("hw:cpu_thread_policy") != -1) :
+                            value = extra_arr[p].split('=')[1]
+                            hpa_caps.append("{'hpa-attribute-key':'logicalCpuPinningPolicy', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
+                    hpa_caps.append("]")
                     hpa_caps.append("},")
 
-                elif (flavor['name'].find('onap.cpu_topology') != -1):
+                # add cpu topology
+                if (extra_specs.find('hw:cpu_sockets') != -1):
                     hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
                     hpa_caps.append("'hpaFeature': 'cpuTopology', ")
                     hpa_caps.append("'hardwareArchitecture': 'generic', ")
                     hpa_caps.append("'version': 'v1', ")
-
-                    if len(properties):
-                        flavor_info['flavor-properties'] = flavor['properties']
-                        hpa_caps.append("[")
-                        for p in range(len(properties)):
-                            value = properties[p].split('=')[1]
-                            if (properties[p].find("hw:cpu_sockets") != -1) :
-                                hpa_caps.append("{'hpa-attribute-key':'numCpuSockets', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
-                            if (properties[p].find("hw:cpu_cores") != -1) :
-                                hpa_caps.append("{'hpa-attribute-key':'numCpuCores', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
-                            if (properties[p].find("hw:cpu_threads") != -1) :
-                                hpa_caps.append("{'hpa-attribute-key':'numCpuThreads', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
-                        hpa_caps.append("]")
-                    hpa_caps.append("},")
-
-                elif (flavor['name'].find('onap.base_capabilities') != -1):
-                    hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
-                    hpa_caps.append("'hpaFeature': 'baseCapabilities', ")
-                    hpa_caps.append("'hardwareArchitecture': 'generic', ")
-                    hpa_caps.append("'version': 'v1', ")
-
                     hpa_caps.append("[")
-                    hpa_caps.append("{'hpa-attribute-key':'numVirtualCpu', ")
-                    hpa_caps.append("'hpa-attribute-value': {'value':'" + str(flavor_info['vcpus']) + "'}}, ")
-                    hpa_caps.append("{'hpa-attribute-key':'virtualMemSize', ")
-                    hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['mem']) + ", unit:'MB'}}, ")
+                    for p in range(len(extra_arr)):
+                        if (extra_arr[p].find("hw:cpu_sockets") != -1) :
+                            value = extra_specs[p].split('=')[1]
+                            hpa_caps.append("{'hpa-attribute-key':'numCpuSockets', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
+                        if (extra_arr[p].find("hw:cpu_cores") != -1) :
+                            value = extra_specs[p].split('=')[1]
+                            hpa_caps.append("{'hpa-attribute-key':'numCpuCores', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
+                        if (extra_arr[p].find("hw:cpu_threads") != -1) :
+                            value = extra_specs[p].split('=')[1]
+                            hpa_caps.append("{'hpa-attribute-key':'numCpuThreads', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
                     hpa_caps.append("]")
                     hpa_caps.append("},")
 
-                elif (flavor['name'].find('onap.local_storage') != -1):
-                    hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
-                    hpa_caps.append("'hpaFeature': 'localStorage', ")
-                    hpa_caps.append("'hardwareArchitecture': 'generic', ")
-                    hpa_caps.append("'version': 'v1', ")
-
-                    hpa_caps.append("[")
-                    hpa_caps.append("{'hpa-attribute-key':'diskSize', ")
-                    hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['disk']) + ", unit:'MB'}}, ")
-                    hpa_caps.append("{'hpa-attribute-key':'ephemeralDiskSize', ")
-                    hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['OS-FLV-EXT-DATA:ephemeral']) + ", unit:'MB'}}, ")
-                    hpa_caps.append("{'hpa-attribute-key':'swapMemSize', ")
-                    hpa_caps.append("'hpa-attribute-value': {'value':" + str(flavor_info['swap']) + ", unit:'MB'}}, ")
-                    hpa_caps.append("]")
-                    hpa_caps.append("},")
-
-                elif (flavor['name'].find('onap.numa') != -1):
+                # add numa
+                if (extra_specs.find('hw:numa_nodes') != -1):
                     hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
                     hpa_caps.append("'hpaFeature': 'numa', ")
                     hpa_caps.append("'hardwareArchitecture': 'generic', ")
                     hpa_caps.append("'version': 'v1', ")
-
-                    if len(properties):
-                        flavor_info['flavor-properties'] = flavor['properties']
-                        hpa_caps.append("[")
-                        for p in range(len(properties)):
-                            p_arr = properties[p].split('=')
+                    hpa_caps.append("[")
+                    for p in range(len(extra_arr)):
+                        if (extra_arr[p].find("hw:numa_nodes") != -1) :
+                            p_arr = extra_arr[p].split('=')
+                            value = p_arr[1]
+                            hpa_caps.append("{'hpa-attribute-key':'numNodes', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
+                        if (extra_arr[p].find("hw:numa_cpus") != -1) :
+                            p_arr = extra_arr[p].split('=')
                             value = p_arr[1]
                             index = p_arr[0].split('.')[1]
-                            if (properties[p].find("hw:numa_nodes") != -1) :
-                                hpa_caps.append("{'hpa-attribute-key':'numNodes', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
-                            if (properties[p].find("hw:numa_cpus") != -1) :
-                                hpa_caps.append("{'hpa-attribute-key':'numaCpus-" + index + "', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'[" + value + "]'}}, ")
-                            if (properties[p] == ("hw:numa_mem") != -1) :
-                                hpa_caps.append("{'hpa-attribute-key':'numaMem-"+ index +"', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + value + ", unit:'MB'}}, ")
-                        hpa_caps.append("]")
+                            hpa_caps.append("{'hpa-attribute-key':'numaCpus-" + index + "', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'[" + value + "]'}}, ")
+                        if (extra_arr[p] == ("hw:numa_mem") != -1) :
+                            p_arr = extra_arr[p].split('=')
+                            value = p_arr[1]
+                            index = p_arr[0].split('.')[1]
+                            hpa_caps.append("{'hpa-attribute-key':'numaMem-"+ index +"', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + value + ", unit:'MB'}}, ")
+                    hpa_caps.append("]")
                     hpa_caps.append("},")
 
-                elif (flavor['name'].find('onap.huge_page') != -1):
+                # add huge page
+                if (extra_specs.find('hw:mem_page_size') != -1):
                     hpa_caps.append("{'hpaCapabilityId': '" + str(uuid4) + "', ")
                     hpa_caps.append("'hpaFeature': 'hugePages', ")
                     hpa_caps.append("'hardwareArchitecture': 'generic', ")
                     hpa_caps.append("'version': 'v1', ")
-
-                    if len(properties):
-                        flavor_info['flavor-properties'] = flavor['properties']
-                        hpa_caps.append("[")
-                        values = flavor['name'].split('_')
-                        for p in range(len(properties)):
-                            if (properties[p] == "hw:mem_page_size") :
-                                hpa_caps.append("{'hpa-attribute-key':'memoryPageSize', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':'" + values[2] + "'}}, ")
-                        hpa_caps.append("]")
+                    hpa_caps.append("[")
+                    for p in range(len(extra_arr)):
+                        if (extra_arr[p] == "hw:mem_page_size") :
+                            value = extra_specs[p].split('=')[1]
+                            hpa_caps.append("{'hpa-attribute-key':'memoryPageSize', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + value + "'}}, ")
+                    hpa_caps.append("]")
                     hpa_caps.append("},")
 
-                elif (flavor['name'].find('onap.iax') != -1):
+                # add instruction set externsions
+                if (extra_specs.find('w:capabilities:cpu_info:features') != -1):
                     hpa_caps.append("{'hpaCapabilityId': '" + str(uuid4) + "', ")
                     hpa_caps.append("'hpaFeature': 'instructionSetExtensions', ")
                     hpa_caps.append("'hardwareArchitecture': 'Intel64', ")
                     hpa_caps.append("'version': 'v1', ")
-
-                    if len(properties):
-                        flavor_info['flavor-properties'] = flavor['properties']
-                        hpa_caps.append("[")
-                        value = flavor['properties'].split('=')[1]
-                        for p in range(len(properties)):
-                            if (properties[p].find("hw:capabilities:cpu_info:features") != -1) :
-                                hpa_caps.append("{'hpa-attribute-key':'instructionSetExtensions', ")
-                                hpa_caps.append("'hpa-attribute-value': {'value':[" + value + "]}}, ")
-                        hpa_caps.append("]")
+                    hpa_caps.append("[")
+                    for p in range(len(extra_arr)):
+                        if (extra_arr[p].find("hw:capabilities:cpu_info:features") != -1) :
+                            value = extra_arr.split('=')[1]
+                            hpa_caps.append("{'hpa-attribute-key':'instructionSetExtensions', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':[" + value + "]}}, ")
+                    hpa_caps.append("]")
                     hpa_caps.append("},")
 
-                elif (flavor['name'].find('onap.pci_passthrough') != -1) :
+                # add pci device passthrough
+                if (extra_specs.find('pci_passthrough:alias') != -1) :
                     hpa_caps.append("{'hpaCapabilityId': '" + str(uuid4) + "', ")
                     hpa_caps.append("'hpaFeature': 'pciPassthrough', ")
                     hpa_caps.append("'version': 'v1', ")
-                    if len(properties):
-                        values = properties[0].split('-')
-                        hpa_caps.append("'hardwareArchitecture': '" + values[2] + "', ")
-
-                        flavor_info['flavor-properties'] = flavor['properties']
-                        hpa_caps.append("[")
-                        value = values[4].split(':')
-                        hpa_caps.append("{'hpa-attribute-key':'pciCount', ")
-                        hpa_caps.append("'hpa-attribute-value': {'value':'" + value[1] + "'}}, ")
-                        hpa_caps.append("{'hpa-attribute-key':'pciVendorId', ")
-                        hpa_caps.append("'hpa-attribute-value': {'value':'" + values[3] + "'}}, ")
-                        hpa_caps.append("{'hpa-attribute-key':'pciDeviceId', ")
-                        hpa_caps.append("'hpa-attribute-value': {'value':'" + value[0] + "'}}, ")
-                        hpa_caps.append("]")
+                    hpa_caps.append("[")
+                    for p in range(len(extra_arr)):
+                        if (extra_arr[p] == "pci_passthrough:alias") :
+                            values = extra_arr[0].split('-')
+                            value = values[4].split(':')
+                            hpa_caps.append("{'hpa-attribute-key':'pciCount', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + value[1] + "'}}, ")
+                            hpa_caps.append("{'hpa-attribute-key':'pciVendorId', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + values[3] + "'}}, ")
+                            hpa_caps.append("{'hpa-attribute-key':'pciDeviceId', ")
+                            hpa_caps.append("'hpa-attribute-value': {'value':'" + value[0] + "'}}, ")
+                            hpa_caps.append("]")
                     hpa_caps.append("},")
+                    hpa_caps.append("]")
+                    hpa_caps.append("'hardwareArchitecture': '" + values[2] + "', ")
 
-                else:
-                    self._logger.info("can not support this flavor type")
-                hpa_caps.append("]")
                 str_hpa_caps = ''
                 flavor_info['hpa_capabilities'] = str_hpa_caps.join(hpa_caps)
                 self._logger.debug("flavor_info: %s" % flavor_info)
