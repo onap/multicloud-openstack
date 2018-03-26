@@ -38,8 +38,8 @@ class CapacityCheck(APIView):
         self._logger = logger
 
     def post(self, request, vimid=""):
-        self._logger.info("CapacityCheck--post::vimid, data> %s, %s" % (vimid, request.data))
-        self._logger.debug("CapacityCheck--post::META> %s" % request.META)
+        self._logger.info("vimid, data> %s, %s" % (vimid, request.data))
+        self._logger.debug("META> %s" % request.META)
 
         hasEnoughResource = False
         try :
@@ -58,22 +58,31 @@ class CapacityCheck(APIView):
 
             #get limit for this tenant
             req_resouce = "/limits"
+            self._logger.info("check limits> URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=service)
+            self._logger.info("check limits> status:%s" % resp.status_code)
             content = resp.json()
             compute_limits = content['limits']['absolute']
+            self._logger.debug("check limits> resp data:%s" % content)
 
             #get total resource of this cloud region
             req_resouce = "/os-hypervisors/statistics"
+            self._logger.info("check os-hypervisors statistics> URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=service)
+            self._logger.info("check os-hypervisors statistics> status:%s" % resp.status_code)
             content = resp.json()
             hypervisor_statistics = content['hypervisor_statistics']
+            self._logger.debug("check os-hypervisors statistics> resp data:%s" % content)
 
             #get storage limit for this tenant
             service['service_type'] = 'volumev2'
             req_resouce = "/limits"
+            self._logger.info("check volumev2 limits> URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=service)
+            self._logger.info("check volumev2> status:%s" % resp.status_code)
             content = resp.json()
             storage_limits = content['limits']['absolute']
+            self._logger.debug("check volumev2> resp data:%s" % content)
 
             # compute actual available resource for this tenant
             remainVCPU = compute_limits['maxTotalCores'] - compute_limits['totalCoresUsed']
@@ -102,8 +111,11 @@ class CapacityCheck(APIView):
             else:
                 hasEnoughResource = True
 
+            self._logger.info("RESP with data> result:%s" % hasEnoughResource)
             return Response(data={'result': hasEnoughResource}, status=status.HTTP_200_OK)
         except VimDriverNewtonException as e:
+            self._logger.error("Plugin exception> status:%s,error:%s"
+                                  % (e.status_code, e.content))
             return Response(data={'result': hasEnoughResource,'error': e.content}, status=e.status_code)
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
