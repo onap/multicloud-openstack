@@ -127,7 +127,7 @@ class Registry(newton_registration.Registry):
         # PCI passthrough capabilities
         caps_dict = self._get_pci_passthrough_capabilities(extra_specs)
         if len(caps_dict) > 0:
-            self._logger.debug("pxi_passthrough_capabilities_info: %s" % caps_dict)
+            self._logger.debug("pci_passthrough_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
         
         return hpa_caps
