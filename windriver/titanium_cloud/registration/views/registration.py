@@ -124,6 +124,12 @@ class Registry(newton_registration.Registry):
             self._logger.debug("instruction_set_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
         
+        # PCI passthrough capabilities
+        caps_dict = self._get_pci_passthrough_capabilities(extra_specs)
+        if len(caps_dict) > 0:
+            self._logger.debug("pxi_passthrough_capabilities_info: %s" % caps_dict)
+            hpa_caps.append(caps_dict)
+        
         return hpa_caps
 
     def _get_hpa_basic_capabilities(self, flavor):
@@ -262,3 +268,26 @@ class Registry(newton_registration.Registry):
                                                        'hpa-attribute-value':{'value': str(extra_specs['hw:capabilities:cpu_info:features'])}})
         return instruction_capability
 
+    def _get_pci_passthrough_capabilities(self, extra_specs):
+        instruction_capability = {}
+        feature_uuid = uuid.uuid4()
+
+        if extra_specs.has_key('pci_passthrough:alias'):
+            value1 = extra_specs['pci_passthrough:alias'].split(':')
+            value2 = value1[0].split('-')
+
+            instruction_capability['hpaCapabilityID'] = str(feature_uuid)
+            instruction_capability['hpaFeature'] = 'pciePassthrough'
+            instruction_capability['hardwareArchitecture'] = str(value2[2])
+            instruction_capability['version'] = 'v1'
+            
+  
+            instruction_capability['attributes'] = []
+            instruction_capability['attributes'].append({'hpa-attribute-key': 'pciCount',
+                                                       'hpa-attribute-value':{'value': str(value1[1])}})
+            instruction_capability['attributes'].append({'hpa-attribute-key': 'pciVendorId',
+                                                       'hpa-attribute-value':{'value': str(value2[3])}})
+            instruction_capability['attributes'].append({'hpa-attribute-key': 'pciDeviceId',
+                                                       'hpa-attribute-value':{'value': str(value2[4])}})
+        
+        return instruction_capability
