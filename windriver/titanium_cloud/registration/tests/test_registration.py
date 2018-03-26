@@ -53,7 +53,8 @@ MOCK_GET_FLAVOR_EXTRA_SPECS_RESPONSE = {
       "hw:cpu_thread_policy" : "prefer",
       "hw:cpu_sockets" : "2",
       "hw:cpu_cores" : "4",
-      "hw:cpu_threads" : "16"
+      "hw:cpu_threads" : "16",
+      "hw:mem_page_size" : "large"
    }
 }
 

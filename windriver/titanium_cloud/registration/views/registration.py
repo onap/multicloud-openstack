@@ -100,6 +100,12 @@ class Registry(newton_registration.Registry):
             self._logger.debug("cputopology_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
+        # hugepages capabilities
+        caps_dict = self._get_hugepages_capabilities(extra_specs)
+        if len(caps_dict) > 0:
+            self._logger.debug("hugepages_capabilities_info: %s" % caps_dict)
+            hpa_caps.append(caps_dict)
+
         return hpa_caps
 
     def _get_hpa_basic_capabilities(self, flavor):
@@ -162,3 +168,17 @@ class Registry(newton_registration.Registry):
 
         return cputopology_capability
 
+    def _get_hugepages_capabilities(self, extra_specs):
+        hugepages_capability = {}
+        feature_uuid = uuid.uuid4()
+
+        if extra_specs.has_key('hw:mem_page_size'):
+            hugepages_capability['hpaCapabilityID'] = str(feature_uuid)
+            hugepages_capability['hpaFeature'] = 'hugePages'
+            hugepages_capability['hardwareArchitecture'] = 'generic'
+            hugepages_capability['version'] = 'v1'
+
+            hugepages_capability['attributes'] = []
+            hugepages_capability['attributes'].append({'hpa-attribute-key': 'memoryPageSize',
+                                                       'hpa-attribute-value':{'value': str(extra_specs['hw:mem_page_size'])}})
+        return hugepages_capability
