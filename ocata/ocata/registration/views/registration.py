@@ -38,6 +38,11 @@ class Registry(newton_registration.Registry):
     def _discover_flavors(self, vimid="", session=None, viminfo=None):
         try:
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            cloud_extra_info_str = viminfo.get('cloud_extra_info')
+            if cloud_extra_info_str:
+                cloud_extra_info = json.loads(cloud_extra_info_str)
+                cloud_dpdk_info = cloud_extra_info.get("ovsDpdk")
+
             hpa_caps = []
             hpa_caps.append("[")
             for flavor in self._get_list_resources(
@@ -72,6 +77,17 @@ class Registry(newton_registration.Registry):
                 extra_specs = flavor['extra_specs']
                 extra_arr = extra_specs.split(', ')
                 uuid4 = uuid.uuid4()
+
+                # add ovs dpdk
+                hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
+                hpa_caps.append("'hpaFeature': 'ovsDpdk', ")
+                hpa_caps.append("'hardwareArchitecture': '" + cloud_dpdk_info.get("arch") + "', ")
+                hpa_caps.append("'version': '" + cloud_dpdk_info.get("version") + "', ")
+                hpa_caps.append("[")
+                hpa_caps.append("{'hpa-attribute-key':'"+ cloud_dpdk_info.get("libname") + "', ")
+                hpa_caps.append("'hpa-attribute-value': {'value':'" + cloud_dpdk_info.get("libvalue") + "'}}, ")
+                hpa_caps.append("]")
+                hpa_caps.append("},")
 
                 # add basic Capabilities
                 hpa_caps.append("{'hpaCapabilityID': '" + str(uuid4) + "', ")
