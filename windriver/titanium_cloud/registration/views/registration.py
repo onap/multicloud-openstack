@@ -112,6 +112,12 @@ class Registry(newton_registration.Registry):
             self._logger.debug("numa_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
+        # storage capabilities
+        caps_dict = self._get_storage_capabilities(flavor)
+        if len(caps_dict) > 0:
+            self._logger.debug("storage_capabilities_info: %s" % caps_dict)
+            hpa_caps.append(caps_dict)
+        
         return hpa_caps
 
     def _get_hpa_basic_capabilities(self, flavor):
@@ -217,3 +223,20 @@ class Registry(newton_registration.Registry):
 
         return numa_capability
 
+    def _get_storage_capabilities(self, flavor):
+        storage_capability = {}
+        feature_uuid = uuid.uuid4()
+
+        storage_capability['hpaCapabilityID'] = str(feature_uuid)
+        storage_capability['hpaFeature'] = 'localStorage'
+        storage_capability['hardwareArchitecture'] = 'generic'
+        storage_capability['version'] = 'v1'
+
+        storage_capability['attributes'] = []
+        storage_capability['attributes'].append({'hpa-attribute-key': 'diskSize',
+                                                       'hpa-attribute-value':{'value': str(flavor['disk']), 'unit':'GB'}})
+        storage_capability['attributes'].append({'hpa-attribute-key': 'swapMemSize',
+                                                       'hpa-attribute-value':{'value': str(flavor['swap']), 'unit':'MB'}})
+        storage_capability['attributes'].append({'hpa-attribute-key': 'ephemeralDiskSize',
+                                                       'hpa-attribute-value':{'value': str(flavor['OS-FLV-EXT-DATA:ephemeral']), 'unit':'GB'}})
+        return storage_capability
