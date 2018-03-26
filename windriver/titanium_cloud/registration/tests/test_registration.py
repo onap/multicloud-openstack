@@ -45,6 +45,13 @@ MOCK_GET_FLAVOR_RESPONSE = {
     ]
 }
 
+MOCK_GET_FLAVOR_EXTRA_SPECS_RESPONSE = {
+   "extra_specs" : {
+      "aggregate_instance_extra_specs:storage" : "local_image",
+      "capabilities:cpu_info:model" : "Haswell"
+   }
+}
+
 MOCK_GET_IMAGE_RESPONSE = {
     "images": [
         {
@@ -145,6 +152,8 @@ class TestFlavors(test_base.TestRequest):
                 "side_effect": [
                     self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
                     self._get_mock_response(MOCK_GET_FLAVOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_FLAVOR_EXTRA_SPECS_RESPONSE),
+                    self._get_mock_response(MOCK_GET_FLAVOR_EXTRA_SPECS_RESPONSE),
                     self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
