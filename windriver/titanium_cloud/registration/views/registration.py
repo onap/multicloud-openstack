@@ -106,6 +106,12 @@ class Registry(newton_registration.Registry):
             self._logger.debug("hugepages_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
+        # numa capabilities
+        caps_dict = self._get_numa_capabilities(extra_specs)
+        if len(caps_dict) > 0:
+            self._logger.debug("numa_capabilities_info: %s" % caps_dict)
+            hpa_caps.append(caps_dict)
+
         return hpa_caps
 
     def _get_hpa_basic_capabilities(self, flavor):
@@ -182,3 +188,32 @@ class Registry(newton_registration.Registry):
             hugepages_capability['attributes'].append({'hpa-attribute-key': 'memoryPageSize',
                                                        'hpa-attribute-value':{'value': str(extra_specs['hw:mem_page_size'])}})
         return hugepages_capability
+
+    def _get_numa_capabilities(self, extra_specs):
+        numa_capability = {}
+        feature_uuid = uuid.uuid4()
+
+        if extra_specs.has_key('hw:numa_nodes'):
+            numa_capability['hpaCapabilityID'] = str(feature_uuid)
+            numa_capability['hpaFeature'] = 'numa'
+            numa_capability['hardwareArchitecture'] = 'generic'
+            numa_capability['version'] = 'v1'
+
+            numa_capability['attributes'] = []
+            numa_capability['attributes'].append({'hpa-attribute-key': 'numaNodes',
+                                                  'hpa-attribute-value':{'value': str(extra_specs['hw:numa_nodes'])}})
+
+            for num in range(0, int(extra_specs['hw:numa_nodes'])):
+                numa_cpu_node = "hw:numa_cpus.%s" % num
+                numa_mem_node = "hw:numa_mem.%s" % num
+                numacpu_key = "numaCpu-%s" % num
+                numamem_key = "numaMem-%s" % num
+
+                if extra_specs.has_key(numa_cpu_node) and extra_specs.has_key(numa_mem_node):
+                    numa_capability['attributes'].append({'hpa-attribute-key': numacpu_key,
+                                                          'hpa-attribute-value':{'value': str(extra_specs[numa_cpu_node])}})
+                    numa_capability['attributes'].append({'hpa-attribute-key': numamem_key,
+                                                          'hpa-attribute-value':{'value': str(extra_specs[numa_mem_node]),'unit':'MB'}})
+
+        return numa_capability
+

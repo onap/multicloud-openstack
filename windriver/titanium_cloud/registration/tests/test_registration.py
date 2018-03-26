@@ -54,7 +54,13 @@ MOCK_GET_FLAVOR_EXTRA_SPECS_RESPONSE = {
       "hw:cpu_sockets" : "2",
       "hw:cpu_cores" : "4",
       "hw:cpu_threads" : "16",
-      "hw:mem_page_size" : "large"
+      "hw:mem_page_size" : "large",
+      "hw:numa_nodes" : "2",
+      "hw:numa_cpus.0" : "0,1",
+      "hw:numa_cpus.1" : "2,3,4,5",
+      "hw:numa_mem.0" : "2048",
+      "hw:numa_mem.1" : "2048"
+      
    }
 }
 
