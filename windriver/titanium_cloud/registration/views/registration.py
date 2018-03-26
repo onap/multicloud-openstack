@@ -118,6 +118,12 @@ class Registry(newton_registration.Registry):
             self._logger.debug("storage_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
         
+        # CPU instruction set extension capabilities
+        caps_dict = self._get_instruction_set_capabilities(flavor)
+        if len(caps_dict) > 0:
+            self._logger.debug("instruction_set_capabilities_info: %s" % caps_dict)
+            hpa_caps.append(caps_dict)
+        
         return hpa_caps
 
     def _get_hpa_basic_capabilities(self, flavor):
@@ -240,3 +246,19 @@ class Registry(newton_registration.Registry):
         storage_capability['attributes'].append({'hpa-attribute-key': 'ephemeralDiskSize',
                                                        'hpa-attribute-value':{'value': str(flavor['OS-FLV-EXT-DATA:ephemeral']), 'unit':'GB'}})
         return storage_capability
+
+    def _get_instruction_set_capabilities(self, extra_specs):
+        instruction_capability = {}
+        feature_uuid = uuid.uuid4()
+
+        if extra_specs.has_key('hw:capabilities:cpu_info:features'):
+            instruction_capability['hpaCapabilityID'] = str(feature_uuid)
+            instruction_capability['hpaFeature'] = 'instructionSetExtensions'
+            instruction_capability['hardwareArchitecture'] = 'Intel64'
+            instruction_capability['version'] = 'v1'
+
+            instruction_capability['attributes'] = []
+            instruction_capability['attributes'].append({'hpa-attribute-key': 'instructionSetExtensions',
+                                                       'hpa-attribute-value':{'value': str(extra_specs['hw:capabilities:cpu_info:features'])}})
+        return instruction_capability
+
