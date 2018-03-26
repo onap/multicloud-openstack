@@ -25,6 +25,7 @@ from keystoneauth1.exceptions import HttpError
 
 from newton_base.util import VimDriverUtils
 from ocata.proxy.views.identityV3 import Tokens
+from newton_base.tests import mock_info
 
 mock_viminfo = {
     "createTime": "2017-04-01 02:22:27",
@@ -532,3 +533,45 @@ class TestIdentityService(unittest.TestCase):
 
         self.assertTrue(response['X-Subject-Token'] == mock_token_id)
         self.assertTrue(context['token']['catalog'] != None)
+
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_auth_state')
+    @mock.patch.object(VimDriverUtils, 'update_token_cache')
+    def test_tokensV2(self, mock_update_token_cache, mock_get_auth_state,
+                   mock_get_session, mock_get_vim_info):
+        '''
+                test API: get token
+        :param mock_update_token_cache:
+        :param mock_get_auth_state:
+        :param mock_get_session:
+        :param mock_get_vim_info:
+        :return:
+        '''
+
+        # mock VimDriverUtils APIs
+        mock_session_specs = ["get"]
+        mock_session_get_response = {'status': 200}
+        mock_session = mock.Mock(name='mock_session',
+                                 spec=mock_session_specs)
+        mock_session.get.return_value = mock_session_get_response
+
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO 
+        mock_get_session.return_value = mock_session
+        mock_get_auth_state.return_value = json.dumps(mock_auth_state)
+        mock_update_token_cache.return_value = mock_info.MOCK_TOKEN_ID
+
+        # simulate client to make the request
+        data = {}
+        response = self.client.post(
+            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/identity/v2.0/tokens",
+            data=data, format='json')
+        self.failUnlessEqual(status.HTTP_200_OK,
+                             response.status_code)
+        context = response.json()
+
+        self.assertIsNotNone(context['access']['token'])
+        self.assertEqual(mock_info.MOCK_TOKEN_ID,
+                         context['access']['token']["id"])
+        self.assertIsNotNone(context['access']['serviceCatalog'])
+
