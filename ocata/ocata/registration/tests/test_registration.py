@@ -72,68 +72,42 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
             "swap": True, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}],
-            "properties": "hw:cpu_policy, hw:cpu_thread_policy"
+            "extra_specs": "hw:cpu_policy, hw:cpu_thread_policy"
          },
         {
             "id": "2", "name": "mini", "vcpus": 2, "ram": "2MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
-            "properties": "hw:cpu_policy, hw:cpu_thread_policy"
+            "extra_specs": "hw:cpu_policy, hw:cpu_thread_policy"
         },
         {
-            "id": "3", "name": "onap.cpu_pinning", "vcpus": 2, "ram": "2MB",
+            "id": "3", "name": "onap.micro", "vcpus": 2, "ram": "2MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
-            "properties": "hw:cpu_policy=dedicated, hw:cpu_thread_policy=prefer"
+            "extra_specs": "hw:cpu_policy=dedicated, hw:cpu_thread_policy=prefer, hw:cpu_policy, hw:cpu_thread_policy"
         },
         {
-            "id": "4", "name": "onap.cpu_topology", "vcpus": 128, "ram": "2MB",
+            "id": "4", "name": "onap.mini", "vcpus": 128, "ram": "2MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
-            "properties": "hw:cpu_sockets=4, hw:cpu_cores=4, hw:cpu_threads=8"
+            "properties": "hw:cpu_sockets=4, hw:cpu_cores=4, hw:cpu_threads=8, hw:huge_page_size=2MB"
         },
         {
-            "id": "5", "name": "onap.base_capabilities", "vcpus": 2, "ram": "2MB",
-            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
-            "swap": False, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True,
-        },
-        {
-            "id": "6", "name": "onap.numa", "vcpus": 6, "ram": "6144MB",
+            "id": "5", "name": "onap.tiny", "vcpus": 6, "ram": "6144MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
             "properties": "hw:numa_nodes=2, hw:numa_cpus.0=0,1, hw:numa_mem.0=2048, hw:numa_cpus.1=2,3,4,5 hw:numa_mem.1=4096"
         },
         {
-            "id": "7", "name": "onap.local_storage", "vcpus": 2, "ram": "2MB",
-            "disk": "4096", "OS-FLV-EXT-DATA:ephemeral": "163840",
-            "swap": "8192", "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True,
-        },
-        {
-            "id": "8", "name": "onap.huge_page", "vcpus": 2, "ram": "2MB",
+            "id": "6", "name": "onap.mtiny", "vcpus": 2, "ram": "2MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True,
-            "properties": "hw:huge_page_size"
-        },
-        {
-            "id": "9", "name": "onap.iax", "vcpus": 2, "ram": "2MB",
-            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
-            "swap": False, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True,
-            "properties": "hw:capabilities:cpu_info:features=aes"
-        },
-        {
-            "id": "10", "name": "onap.pci_passthrough", "vcpus": 2, "ram": "2MB",
-            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
-            "swap": False, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True,
-            "properties": "pci_passthrough:alias=sriov-pf-intel-8086-10fb:1"
+            "properties": "hw:capabilities:cpu_info:features=aes, pci_passthrough:alias=sriov-pf-intel-8086-10fb:1"
         },
     ]
 }
