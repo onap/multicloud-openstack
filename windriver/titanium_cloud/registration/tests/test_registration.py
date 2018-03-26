@@ -59,8 +59,9 @@ MOCK_GET_FLAVOR_EXTRA_SPECS_RESPONSE = {
       "hw:numa_cpus.0" : "0,1",
       "hw:numa_cpus.1" : "2,3,4,5",
       "hw:numa_mem.0" : "2048",
-      "hw:numa_mem.1" : "2048"
-      
+      "hw:numa_mem.1" : "2048",
+      "hw:capabilities:cpu_info:features":"avx,acpi"
+
    }
 }
 
