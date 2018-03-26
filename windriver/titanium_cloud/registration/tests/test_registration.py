@@ -48,7 +48,9 @@ MOCK_GET_FLAVOR_RESPONSE = {
 MOCK_GET_FLAVOR_EXTRA_SPECS_RESPONSE = {
    "extra_specs" : {
       "aggregate_instance_extra_specs:storage" : "local_image",
-      "capabilities:cpu_info:model" : "Haswell"
+      "capabilities:cpu_info:model" : "Haswell",
+      "hw:cpu_policy" : "dedicated",
+      "hw:cpu_thread_policy" : "prefer"
    }
 }
 

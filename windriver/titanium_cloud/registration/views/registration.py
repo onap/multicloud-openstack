@@ -40,7 +40,7 @@ class Registry(newton_registration.Registry):
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
             for flavor in self._get_list_resources(
                     "/flavors/detail", "compute", session, viminfo, vimid,
-                    "flavors"): 
+                    "flavors"):
                 flavor_info = {
                     'flavor-id': flavor['id'],
                     'flavor-name': flavor['name'],
@@ -88,13 +88,19 @@ class Registry(newton_registration.Registry):
             self._logger.debug("basic_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
+        # cpupining capabilities
+        caps_dict = self._get_cpupining_capabilities(extra_specs)
+        if len(caps_dict) > 0:
+            self._logger.debug("cpupining_capabilities_info: %s" % caps_dict)
+            hpa_caps.append(caps_dict)
+
         return hpa_caps
 
     def _get_hpa_basic_capabilities(self, flavor):
         basic_capability = {}
         feature_uuid = uuid.uuid4()
-        basic_capability['hpaCapabilityID'] = str(feature_uuid)
 
+        basic_capability['hpaCapabilityID'] = str(feature_uuid)
         basic_capability['hpaFeature'] = 'basicCapabilities'
         basic_capability['hardwareArchitecture'] = 'generic'
         basic_capability['version'] = 'v1'
@@ -106,4 +112,24 @@ class Registry(newton_registration.Registry):
                                                'hpa-attribute-value': {'value':str(flavor['ram']), 'unit':'MB'}})
 
         return basic_capability
+
+    def _get_cpupining_capabilities(self, extra_specs):
+        cpupining_capability = {}
+        feature_uuid = uuid.uuid4()
+
+        if extra_specs.has_key('hw:cpu_policy') or extra_specs.has_key('hw:cpu_thread_policy'):
+            cpupining_capability['hpaCapabilityID'] = str(feature_uuid)
+            cpupining_capability['hpaFeature'] = 'cpuPining'
+            cpupining_capability['hardwareArchitecture'] = 'generic'
+            cpupining_capability['version'] = 'v1'
+
+            cpupining_capability['attributes'] = []
+            if extra_specs.has_key('hw:cpu_thread_policy'):
+                cpupining_capability['attributes'].append({'hpa-attribute-key': 'logicalCpuThreadPinningPolicy',
+                                                           'hpa-attribute-value':{'value': str(extra_specs['hw:cpu_thread_policy'])}})
+            if extra_specs.has_key('hw:cpu_policy'):
+                cpupining_capability['attributes'].append({'hpa-attribute-key':'logicalCpuPinningPolicy',
+                                                           'hpa-attribute-value': {'value':str(extra_specs['hw:cpu_policy'])}})
+
+        return cpupining_capability
 
