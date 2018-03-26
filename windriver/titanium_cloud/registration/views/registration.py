@@ -94,6 +94,12 @@ class Registry(newton_registration.Registry):
             self._logger.debug("cpupining_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
+        # cputopology capabilities
+        caps_dict = self._get_cputopology_capabilities(extra_specs)
+        if len(caps_dict) > 0:
+            self._logger.debug("cputopology_capabilities_info: %s" % caps_dict)
+            hpa_caps.append(caps_dict)
+
         return hpa_caps
 
     def _get_hpa_basic_capabilities(self, flavor):
@@ -132,4 +138,27 @@ class Registry(newton_registration.Registry):
                                                            'hpa-attribute-value': {'value':str(extra_specs['hw:cpu_policy'])}})
 
         return cpupining_capability
+
+    def _get_cputopology_capabilities(self, extra_specs):
+        cputopology_capability = {}
+        feature_uuid = uuid.uuid4()
+
+        if extra_specs.has_key('hw:cpu_sockets') or extra_specs.has_key('hw:cpu_cores') or extra_specs.has_key('hw:cpu_threads'):
+            cputopology_capability['hpaCapabilityID'] = str(feature_uuid)
+            cputopology_capability['hpaFeature'] = 'cpuTopology'
+            cputopology_capability['hardwareArchitecture'] = 'generic'
+            cputopology_capability['version'] = 'v1'
+
+            cputopology_capability['attributes'] = []
+            if extra_specs.has_key('hw:cpu_sockets'):
+                cputopology_capability['attributes'].append({'hpa-attribute-key': 'numCpuSockets',
+                                                             'hpa-attribute-value':{'value': str(extra_specs['hw:cpu_sockets'])}})
+            if extra_specs.has_key('hw:cpu_cores'):
+                cputopology_capability['attributes'].append({'hpa-attribute-key': 'numCpuCores',
+                                                             'hpa-attribute-value':{'value': str(extra_specs['hw:cpu_cores'])}})
+            if extra_specs.has_key('hw:cpu_threads'):
+                cputopology_capability['attributes'].append({'hpa-attribute-key': 'numCpuThreads',
+                                                             'hpa-attribute-value':{'value': str(extra_specs['hw:cpu_threads'])}})
+
+        return cputopology_capability
 
