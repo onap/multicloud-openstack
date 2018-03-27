@@ -30,7 +30,7 @@ from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
-#DEBUG=True
+# DEBUG=True
 
 
 class Extensions(APIView):
