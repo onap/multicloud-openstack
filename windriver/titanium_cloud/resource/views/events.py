@@ -71,15 +71,15 @@ class EventsCheck(APIView):
                     vmstate = {
                         'name' : servers[num]['name'],
                         'state' : servers[num]['OS-EXT-STS:vm_state'],
-                        'power_state' : server[num]['OS-EXT-STS:power_state'],
-                        'launched_at' : server[num]['OS-SRV-USG:launched_at'],
+                        'power_state' : servers[num]['OS-EXT-STS:power_state'],
+                        'launched_at' : servers[num]['OS-SRV-USG:launched_at'],
                         'id' : servers[num]['id'],
                         'host' : servers[num]['OS-EXT-SRV-ATTR:host'],
                         'availability_zone' : servers[num]['OS-EXT-AZ:availability_zone'],
                         'tenant_id' : servers[num]['tenant_id']
                     }
                    
-                    resp_status.append(vmstate)
+                    resp_vmstate.append(vmstate)
 
             self._logger.info("RESP with data> result:%s" % resp_vmstate)
             return Response(data={'result': resp_vmstate}, status=status.HTTP_200_OK)
