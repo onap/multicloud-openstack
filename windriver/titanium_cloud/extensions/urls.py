@@ -17,13 +17,10 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from titanium_cloud.extensions.views import extensions
 from titanium_cloud.extensions.views import epacaps
-from titanium_cloud.extensions.views import fcaps
-
 
 urlpatterns = [
     url(r'^sions/?$', extensions.Extensions.as_view()),
     url(r'^sions/epa-caps/?$', epacaps.EpaCaps.as_view()),
-    url(r'^sions/guest-monitor/(?P<vserverid>[0-9a-zA-Z_-]+)/?$', fcaps.GuestMonitor.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
