@@ -205,11 +205,24 @@ class Registry(newton_registration.Registry):
             cloud_dpdk_info = cloud_extra_info.get('ovsDpdk')
             capability = hpa_dict['ovsDpdk']['info']
             capability['hpa-capability-id'] = str(uuid.uuid4())
-            capability['hardwareArchitecture'] = cloud_dpdk_info.get('arch')
+            capability['architecture'] = cloud_dpdk_info.get('arch')
             attributes = [
                 {
                     'hpa-attribute-key': cloud_dpdk_info.get('libname'),
                     'hpa-attribute-value': '{{\"value\":\"{0}\"}}'.format(cloud_dpdk_info.get('libvalue'))
+                }
+            ]
+            capability['hpa-features-attributes'] = attributes
+            capabilities.append(capability)
+
+        # Instruction Set Extensions
+        if "hw:capabilities:cpu_info:features" in extra_specs:
+            capability = hpa_dict['instructionSetExtensions']
+            capability['hpa-capability-id'] = str(uuid.uuid4())
+            attributes = [
+                {
+                    'hpa-attribute-key': hpa_dict['instructionSetExtensions']['hpa-attributes']['hw:capabilities:cpu_info:features'],
+                    'hpa-attribute-value': '{{\"value\":[\"{0}\"]}}'.format(extra_specs['hw:capabilities:cpu_info:features'])
                 }
             ]
             capability['hpa-features-attributes'] = attributes
