@@ -131,5 +131,18 @@
             "hpa-feature": "ovsDpdk",
             "hpa-version": "v1"
         }
+    },
+    "instructionSetExtensions": {
+        "info": {
+            "hpa-feature": "instructionSetExtensions",
+            "hpa-version": "v1",
+            "architecture": "Intel64"
+        },
+        "hpa-attributes": {
+            "hw:capabilities:cpu_info:features": {
+                "key": "instructionSetExtensions",
+                "unit": null
+            }
+        }
     }
 }
