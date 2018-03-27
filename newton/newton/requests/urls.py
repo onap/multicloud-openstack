@@ -25,6 +25,7 @@ from newton_base.openoapi import limits
 from newton_base.openoapi import hosts
 from newton_base.openoapi import flavor
 
+
 urlpatterns = [
     url(r'^networks(/(?P<networkid>[0-9a-zA-Z_-]+))?',
         network.Networks.as_view()),
