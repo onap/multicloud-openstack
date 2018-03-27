@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import mock
 from rest_framework import status
 import unittest
@@ -171,7 +172,9 @@ class AbstractTestResource(object):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
         response = self.client.post(
-            self.url, self.MOCK_POST_RESOURCE_REQUEST,
+            self.url, 
+            data=json.dumps(self.MOCK_POST_RESOURCE_REQUEST),
+            content_type='application/json',
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
@@ -197,7 +200,9 @@ class AbstractTestResource(object):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
         response = self.client.post(
-            self.url, self.MOCK_POST_RESOURCE_REQUEST_EXISTING,
+            self.url, 
+            data=json.dumps(self.MOCK_POST_RESOURCE_REQUEST_EXISTING),
+            content_type='application/json',
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
@@ -222,7 +227,10 @@ class AbstractTestResource(object):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
 
         response = self.client.post(
-            self.url, {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+            self.url, 
+            {},
+            content_type='application/json', 
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertIn('error', context)
