@@ -26,7 +26,7 @@ from keystoneauth1.exceptions import HttpError
 
 logger = logging.getLogger(__name__)
 
-DEBUG=True
+# DEBUG=True
 
 class Registry(newton_registration.Registry):
 

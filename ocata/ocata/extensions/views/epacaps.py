@@ -23,7 +23,7 @@ from newton_base.extensions import epacaps as newton_epacaps
 
 logger = logging.getLogger(__name__)
 
-DEBUG=True
+# DEBUG=True
 
 
 class EpaCaps(newton_epacaps.EpaCaps):

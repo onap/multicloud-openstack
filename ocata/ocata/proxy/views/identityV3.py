@@ -19,7 +19,7 @@ from newton_base.proxy import identityV3 as newton_identityV3
 
 logger = logging.getLogger(__name__)
 
-DEBUG=True
+# DEBUG=True
 
 class Tokens(newton_identityV3.Tokens):
 
