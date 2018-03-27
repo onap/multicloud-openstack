@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import mock
+import json
 
 from rest_framework import status
 
@@ -121,7 +122,9 @@ class Testvports(test_base.TestRequest):
 
         response = self.client.post(
             self.url + "ports",
-            MOCK_POST_VPORT_REQUEST, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+            data=json.dumps(MOCK_POST_VPORT_REQUEST),
+            content_type='application/json',
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
@@ -143,7 +146,9 @@ class Testvports(test_base.TestRequest):
 
         response = self.client.post(
             self.url + "ports",
-            MOCK_POST_VPORT_REQUEST_EXISTING, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+            data=json.dumps(MOCK_POST_VPORT_REQUEST_EXISTING),
+            content_type='application/json', 
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertEquals(status.HTTP_200_OK, response.status_code)
@@ -165,7 +170,9 @@ class Testvports(test_base.TestRequest):
 
         response = self.client.post(
             self.url + "ports",
-            {}, HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+            {},
+            content_type='application/json',
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         context = response.json()
         self.assertIn('error', context)
