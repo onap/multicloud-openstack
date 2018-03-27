@@ -110,7 +110,7 @@ class Services(APIView):
             if querystr:
                 req_resource += "?" + querystr
 
-            self._logger.debug("hhb service " + action + " request uri %s" % (req_resource))
+            self._logger.info("service " + action + " request with uri %s" % (req_resource))
             if(action == "get"):
                 resp = sess.get(req_resource, endpoint_filter=service,
                                 headers={"Content-Type": "application/json",
@@ -135,9 +135,11 @@ class Services(APIView):
                                 headers={"Content-Type": "application/json",
                                          "Accept": "application/json"})
             content = resp.json() if resp.content else None
-            self._logger.debug("service " + action + " response: %s, %s" % (resp.status_code, content))
+            self._logger.info("service " + action + " response status: %s" % (resp.status_code))
+            self._logger.debug("service " + action + " response content: %s" % (content))
 
             if (action == "delete"):
+                self._logger.info("RESP with status> %s" % resp.status_code)
                 return Response(headers={'X-Subject-Token': tmp_auth_token}, status=resp.status_code)
             else:
                 content = ProxyUtils.update_prefix(metadata_catalog, content)
@@ -145,9 +147,14 @@ class Services(APIView):
                     if requri == '/v3/auth/catalog' and content and content.get("catalog"):
                         content['catalog'] = ProxyUtils.update_catalog_dnsaas(
                             vim_id, content['catalog'], self.proxy_prefix, vim)
-                return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
+
+                self._logger.info("RESP with status> %s" % resp.status_code)
+                return Response(headers={'X-Subject-Token': tmp_auth_token},
+                                data=content, status=resp.status_code)
 
         except VimDriverNewtonException as e:
+            self._logger.error("Plugin exception> status:%s,error:%s"
+                                  % (e.status_code, e.content))
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -158,10 +165,9 @@ class Services(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def head(self, request, vimid="", servicetype="", requri=""):
-        #self._logger.debug("Services--head::META> %s" % request.META)
-        self._logger.debug("Services--head::data> %s" % request.data)
-        self._logger.debug("Services--head::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
+        self._logger.debug("META, data> %s" % (request.META, request.data))
 
         token = self._get_token(request)
         try:
@@ -179,14 +185,17 @@ class Services(APIView):
                        'interface': interface,
                        'region_id': regionid}
 
-            self._logger.debug("service head request uri %s" % (req_resource))
-
+            self._logger.info("service head request with uri %s" % (req_resource))
             resp = sess.head(req_resource, endpoint_filter=service)
+            self._logger.info("service head response status %s" % (resp.status_code))
+
             content = resp.json() if resp.content else None
-            self._logger.debug("service head response: %s, %s" % (resp.status_code, content))
+            self._logger.debug("service head response: %s" % (content))
 
             return Response(headers={'X-Subject-Token': token}, data=content, status=resp.status_code)
         except VimDriverNewtonException as e:
+            self._logger.error("Plugin exception> status:%s,error:%s"
+                                  % (e.status_code, e.content))
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -197,39 +206,38 @@ class Services(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, vimid="", servicetype="", requri=""):
-        #self._logger.debug("Services--get::META> %s" % request.META)
-        self._logger.debug("Services--get::data> %s" % request.data)
-        self._logger.debug("Services--get::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
+        self._logger.debug("META, data> %s" % (request.META, request.data))
+
         return self._do_action("get", request, vimid, servicetype, requri)
 
     def post(self, request, vimid="", servicetype="", requri=""):
-        #self._logger.debug("Services--post::META> %s" % request.META)
-        self._logger.debug("Services--post::data> %s" % request.data)
-        self._logger.debug("Services--post::vimid, servicetype,  requri> %s,%s,%s"
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
+        self._logger.debug("META, data> %s" % (request.META, request.data))
 
         return self._do_action("post", request, vimid, servicetype, requri)
 
     def put(self, request, vimid="", servicetype="", requri=""):
-        #self._logger.debug("Services--put::META> %s" % request.META)
-        self._logger.debug("Services--put::data> %s" % request.data)
-        self._logger.debug("Services--put::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
+        self._logger.debug("META, data> %s" % (request.META, request.data))
+
         return self._do_action("put", request, vimid, servicetype, requri)
 
     def patch(self, request, vimid="", servicetype="", requri=""):
-        #self._logger.debug("Services--patch::META> %s" % request.META)
-        self._logger.debug("Services--patch::data> %s" % request.data)
-        self._logger.debug("Services--patch::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
+        self._logger.debug("META, data> %s" % (request.META, request.data))
+
         return self._do_action("patch", request, vimid, servicetype, requri)
 
     def delete(self, request, vimid="", servicetype="", requri=""):
-        #self._logger.debug("Services--delete::META> %s" % request.META)
-        self._logger.debug("Services--delete::data> %s" % request.data)
-        self._logger.debug("Services--delete::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
+        self._logger.debug("META, data> %s" % (request.META, request.data))
+
         return self._do_action("delete", request, vimid, servicetype, requri)
 
 
@@ -242,10 +250,9 @@ class GetTenants(Services):
         self._logger = logger
 
     def get(self, request, vimid="", servicetype="identity", requri='projects'):
-        #self._logger.debug("GetTenants--get::META> %s" % request.META)
-        self._logger.debug("GetTenants--get::data> %s" % request.data)
-        self._logger.debug("GetTenants--get::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
+        self._logger.debug("META, data> %s" % (request.META, request.data))
 
         tmp_auth_token = request.META.get('HTTP_X_AUTH_TOKEN', None)
 
@@ -258,16 +265,26 @@ class GetTenants(Services):
             return resp
 
     def head(self, request, vimid="", servicetype="", requri=""):
+        self._logger.warn("wrong request with vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
         return Response(data={'error': 'unsupported operation'}, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, vimid="", servicetype="", requri=""):
+        self._logger.warn("wrong request with vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
         return Response(data={'error': 'unsupported operation'}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, vimid="", servicetype="", requri=""):
+        self._logger.warn("wrong request with vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
         return Response(data={'error': 'unsupported operation'}, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, vimid="", servicetype="", requri=""):
+        self._logger.warn("wrong request with vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
         return Response(data={'error': 'unsupported operation'}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, vimid="", servicetype="", requri=""):
+        self._logger.warn("wrong request with vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
         return Response(data={'error': 'unsupported operation'}, status=status.HTTP_400_BAD_REQUEST)
