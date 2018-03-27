@@ -152,6 +152,7 @@ class TokensV2(Tokens):
         self._logger = logger
 
     def get(self, request, vimid=""):
+        self._logger.info("vimid> %s" % vimid)
         self._logger.debug("TokensV2--get::META> %s" % request.META)
 
         return Response(data=v2_version_detail, status=status.HTTP_200_OK)
