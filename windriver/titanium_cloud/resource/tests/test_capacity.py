@@ -88,9 +88,8 @@ class TestCapacity(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post((
-            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
-            "capacity_check" % test_base.MULTIVIM_VERSION),
+        response = self.client.post(
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/capacity_check",
             TEST_REQ_SUCCESS_SOURCE,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
@@ -110,9 +109,8 @@ class TestCapacity(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post((
-            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
-            "capacity_check" % test_base.MULTIVIM_VERSION),
+        response = self.client.post(
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/capacity_check",
             TEST_REQ_FAILED_SOURCE,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
         
