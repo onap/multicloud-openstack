@@ -51,14 +51,25 @@ class DnsaasDelegate(Services):
 
             if not auth_state_str:
                 #invalid token
-                return Response(data={'error': "request token %s is not valid" % (tmp_auth_token)},
+                msg = {
+                    'error': "request token %s is not valid" % (tmp_auth_token)
+                }
+                self._logger.warn("RESP with status, msg> %s , %s"
+                                  % (status.HTTP_404_NOT_FOUND, msg))
+
+                return Response(data=msg,
                                 status=status.HTTP_404_NOT_FOUND)
 
             # get project name from auth_state
             auth_state = json.loads(auth_state_str)
             if not auth_state:
                 # invalid token
-                return Response(data={'error': "request token %s is broken" % (tmp_auth_token)},
+                msg = {
+                    'error': "request token %s is broken" % (tmp_auth_token)
+                }
+                self._logger.warn("RESP with status, msg> %s , %s"
+                                  % (status.HTTP_404_NOT_FOUND, msg))
+                return Response(data=msg,
                                 status=status.HTTP_404_NOT_FOUND)
 
             tenant_name = auth_state['body']['token']['project']['name']
@@ -67,7 +78,12 @@ class DnsaasDelegate(Services):
             #find out the delegated DNSaaS provider
             viminfo = VimDriverUtils.get_vim_info(vim_id)
             if not viminfo:
-                return Response(data={'error': "vimid %s is not found" % (vim_id)},
+                msg = {
+                    'error': "vimid %s is not found" % (vim_id)
+                }
+                self._logger.warn("RESP with status, msg> %s , %s"
+                                  % (status.HTTP_404_NOT_FOUND, msg))
+                return Response(data=msg,
                                 status=status.HTTP_404_NOT_FOUND)
 
             cloud_dns_delegate_info = None
@@ -79,8 +95,14 @@ class DnsaasDelegate(Services):
             if not cloud_dns_delegate_info \
                     or not cloud_dns_delegate_info.get("cloud-owner") \
                     or not cloud_dns_delegate_info.get("cloud-region-id"):
-                return Response(data={'error': "dns-delegate for vimid %s is not configured"
-                                               % (vim_id)},
+                msg = {
+                    'error': "dns-delegate for vimid %s is not configured"
+                             % (vim_id)
+                }
+                self._logger.warn("RESP with status, msg> %s , %s"
+                                  % (status.HTTP_404_NOT_FOUND, msg))
+
+                return Response(data=msg,
                                 status=status.HTTP_404_NOT_FOUND)
 
             vimid_delegate = cloud_dns_delegate_info.get("cloud-owner") \
@@ -91,7 +113,12 @@ class DnsaasDelegate(Services):
             #now forward request to delegated DNS service endpoint
             vim = VimDriverUtils.get_vim_info(vimid_delegate)
             if not vim:
-                return Response(data={'error': "vimid %s is not found" % (vimid_delegate)},
+                msg = {
+                    'error': "delegated vimid %s is not found" % (vimid_delegate)
+                }
+                self._logger.warn("RESP with status, msg> %s , %s"
+                                  % (status.HTTP_404_NOT_FOUND, msg))
+                return Response(data=msg,
                                 status=status.HTTP_404_NOT_FOUND)
 
             sess = VimDriverUtils.get_session(vim, tenant_name=tenant_name)
@@ -109,7 +136,7 @@ class DnsaasDelegate(Services):
             if querystr:
                 req_resource += "?" + querystr
 
-            self._logger.debug("service " + action + " request uri %s" % (req_resource))
+            self._logger.info("service " + action + " request with uri %s" % (req_resource))
             if(action == "get"):
                 resp = sess.get(req_resource, endpoint_filter=service,
                                 headers={"Content-Type": "application/json",
@@ -133,9 +160,13 @@ class DnsaasDelegate(Services):
                 resp = sess.delete(req_resource, endpoint_filter=service,
                                 headers={"Content-Type": "application/json",
                                          "Accept": "application/json"})
-            content = resp.json() if resp.content else None
-            self._logger.debug("service " + action + " response: %s, %s" % (resp.status_code, content))
 
+            self._logger.info("service " + action + " response status> %s" % (resp.status_code))
+
+            content = resp.json() if resp.content else None
+            self._logger.debug("service " + action + " response content> %s" % (content))
+
+            self._logger.info("RESP with status> %s" % resp.status_code)
             if (action == "delete"):
                 return Response(headers={'X-Subject-Token': tmp_auth_token}, status=resp.status_code)
             else:
@@ -143,6 +174,8 @@ class DnsaasDelegate(Services):
                 return Response(headers={'X-Subject-Token': tmp_auth_token}, data=content, status=resp.status_code)
 
         except VimDriverNewtonException as e:
+            self._logger.error("Plugin exception> status:%s,error:%s"
+                                  % (e.status_code, e.content))
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -153,43 +186,43 @@ class DnsaasDelegate(Services):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, vimid="", servicetype="dns-delegate", requri=""):
-        self._logger.debug("DnsaasDelegate--get::META> %s" % request.META)
-        self._logger.debug("DnsaasDelegate--get::data> %s" % request.data)
-        self._logger.debug("DnsaasDelegate--get::vimid, servicetype, requri> %s,%s,%s"
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
                      % (vimid, servicetype, requri))
+        self._logger.debug("META,data> %s , %s" % (request.META, request.data))
+
         return self._do_action("get", request, vimid, "dns", requri)
 
     def head(self, request, vimid="", servicetype="dns-delegate", requri=""):
-        self._logger.debug("DnsaasDelegate--get::META> %s" % request.META)
-        self._logger.debug("DnsaasDelegate--get::data> %s" % request.data)
-        self._logger.debug("DnsaasDelegate--get::vimid, servicetype, requri> %s,%s,%s"
-                           % (vimid, servicetype, requri))
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
+        self._logger.debug("META,data> %s , %s" % (request.META, request.data))
+
         return self._do_action("head", request, vimid, "dns", requri)
 
     def post(self, request, vimid="", servicetype="dns-delegate", requri=""):
-        self._logger.debug("DnsaasDelegate--get::META> %s" % request.META)
-        self._logger.debug("DnsaasDelegate--get::data> %s" % request.data)
-        self._logger.debug("DnsaasDelegate--get::vimid, servicetype, requri> %s,%s,%s"
-                           % (vimid, servicetype, requri))
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
+        self._logger.debug("META,data> %s , %s" % (request.META, request.data))
+
         return self._do_action("post", request, vimid, "dns", requri)
 
     def put(self, request, vimid="", servicetype="dns-delegate", requri=""):
-        self._logger.debug("DnsaasDelegate--get::META> %s" % request.META)
-        self._logger.debug("DnsaasDelegate--get::data> %s" % request.data)
-        self._logger.debug("DnsaasDelegate--get::vimid, servicetype, requri> %s,%s,%s"
-                           % (vimid, servicetype, requri))
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
+        self._logger.debug("META,data> %s , %s" % (request.META, request.data))
+
         return self._do_action("put", request, vimid, "dns", requri)
 
     def patch(self, request, vimid="", servicetype="dns-delegate", requri=""):
-        self._logger.debug("DnsaasDelegate--get::META> %s" % request.META)
-        self._logger.debug("DnsaasDelegate--get::data> %s" % request.data)
-        self._logger.debug("DnsaasDelegate--get::vimid, servicetype, requri> %s,%s,%s"
-                           % (vimid, servicetype, requri))
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
+        self._logger.debug("META,data> %s , %s" % (request.META, request.data))
+
         return self._do_action("patch", request, vimid, "dns", requri)
 
     def delete(self, request, vimid="", servicetype="dns-delegate", requri=""):
-        self._logger.debug("DnsaasDelegate--get::META> %s" % request.META)
-        self._logger.debug("DnsaasDelegate--get::data> %s" % request.data)
-        self._logger.debug("DnsaasDelegate--get::vimid, servicetype, requri> %s,%s,%s"
-                           % (vimid, servicetype, requri))
+        self._logger.info("vimid, servicetype, requri> %s,%s,%s"
+                     % (vimid, servicetype, requri))
+        self._logger.debug("META,data> %s , %s" % (request.META, request.data))
+
         return self._do_action("delete", request, vimid, "dns", requri)
