@@ -194,11 +194,44 @@ class Registry(newton_registration.Registry):
                 {
                     'hpa-attribute-key': 'pciDeviceId',
                     'hpa-attribute-value': '{{\"value\":\"{0}\"}}'.format(device_id)
+                },
+                {
+                    'hpa-attribute-key': 'functionType',
+                    'hpa-attribute-value': 'PCI-PASSTHROUGH'
                 }
             ]
 
             capability['hpa-features-attributes'] = attributes
             capabilities.append(capability)
+
+        # SRIOV Devices
+        sriov_devices = [spec for spec in extra_specs if spec.startswith("aggregate_instance_extra_spec:sriov-device")]
+        for device in sriov_devices:
+            capability = hpa_dict['pciePassthrough']['info']
+            capability['hpa-capability-id'] = str(uuid.uuid4())
+            # device will be in the form aggregate_instance_extra_specs:sriov-device-<name>="<Vendor ID>-<Device ID>",
+            device_info = extra_specs[device]
+            vendor_id = device_info.split("-")[0]
+            device_id = device_info.split("-")[1]
+
+            attributes = [
+                {
+                    'hpa-attribute-key': 'pciVendorId',
+                    'hpa-attribute-value': '{{\"value\":\"{0}\"}}'.format(vendor_id)
+                },
+                {
+                    'hpa-attribute-key': 'pciDeviceId',
+                    'hpa-attribute-value': '{{\"value\":\"{0}\"}}'.format(device_id)
+                },
+                {
+                    'hpa-attribute-key': 'functionType',
+                    'hpa-attribute-value': 'SRIOV'
+                }
+            ]
+
+            capability['hpa-features-attributes'] = attributes
+            capabilities.append(capability)
+
 
         # OVS DPDK
         if cloud_extra_info:
