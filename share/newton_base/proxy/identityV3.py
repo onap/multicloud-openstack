@@ -57,14 +57,18 @@ class Tokens(APIView):
         self._logger = logger
 
     def get(self, request, vimid=""):
-        self._logger.debug("identityV3--get::META> %s" % request.META)
+        self._logger.info("vimid> %s" % vimid)
+        self._logger.debug("META> %s" % request.META)
+        self._logger.debug("data> %s" % request.data)
 
+        self._logger.info("RESP with status> %s" % status.HTTP_200_OK)
         return Response(data=v3_version_detail, status=status.HTTP_200_OK)
 
     def post(self, request, vimid=""):
-        self._logger.debug("identityV3--post::META> %s" % request.META)
-        self._logger.debug("identityV3--post::data> %s" % request.data)
-        self._logger.debug("identityV3--post::vimid> %s" % (vimid))
+        self._logger.info("vimid> %s" % vimid)
+        self._logger.debug("META> %s" % request.META)
+        self._logger.debug("data> %s" % request.data)
+
         sess = None
         resp = None
         resp_body = None
@@ -113,9 +117,14 @@ class Tokens(APIView):
 
             resp = Response(headers={'X-Subject-Token': tmp_auth_token},
                             data=tmp_auth_data, status=status.HTTP_201_CREATED)
+
+            self._logger.info("RESP with status> %s" % status.HTTP_201_CREATED)
+
             return resp
         except VimDriverNewtonException as e:
 
+            self._logger.error("Plugin exception> status:%s,error:%s"
+                                  % (e.status_code, e.content))
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -155,16 +164,18 @@ class TokensV2(Tokens):
         self._logger.info("vimid> %s" % vimid)
         self._logger.debug("TokensV2--get::META> %s" % request.META)
 
+        self._logger.info("RESP with status> %s" % status.HTTP_200_OK)
         return Response(data=v2_version_detail, status=status.HTTP_200_OK)
 
     def post(self, request, vimid=""):
-        self._logger.debug("TokensV2--post::META> %s" % request.META)
-        self._logger.debug("TokensV2--post::data> %s" % request.data)
-        self._logger.debug("TokensV2--post::vimid > %s" % (vimid))
+        self._logger.info("vimid > %s" % vimid)
+        self._logger.debug("META> %s" % request.META)
+        self._logger.debug("data> %s" % request.data)
+
 
         try:
             resp = super(TokensV2,self).post(request, vimid)
-            self._logger.debug("TokensV2--resp:: headers:%s, data:%s" % (resp._headers, resp.data))
+            self._logger.debug("Token(v3)returns> headers:%s, data:%s" % (resp._headers, resp.data))
             if resp.status_code == status.HTTP_201_CREATED:
                 v3_content =  resp.data
                 v3_token = v3_content['token']
@@ -215,15 +226,19 @@ class TokensV2(Tokens):
                     }
                 }
 
+                self._logger.info("RESP with status> %s" % status.HTTP_200_OK)
                 return Response(data=v2_content,
                                 status=status.HTTP_200_OK \
                                     if resp.status_code==status.HTTP_201_CREATED \
                                     else resp.status_code)
 
             else:
+                self._logger.info("RESP with status> %s" % resp.status_code)
                 return resp
         except VimDriverNewtonException as e:
 
+            self._logger.error("Plugin exception> status:%s,error:%s"
+                                  % (e.status_code, e.content))
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
