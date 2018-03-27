@@ -574,3 +574,63 @@ class TestIdentityService(unittest.TestCase):
         self.assertEqual(mock_info.MOCK_TOKEN_ID,
                          context['access']['token']["id"])
         self.assertIsNotNone(context['access']['serviceCatalog'])
+
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_auth_state')
+    @mock.patch.object(VimDriverUtils, 'update_token_cache')
+    def test_token_with_tenantname(self, mock_update_token_cache, mock_get_auth_state,
+                   mock_get_session, mock_get_vim_info):
+        '''
+                test API: get token
+        :param mock_update_token_cache:
+        :param mock_get_auth_state:
+        :param mock_get_session:
+        :param mock_get_vim_info:
+        :return:
+        '''
+
+        # mock VimDriverUtils APIs
+        mock_session_specs = ["get"]
+        mock_session_get_response = {'status': 200}
+        mock_session = mock.Mock(name='mock_session',
+                                 spec=mock_session_specs)
+        mock_session.get.return_value = mock_session_get_response
+
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = mock_session
+        mock_get_auth_state.return_value = json.dumps(mock_auth_state)
+        mock_update_token_cache.return_value = mock_info.MOCK_TOKEN_ID
+
+        # simulate client to make the request
+        token_data = {
+            "auth": {
+                "identity": {
+                    "methods": ["password"],
+                    "password": {
+                        "user": {
+                            "name": "demo",
+                            "domain": {"name": "Default"},
+                            "password": "demo"
+                        }
+                    }
+                },
+                "scope": {
+                    "project": {
+                        "domain": {"name":"Default"},
+                        "name": "Integration"
+                    }
+                }
+            }
+        }
+
+        response = self.client.post(
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens",
+            data=json.dumps(token_data), content_type='application/json')
+        self.failUnlessEqual(status.HTTP_201_CREATED,
+                             response.status_code)
+        context = response.json()
+
+        self.assertEqual(mock_info.MOCK_TOKEN_ID,
+                         response['X-Subject-Token'])
+        self.assertIsNotNone(context['token']['catalog'])
