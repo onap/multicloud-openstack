@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import mock
 import unittest
 
@@ -184,7 +185,8 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
             ("/api/%s/v0/windriver-hudson-dc_RegionOne"
              "/fcca3cc49d5e42caae15459e27103efc/"
              "flavors" % test_base.MULTIVIM_VERSION),
-            self.MOCK_POST_RESOURCE_REQUEST,
+            data=json.dumps(self.MOCK_POST_RESOURCE_REQUEST),
+            content_type='application/json',
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
         context = response.json()
 
@@ -220,7 +222,8 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
            ("/api/%s/v0/windriver-hudson-dc_RegionOne/"
             "fcca3cc49d5e42caae15459e27103efc/"
             "flavors" % test_base.MULTIVIM_VERSION),
-           self.MOCK_POST_RESOURCE_REQUEST_EXISTING,
+           data=json.dumps(self.MOCK_POST_RESOURCE_REQUEST_EXISTING),
+           content_type='application/json',
            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
        context = response.json()
