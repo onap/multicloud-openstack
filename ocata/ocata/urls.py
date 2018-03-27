@@ -17,6 +17,7 @@ from django.conf.urls import include, url
 from ocata.registration.views import registration
 from newton_base.openoapi import tenants
 from ocata.resource.views import capacity
+from ocata.resource.views import events
 
 urlpatterns = [
     url(r'^', include('ocata.swagger.urls')),
@@ -36,6 +37,9 @@ urlpatterns = [
     # CapacityCheck
     url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.CapacityCheck.as_view()),
+    # events
+    url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/events_check/?$',
+        events.EventsCheck.as_view()),
 ]
 
 
