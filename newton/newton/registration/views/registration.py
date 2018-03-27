@@ -38,6 +38,11 @@ class Registry(newton_registration.Registry):
     def _discover_flavors(self, vimid="", session=None, viminfo=None):
         try:
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            cloud_extra_info_str = viminfo.get('cloud_extra_info')
+            if cloud_extra_info_str:
+                cloud_extra_info = json.loads(cloud_extra_info_str)
+            else:
+                cloud_extra_info = None
             for flavor in self._get_list_resources(
                     "/flavors/detail", "compute", session, viminfo, vimid,
                     "flavors"):
@@ -61,7 +66,8 @@ class Registry(newton_registration.Registry):
                     extraResp = Flavors._get_flavor_extra_specs(session, flavor['id'])
                     extraContent = extraResp.json()
                     hpa_capabilities = self._get_hpa_capabilities(vimid, flavor,
-                                                                  extraContent["extra_specs"])
+                                                                  extraContent["extra_specs"],
+                                                                  cloud_extra_info)
                     flavor_info['hpa_capabilities'] = hpa_capabilities
 
                 self._update_resoure(
@@ -78,7 +84,7 @@ class Registry(newton_registration.Registry):
             self._logger.error(traceback.format_exc())
             return
 
-    def _get_hpa_capabilities(self, vimid, flavor, extra_specs):
+    def _get_hpa_capabilities(self, vimid, flavor, extra_specs, cloud_extra_info):
         """Convert flavor information to HPA capabilities for AAI"""
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
 
@@ -191,6 +197,21 @@ class Registry(newton_registration.Registry):
                 }
             ]
 
+            capability['hpa-features-attributes'] = attributes
+            capabilities.append(capability)
+
+        # OVS DPDK
+        if cloud_extra_info:
+            cloud_dpdk_info = cloud_extra_info.get('ovsDpdk')
+            capability = hpa_dict['ovsDpdk']['info']
+            capability['hpa-capability-id'] = str(uuid.uuid4())
+            capability['hardwareArchitecture'] = cloud_dpdk_info.get('arch')
+            attributes = [
+                {
+                    'hpa-attribute-key': cloud_dpdk_info.get('libname'),
+                    'hpa-attribute-value': '{{\"value\":\"{0}\"}}'.format(cloud_dpdk_info.get('libvalue'))
+                }
+            ]
             capability['hpa-features-attributes'] = attributes
             capabilities.append(capability)
 

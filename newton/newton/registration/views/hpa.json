@@ -125,5 +125,11 @@
                 "unit": null
             }
         }
+    },
+    "ovsDpdk": {
+        "info": {
+            "hpa-feature": "ovsDpdk",
+            "hpa-version": "v1"
+        }
     }
 }
