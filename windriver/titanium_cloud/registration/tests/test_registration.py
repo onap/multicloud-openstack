@@ -178,6 +178,16 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS4_RESPONSE = {
     }
 }
 
+# HPA UT5: instruction set
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS5_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+            "hw:capabilities:cpu_info:features": "avx,acpi"
+    }
+}
+
+
 class TestRegistration(test_base.TestRequest):
 
     def setUp(self):
@@ -354,6 +364,36 @@ class TestRegistration(test_base.TestRequest):
                     self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
                     self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
                     self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS4_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
+
+        response = self.client.post((
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                      response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_instructionset_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS5_RESPONSE),
                     self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
