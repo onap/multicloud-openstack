@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import mock
+import json
 
 from rest_framework import status
 
@@ -221,9 +222,10 @@ class TestFlavors(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post((
-            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+        response = self.client.post(
+            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/registry",
+            data=json.dumps(TEST_REGISTER_ENDPOINT_REQUEST),
+            content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_202_ACCEPTED,
@@ -234,9 +236,8 @@ class TestFlavors(test_base.TestRequest):
             self, mock_delete_vim_info):
         mock_delete_vim_info.return_value = 0
 
-        response = self.client.delete((
-            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), "{}", content_type="application/json",
+        response = self.client.delete(
+            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/registry", {}, content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_202_ACCEPTED,
@@ -248,9 +249,8 @@ class TestFlavors(test_base.TestRequest):
             self, mock_delete_vim_info):
         mock_delete_vim_info.return_value = 1
 
-        response = self.client.delete((
-            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), "{}", content_type="application/json",
+        response = self.client.delete(
+            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/registry", {}, content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR,
