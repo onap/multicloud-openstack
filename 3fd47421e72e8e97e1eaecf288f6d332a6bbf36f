@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Bin Yang <bin.yang@windriver.com>
+Code-Review+2: Bin Hu <bh526r@att.com>
+Submitted-by: zhang ab <zhanganbing@chinamobile.com>
+Submitted-at: Wed, 28 Mar 2018 05:34:39 +0000
+Reviewed-on: https://gerrit.onap.org/r/39419
+Project: multicloud/openstack
+Branch: refs/heads/master
