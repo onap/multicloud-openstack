@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import mock
+import json
 
 from rest_framework import status
 
@@ -37,6 +38,15 @@ MOCK_GET_HYPER_STATATICS_RESPONSE = {
    "hypervisor_statistics" : {
       "vcpus_used" : 4,
       "free_ram_mb" : 120*1024,
+      "vcpus" : 10,
+      "free_disk_gb" : 300
+   }
+}
+
+MOCK_GET_HYPER_STATATICS_RESPONSE_OUTOFRAM = {
+   "hypervisor_statistics" : {
+      "vcpus_used" : 4,
+      "free_ram_mb" : 1*1024,
       "vcpus" : 10,
       "free_disk_gb" : 300
    }
@@ -116,3 +126,24 @@ class TestCapacity(test_base.TestRequest):
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         self.assertEqual({"result": False}, response.data)
 
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_capacity_check_nova_hypervisor_outofram(self, mock_get_vim_info, mock_get_session):
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_LIMIT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPER_STATATICS_RESPONSE_OUTOFRAM),
+                    self._get_mock_response(MOCK_GET_STORAGE_RESPONSE),
+                ]
+            })
+
+        response = self.client.post(
+            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/capacity_check",
+            data=json.dumps(TEST_REQ_SUCCESS_SOURCE),
+            content_type='application/json',
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual({"result": False}, response.data)
