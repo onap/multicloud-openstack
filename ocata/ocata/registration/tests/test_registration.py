@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import mock
-import json
 
 from rest_framework import status
 
@@ -21,43 +20,6 @@ from common.utils import restcall
 from newton_base.tests import mock_info
 from newton_base.tests import test_base
 from newton_base.util import VimDriverUtils
-
-OCATA_MOCK_VIM_INFO = {
-    "createTime": "2017-04-01 02:22:27",
-    "domain": "Default",
-    "name": "TiS_R4",
-    "password": "admin",
-    "tenant": "admin",
-    "type": "openstack",
-    "url": "http://128.224.180.14:5000/v3",
-    "userName": "admin",
-    "vendor": "WindRiver",
-    "version": "newton",
-    "vimId": "windriver-hudson-dc_RegionOne",
-    'cloud_owner': 'windriver-hudson-dc',
-    'cloud_region_id': 'RegionOne',
-    'cloud_extra_info':
-        '{'
-        '"ovsDpdk":{'
-          '"version": "v1",'
-          '"arch": "Intel64",'
-          '"libname":"dataProcessingAccelerationLibrary",'
-          '"libvalue":"v12.1",'
-          '}'
-        '}',
-    'cloud_epa_caps':
-        '{'
-        '"huge_page":"true",'
-        '"cpu_pinning":"true",'
-        '"cpu_thread_policy":"true",'
-        '"numa_aware":"true",'
-        '"sriov":"true",'
-        '"dpdk_vswitch":"true",'
-        '"rdt":"false",'
-        '"numa_locality_pci":"true"'
-        '}',
-    'insecure': 'True',
-}
 
 MOCK_GET_TENANT_RESPONSE = {
     "projects":[
@@ -72,43 +34,13 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "id": "1", "name": "micro", "vcpus": 1, "ram": "1MB",
             "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
             "swap": True, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}],
-            "extra_specs": "hw:cpu_policy, hw:cpu_thread_policy"
+            "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}]
          },
         {
             "id": "2", "name": "mini", "vcpus": 2, "ram": "2MB",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True,
-            "extra_specs": "hw:cpu_policy, hw:cpu_thread_policy"
-        },
-        {
-            "id": "3", "name": "onap.micro", "vcpus": 2, "ram": "2MB",
-            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
-            "swap": False, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True,
-            "extra_specs": "hw:cpu_policy=dedicated, hw:cpu_thread_policy=prefer, hw:cpu_policy, hw:cpu_thread_policy"
-        },
-        {
-            "id": "4", "name": "onap.mini", "vcpus": 128, "ram": "2MB",
-            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
-            "swap": False, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True,
-            "properties": "hw:cpu_sockets=4, hw:cpu_cores=4, hw:cpu_threads=8, hw:huge_page_size=2MB"
-        },
-        {
-            "id": "5", "name": "onap.tiny", "vcpus": 6, "ram": "6144MB",
-            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
-            "swap": False, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True,
-            "properties": "hw:numa_nodes=2, hw:numa_cpus.0=0,1, hw:numa_mem.0=2048, hw:numa_cpus.1=2,3,4,5 hw:numa_mem.1=4096"
-        },
-        {
-            "id": "6", "name": "onap.mtiny", "vcpus": 2, "ram": "2MB",
-            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
-            "swap": False, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True,
-            "properties": "hw:capabilities:cpu_info:features=aes, pci_passthrough:alias=sriov-pf-intel-8086-10fb:1"
+            "OS-FLV-DISABLED:disabled": True
         },
     ]
 }
@@ -185,14 +117,43 @@ TEST_REGISTER_ENDPOINT_REQUEST = {
     "defaultTenant": "project1"
 }
 
-class TestFlavors(test_base.TestRequest):
+
+# HPA UT1: CPU-PINNING
+MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE= {
+    "flavors": [
+        {
+            "id": "1", "name": "micro", "vcpus": 1, "ram": "1MB",
+            "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
+            "swap": True, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True, "link": [{"href": 1}]
+        },
+        {
+            "id": "2", "name": "onap.mini", "vcpus": 2, "ram": "2MB",
+            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
+            "swap": False, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True
+        },
+    ]
+}
+
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+        "hw:cpu_policy": "dedicated",
+        "hw:cpu_thread_policy": "prefer"
+    }
+}
+
+
+class TestRegistration(test_base.TestRequest):
 
     def setUp(self):
-        super(TestFlavors, self).setUp()
+        super(TestRegistration, self).setUp()
         self.req_to_aai_backup = restcall.req_to_aai
 
     def tearDown(self):
-        super(TestFlavors, self).tearDown()
+        super(TestRegistration, self).tearDown()
         restcall.req_to_aai = self.req_to_aai_backup
 
     def _get_mock_response(self, return_value=None):
@@ -207,7 +168,7 @@ class TestFlavors(test_base.TestRequest):
             self, mock_get_vim_info, mock_get_session):
         restcall.req_to_aai = mock.Mock()
         restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
-        mock_get_vim_info.return_value = OCATA_MOCK_VIM_INFO
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
                 "side_effect": [
@@ -222,10 +183,9 @@ class TestFlavors(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post(
-            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/registry",
-            data=json.dumps(TEST_REGISTER_ENDPOINT_REQUEST),
-            content_type="application/json",
+        response = self.client.post((
+            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_202_ACCEPTED,
@@ -236,22 +196,54 @@ class TestFlavors(test_base.TestRequest):
             self, mock_delete_vim_info):
         mock_delete_vim_info.return_value = 0
 
-        response = self.client.delete(
-            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/registry", {}, content_type="application/json",
+        response = self.client.delete((
+            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_202_ACCEPTED,
                           response.status_code)
-
 
     @mock.patch.object(VimDriverUtils, 'delete_vim_info')
     def test_fail_unregister_endpoint(
             self, mock_delete_vim_info):
         mock_delete_vim_info.return_value = 1
 
-        response = self.client.delete(
-            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/registry", {}, content_type="application/json",
+        response = self.client.delete((
+            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR,
                           response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_cpupinning_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
+
+        response = self.client.post((
+            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                      response.status_code)
+
