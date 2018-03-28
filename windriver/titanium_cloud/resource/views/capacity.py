@@ -86,20 +86,20 @@ class CapacityCheck(APIView):
 
             # compute actual available resource for this tenant
             remainVCPU = compute_limits['maxTotalCores'] - compute_limits['totalCoresUsed']
+            remainHypervisorVCPU = hypervisor_statistics['vcpus'] - hypervisor_statistics['vcpus_used']
 
-            if (compute_limits['maxTotalCores'] > hypervisor_statistics['vcpus']):
-                if hypervisor_statistics['vcpus'] > compute_limits['totalCoresUsed']:
-                    remainVCPU = hypervisor_statistics['vcpus'] - compute_limits['totalCoresUsed']
-                else:
-                    remainVCPU = 0
+            if (remainVCPU > remainHypervisorVCPU):
+                remainVCPU = remainHypervisorVCPU
 
             remainMEM = compute_limits['maxTotalRAMSize'] - compute_limits['totalRAMUsed']
-            if hypervisor_statistics['free_ram_mb'] > remainMEM:
-                remainMEM = hypervisor_statistics['free_ram_mb']
+            remainHypervisorMEM = hypervisor_statistics['free_ram_mb']
+            if remainMEM > remainHypervisorMEM:
+                remainMEM = remainHypervisorMEM
 
             remainStorage = storage_limits['maxTotalVolumeGigabytes'] - storage_limits['totalGigabytesUsed']
-            if (remainStorage < hypervisor_statistics['free_disk_gb']):
-                remainStorage = hypervisor_statistics['free_disk_gb']
+            remainHypervisorStorage = hypervisor_statistics['free_disk_gb']
+            if (remainStorage > remainHypervisorStorage):
+                remainStorage = remainHypervisorStorage
 
             # compare resource demanded with available
             if (int(resource_demand['vCPU']) >= remainVCPU):
