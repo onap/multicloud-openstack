@@ -38,10 +38,6 @@ class Registry(newton_registration.Registry):
     def _discover_flavors(self, vimid="", session=None, viminfo=None):
         try:
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-            cloud_extra_info_str = viminfo.get('cloud_extra_info')
-            if cloud_extra_info_str:
-                cloud_extra_info = json.loads(cloud_extra_info_str)
-                cloud_dpdk_info = cloud_extra_info.get("ovsDpdk")
 
             for flavor in self._get_list_resources(
                     "/flavors/detail", "compute", session, viminfo, vimid,
@@ -68,7 +64,7 @@ class Registry(newton_registration.Registry):
                     req_resouce = "/flavors/%s/os-extra_specs" % flavor['id']
                     extraResp = self._get_list_resources(req_resouce, "compute", session, viminfo, vimid, "extra_specs")
 
-                    hpa_capabilities = self._get_hpa_capabilities(flavor, extraResp, cloud_dpdk_info)
+                    hpa_capabilities = self._get_hpa_capabilities(flavor, extraResp, viminfo)
                     flavor_info['hpa_capabilities'] = hpa_capabilities
 
                 self._update_resoure(
@@ -85,7 +81,7 @@ class Registry(newton_registration.Registry):
             self._logger.error(traceback.format_exc())
             return
 
-    def _get_hpa_capabilities(self, flavor, extra_specs, cloud_dpdk_info):
+    def _get_hpa_capabilities(self, flavor, extra_specs, viminfo):
         hpa_caps = []
 
         # Basic capabilties
@@ -137,7 +133,7 @@ class Registry(newton_registration.Registry):
             hpa_caps.append(caps_dict)
 
         # ovsdpdk capabilities
-        caps_dict = self._get_ovsdpdk_capabilities(cloud_dpdk_info)
+        caps_dict = self._get_ovsdpdk_capabilities(viminfo)
         if len(caps_dict) > 0:
             self._logger.debug("ovsdpdk_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
@@ -304,16 +300,21 @@ class Registry(newton_registration.Registry):
         
         return instruction_capability
 
-    def _get_ovsdpdk_capabilities(self, cloud_dpdk_info):
+    def _get_ovsdpdk_capabilities(self, viminfo):
         ovsdpdk_capability = {}
         feature_uuid = uuid.uuid4()
 
-        ovsdpdk_capability['hpaCapabilityID'] = str(feature_uuid)
-        ovsdpdk_capability['hpaFeature'] = 'ovsDpdk'
-        ovsdpdk_capability['hardwareArchitecture'] = 'Intel64'
-        ovsdpdk_capability['version'] = 'v1'
+        cloud_extra_info_str = viminfo.get('cloud_extra_info')
+        if cloud_extra_info_str :
+            cloud_extra_info = json.loads(cloud_extra_info_str)
+            cloud_dpdk_info = cloud_extra_info.get("ovsDpdk")
+            if cloud_dpdk_info :
+                ovsdpdk_capability['hpaCapabilityID'] = str(feature_uuid)
+                ovsdpdk_capability['hpaFeature'] = 'ovsDpdk'
+                ovsdpdk_capability['hardwareArchitecture'] = 'Intel64'
+                ovsdpdk_capability['version'] = 'v1'
 
-        ovsdpdk_capability['attributes'] = []
-        ovsdpdk_capability['attributes'].append({'hpa-attribute-key': str(cloud_dpdk_info.get("libname")),
-                                                     'hpa-attribute-value':{'value': str(cloud_dpdk_info.get("libversion"))}})
+                ovsdpdk_capability['attributes'] = []
+                ovsdpdk_capability['attributes'].append({'hpa-attribute-key': str(cloud_dpdk_info.get("libname")),
+                                                         'hpa-attribute-value':{'value': str(cloud_dpdk_info.get("libversion"))}})
         return ovsdpdk_capability

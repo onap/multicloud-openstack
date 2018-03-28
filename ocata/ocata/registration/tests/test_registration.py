@@ -21,6 +21,32 @@ from newton_base.tests import mock_info
 from newton_base.tests import test_base
 from newton_base.util import VimDriverUtils
 
+OCATA_MOCK_VIM_INFO = {
+    "createTime": "2017-04-01 02:22:27",
+    "domain": "Default",
+    "name": "TiS_R4",
+    "password": "admin",
+    "tenant": "admin",
+    "type": "openstack",
+    "url": "http://128.224.180.14:5000/v3",
+    "userName": "admin",
+    "vendor": "WindRiver",
+    "version": "newton",
+    "vimId": "windriver-hudson-dc_RegionOne",
+    'cloud_owner': 'windriver-hudson-dc',
+    'cloud_region_id': 'RegionOne',
+    'cloud_extra_info':
+        '{'
+        '"ovsDpdk":{'
+          '"version": "v1",'
+          '"arch": "Intel64",'
+          '"libname":"dataProcessingAccelerationLibrary",'
+          '"libvalue":"v12.1",'
+          '}'
+        '}',
+    'insecure': 'True',
+}
+
 MOCK_GET_TENANT_RESPONSE = {
     "projects":[
         {"id": "1", "name": "project"},
@@ -144,6 +170,15 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS2_RESPONSE = {
         "hw:cpu_sockets": "2",
         "hw:cpu_cores": "4",
         "hw:cpu_threads": "16"
+    }
+}
+
+# HPA UT3: mem_page_size
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS3_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+        "hw:mem_page_size": "large"
     }
 }
 
@@ -271,6 +306,36 @@ class TestRegistration(test_base.TestRequest):
                     self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
                     self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
                     self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS2_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
+
+        response = self.client.post((
+            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                      response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_hugepage_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS3_RESPONSE),
                     self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
