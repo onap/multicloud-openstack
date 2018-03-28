@@ -306,7 +306,6 @@ class Registry(newton_registration.Registry):
 
         cloud_extra_info_str = viminfo.get('cloud_extra_info')
         if cloud_extra_info_str :
-            cloud_extra_info = json.loads(cloud_extra_info_str)
             cloud_dpdk_info = cloud_extra_info.get("ovsDpdk")
             if cloud_dpdk_info :
                 ovsdpdk_capability['hpaCapabilityID'] = str(feature_uuid)
