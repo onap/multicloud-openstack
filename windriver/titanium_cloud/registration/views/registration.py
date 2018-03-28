@@ -59,11 +59,12 @@ class Registry(newton_registration.Registry):
                     flavor_info['flavor-selflink'] = 'http://0.0.0.0',
 
                 # add hpa capabilities
-                req_resouce = "/flavors/%s/os-extra_specs" % flavor['id']
-                extraResp = self._get_list_resources(req_resouce, "compute", session, viminfo, vimid, "extra_specs")
+                if (flavor['name'].find('onap.') == 0):
+                    req_resouce = "/flavors/%s/os-extra_specs" % flavor['id']
+                    extraResp = self._get_list_resources(req_resouce, "compute", session, viminfo, vimid, "extra_specs")
 
-                hpa_capabilities = self._get_hpa_capabilities(flavor, extraResp)
-                flavor_info['hpa_capabilities'] = hpa_capabilities
+                    hpa_capabilities = self._get_hpa_capabilities(flavor, extraResp)
+                    flavor_info['hpa_capabilities'] = hpa_capabilities
 
                 self._update_resoure(
                     cloud_owner, cloud_region_id, flavor['id'],
@@ -129,7 +130,13 @@ class Registry(newton_registration.Registry):
         if len(caps_dict) > 0:
             self._logger.debug("pci_passthrough_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
-        
+
+        # ovsdpdk capabilities
+        caps_dict = self._get_ovsdpdk_capabilities(extra_specs)
+        if len(caps_dict) > 0:
+            self._logger.debug("ovsdpdk_capabilities_info: %s" % caps_dict)
+            hpa_caps.append(caps_dict)
+
         return hpa_caps
 
     def _get_hpa_basic_capabilities(self, flavor):
@@ -290,4 +297,18 @@ class Registry(newton_registration.Registry):
             instruction_capability['attributes'].append({'hpa-attribute-key': 'pciDeviceId',
                                                        'hpa-attribute-value':{'value': str(value2[4])}})
         
+        return instruction_capability
+
+    def _get_ovsdpdk_capabilities(self, extra_specs):
+        instruction_capability = {}
+        feature_uuid = uuid.uuid4()
+
+        instruction_capability['hpaCapabilityID'] = str(feature_uuid)
+        instruction_capability['hpaFeature'] = 'ovsDpdk'
+        instruction_capability['hardwareArchitecture'] = 'Intel64'
+        instruction_capability['version'] = 'v1'
+
+        instruction_capability['attributes'] = []
+        instruction_capability['attributes'].append({'hpa-attribute-key': 'dataProcessingAccelerationLibrary',
+                                                     'hpa-attribute-value':{'value': str('v17.02')}})
         return instruction_capability
