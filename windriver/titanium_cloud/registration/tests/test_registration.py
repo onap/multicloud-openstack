@@ -118,6 +118,45 @@ TEST_REGISTER_ENDPOINT_REQUEST = {
 }
 
 
+# HPA UT1: CPU-PINNING
+MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE= {
+    "flavors": [
+        {
+            "id": "1", "name": "micro", "vcpus": 1, "ram": "1MB",
+            "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
+            "swap": True, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True, "link": [{"href": 1}]
+        },
+        {
+            "id": "2", "name": "onap.mini", "vcpus": 2, "ram": "2MB",
+            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
+            "swap": False, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True
+        },
+    ]
+}
+
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+        "hw:cpu_policy": "dedicated",
+        "hw:cpu_thread_policy": "prefer"
+    }
+}
+
+# HPA UT2: CPU-Topology
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS2_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+        "hw:cpu_sockets": "2",
+        "hw:cpu_cores": "4",
+        "hw:cpu_threads": "16"
+    }
+}
+
+
 
 class TestRegistration(test_base.TestRequest):
 
@@ -191,62 +230,64 @@ class TestRegistration(test_base.TestRequest):
         self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR,
                           response.status_code)
 
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_cpupinning_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
 
+        response = self.client.post((
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-# HPA UT1: CPU-PINNING
-MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE= {
-    "flavors": [
-        {
-            "id": "1", "name": "micro", "vcpus": 1, "ram": "1MB",
-            "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
-            "swap": True, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True, "link": [{"href": 1}]
-        },
-        {
-            "id": "2", "name": "onap.mini", "vcpus": 2, "ram": "2MB",
-            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
-            "swap": False, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True
-        },
-    ]
-}
-
-MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE = {
-    "extra_specs": {
-        "aggregate_instance_extra_specs:storage": "local_image",
-        "capabilities:cpu_info:model": "Haswell",
-        "hw:cpu_policy": "dedicated",
-        "hw:cpu_thread_policy": "prefer"
-    }
-}
-
-@mock.patch.object(VimDriverUtils, 'get_session')
-@mock.patch.object(VimDriverUtils, 'get_vim_info')
-def test_register_hpa_cpupinning_successfully(
-        self, mock_get_vim_info, mock_get_session):
-    restcall.req_to_aai = mock.Mock()
-    restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
-    mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-    mock_get_session.return_value = test_base.get_mock_session(
-        ["get"], {
-            "side_effect": [
-                self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
-                self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
-                self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE),
-                self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
-                self._get_mock_response(),
-                self._get_mock_response(MOCK_GET_AZ_RESPONSE),
-                self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
-                self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
-                self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
-            ]
-        })
-
-    response = self.client.post((
-        "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
-        "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
-        HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
-
-    self.assertEquals(status.HTTP_202_ACCEPTED,
+        self.assertEquals(status.HTTP_202_ACCEPTED,
                       response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_topo_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS2_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
+
+        response = self.client.post((
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                      response.status_code)
+
 
