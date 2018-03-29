@@ -25,6 +25,8 @@ from newton_base.openoapi import limits
 from newton_base.openoapi import hosts
 from newton_base.openoapi import flavor
 
+from ocata.requests.views import imagefile
+
 urlpatterns = [
     url(r'^networks(/(?P<networkid>[0-9a-zA-Z_-]+))?',
         network.Networks.as_view()),
@@ -32,6 +34,9 @@ urlpatterns = [
         subnet.Subnets.as_view()),
     url(r'^images(/(?P<imageid>[0-9a-zA-Z_-]+))?',
         image.Images.as_view()),
+    # image-file
+    url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/image-file(/(?P<imageid>[0-9a-zA-Z_-]+))?',
+        imagefile.ImageFile.as_view()),
     url(r'^volumes(/(?P<volumeid>[0-9a-zA-Z_-]+))?',
         volume.Volumes.as_view()),
     url(r'^servers(/(?P<serverid>[0-9a-zA-Z_-]+))?',
