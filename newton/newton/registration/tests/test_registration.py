@@ -56,7 +56,7 @@ MOCK_GET_EXTRA_SPECS_RESPONSE = {
         "hw:numa_cpus.1": [0, 1],
         "hw:numa_mem.1": 2,
         "pci_passthrough:alias": "mycrypto-8086-0443:4",
-        "aggregate_instance_extra_spec:sriov-device-intel": "1832-9475",
+        "aggregate_instance_extra_spec:sriov-device-intel-1832-9475": "true",
         "hw:mem_page_size": "1GB"
     }
 }

@@ -205,16 +205,22 @@ class Registry(newton_registration.Registry):
             capabilities.append(capability)
 
         # SRIOV Devices
-        sriov_devices = [spec for spec in extra_specs if spec.startswith("aggregate_instance_extra_spec:sriov-device")]
+        sriov_devices = [spec for spec in extra_specs if spec.startswith("aggregate_instance_extra_spec:sriov")]
         for device in sriov_devices:
             capability = hpa_dict['pciePassthrough']['info']
             capability['hpa-capability-id'] = str(uuid.uuid4())
-            # device will be in the form aggregate_instance_extra_specs:sriov-device-<name>="<Vendor ID>-<Device ID>",
-            device_info = extra_specs[device]
-            vendor_id = device_info.split("-")[0]
-            device_id = device_info.split("-")[1]
+            # device will be in the form aggregate_instance_extra_specs:sriov-device-<NAME>=<true/false>,
+            # NAME is expected to be in the form <NAME>-<VENDOR_ID>-<DEVICE_ID>
+            enabled = extra_specs[device]
+            count = 1 if enabled == "true" else 0
+            vendor_id = device.split(":")[1].split("-")[3]
+            device_id = device.split(":")[1].split("-")[4]
 
             attributes = [
+                {
+                    'hpa-attribute-key': 'pciCount',
+                    'hpa-attribute-value': '{{\"value\":\"{0}\"}}'.format(count)
+                },
                 {
                     'hpa-attribute-key': 'pciVendorId',
                     'hpa-attribute-value': '{{\"value\":\"{0}\"}}'.format(vendor_id)
