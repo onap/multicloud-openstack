@@ -2,7 +2,7 @@
 set -ex
 
 sudo apt-get update -y
-sudo apt-get install -y docker.io maven npm
+sudo apt-get install -y docker.io maven npm virtualenv python-dev
 
 git clone http://gerrit.onap.org/r/oparent
 mkdir $HOME/.m2
