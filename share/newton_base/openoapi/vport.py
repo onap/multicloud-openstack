@@ -147,12 +147,13 @@ class Vports(APIView):
             tmpip = port.pop("ip", None)
             tmpsubnet = port.pop("subnetId", None)
             if tmpip and tmpsubnet:
-                 fixed_ip = {
-                    "ip_address": tmpip,
-                    "subnet_id": tmpsubnet,
-                 }
-                 port["fixed_ips"] = []
-                 port["fixed_ips"].append(fixed_ip)
+                port["fixed_ips"] = []
+                for one_tmpip in tmpip.split(','):
+                    fixed_ip = {
+                        "ip_address": one_tmpip,
+                        "subnet_id": tmpsubnet,
+                    }
+                    port["fixed_ips"].append(fixed_ip)
 
             VimDriverUtils.replace_key_by_mapping(port,
                                                   self.keys_mapping, True)
