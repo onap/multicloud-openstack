@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_ea00e567",
+        "filename": "share/newton_base/openoapi/vport.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-04-17T03:43:48Z",
+      "side": 1,
+      "message": "please use 4 characters, not 3 or 5 chaacters.",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 22
+      },
+      "revId": "198c19790cf08e1d2f408e0e36ffc194e5377339",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
