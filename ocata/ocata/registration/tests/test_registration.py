@@ -63,7 +63,7 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}]
          },
         {
-            "id": "2", "name": "mini", "vcpus": 2, "ram": "2MB",
+            "id": "2", "name": "mini", "vcpus": 2, "ram": "2",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True
@@ -154,7 +154,7 @@ MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE= {
             "OS-FLV-DISABLED:disabled": True, "link": [{"href": 1}]
         },
         {
-            "id": "2", "name": "onap.mini", "vcpus": 2, "ram": "2MB",
+            "id": "2", "name": "onap.mini", "vcpus": 2, "ram": "2",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True
