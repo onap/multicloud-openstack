@@ -100,7 +100,7 @@ MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-ocata/v0" % (
 AAI_ADDR = os.environ.get('AAI_ADDR', "aai.api.simpledemo.openecomp.org")
 AAI_PORT = os.environ.get('AAI_PORT', "8443")
 AAI_SERVICE_URL = 'https://%s:%s/aai' % (AAI_ADDR, AAI_PORT)
-AAI_SCHEMA_VERSION = os.environ.get('AAI_SCHEMA_VERSION', "v11")
+AAI_SCHEMA_VERSION = os.environ.get('AAI_SCHEMA_VERSION', "v13")
 AAI_USERNAME = os.environ.get('AAI_USERNAME', "AAI")
 AAI_PASSWORD = os.environ.get('AAI_PASSWORD', "AAI")
 
