@@ -91,7 +91,7 @@ class Registry(newton_registration.Registry):
             hpa_caps.append(caps_dict)
 
         # cpupining capabilities
-        caps_dict = self._get_cpupining_capabilities(extra_specs)
+        caps_dict = self._get_cpupinning_capabilities(extra_specs)
         if len(caps_dict) > 0:
             self._logger.debug("cpupining_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
@@ -157,13 +157,13 @@ class Registry(newton_registration.Registry):
 
         return basic_capability
 
-    def _get_cpupining_capabilities(self, extra_specs):
+    def _get_cpupinning_capabilities(self, extra_specs):
         cpupining_capability = {}
         feature_uuid = uuid.uuid4()
 
         if extra_specs.has_key('hw:cpu_policy') or extra_specs.has_key('hw:cpu_thread_policy'):
             cpupining_capability['hpaCapabilityID'] = str(feature_uuid)
-            cpupining_capability['hpaFeature'] = 'cpuPining'
+            cpupining_capability['hpaFeature'] = 'cpuPinning'
             cpupining_capability['hardwareArchitecture'] = 'generic'
             cpupining_capability['version'] = 'v1'
 
