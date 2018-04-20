@@ -211,8 +211,21 @@ class Registry(newton_registration.Registry):
             hugepages_capability['version'] = 'v1'
 
             hugepages_capability['attributes'] = []
-            hugepages_capability['attributes'].append({'hpa-attribute-key': 'memoryPageSize',
-                                                       'hpa-attribute-value':{'value': str(extra_specs['hw:mem_page_size'])}})
+            if extra_specs['hw:mem_page_size'] == 'large':
+                hugepages_capability['attributes'].append({'hpa-attribute-key': 'memoryPageSize',
+                                                           'hpa-attribute-value':{'value': '2',
+                                                                                   'unit': 'MB'}})
+            elif extra_specs['hw:mem_page_size'] == 'small':
+                hugepages_capability['attributes'].append({'hpa-attribute-key': 'memoryPageSize',
+                                                           'hpa-attribute-value':{'value': '4',
+                                                                                   'unit': 'KB'}})
+            elif extra_specs['hw:mem_page_size'] == 'any':
+                self._logger.info("Currently HPA feature memoryPageSize did not support 'any' page!!")
+            else :
+                hugepages_capability['attributes'].append({'hpa-attribute-key': 'memoryPageSize',
+                                                           'hpa-attribute-value':{'value': str(extra_specs['hw:mem_page_size']),
+                                                                                   'unit': 'KB'}})
+
         return hugepages_capability
 
     def _get_numa_capabilities(self, extra_specs):
