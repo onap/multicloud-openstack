@@ -148,13 +148,13 @@ TEST_REGISTER_ENDPOINT_REQUEST = {
 MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE= {
     "flavors": [
         {
-            "id": "1", "name": "micro", "vcpus": 1, "ram": "1MB",
+            "id": "1", "name": "micro", "vcpus": 1, "ram": "1024",
             "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
             "swap": True, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True, "link": [{"href": 1}]
         },
         {
-            "id": "2", "name": "onap.mini", "vcpus": 2, "ram": "2",
+            "id": "2", "name": "onap.mini", "vcpus": 2, "ram": "2048",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True
