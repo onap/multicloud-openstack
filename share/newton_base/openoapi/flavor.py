@@ -51,7 +51,11 @@ class Flavors(APIView):
               extraSpecs.append(spec)
 
     def get(self, request, vimid="", tenantid="", flavorid=""):
-        logger.debug("Flavors--get::> %s" % request.data)
+        logger.info("vimid, tenantid, flavorid = %s,%s,%s" % (vimid, tenantid, flavorid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
+
         try:
             # prepare request resource to vim instance
             query = VimDriverUtils.get_query_part(request)
@@ -109,9 +113,11 @@ class Flavors(APIView):
             }
             content.update(vim_dict)
 
+            logger.info("response with status = %s" % resp.status_code)
 
             return Response(data=content, status=resp.status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -123,16 +129,22 @@ class Flavors(APIView):
 
     def _get_flavor_extra_specs(self, sess, flavorid):
         if flavorid:
-            logger.debug("Flavors--get_extra_specs::> %s" % flavorid)
             # prepare request resource to vim instance
             req_resouce = "/flavors/%s/os-extra_specs" % flavorid
 
+            logger.info("making request with URI:%s" % req_resouce)
+
             resp = sess.get(req_resouce, endpoint_filter=self.service)
+
+            logger.info("request returns with status %s" % resp.status_code)
+            if resp.status_code == status.HTTP_200_OK:
+                logger.debug("with content:%s" % req_resouce)
+                pass
+
             return resp
         return {}
 
     def _get_flavor(self, sess, request, flavorid=""):
-        logger.debug("Flavors--get basic")
         if sess:
             # prepare request resource to vim instance
             req_resouce = "/flavors"
@@ -145,11 +157,24 @@ class Flavors(APIView):
             if query:
                 req_resouce += "?%s" % query
 
-            return sess.get(req_resouce, endpoint_filter=self.service)
+            logger.info("making request with URI:%s" % req_resouce)
+
+            resp = sess.get(req_resouce, endpoint_filter=self.service)
+
+            logger.info("request returns with status %s" % resp.status_code)
+            if resp.status_code == status.HTTP_200_OK:
+                logger.debug("with content:%s" % req_resouce)
+                pass
+
+            return resp
         return {}
 
     def post(self, request, vimid="", tenantid="", flavorid=""):
-        logger.debug("Flavors--post::> %s" % request.data)
+        logger.info("vimid, tenantid, flavorid = %s,%s,%s" % (vimid, tenantid, flavorid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
+
         sess = None
         resp = None
         resp_body = None
@@ -202,8 +227,7 @@ class Flavors(APIView):
             if extraSpecs:
                 extra_specs={}
                 self._convert_extra_specs(extraSpecs, extra_specs, False)
-#                logger.debug("extraSpecs:%s" % extraSpecs)
-#                logger.debug("extra_specs:%s" % extra_specs)
+
                 extraResp = self._create_flavor_extra_specs(sess, extra_specs, flavorid)
                 if extraResp.status_code == 200:
                     #combine the response body and return
@@ -227,6 +251,7 @@ class Flavors(APIView):
             resp_body.update(vim_dict)
             return Response(data=resp_body, status=resp.status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             if sess and resp and resp.status_code == 200:
                 self._delete_flavor(sess, flavorid)
 
@@ -244,7 +269,6 @@ class Flavors(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def _create_flavor(self, sess, request):
-        logger.debug("Flavors--create::> %s" % request.data)
         # prepare request resource to vim instance
         req_resouce = "/flavors"
 
@@ -253,11 +277,18 @@ class Flavors(APIView):
         VimDriverUtils.replace_key_by_mapping(flavor,
                                               self.keys_mapping, True)
         req_body = json.JSONEncoder().encode({"flavor": flavor})
-        return sess.post(req_resouce, data=req_body,
+
+        logger.info("making request with URI:%s" % req_resouce)
+        logger.debug("with data:%s" % req_body)
+
+        resp = sess.post(req_resouce, data=req_body,
                          endpoint_filter=self.service)
 
+        logger.info("request returns with status %s" % resp.status_code)
+
+        return resp
+
     def _create_flavor_extra_specs(self, sess, extraspecs, flavorid):
-        logger.debug("Flavors extra_specs--post::> %s" % extraspecs)
         # prepare request resource to vim instance
         req_resouce = "/flavors"
         if flavorid:
@@ -269,11 +300,22 @@ class Flavors(APIView):
 
         req_body = json.JSONEncoder().encode({"extra_specs": extraspecs})
 
-        return sess.post(req_resouce, data=req_body,
+        logger.info("making request with URI:%s" % req_resouce)
+        logger.debug("with data:%s" % req_body)
+
+        resp = sess.post(req_resouce, data=req_body,
                          endpoint_filter=self.service)
 
+        logger.info("request returns with status %s" % resp.status_code)
+
+        return resp
+
     def delete(self, request, vimid="", tenantid="", flavorid=""):
-        logger.debug("Flavors--delete::> %s" % request.data)
+        logger.info("vimid, tenantid, flavorid = %s,%s,%s" % (vimid, tenantid, flavorid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
+
         try:
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
@@ -288,6 +330,7 @@ class Flavors(APIView):
             #return results
             return Response(status=resp.status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -298,8 +341,6 @@ class Flavors(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def _delete_flavor_extra_specs(self, sess, flavorid):
-        logger.debug("Flavors--delete extra::> %s" % flavorid)
-
         #delete extra specs one by one
         resp = self._get_flavor_extra_specs(sess, flavorid)
         extra_specs = resp.json()
@@ -310,7 +351,6 @@ class Flavors(APIView):
         return resp
 
     def _delete_flavor_one_extra_spec(self, sess, flavorid, extra_spec_key):
-        logger.debug("Flavors--delete  1 extra::> %s" % extra_spec_key)
         # prepare request resource to vim instance
         try:
             req_resouce = "/flavors"
@@ -322,7 +362,14 @@ class Flavors(APIView):
                        content="internal bug in deleting flavor extra specs: %s" % extra_spec_key,
                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            return sess.delete(req_resouce, endpoint_filter=self.service)
+            logger.info("making request with URI:%s" % req_resouce)
+
+            resp = sess.delete(req_resouce, endpoint_filter=self.service)
+
+            logger.info("request returns with status %s" % resp.status_code)
+
+            return resp
+
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
@@ -332,7 +379,6 @@ class Flavors(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def _delete_flavor(self, sess, flavorid):
-        logger.debug("Flavors--delete basic::> %s" % flavorid)
         # prepare request resource to vim instance
         req_resouce = "/flavors"
         if flavorid:
@@ -342,4 +388,10 @@ class Flavors(APIView):
                    content="internal bug in deleting flavor",
                    status_code=500)
 
-        return sess.delete(req_resouce, endpoint_filter=self.service)
+        logger.info("making request with URI:%s" % req_resouce)
+
+        resp = sess.delete(req_resouce, endpoint_filter=self.service)
+
+        logger.info("request returns with status %s" % resp.status_code)
+
+        return resp
