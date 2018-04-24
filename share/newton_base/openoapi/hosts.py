@@ -38,7 +38,10 @@ class Hosts(APIView):
     ]
 
     def get(self, request, vimid="", tenantid="", hostname=""):
-        logger.debug("Hosts--get::> %s" % request.data)
+        logger.info("vimid, tenantid, hostname = %s,%s,%s" % (vimid, tenantid, hostname))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             #prepare request resource to vim instance
             req_resouce = "/os-hosts"
@@ -72,8 +75,12 @@ class Hosts(APIView):
                                                           self.host_keys_mapping)
                     content["host"].append(res['resource'])
 
+            logger.info("response with status = %s" % resp.status_code)
+
             return Response(data=content, status=resp.status_code)
+
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
