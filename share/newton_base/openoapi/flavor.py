@@ -138,7 +138,7 @@ class Flavors(APIView):
 
             logger.info("request returns with status %s" % resp.status_code)
             if resp.status_code == status.HTTP_200_OK:
-                logger.debug("with content:%s" % req_resouce)
+                logger.debug("with content:%s" % resp.json())
                 pass
 
             return resp
@@ -163,7 +163,7 @@ class Flavors(APIView):
 
             logger.info("request returns with status %s" % resp.status_code)
             if resp.status_code == status.HTTP_200_OK:
-                logger.debug("with content:%s" % req_resouce)
+                logger.debug("with content:%s" % resp.json())
                 pass
 
             return resp

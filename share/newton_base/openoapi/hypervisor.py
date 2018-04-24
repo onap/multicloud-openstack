@@ -37,14 +37,22 @@ class Hypervisors(APIView):
         ("container_format", "containerFormat")
     ]
 
-	
+
     def get(self, request, vimid="", tenantid="", hypervisorid=""):
-        logger.debug("hypervisors--get::> %s" % request.data)
+        logger.info("vimid, tenantid, hypervisorid = %s,%s,%s" % (vimid, tenantid, hypervisorid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
+
         try:
             query = VimDriverUtils.get_query_part(request)
             content, status_code = self.get_hypervisors(query, vimid, tenantid, hypervisorid)
+
+            logger.info("response with status = %s" % resp.status_code)
+
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -54,16 +62,24 @@ class Hypervisors(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-							
+
     def get_hypervisors(self, query="", vimid="", tenantid="", hypervisorid=""):
-        logger.debug("hypervisors--get::> %s" % hypervisorid)
 
         req_resource = "/os-hypervisors"
 
         vim = VimDriverUtils.get_vim_info(vimid)
         vim["domain"] = "Default"
         sess = VimDriverUtils.get_session(vim, tenantid)
+
+        logger.info("making request with URI:%s" % req_resouce)
+
         resp = sess.get(req_resource, endpoint_filter = self.service)
+
+        logger.info("request returns with status %s" % resp.status_code)
+        if resp.status_code == status.HTTP_200_OK:
+            logger.debug("with content:%s" % resp.json())
+            pass
+
         content = resp.json()
 
         return content, resp.status_code
