@@ -54,10 +54,10 @@ class Registry(newton_registration.Registry):
                     'flavor-disabled': flavor['OS-FLV-DISABLED:disabled'],
                 }
 
-                if flavor.get('link') and len(flavor['link']) > 0:
-                    flavor_info['flavor-selflink'] = flavor['link'][0]['href'] or 'http://0.0.0.0',
+                if flavor.get('links') and len(flavor['links']) > 0:
+                    flavor_info['flavor-selflink'] = flavor['links'][0]['href'] or 'http://0.0.0.0'
                 else:
-                    flavor_info['flavor-selflink'] = 'http://0.0.0.0',
+                    flavor_info['flavor-selflink'] = 'http://0.0.0.0'
 
                 # add hpa capabilities
                 if (flavor['name'].find('onap.') == 0):
@@ -65,7 +65,7 @@ class Registry(newton_registration.Registry):
                     extraResp = self._get_list_resources(req_resouce, "compute", session, viminfo, vimid, "extra_specs")
 
                     hpa_capabilities = self._get_hpa_capabilities(flavor, extraResp, viminfo)
-                    flavor_info['hpa_capabilities'] = hpa_capabilities
+                    flavor_info['hpa-capabilities'] = {'hpa-capability': hpa_capabilities}
 
                 self._update_resoure(
                     cloud_owner, cloud_region_id, flavor['id'],
@@ -144,15 +144,15 @@ class Registry(newton_registration.Registry):
         basic_capability = {}
         feature_uuid = uuid.uuid4()
 
-        basic_capability['hpaCapabilityID'] = str(feature_uuid)
-        basic_capability['hpaFeature'] = 'basicCapabilities'
-        basic_capability['hardwareArchitecture'] = 'generic'
-        basic_capability['version'] = 'v1'
+        basic_capability['hpa-capability-id'] = str(feature_uuid)
+        basic_capability['hpa-feature'] = 'basicCapabilities'
+        basic_capability['architecture'] = 'generic'
+        basic_capability['hpa-version'] = 'v1'
 
-        basic_capability['attributes'] = []
-        basic_capability['attributes'].append({'hpa-attribute-key': 'numVirtualCpu',
+        basic_capability['hpa-feature-attributes'] = []
+        basic_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'numVirtualCpu',
                                                'hpa-attribute-value':{'value': str(flavor['vcpus']) }})
-        basic_capability['attributes'].append({'hpa-attribute-key':'virtualMemSize',
+        basic_capability['hpa-feature-attributes'].append({'hpa-attribute-key':'virtualMemSize',
                                                'hpa-attribute-value': {'value':str(flavor['ram']), 'unit':'MB'}})
 
         return basic_capability
@@ -162,17 +162,17 @@ class Registry(newton_registration.Registry):
         feature_uuid = uuid.uuid4()
 
         if extra_specs.has_key('hw:cpu_policy') or extra_specs.has_key('hw:cpu_thread_policy'):
-            cpupining_capability['hpaCapabilityID'] = str(feature_uuid)
-            cpupining_capability['hpaFeature'] = 'cpuPinning'
-            cpupining_capability['hardwareArchitecture'] = 'generic'
-            cpupining_capability['version'] = 'v1'
+            cpupining_capability['hpa-capability-id'] = str(feature_uuid)
+            cpupining_capability['hpa-feature'] = 'cpuPinning'
+            cpupining_capability['architecture'] = 'generic'
+            cpupining_capability['hpa-version'] = 'v1'
 
-            cpupining_capability['attributes'] = []
+            cpupining_capability['hpa-feature-attributes'] = []
             if extra_specs.has_key('hw:cpu_thread_policy'):
-                cpupining_capability['attributes'].append({'hpa-attribute-key': 'logicalCpuThreadPinningPolicy',
+                cpupining_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'logicalCpuThreadPinningPolicy',
                                                            'hpa-attribute-value':{'value': str(extra_specs['hw:cpu_thread_policy'])}})
             if extra_specs.has_key('hw:cpu_policy'):
-                cpupining_capability['attributes'].append({'hpa-attribute-key':'logicalCpuPinningPolicy',
+                cpupining_capability['hpa-feature-attributes'].append({'hpa-attribute-key':'logicalCpuPinningPolicy',
                                                            'hpa-attribute-value': {'value':str(extra_specs['hw:cpu_policy'])}})
 
         return cpupining_capability
@@ -182,20 +182,20 @@ class Registry(newton_registration.Registry):
         feature_uuid = uuid.uuid4()
 
         if extra_specs.has_key('hw:cpu_sockets') or extra_specs.has_key('hw:cpu_cores') or extra_specs.has_key('hw:cpu_threads'):
-            cputopology_capability['hpaCapabilityID'] = str(feature_uuid)
-            cputopology_capability['hpaFeature'] = 'cpuTopology'
-            cputopology_capability['hardwareArchitecture'] = 'generic'
-            cputopology_capability['version'] = 'v1'
+            cputopology_capability['hpa-capability-id'] = str(feature_uuid)
+            cputopology_capability['hpa-feature'] = 'cpuTopology'
+            cputopology_capability['architecture'] = 'generic'
+            cputopology_capability['hpa-version'] = 'v1'
 
-            cputopology_capability['attributes'] = []
+            cputopology_capability['hpa-feature-attributes'] = []
             if extra_specs.has_key('hw:cpu_sockets'):
-                cputopology_capability['attributes'].append({'hpa-attribute-key': 'numCpuSockets',
+                cputopology_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'numCpuSockets',
                                                              'hpa-attribute-value':{'value': str(extra_specs['hw:cpu_sockets'])}})
             if extra_specs.has_key('hw:cpu_cores'):
-                cputopology_capability['attributes'].append({'hpa-attribute-key': 'numCpuCores',
+                cputopology_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'numCpuCores',
                                                              'hpa-attribute-value':{'value': str(extra_specs['hw:cpu_cores'])}})
             if extra_specs.has_key('hw:cpu_threads'):
-                cputopology_capability['attributes'].append({'hpa-attribute-key': 'numCpuThreads',
+                cputopology_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'numCpuThreads',
                                                              'hpa-attribute-value':{'value': str(extra_specs['hw:cpu_threads'])}})
 
         return cputopology_capability
@@ -205,24 +205,24 @@ class Registry(newton_registration.Registry):
         feature_uuid = uuid.uuid4()
 
         if extra_specs.has_key('hw:mem_page_size'):
-            hugepages_capability['hpaCapabilityID'] = str(feature_uuid)
-            hugepages_capability['hpaFeature'] = 'hugePages'
-            hugepages_capability['hardwareArchitecture'] = 'generic'
-            hugepages_capability['version'] = 'v1'
+            hugepages_capability['hpa-capability-id'] = str(feature_uuid)
+            hugepages_capability['hpa-feature'] = 'hugePages'
+            hugepages_capability['architecture'] = 'generic'
+            hugepages_capability['hpa-version'] = 'v1'
 
-            hugepages_capability['attributes'] = []
+            hugepages_capability['hpa-feature-attributes'] = []
             if extra_specs['hw:mem_page_size'] == 'large':
-                hugepages_capability['attributes'].append({'hpa-attribute-key': 'memoryPageSize',
+                hugepages_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'memoryPageSize',
                                                            'hpa-attribute-value':{'value': '2',
                                                                                    'unit': 'MB'}})
             elif extra_specs['hw:mem_page_size'] == 'small':
-                hugepages_capability['attributes'].append({'hpa-attribute-key': 'memoryPageSize',
+                hugepages_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'memoryPageSize',
                                                            'hpa-attribute-value':{'value': '4',
                                                                                    'unit': 'KB'}})
             elif extra_specs['hw:mem_page_size'] == 'any':
                 self._logger.info("Currently HPA feature memoryPageSize did not support 'any' page!!")
             else :
-                hugepages_capability['attributes'].append({'hpa-attribute-key': 'memoryPageSize',
+                hugepages_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'memoryPageSize',
                                                            'hpa-attribute-value':{'value': str(extra_specs['hw:mem_page_size']),
                                                                                    'unit': 'KB'}})
 
@@ -233,13 +233,13 @@ class Registry(newton_registration.Registry):
         feature_uuid = uuid.uuid4()
 
         if extra_specs.has_key('hw:numa_nodes'):
-            numa_capability['hpaCapabilityID'] = str(feature_uuid)
-            numa_capability['hpaFeature'] = 'numa'
-            numa_capability['hardwareArchitecture'] = 'generic'
-            numa_capability['version'] = 'v1'
+            numa_capability['hpa-capability-id'] = str(feature_uuid)
+            numa_capability['hpa-feature'] = 'numa'
+            numa_capability['architecture'] = 'generic'
+            numa_capability['hpa-version'] = 'v1'
 
-            numa_capability['attributes'] = []
-            numa_capability['attributes'].append({'hpa-attribute-key': 'numaNodes',
+            numa_capability['hpa-feature-attributes'] = []
+            numa_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'numaNodes',
                                                   'hpa-attribute-value':{'value': str(extra_specs['hw:numa_nodes'])}})
 
             for num in range(0, int(extra_specs['hw:numa_nodes'])):
@@ -249,9 +249,9 @@ class Registry(newton_registration.Registry):
                 numamem_key = "numaMem-%s" % num
 
                 if extra_specs.has_key(numa_cpu_node) and extra_specs.has_key(numa_mem_node):
-                    numa_capability['attributes'].append({'hpa-attribute-key': numacpu_key,
+                    numa_capability['hpa-feature-attributes'].append({'hpa-attribute-key': numacpu_key,
                                                           'hpa-attribute-value':{'value': str(extra_specs[numa_cpu_node])}})
-                    numa_capability['attributes'].append({'hpa-attribute-key': numamem_key,
+                    numa_capability['hpa-feature-attributes'].append({'hpa-attribute-key': numamem_key,
                                                           'hpa-attribute-value':{'value': str(extra_specs[numa_mem_node]),'unit':'MB'}})
 
         return numa_capability
@@ -260,17 +260,17 @@ class Registry(newton_registration.Registry):
         storage_capability = {}
         feature_uuid = uuid.uuid4()
 
-        storage_capability['hpaCapabilityID'] = str(feature_uuid)
-        storage_capability['hpaFeature'] = 'localStorage'
-        storage_capability['hardwareArchitecture'] = 'generic'
-        storage_capability['version'] = 'v1'
+        storage_capability['hpa-capability-id'] = str(feature_uuid)
+        storage_capability['hpa-feature'] = 'localStorage'
+        storage_capability['architecture'] = 'generic'
+        storage_capability['hpa-version'] = 'v1'
 
-        storage_capability['attributes'] = []
-        storage_capability['attributes'].append({'hpa-attribute-key': 'diskSize',
+        storage_capability['hpa-feature-attributes'] = []
+        storage_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'diskSize',
                                                        'hpa-attribute-value':{'value': str(flavor['disk']), 'unit':'GB'}})
-        storage_capability['attributes'].append({'hpa-attribute-key': 'swapMemSize',
+        storage_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'swapMemSize',
                                                        'hpa-attribute-value':{'value': str(flavor['swap']), 'unit':'MB'}})
-        storage_capability['attributes'].append({'hpa-attribute-key': 'ephemeralDiskSize',
+        storage_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'ephemeralDiskSize',
                                                        'hpa-attribute-value':{'value': str(flavor['OS-FLV-EXT-DATA:ephemeral']), 'unit':'GB'}})
         return storage_capability
 
@@ -279,13 +279,13 @@ class Registry(newton_registration.Registry):
         feature_uuid = uuid.uuid4()
 
         if extra_specs.has_key('hw:capabilities:cpu_info:features'):
-            instruction_capability['hpaCapabilityID'] = str(feature_uuid)
-            instruction_capability['hpaFeature'] = 'instructionSetExtensions'
-            instruction_capability['hardwareArchitecture'] = 'Intel64'
-            instruction_capability['version'] = 'v1'
+            instruction_capability['hpa-capability-id'] = str(feature_uuid)
+            instruction_capability['hpa-feature'] = 'instructionSetExtensions'
+            instruction_capability['architecture'] = 'Intel64'
+            instruction_capability['hpa-version'] = 'v1'
 
-            instruction_capability['attributes'] = []
-            instruction_capability['attributes'].append({'hpa-attribute-key': 'instructionSetExtensions',
+            instruction_capability['hpa-feature-attributes'] = []
+            instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'instructionSetExtensions',
                                                        'hpa-attribute-value':{'value': str(extra_specs['hw:capabilities:cpu_info:features'])}})
         return instruction_capability
 
@@ -297,20 +297,20 @@ class Registry(newton_registration.Registry):
             value1 = extra_specs['pci_passthrough:alias'].split(':')
             value2 = value1[0].split('-')
 
-            instruction_capability['hpaCapabilityID'] = str(feature_uuid)
-            instruction_capability['hpaFeature'] = 'pciePassthrough'
-            instruction_capability['hardwareArchitecture'] = str(value2[2])
-            instruction_capability['version'] = 'v1'
-            
-  
-            instruction_capability['attributes'] = []
-            instruction_capability['attributes'].append({'hpa-attribute-key': 'pciCount',
+            instruction_capability['hpa-capability-id'] = str(feature_uuid)
+            instruction_capability['hpa-feature'] = 'pciePassthrough'
+            instruction_capability['architecture'] = str(value2[2])
+            instruction_capability['hpa-version'] = 'v1'
+ 
+
+            instruction_capability['hpa-feature-attributes'] = []
+            instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciCount',
                                                        'hpa-attribute-value':{'value': str(value1[1])}})
-            instruction_capability['attributes'].append({'hpa-attribute-key': 'pciVendorId',
+            instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciVendorId',
                                                        'hpa-attribute-value':{'value': str(value2[3])}})
-            instruction_capability['attributes'].append({'hpa-attribute-key': 'pciDeviceId',
+            instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciDeviceId',
                                                        'hpa-attribute-value':{'value': str(value2[4])}})
-        
+
         return instruction_capability
 
     def _get_ovsdpdk_capabilities(self, viminfo):
@@ -321,12 +321,12 @@ class Registry(newton_registration.Registry):
         if cloud_extra_info_str :
             cloud_dpdk_info = cloud_extra_info_str.get("ovsDpdk")
             if cloud_dpdk_info :
-                ovsdpdk_capability['hpaCapabilityID'] = str(feature_uuid)
-                ovsdpdk_capability['hpaFeature'] = 'ovsDpdk'
-                ovsdpdk_capability['hardwareArchitecture'] = 'Intel64'
-                ovsdpdk_capability['version'] = 'v1'
+                ovsdpdk_capability['hpa-capability-id'] = str(feature_uuid)
+                ovsdpdk_capability['hpa-feature'] = 'ovsDpdk'
+                ovsdpdk_capability['architecture'] = 'Intel64'
+                ovsdpdk_capability['hpa-version'] = 'v1'
 
-                ovsdpdk_capability['attributes'] = []
-                ovsdpdk_capability['attributes'].append({'hpa-attribute-key': str(cloud_dpdk_info.get("libname")),
+                ovsdpdk_capability['hpa-feature-attributes'] = []
+                ovsdpdk_capability['hpa-feature-attributes'].append({'hpa-attribute-key': str(cloud_dpdk_info.get("libname")),
                                                          'hpa-attribute-value':{'value': str(cloud_dpdk_info.get("libversion"))}})
         return ovsdpdk_capability
