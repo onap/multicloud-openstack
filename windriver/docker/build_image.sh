@@ -6,8 +6,8 @@ cd ${DOCKER_BUILD_DIR}
 
 BUILD_ARGS="--no-cache"
 ORG="onap"
-VERSION="1.0.0-SNAPSHOT"
-STAGING="1.0.0-STAGING"
+VERSION="1.1.0-SNAPSHOT"
+STAGING="1.1.0-STAGING"
 PROJECT="multicloud"
 IMAGE="openstack-windriver"
 DOCKER_REPOSITORY="nexus3.onap.org:10003"
