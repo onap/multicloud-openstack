@@ -15,6 +15,7 @@
 import logging
 import json
 import uuid
+import traceback
 
 from django.conf import settings
 from keystoneauth1.exceptions import HttpError
