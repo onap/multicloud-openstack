@@ -151,10 +151,10 @@ class Registry(APIView):
                     'flavor-disabled': flavor['OS-FLV-DISABLED:disabled'],
                 }
 
-                if flavor.get('link') and len(flavor['link']) > 0:
-                    flavor_info['flavor-selflink'] = flavor['link'][0]['href'] or 'http://0.0.0.0',
+                if flavor.get('links') and len(flavor['links']) > 0:
+                    flavor_info['flavor-selflink'] = flavor['links'][0]['href'] or 'http://0.0.0.0'
                 else:
-                    flavor_info['flavor-selflink'] = 'http://0.0.0.0',
+                    flavor_info['flavor-selflink'] = 'http://0.0.0.0'
 
                 self._update_resoure(
                     cloud_owner, cloud_region_id, flavor['id'],
@@ -623,8 +623,8 @@ class Registry(APIView):
             return
 
     def post(self, request, vimid=""):
-        self._logger.debug("Registration--post::data> %s" % request.data)
-        self._logger.debug("Registration--post::vimid > %s" % vimid)
+        self._logger.info("registration with vimid: %s" % vimid)
+        self._logger.debug("with data: %s" % request.data)
 
         try:
             # populate proxy identity url
