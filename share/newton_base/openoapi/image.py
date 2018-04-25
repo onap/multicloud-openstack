@@ -49,7 +49,7 @@ class imageThread (threading.Thread):
         running_thread_lock.release()
 
     def transfer_image(self, vimid, tenantid, imageid, imagefd):
-        logger.debug("Images--transfer_image::> %s" % (imageid))
+        logger.info("vimid, tenantid, imageid, imagefd = %s,%s,%s,%s" % (vimid, tenantid, imageid, imagefd))
         try:
             # prepare request resource to vim instance
             req_resouce = "v2/images/%s/file" % imageid
@@ -58,11 +58,12 @@ class imageThread (threading.Thread):
             sess = VimDriverUtils.get_session(vim, tenantid)
 
             #open imageurl
+            logger.info("making image put request with URI:%s" % req_resouce)
             resp = sess.put(req_resouce, endpoint_filter=self.service, data=imagefd.read(),
                     headers={"Content-Type": "application/octet-stream",
                              "Accept": ""})
 
-            logger.debug("response status code of transfer_image %s" % resp.status_code)
+            logger.info("response status code of transfer_image %s" % resp.status_code)
             return None
         except HttpError as e:
             logger.error("transfer_image, HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -82,13 +83,14 @@ class Images(APIView):
     ]
 
     def get(self, request, vimid="", tenantid="", imageid=""):
-        logger.debug("Images--get::> %s" % request.data)
+        logger.info("vimid, tenantid, imageid = %s,%s,%s" % (vimid, tenantid, imageid))
         try:
             # prepare request resource to vim instance
             query = VimDriverUtils.get_query_part(request)
             content, status_code = self.get_images(query, vimid, tenantid, imageid)
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -99,8 +101,7 @@ class Images(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get_images(self, query="", vimid="", tenantid="", imageid=""):
-        logger.debug("Images--get_images::> %s" % imageid)
-
+        logger.info("vimid, tenantid, imageid, query = %s,%s,%s,%s" % (vimid, tenantid, imageid, query))
         # prepare request resource to vim instance
         req_resouce = "v2/images"
         if imageid:
@@ -110,7 +111,14 @@ class Images(APIView):
 
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
+
+        logger.info("making request with URI:%s" % req_resouce)
         resp = sess.get(req_resouce, endpoint_filter=self.service)
+        logger.info("request returns with status %s" % resp.status_code)
+        if resp.status_code == status.HTTP_200_OK:
+            logger.debug("with content:%s" % resp.json())
+            pass
+
         content = resp.json()
         vim_dict = {
             "vimName": vim["name"],
@@ -134,7 +142,10 @@ class Images(APIView):
         return content, resp.status_code
 
     def post(self, request, vimid="", tenantid="", imageid=""):
-        logger.debug("Images--post::> %s" % request.data)
+        logger.info("vimid, tenantid, imageid = %s,%s,%s" % (vimid, tenantid, imageid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             #check if created already: check name
             query = "name=%s" % request.data["name"]
@@ -173,6 +184,9 @@ class Images(APIView):
                                                   self.keys_mapping, True)
             #req_body = json.JSONEncoder().encode({"image": image})
             req_body = json.JSONEncoder().encode(image)
+
+            logger.info("making request with URI:%s" % req_resouce)
+            logger.debug("with data:%s" % req_body)
             resp = sess.post(req_resouce, data=req_body,
                              endpoint_filter=self.service)
             #resp_body = resp.json()["image"]
@@ -197,9 +211,10 @@ class Images(APIView):
                 tmp_thread.start()
             else:
                 logger.debug("resp.status_code: %s" % resp.status_code)
-
+            logger.info("request returns with status %s" % resp.status_code)
             return Response(data=resp_body, status=resp.status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except urllib.error.URLError as e:
             return Response(data={'error': 'image is not accessible:%s' % str(e)},
@@ -213,7 +228,7 @@ class Images(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, vimid="", tenantid="", imageid=""):
-        logger.debug("Images--delete::> %s" % request.data)
+        logger.info("vimid, tenantid, imageid = %s,%s,%s" % (vimid, tenantid, imageid))
         try:
             # prepare request resource to vim instance
             req_resouce = "v2/images"
@@ -222,9 +237,14 @@ class Images(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            logger.info("making request with URI:%s" % req_resouce)
             resp = sess.delete(req_resouce, endpoint_filter=self.service)
+            logger.info("request returns with status %s" % resp.status_code)
+
             return Response(status=resp.status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))

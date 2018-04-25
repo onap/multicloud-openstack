@@ -50,7 +50,14 @@ class Hosts(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            logger.info("making request with URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=self.service)
+            logger.info("request returns with status %s" % resp.status_code)
+            if resp.status_code == status.HTTP_200_OK:
+                logger.debug("with content:%s" % resp.json())
+                pass
+
             content = resp.json()
             vim_dict = {
                 "vimName": vim["name"],
