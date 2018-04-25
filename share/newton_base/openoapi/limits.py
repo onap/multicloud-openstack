@@ -37,14 +37,19 @@ class Limits(APIView):
                'interface': 'public'}
 
     def get(self, request, vimid="", tenantid=""):
-        logger.debug("Limits--get::> %s" % request.data)
+        logger.info("vimid, tenantid = %s,%s" % (vimid, tenantid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             #get limits first
             # prepare request resource to vim instance
             req_resouce = "/limits"
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+            logger.info("making request with URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=self.service)
+            logger.info("request returns with status %s" % resp.status_code)
             content = resp.json()
             content_all =content['limits']['absolute']
 
@@ -58,19 +63,24 @@ class Limits(APIView):
             #now get quota
             # prepare request resource to vim instance
             req_resouce = "/v2.0/quotas/%s" % tenantid
+            logger.info("making request with URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=self.service_network)
+            logger.info("request returns with status %s" % resp.status_code)
             content = resp.json()
             content_all.update(content['quota'])
 
             #now get volume limits
             # prepare request resource to vim instance
             req_resouce = "/limits"
+            logger.info("making request with URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=self.service_volume)
+            logger.info("request returns with status %s" % resp.status_code)
             content = resp.json()
             content_all.update(content['limits']['absolute'])
 
             return Response(data=content_all, status=resp.status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
