@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_cebcfdbd",
+        "filename": "windriver/titanium_cloud/registration/views/registration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-04-25T07:09:03Z",
+      "side": 1,
+      "message": "please remove these whitespaces",
+      "range": {
+        "startLine": 302,
+        "startChar": 0,
+        "endLine": 303,
+        "endChar": 2
+      },
+      "revId": "3f0be21337fbb26c1c6ec5f7e9059c2f7cfab9eb",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
