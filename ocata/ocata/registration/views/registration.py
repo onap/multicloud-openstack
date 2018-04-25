@@ -65,7 +65,7 @@ class Registry(newton_registration.Registry):
                     extraResp = self._get_list_resources(req_resouce, "compute", session, viminfo, vimid, "extra_specs")
 
                     hpa_capabilities = self._get_hpa_capabilities(flavor, extraResp, viminfo)
-                    flavor_info['hpa_capabilities'] = hpa_capabilities
+                    flavor_info['hpa-capabilities'] = {'hpa-capability': hpa_capabilities}
 
                 self._update_resoure(
                     cloud_owner, cloud_region_id, flavor['id'],
