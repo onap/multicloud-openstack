@@ -78,6 +78,7 @@ class Limits(APIView):
             content = resp.json()
             content_all.update(content['limits']['absolute'])
 
+            logger.info("response with status = %s" % resp.status_code)
             return Response(data=content_all, status=resp.status_code)
         except VimDriverNewtonException as e:
             logger.error("response with status = %s" % e.status_code)

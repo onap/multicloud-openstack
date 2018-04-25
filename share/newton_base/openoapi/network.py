@@ -39,13 +39,18 @@ class Networks(APIView):
     ]
 
     def get(self, request, vimid="", tenantid="", networkid=""):
-        logger.debug("Networks--get::> %s" % request.data)
+        logger.info("vimid, tenantid, networkid = %s,%s,%s" % (vimid, tenantid, networkid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             query = VimDriverUtils.get_query_part(request)
             content, status_code = self.get_networks(query, vimid, tenantid, networkid)
+            logger.info("response with status = %s" % status_code)
             return Response(data=content, status=status_code)
 
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -56,7 +61,6 @@ class Networks(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get_networks(self, query, vimid="", tenantid="", networkid=""):
-        logger.debug("Networks--get_networks::> %s" % networkid)
 
         # prepare request resource to vim instance
         req_resouce = "v2.0/networks"
@@ -68,7 +72,12 @@ class Networks(APIView):
 
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
+        logger.info("making request with URI:%s" % req_resouce)
         resp = sess.get(req_resouce, endpoint_filter=self.service)
+        logger.info("request returns with status %s" % resp.status_code)
+        if resp.status_code == status.HTTP_200_OK:
+            logger.debug("with content:%s" % resp.json())
+            pass
         content = resp.json()
         vim_dict = {
             "vimName": vim["name"],
@@ -92,7 +101,10 @@ class Networks(APIView):
         return content, resp.status_code
 
     def post(self, request, vimid="", tenantid="", networkid=""):
-        logger.debug("Networks--post::> %s" % request.data)
+        logger.info("vimid, tenantid, networkid = %s,%s,%s" % (vimid, tenantid, networkid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             #check if created already: check name
             query = "name=%s" % request.data["name"]
@@ -119,8 +131,13 @@ class Networks(APIView):
             VimDriverUtils.replace_key_by_mapping(network,
                                                   self.keys_mapping, True)
             req_body = json.JSONEncoder().encode({"network": network})
+
+            logger.info("making request with URI:%s" % req_resouce)
+            logger.debug("with data:%s" % req_body)
             resp = sess.post(req_resouce, data=req_body,
                              endpoint_filter=self.service)
+            logger.info("request returns with status %s" % resp.status_code)
+
             resp_body = resp.json()["network"]
             VimDriverUtils.replace_key_by_mapping(resp_body, self.keys_mapping)
             vim_dict = {
@@ -132,6 +149,7 @@ class Networks(APIView):
             resp_body.update(vim_dict)
             return Response(data=resp_body, status=resp.status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -142,7 +160,7 @@ class Networks(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, vimid="", tenantid="", networkid=""):
-        logger.debug("Networks--delete::> %s" % request.data)
+        logger.info("vimid, tenantid, networkid = %s,%s,%s" % (vimid, tenantid, networkid))
         try:
             # prepare request resource to vim instance
             req_resouce = "v2.0/networks"
@@ -154,9 +172,14 @@ class Networks(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            logger.info("making delete request with URI:%s" % req_resouce)
             resp = sess.delete(req_resouce, endpoint_filter=self.service)
+            logger.info("request returns with status %s" % resp.status_code)
+
             return Response(status=resp.status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
