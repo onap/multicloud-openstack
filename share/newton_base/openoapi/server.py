@@ -336,13 +336,30 @@ class Servers(APIView):
 
             contextarray = server.pop("contextArray", None)
             volumearray = server.pop("volumeArray", None)
+            userdata = server.pop("userdata", None)
             if contextarray:
-                # now set "contextArray" array
-                personalities = []
+                user_data = []
+                strUserData = ''
+                source_content = ""
+                dest_path = ""
                 for context in contextarray:
-                    personalities.append({"path": context["fileName"], "contents": context["fileData"]})
-                if len(personalities) > 0:
-                    server["personality"] = personalities
+                    if context["fileName"] == "source_path":
+                        source_content = context["fileData"]
+                    if context["fileName"] == "dest_path":
+                        dest_path = context["fileData"]
+                if len(source_content) > 0:
+                    user_data.append("#cloud-config\n")
+                    user_data.append("write_files:\n")
+                    user_data.append("-   encoding: b64\n")
+                    user_data.append("    content: " + source_content + "\n")
+                    user_data.append("    owner: root:root\n")
+                    user_data.append("    path: " + dest_path + "\n")
+                    user_data.append("    permissions: '0644'\n")
+                    user_data.append("\n")
+                    user_data.append("runcmd:")
+                    user_data.append("-   " + userdata + "\n")
+                    strUserData.join(user_data)
+                    server["user_data"] = user_data
 
             VimDriverUtils.replace_key_by_mapping(server,
                                                   self.keys_mapping, True)
