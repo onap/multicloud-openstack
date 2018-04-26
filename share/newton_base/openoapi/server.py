@@ -56,7 +56,7 @@ class ServerVolumeAttachThread (threading.Thread):
         running_thread_lock.release()
 
     def attach_volume(self, vimid, tenantid, serverid, *volumeids):
-        logger.debug("Server--attach_volume::> %s, %s" % (serverid, volumeids))
+        logger.info("vimid, tenantid, serverid, volumeids = %s,%s,%s,%s" % (vimid, tenantid, serverid, volumeids))
         try:
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
@@ -66,7 +66,11 @@ class ServerVolumeAttachThread (threading.Thread):
             logger.debug("Servers--attach_volume, wait for server to be ACTIVE::>%s" % serverid)
             req_resouce = "servers/%s" % serverid
             while True:
+                logger.info("making request with URI:%s" % req_resouce)
                 resp = sess.get(req_resouce, endpoint_filter=self.service)
+                if resp.status_code == status.HTTP_200_OK:
+                    logger.debug("with content:%s" % resp.json())
+                    pass
                 content = resp.json()
                 if content and content["server"] and content["server"]["status"] == "ACTIVE":
                     break;
@@ -76,14 +80,15 @@ class ServerVolumeAttachThread (threading.Thread):
                 req_data = {"volumeAttachment": {
                     "volumeId": volumeid
                 }}
-                logger.debug("Servers--attach_volume::>%s, %s" % (req_resouce, req_data))
                 req_body = json.JSONEncoder().encode(req_data)
+
+                logger.info("making request with URI:%s" % req_resouce)
+                logger.debug("with data:%s" % req_body)
                 resp = sess.post(req_resouce, data=req_body,
                                  endpoint_filter=self.service,
                                  headers={"Content-Type": "application/json",
                                           "Accept": "application/json"})
-                logger.debug("Servers--attach_volume resp::>%s" % resp.json())
-
+                logger.info("request returns with status %s" % resp.status_code)
             return None
         except HttpError as e:
             logger.error("attach_volume, HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -95,7 +100,7 @@ class ServerVolumeAttachThread (threading.Thread):
 
 
     def detach_volume(self, vimid, tenantid, serverid, *volumeids):
-        logger.debug("Server--detach_volume::> %s, %s" % (serverid, volumeids))
+        logger.info("vimid, tenantid, serverid, volumeids = %s,%s,%s,%s" % (vimid, tenantid, serverid, volumeids))
         try:
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
@@ -107,13 +112,13 @@ class ServerVolumeAttachThread (threading.Thread):
             for volumeid in volumeids:
                 req_resouce = "servers/%s/os-volume_attachments/%s" % (serverid, volumeid)
 
-                logger.debug("Servers--dettachVolume::>%s" % (req_resouce))
+                logger.info("making request with URI:%s" % req_resouce)
                 resp = sess.delete(req_resouce,
                                    endpoint_filter=self.service,
                                    headers={"Content-Type": "application/json",
                                             "Accept": "application/json"})
 
-                logger.debug("Servers--dettachVolume resp::>%s" % resp.json())
+                logger.info("request returns with status %s" % resp.status_code)
 
             return None
         except HttpError as e:
@@ -153,12 +158,12 @@ class Servers(APIView):
 
         for volumeid in volumeIds:
             req_resouce = "servers/%s/os-volume_attachments/%s" % (serverId, volumeid)
-            logger.debug("Servers--dettachVolume::>%s" % (req_resouce))
+            logger.info("making delete request with URI:%s" % req_resouce)            
             resp = sess.delete(req_resouce,
                                endpoint_filter=self.service,
                                headers={"Content-Type": "application/json",
                                         "Accept": "application/json"})
-            logger.debug("Servers--dettachVolume resp status::>%s" % resp.status_code)
+            logger.info("delete request returns with status %s" % resp.status_code)
 
     def _convert_metadata(self, metadata, metadata_output, reverse=True):
         if not reverse:
@@ -199,13 +204,19 @@ class Servers(APIView):
         server["availabilityZone"] = server.pop("OS-EXT-AZ:availability_zone", None)
 
     def get(self, request, vimid="", tenantid="", serverid=""):
-        logger.debug("Servers--get::> %s" % request.data)
+        logger.info("vimid, tenantid, serverid = %s,%s,%s" % (vimid, tenantid, serverid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             # prepare request resource to vim instance
             query = VimDriverUtils.get_query_part(request)
             content, status_code = self._get_servers(query, vimid, tenantid, serverid)
+
+            logger.info("response with status = %s" % status_code)
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -220,14 +231,20 @@ class Servers(APIView):
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
         req_resouce = "servers/%s/os-interface" % serverid
+
+        logger.info("making request with URI:%s" % req_resouce)
         resp = sess.get(req_resouce, endpoint_filter=self.service)
+        logger.info("request returns with status %s" % resp.status_code)
+        if resp.status_code == status.HTTP_200_OK:
+            logger.debug("with content:%s" % resp.json())
+            pass
+
         ports = resp.json()
         if ports and ports["interfaceAttachments"] and len(ports["interfaceAttachments"]) > 0:
             return [{"portId":port["port_id"]} for port in ports["interfaceAttachments"]]
         return None
 
     def _get_servers(self, query="", vimid="", tenantid="", serverid=None):
-        logger.debug("Servers--get_servers::> %s,%s" % (tenantid, serverid))
 
         # prepare request resource to vim instance
         req_resouce = "servers"
@@ -240,7 +257,14 @@ class Servers(APIView):
 
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
+
+        logger.info("making request with URI:%s" % req_resouce)
         resp = sess.get(req_resouce, endpoint_filter=self.service)
+        logger.info("request returns with status %s" % resp.status_code)
+        if resp.status_code == status.HTTP_200_OK:
+            logger.debug("with content:%s" % resp.json())
+            pass
+
         content = resp.json()
         vim_dict = {
             "vimName": vim["name"],
@@ -279,7 +303,7 @@ class Servers(APIView):
         return content, resp.status_code
 
     def post(self, request, vimid="", tenantid="", serverid=""):
-        logger.debug("Servers--post::> %s" % request.data)
+        logger.info("vimid, tenantid, serverid = %s,%s,%s" % (vimid, tenantid, serverid))
         try:
             # check if created already: check name
             servername = request.data["name"]
@@ -350,14 +374,16 @@ class Servers(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+            
+            logger.info("making request with URI:%s" % req_resouce)
+            logger.debug("with data:%s" % req_body)
             resp = sess.post(req_resouce, data=req_body,
                              endpoint_filter=self.service,
                              headers={"Content-Type": "application/json",
                                       "Accept": "application/json"})
-
+            logger.info("request returns with status %s" % resp.status_code)
             resp_body = resp.json().pop("server", None)
 
-            logger.debug("Servers--post status::>%s, %s" % (resp_body["id"], resp.status_code))
             if resp.status_code in [status.HTTP_200_OK, status.HTTP_201_CREATED, status.HTTP_202_ACCEPTED]:
                 if volumearray and len(volumearray) > 0:
                     # server is created, now attach volumes
@@ -385,6 +411,7 @@ class Servers(APIView):
             resp_body["name"] = servername
             return Response(data=resp_body, status=resp.status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -395,7 +422,10 @@ class Servers(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, vimid="", tenantid="", serverid=""):
-        logger.debug("Servers--delete::> %s" % request.data)
+        logger.info("vimid, tenantid, serverid = %s,%s,%s" % (vimid, tenantid, serverid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
@@ -412,8 +442,9 @@ class Servers(APIView):
             req_resouce = "servers"
             if serverid:
                 req_resouce += "/%s" % serverid
-
+            logger.info("making request with URI:%s" % req_resouce)
             resp = sess.delete(req_resouce, endpoint_filter=self.service)
+            logger.info("request returns with status %s" % resp.status_code)
             return Response(status=resp.status_code)
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
