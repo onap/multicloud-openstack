@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_52c72b98",
+        "filename": "share/newton_base/openoapi/server.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 309
+      },
+      "writtenOn": "2018-04-27T02:40:37Z",
+      "side": 1,
+      "message": "what if we have multiple inject files? this code can not support that",
+      "range": {
+        "startLine": 350,
+        "startChar": 42,
+        "endLine": 350,
+        "endChar": 43
+      },
+      "revId": "6e398d3abf920b156917c0895ecfb07315774423",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_523e4b8c",
+        "filename": "share/newton_base/openoapi/server.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 309
+      },
+      "writtenOn": "2018-04-27T02:40:37Z",
+      "side": 1,
+      "message": "I don\u0027t think this is the correct way to put userdata script here. We should save the userdata script into a special file, inject it, and use runcmd to run it. Considering a userdata script using environment variables, I don\u0027t think we can guarantee those variables are available due to the way runrmd invoking sh to execute commands line by line. We need to verify that.",
+      "range": {
+        "startLine": 360,
+        "startChar": 60,
+        "endLine": 360,
+        "endChar": 62
+      },
+      "revId": "6e398d3abf920b156917c0895ecfb07315774423",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
