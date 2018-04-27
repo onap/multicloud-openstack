@@ -42,11 +42,13 @@ class Registry(APIView):
         service = {'service_type': service_type,
                    'interface': 'public',
                    'region_id': viminfo['cloud_region_id']}
+        logger.info("making request with URI:%s" % resource_url)
         resp = session.get(resource_url, endpoint_filter=service)
+        logger.info("request returns with status %s" % resp.status_code)
+        if resp.status_code == status.HTTP_200_OK:
+            logger.debug("with content:%s" % resp.json())
+            pass
         content = resp.json()
-
-        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
-                           % (vimid, resource_url, resp.status_code,content))
 
         if resp.status_code != status.HTTP_200_OK:
             return  # failed to discover resources
@@ -230,11 +232,14 @@ class Registry(APIView):
                     service = {'service_type': "image",
                                'interface': 'public',
                                'region_id': viminfo['cloud_region_id']}
+                    logger.info("making request with URI:%s" % req_resource)
                     resp = session.get(req_resource, endpoint_filter=service)
+                    logger.info("request returns with status %s" % resp.status_code)
+                    if resp.status_code == status.HTTP_200_OK:
+                        logger.debug("with content:%s" % resp.json())
+                        pass
                     content = resp.json()
 
-                    self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
-                                       % (vimid, req_resource, resp.status_code, content))
                     # if resp.status_code == status.HTTP_200_OK:
                         # parse the schema? TBD
                         # self.update_image(cloud_owner, cloud_region_id, image_info)
@@ -270,10 +275,13 @@ class Registry(APIView):
                         service = {'service_type': "compute",
                                    'interface': 'public',
                                    'region_id': viminfo['cloud_region_id']}
+                        logger.info("making request with URI:%s" % req_resource)
                         resp = session.get(req_resource, endpoint_filter=service)
+                        logger.info("request returns with status %s" % resp.status_code)
+                        if resp.status_code == status.HTTP_200_OK:
+                            logger.debug("with content:%s" % resp.json())
+                            pass
                         content = resp.json()
-                        self._logger.debug("vimid: %s, req: %s,resp code: %s, body: %s"
-                                           % (vimid, req_resource, resp.status_code, content))
                         if resp.status_code != status.HTTP_200_OK and not content[0]:
                             continue
                         az_info['hypervisor-type'] = content['hypervisors'][0]['hypervisor_type']\
