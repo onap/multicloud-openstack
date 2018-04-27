@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Intel Corporation, Inc.
+# Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,17 +14,41 @@
 
 import mock
 
-from django.conf import settings
 from rest_framework import status
 
 from common.utils import restcall
-from newton_base.openoapi.flavor import Flavors
 from newton_base.tests import mock_info
 from newton_base.tests import test_base
 from newton_base.util import VimDriverUtils
 
+OCATA_MOCK_VIM_INFO = {
+    "createTime": "2017-04-01 02:22:27",
+    "domain": "Default",
+    "name": "TiS_R4",
+    "password": "admin",
+    "tenant": "admin",
+    "type": "openstack",
+    "url": "http://128.224.180.14:5000/v3",
+    "userName": "admin",
+    "vendor": "WindRiver",
+    "version": "newton",
+    "vimId": "windriver-hudson-dc_RegionOne",
+    'cloud_owner': 'windriver-hudson-dc',
+    'cloud_region_id': 'RegionOne',
+    'cloud_extra_info':
+        {
+        "ovsDpdk":{
+          "version": "v1",
+          "arch": "Intel64",
+          "libname":"dataProcessingAccelerationLibrary",
+          "libvalue":"v12.1",
+          }
+        },
+    'insecure': 'True'
+}
+
 MOCK_GET_TENANT_RESPONSE = {
-    "projects": [
+    "projects":[
         {"id": "1", "name": "project"},
         {"id": "2", "name": "project2"},
     ]
@@ -36,160 +60,16 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "id": "1", "name": "micro", "vcpus": 1, "ram": "1MB",
             "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
             "swap": True, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True, "link": [{"href": 1}]
-        },
+            "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}]
+         },
         {
-            "id": "2", "name": "mini", "vcpus": 2, "ram": "2MB",
+            "id": "2", "name": "mini", "vcpus": 2, "ram": "2",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
             "swap": False, "os-flavor-access:is_public": True,
             "OS-FLV-DISABLED:disabled": True
         },
     ]
 }
-
-MOCK_GET_EXTRA_SPECS_RESPONSE = {
-    "extra_specs": {
-        "hw:cpu_sockets": 4,
-        "hw:cpu_cores": 4,
-        "hw:cpu_policy": "dedicated",
-        "hw:numa_nodes": 3,
-        "hw:numa_cpus.1": [0, 1],
-        "hw:numa_mem.1": 2,
-        "pci_passthrough:alias": "mycrypto-8086-0443:4",
-        "aggregate_instance_extra_spec:sriov-device-intel-1832-9475": "true",
-        "hw:mem_page_size": "1GB"
-    }
-}
-
-MOCK_HPA_RESPONSE = """{
-    "basicCapabilities": {
-        "info": {
-            "hpa-feature": "basicCapabilities",
-            "hpa-version": "v1",
-            "architecture": "generic"
-        },
-        "hpa-attributes": {
-            "vcpus": {
-                "key": "numVirtualCpu",
-                "unit": null
-            },
-            "ram": {
-                "key": "virtualMemSize",
-                "unit": "GB"
-            }
-        }
-    },
-    "localStorage": {
-        "info": {
-            "hpa-feature": "localStorage",
-            "hpa-version": "v1",
-            "architecture": "generic"
-        },
-        "hpa-attributes": {
-            "disk": {
-                "key": "diskSize",
-                "unit": "GB"
-            },
-            "swap": {
-                "key": "swapMemSize",
-                "unit": "MB"
-            }
-        }
-    },
-    "cpuTopology": {
-        "info": {
-            "hpa-feature": "cpuTopology",
-            "hpa-version": "v1",
-            "architecture": "generic"
-        },
-        "hpa-attributes": {
-            "hw:cpu_sockets": {
-                "key": "numCpuSockets",
-                "unit": null
-            },
-            "hw:cpu_cores": {
-                "key": "numCpuCores",
-                "unit": null
-            },
-            "hw:cpu_threads": {
-                "key": "numCpuThreads",
-                "unit": null
-            }
-        }
-    },
-    "cpuPinning": {
-        "info": {
-            "hpa-feature": "cpuPinning",
-            "hpa-version": "v1",
-            "architecture": "generic"
-        },
-        "hpa-attributes": {
-            "hw:cpu_thread_policy": {
-                "key": "logicalCpuThreadPinningPolicy",
-                "unit": null
-            },
-            "hw:cpu_policy": {
-                "key": "logicalCpuPinningPolicy",
-                "unit": null
-            }
-        }
-    },
-    "numa": {
-        "info": {
-            "hpa-feature": "numa",
-            "hpa-version": "v1",
-            "architecture": "generic"
-        },
-        "hpa-attributes": {
-            "hw:numa_nodes": {
-                "key": "numaNodes",
-                "unit": null
-            },
-            "hw:numa_cpus": {
-                "key": "numaCpu",
-                "unit": null
-            },
-            "hw:numa_mem": {
-                "key": "numaMem",
-                "unit": "GB"
-            }
-        }
-    },
-    "hugePages": {
-        "info": {
-            "hpa-feature": "hugePages",
-            "hpa-version": "v1",
-            "architecture": "generic"
-        },
-        "hpa-attributes": {
-            "hw:mem_page_size": {
-                "key": "memoryPageSize",
-                "unit": null
-            }
-        }
-    },
-    "pciePassthrough": {
-        "info": {
-            "hpa-feature": "pciePassthrough",
-            "hpa-version": "v1",
-            "architecture": "generic"
-        },
-        "hpa-attributes": {
-            "pci_count": {
-                "key": "pciCount",
-                "unit": null
-            },
-            "pci_vendor_id": {
-                "key": "pciVendorId",
-                "unit": null
-            },
-            "pci_device_id": {
-                "key": "pciDeviceId",
-                "unit": null
-            }
-        }
-    }
-}"""
 
 MOCK_GET_IMAGE_RESPONSE = {
     "images": [
@@ -215,7 +95,7 @@ MOCK_GET_AZ_RESPONSE = {
         {
             "zoneName": "production",
             "zoneState": {"available": True},
-            "hosts": {"hypervisor": "kvm"}
+            "hosts": { "hypervisor": "kvm" }
         },
         {
             "zoneName": "testing",
@@ -234,9 +114,9 @@ MOCK_GET_SNAPSHOT_RESPONSE = {
         {
             "id": 1, "name": "test", "metadata":
             {
-                "architecture": "x86", "os-distro": "clearlinux",
-                "os-version": "276", "vendor": "intel", "version": 3,
-                "selflink": "test", "prev-snapshot-id": "test-id"
+            "architecture": "x86", "os-distro": "clearlinux",
+            "os-version": "276", "vendor": "intel", "version": 3,
+            "selflink": "test", "prev-snapshot-id": "test-id"
             }
         },
         {"id": 2, "name": "test2"}
@@ -249,9 +129,7 @@ MOCK_GET_HYPERVISOR_RESPONSE = {
             "hypervisor_hostname": "testing", "state": "ACTIVE",
             "id": 1, "local_gb": 256, "memory_mb": 1024,
             "hypervisor_links": "link", "host_ip": "127.0.0.1",
-            "cpu_info":
-                u'{"topology": {"cores": 8, "threads": 16,'
-                u'"sockets": 4}}'
+            "cpu_info": u'{"topology": {"cores": 8, "threads": 16, "sockets": 4}}'
         },
         {
             "hypervisor_hostname": "testing2", "state": "XXX",
@@ -266,13 +144,93 @@ TEST_REGISTER_ENDPOINT_REQUEST = {
 }
 
 
-class TestFlavors(test_base.TestRequest):
+# HPA UT1: CPU-PINNING
+MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE= {
+    "flavors": [
+        {
+            "id": "1", "name": "micro", "vcpus": 1, "ram": "1024",
+            "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
+            "swap": True, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True, "link": [{"href": 1}]
+        },
+        {
+            "id": "2", "name": "onap.mini", "vcpus": 2, "ram": "2048",
+            "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
+            "swap": False, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True
+        },
+    ]
+}
+
+# HPA UT2: CPU-Topology
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS2_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+        "hw:cpu_sockets": "2",
+        "hw:cpu_cores": "4",
+        "hw:cpu_threads": "16"
+    }
+}
+
+# HPA UT3: mem_page_size
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS3_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+        "hw:mem_page_size": "large"
+    }
+}
+
+# HPA UT4: numa_nodes
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS4_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+            "hw:numa_nodes": "2",
+            "hw:numa_cpus.0": "0,1",
+            "hw:numa_cpus.1": "2,3,4,5",
+            "hw:numa_mem.0": "2048",
+            "hw:numa_mem.1": "2048"
+    }
+}
+
+# HPA UT5: instruction set
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS5_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+            "hw:capabilities:cpu_info:features": "avx,acpi"
+    }
+}
+
+# HPA UT6: pci passthrough
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS6_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+            "pci_passthrough:alias": "sriov-vf-intel-8086-15b3:4"
+    }
+}
+
+MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE = {
+    "extra_specs": {
+        "aggregate_instance_extra_specs:storage": "local_image",
+        "capabilities:cpu_info:model": "Haswell",
+        "hw:cpu_policy": "dedicated",
+        "hw:cpu_thread_policy": "prefer"
+    }
+}
+
+
+class TestRegistration(test_base.TestRequest):
+
     def setUp(self):
-        super(TestFlavors, self).setUp()
+        super(TestRegistration, self).setUp()
         self.req_to_aai_backup = restcall.req_to_aai
 
     def tearDown(self):
-        super(TestFlavors, self).tearDown()
+        super(TestRegistration, self).tearDown()
         restcall.req_to_aai = self.req_to_aai_backup
 
     def _get_mock_response(self, return_value=None):
@@ -281,16 +239,13 @@ class TestFlavors(test_base.TestRequest):
         mock_response.json.return_value = return_value
         return mock_response
 
-    @mock.patch.object(Flavors, '_get_flavor_extra_specs')
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_register_endpoint_successfully(
-            self, mock_get_vim_info, mock_get_session,
-            mock_get_extra_specs):
-        settings.AAI_SCHEMA_VERSION = "v13"
+            self, mock_get_vim_info, mock_get_session):
         restcall.req_to_aai = mock.Mock()
         restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_vim_info.return_value = OCATA_MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
                 "side_effect": [
@@ -300,26 +255,18 @@ class TestFlavors(test_base.TestRequest):
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
                     self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
-                    self._get_mock_response(
-                        MOCK_GET_SNAPSHOT_RESPONSE),
-                    self._get_mock_response(
-                        MOCK_GET_HYPERVISOR_RESPONSE)
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
                 ]
             })
-        mock_extra_specs_response = mock.Mock(spec=test_base.MockResponse)
-        mock_extra_specs_response.status_code = status.HTTP_200_OK
-        mock_extra_specs_response.json.return_value = MOCK_GET_EXTRA_SPECS_RESPONSE
-        mock_get_extra_specs.return_value = mock_extra_specs_response
 
-        with mock.patch('__builtin__.open', mock.mock_open(read_data=MOCK_HPA_RESPONSE)) as mock_file:
-            response = self.client.post((
-                "/api/%s/v0/windriver-hudson-dc_RegionOne/"
-                "registry" % test_base.MULTIVIM_VERSION),
-                TEST_REGISTER_ENDPOINT_REQUEST,
-                HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+        response = self.client.post((
+            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-            self.assertEquals(status.HTTP_202_ACCEPTED,
-                              response.status_code)
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                          response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'delete_vim_info')
     def test_unregister_endpoint_successfully(
@@ -327,9 +274,8 @@ class TestFlavors(test_base.TestRequest):
         mock_delete_vim_info.return_value = 0
 
         response = self.client.delete((
-            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
-            "registry" % test_base.MULTIVIM_VERSION),
-            "{}", content_type="application/json",
+            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_202_ACCEPTED,
@@ -341,10 +287,190 @@ class TestFlavors(test_base.TestRequest):
         mock_delete_vim_info.return_value = 1
 
         response = self.client.delete((
-            "/api/%s/v0/windriver-hudson-dc_RegionOne/"
-            "registry" % test_base.MULTIVIM_VERSION),
-            "{}", content_type="application/json",
+            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR,
                           response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_cpupinning_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
+
+        response = self.client.post((
+            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                      response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_cputopology_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS2_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
+
+        response = self.client.post((
+            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                      response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_hugepage_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS3_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
+
+        response = self.client.post((
+            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                      response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_numa_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS4_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
+
+        response = self.client.post((
+            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                      response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_instructionset_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS5_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
+
+        response = self.client.post((
+            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                      response.status_code)
+
+    @mock.patch.object(VimDriverUtils, 'get_session')
+    @mock.patch.object(VimDriverUtils, 'get_vim_info')
+    def test_register_hpa_pcipassthrough_successfully(
+            self, mock_get_vim_info, mock_get_session):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
+        mock_get_session.return_value = test_base.get_mock_session(
+            ["get"], {
+                "side_effect": [
+                    self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS6_RESPONSE),
+                    self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
+                    self._get_mock_response(),
+                    self._get_mock_response(MOCK_GET_AZ_RESPONSE),
+                    self._get_mock_response(MOCK_HYPERVISOR_RESPONSE),
+                    self._get_mock_response(MOCK_GET_SNAPSHOT_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HYPERVISOR_RESPONSE)
+                ]
+            })
+
+        response = self.client.post((
+            "/api/multicloud-newton/v0/windriver-hudson-dc_RegionOne/"
+            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+
+        self.assertEquals(status.HTTP_202_ACCEPTED,
+                      response.status_code)
+
