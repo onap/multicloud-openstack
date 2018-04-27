@@ -40,14 +40,18 @@ class Vports(APIView):
     ]
 
     def get(self, request, vimid="", tenantid="", portid=""):
-        logger.debug("Ports--get::> %s" % request.data)
+        logger.info("vimid, tenantid, portid = %s,%s,%s" % (vimid, tenantid, portid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             # prepare request resource to vim instance
             query = VimDriverUtils.get_query_part(request)
             content, status_code = self.get_ports(query, vimid, tenantid, portid)
-
+            logger.info("response with status = %s" % status_code)
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -58,7 +62,6 @@ class Vports(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get_ports(self, query="", vimid="", tenantid="", portid=""):
-        logger.debug("Ports--get_ports::> %s" % portid)
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
 
@@ -73,7 +76,13 @@ class Vports(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+            logger.info("making request with URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=self.service)
+            logger.info("request returns with status %s" % resp.status_code)
+            if resp.status_code == status.HTTP_200_OK:
+                logger.debug("with content:%s" % resp.json())
+                pass
+
             content = resp.json()
             vim_dict = {
                 "vimName": vim["name"],
@@ -104,7 +113,10 @@ class Vports(APIView):
         return {}, 500
 
     def post(self, request, vimid="", tenantid="", portid=""):
-        logger.debug("Ports--post::> %s" % request.data)
+        logger.info("vimid, tenantid, portid = %s,%s,%s" % (vimid, tenantid, portid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             #check if already created: name
             query = "name=%s" % request.data["name"]
@@ -125,6 +137,7 @@ class Vports(APIView):
             #otherwise create a new one
             return self.create_port(request, vimid, tenantid)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -135,7 +148,6 @@ class Vports(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def create_port(self, request, vimid, tenantid):
-        logger.debug("Ports--create::> %s" % request.data)
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
         if sess:
@@ -158,8 +170,11 @@ class Vports(APIView):
             VimDriverUtils.replace_key_by_mapping(port,
                                                   self.keys_mapping, True)
             req_body = json.JSONEncoder().encode({"port": port})
+            logger.info("making request with URI:%s" % req_resouce)
+            logger.debug("with data:%s" % req_body)
             resp = sess.post(req_resouce, data=req_body,
                              endpoint_filter=self.service)
+            logger.info("request returns with status %s" % resp.status_code)
             resp_body = resp.json()["port"]
             #use only 1 fixed_ip
             tmpips = resp_body.pop("fixed_ips", None)
@@ -178,7 +193,10 @@ class Vports(APIView):
         return {}
 
     def delete(self, request, vimid="", tenantid="", portid=""):
-        logger.debug("Ports--delete::> %s" % request.data)
+        logger.info("vimid, tenantid, portid = %s,%s,%s" % (vimid, tenantid, portid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             # prepare request resource to vim instance
             req_resouce = "v2.0/ports"
@@ -190,9 +208,12 @@ class Vports(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+            logger.info("making request with URI:%s" % req_resouce)
             resp = sess.delete(req_resouce, endpoint_filter=self.service)
+            logger.info("request returns with status %s" % resp.status_code)
             return Response(status=resp.status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
