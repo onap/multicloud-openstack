@@ -38,12 +38,17 @@ class VMlist(APIView):
     ]
 
     def get(self, request, vimid="", tenantid="", serverid=""):
-        logger.debug("servers--get::> %s" % request.data)
+        logger.info("vimid, tenantid, flavorid = %s,%s,%s" % (vimid, tenantid, flavorid))
+        if request.data:
+            logger.debug("With data = %s" % request.data)
+            pass
         try:
             query = VimDriverUtils.get_query_part(request)
             content, status_code = self.get_servers(query, vimid, tenantid, serverid)
+            logger.info("response with status = %s" % status_code)
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
+            logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -53,15 +58,20 @@ class VMlist(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-							
     def get_servers(self, query="", vimid="", tenantid="", serverid=""):
-        logger.debug("servers--get_servers::> %s" % serverid)
 
         req_resouce = "/servers"
         vim = VimDriverUtils.get_vim_info(vimid)
         vim["domain"] = "Default"
         sess = VimDriverUtils.get_session(vim, tenantid)
+
+        logger.info("making request with URI:%s" % req_resouce)
         resp = sess.get(req_resouce, endpoint_filter=self.service)
+        logger.info("request returns with status %s" % resp.status_code)
+        if resp.status_code == status.HTTP_200_OK:
+            logger.debug("with content:%s" % resp.json())
+            pass
+
         content = resp.json()
         vim_dict = {
             "vimName": vim["name"],
@@ -71,4 +81,4 @@ class VMlist(APIView):
 
         return content, resp.status_code
 
-    
+
