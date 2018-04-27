@@ -367,24 +367,25 @@ class Servers(APIView):
                 strUserData = ''
                 source_content = ""
                 dest_path = ""
+                user_data.append("#cloud-config\n")
                 for context in contextarray:
                     if context["fileName"] == "source_path":
                         source_content = context["fileData"]
                     if context["fileName"] == "dest_path":
                         dest_path = context["fileData"]
-                if len(source_content) > 0:
-                    user_data.append("#cloud-config\n")
-                    user_data.append("write_files:\n")
-                    user_data.append("-   encoding: b64\n")
-                    user_data.append("    content: " + source_content + "\n")
-                    user_data.append("    owner: root:root\n")
-                    user_data.append("    path: " + dest_path + "\n")
-                    user_data.append("    permissions: '0644'\n")
-                    user_data.append("\n")
+                    if len(source_content) > 0:
+                        user_data.append("write_files:\n")
+                        user_data.append("-   encoding: b64\n")
+                        user_data.append("    content: " + source_content + "\n")
+                        user_data.append("    owner: root:root\n")
+                        user_data.append("    path: " + dest_path + "\n")
+                        user_data.append("    permissions: '0644'\n")
+                        user_data.append("\n")
+                if len(userdata):
                     user_data.append("runcmd:")
                     user_data.append("-   " + userdata + "\n")
-                    strUserData.join(user_data)
-                    server["user_data"] = user_data
+                strUserData.join(user_data)
+                server["user_data"] = strUserData
 
             VimDriverUtils.replace_key_by_mapping(server,
                                                   self.keys_mapping, True)
