@@ -63,6 +63,11 @@ def _call_req(base_url, user, passwd, auth_type,
             headers['Authorization'] = 'Basic ' + \
                 base64.b64encode(tmpauthsource).decode('utf-8')
 
+        logger.info("Making rest call ... ")
+        logger.debug("uri,method, header = %s, %s, %s" % (full_url, method.upper(), headers))
+        if content:
+            logger.debug("content = %s" % (content))
+
         ca_certs = None
         for retry_times in range(MAX_RETRY_TIME):
             http = httplib2.Http(
@@ -89,17 +94,26 @@ def _call_req(base_url, user, passwd, auth_type,
                     ret = [1, "Unable to connect to %s" % full_url, resp_status]
                     continue
                 raise ex
+        logger.info("Rest call finished with status = %s", resp_status)
+        logger.debug("with response content = %s" % resp_body)
     except urllib.error.URLError as err:
+        logger.info("Rest call finished with exception")
+        logger.debug("status=%s, error message=%s" % (resp_status, str(err)))
         ret = [2, str(err), resp_status]
     except Exception:
+        logger.info("Rest call finished with exception")
         logger.error(traceback.format_exc())
         logger.error("[%s]ret=%s" % (callid, str(sys.exc_info())))
         if not resp_status:
             resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
         ret = [3, str(sys.exc_info()), resp_status]
     except:
+        logger.info("Rest call finished with exception")
         logger.error(traceback.format_exc())
+        if not resp_status:
+            resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
         ret = [4, str(sys.exc_info()), resp_status]
+
     return ret
 
 
@@ -123,8 +137,6 @@ def req_to_aai(resource, method, content='', appid=settings.MULTICLOUD_APP_ID):
         'accept': 'application/json'
     }
 
-    logger.debug("req_to_aai--%s::> %s, %s" %
-                 (tmp_trasaction_id, method, _combine_url(settings.AAI_BASE_URL,resource)))
     return _call_req(settings.AAI_BASE_URL, settings.AAI_USERNAME, settings.AAI_PASSWORD, rest_no_auth,
                     resource, method, content=json.dumps(content), extra_headers=headers)
 
