@@ -42,11 +42,11 @@ class Registry(APIView):
         service = {'service_type': service_type,
                    'interface': 'public',
                    'region_id': viminfo['cloud_region_id']}
-        logger.info("making request with URI:%s" % resource_url)
+        self._logger.info("making request with URI:%s" % resource_url)
         resp = session.get(resource_url, endpoint_filter=service)
-        logger.info("request returns with status %s" % resp.status_code)
+        self._logger.info("request returns with status %s" % resp.status_code)
         if resp.status_code == status.HTTP_200_OK:
-            logger.debug("with content:%s" % resp.json())
+            self._logger.debug("with content:%s" % resp.json())
             pass
         content = resp.json()
 
@@ -232,11 +232,11 @@ class Registry(APIView):
                     service = {'service_type': "image",
                                'interface': 'public',
                                'region_id': viminfo['cloud_region_id']}
-                    logger.info("making request with URI:%s" % req_resource)
+                    self._logger.info("making request with URI:%s" % req_resource)
                     resp = session.get(req_resource, endpoint_filter=service)
-                    logger.info("request returns with status %s" % resp.status_code)
+                    self._logger.info("request returns with status %s" % resp.status_code)
                     if resp.status_code == status.HTTP_200_OK:
-                        logger.debug("with content:%s" % resp.json())
+                        self._logger.debug("with content:%s" % resp.json())
                         pass
                     content = resp.json()
 
@@ -275,11 +275,11 @@ class Registry(APIView):
                         service = {'service_type': "compute",
                                    'interface': 'public',
                                    'region_id': viminfo['cloud_region_id']}
-                        logger.info("making request with URI:%s" % req_resource)
+                        self._logger.info("making request with URI:%s" % req_resource)
                         resp = session.get(req_resource, endpoint_filter=service)
-                        logger.info("request returns with status %s" % resp.status_code)
+                        self._logger.info("request returns with status %s" % resp.status_code)
                         if resp.status_code == status.HTTP_200_OK:
-                            logger.debug("with content:%s" % resp.json())
+                            self._logger.debug("with content:%s" % resp.json())
                             pass
                         content = resp.json()
                         if resp.status_code != status.HTTP_200_OK and not content[0]:
