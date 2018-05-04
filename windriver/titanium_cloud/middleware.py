@@ -49,10 +49,10 @@ class LogContextMiddleware(object):
         # generate one.
         ReqeustID = request.META.get("HTTP_X_TRANSACTIONID", None)
         if ReqeustID is None:
-            ReqeustID = uuid.uuid3(uuid.NAMESPACE_URL, settings.MULTIVIM_VERSION)
+            ReqeustID = str(uuid.uuid3(uuid.NAMESPACE_URL, settings.MULTIVIM_VERSION))
         MDC.put("requestID", ReqeustID)
         # generate the reqeust id
-        InvocationID = uuid.uuid3(uuid.NAMESPACE_DNS, settings.MULTIVIM_VERSION)
+        InvocationID = str(uuid.uuid4())
         MDC.put("invocationID", InvocationID)
         MDC.put("serviceName", settings.MULTIVIM_VERSION)
         MDC.put("serviceIP", self._getLastIp(request))
