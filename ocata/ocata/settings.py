@@ -55,6 +55,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'ocata.middleware.LogContextMiddleware',
 ]
 
 ROOT_URLCONF = 'ocata.urls'
