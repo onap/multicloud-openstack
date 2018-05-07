@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_7256cb5d",
+        "filename": "ocata/run.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-05-07T02:12:22Z",
+      "side": 1,
+      "message": "What is your plan with memcached ?",
+      "revId": "6ef0cfc863a063d4f94d9bcbbbf22decdae2be09",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
