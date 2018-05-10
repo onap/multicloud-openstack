@@ -5,13 +5,9 @@ echo "DOCKER_BUILD_DIR=${DOCKER_BUILD_DIR}"
 cd ${DOCKER_BUILD_DIR}
 
 BUILD_ARGS="--no-cache"
-ORG="onap"
 VERSION="1.1.2-SNAPSHOT"
 STAGING="1.1.2-STAGING"
-PROJECT="multicloud"
-IMAGE="openstack-ocata"
-DOCKER_REPOSITORY="nexus3.onap.org:10003"
-IMAGE_NAME="${DOCKER_REPOSITORY}/${ORG}/${PROJECT}/${IMAGE}"
+IMAGE_NAME="${DOCKER_REPOSITORY:-"nexus3.onap.org:10003"}/${ORG:-"onap"}/${PROJECT:-"multicloud"}/${IMAGE:-"openstack-ocata"}"
 
 if [ $HTTP_PROXY ]; then
     BUILD_ARGS+=" --build-arg HTTP_PROXY=${HTTP_PROXY}"
