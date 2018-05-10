@@ -17,11 +17,8 @@ loggers:
 handlers:
     ocata_handler:
         level: "DEBUG"
-        class: "logging.handlers.RotatingFileHandler"
-        filename: "/var/log/onap/multicloud/openstack/ocata/ocata.log"
+        class: "logging.StreamHandler"
         formatter: "mdcFormat"
-        maxBytes: 1024*1024*50
-        backupCount: 10
 formatters:
     standard:
         format: "%(asctime)s|||||%(name)s||%(thread)||%(funcName)s||%(levelname)s||%(message)s"
