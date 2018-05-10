@@ -47,12 +47,9 @@ class Registry(APIView):
         self._logger.info("request returns with status %s" % resp.status_code)
         if resp.status_code == status.HTTP_200_OK:
             self._logger.debug("with content:%s" % resp.json())
-            pass
-        content = resp.json()
-
-        if resp.status_code != status.HTTP_200_OK:
-            return  # failed to discover resources
-        return content.get(content_key)
+            content = resp.json()
+            return content.get(content_key)
+        return  # failed to discover resources
 
     def _update_resoure(self, cloud_owner, cloud_region_id,
                         resoure_id, resource_info, resource_type):
