@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_01e04124",
+        "filename": "ocata/ocata/pub/config/log.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-05-12T12:56:58Z",
+      "side": 1,
+      "message": "what happened for a single log message with 2 handlers? will both handler output/print the single log message?",
+      "range": {
+        "startLine": 6,
+        "startChar": 17,
+        "endLine": 6,
+        "endChar": 46
+      },
+      "revId": "eb60ad19e55a1ff53ca884d15c81f018ad7431cc",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
