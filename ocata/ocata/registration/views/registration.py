@@ -318,6 +318,13 @@ class Registry(newton_registration.Registry):
         feature_uuid = uuid.uuid4()
 
         cloud_extra_info_str = viminfo.get('cloud_extra_info')
+        if not isinstance(cloud_extra_info_str, dict):
+            try:
+                cloud_extra_info_str = json.loads(cloud_extra_info_str)
+            except Exception as ex:
+                logger.error("Can not convert cloud extra info %s %s" % (
+                             str(ex), cloud_extra_info_str))
+                return {}
         if cloud_extra_info_str :
             cloud_dpdk_info = cloud_extra_info_str.get("ovsDpdk")
             if cloud_dpdk_info :
