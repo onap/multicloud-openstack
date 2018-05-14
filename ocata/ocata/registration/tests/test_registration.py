@@ -41,7 +41,7 @@ OCATA_MOCK_VIM_INFO = {
           "version": "v1",
           "arch": "Intel64",
           "libname":"dataProcessingAccelerationLibrary",
-          "libvalue":"v12.1",
+          "libversion":"v12.1",
           }
         },
     'insecure': 'True'
