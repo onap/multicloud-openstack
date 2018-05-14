@@ -22,6 +22,30 @@
       "revId": "408bbd742c250bf66611c577eb3af4496b70d525",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_f77957c5",
+        "filename": "ocata/run.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-05-14T15:48:01Z",
+      "side": 0,
+      "message": "I let the creation to the Dockerfile[1]. In order to recover this file, you have to map a host volume when you execute the container[2]\n\n[1] https://gerrit.onap.org/r/#/c/47151/2/ocata/docker/Dockerfile@25\n[2] https://docs.docker.com/storage/volumes/",
+      "parentUuid": "5a93c517_e1e4353d",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 2
+      },
+      "revId": "408bbd742c250bf66611c577eb3af4496b70d525",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }

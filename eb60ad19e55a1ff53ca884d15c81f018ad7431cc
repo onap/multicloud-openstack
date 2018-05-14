@@ -22,6 +22,30 @@
       "revId": "eb60ad19e55a1ff53ca884d15c81f018ad7431cc",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_97bed363",
+        "filename": "ocata/ocata/pub/config/log.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-05-14T15:48:01Z",
+      "side": 1,
+      "message": "Yes, that\u0027s the idea.",
+      "parentUuid": "5a93c517_01e04124",
+      "range": {
+        "startLine": 6,
+        "startChar": 17,
+        "endLine": 6,
+        "endChar": 46
+      },
+      "revId": "eb60ad19e55a1ff53ca884d15c81f018ad7431cc",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
