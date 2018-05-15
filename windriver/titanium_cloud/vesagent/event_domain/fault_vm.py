@@ -176,7 +176,109 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
     logger.info("return")
     return
 
-def data2event_fault_vm(oneBacklog, last_event, vm_data):
-    this_event = {}
 
-    return this_event
+def data2event_fault_vm(oneBacklog, last_event, vm_data):
+
+    VES_EVENT_VERSION = 3.0
+    VES_EVENT_FAULT_VERSION = 2.0
+    VES_EVENT_FAULT_DOMAIN = "fault"
+
+    try:
+
+        if vm_status_is_fault(vm_data["server"]["status"]):
+            if last_event is not None \
+                    and last_event['event']['commonEventHeader']['eventName'] == 'Fault_MultiCloud_VMFailure':
+                # asserted alarm already, so no need to assert it again
+                return None
+
+            eventName = "Fault_MultiCloud_VMFailure"
+            priority = "High"
+            eventSeverity = "CRITICAL"
+            alarmCondition = "Guest_Os_Failure"
+            vfStatus = "Active"
+            specificProblem = "AlarmOn"
+            eventType = ''
+            reportingEntityId = ''
+            reportingEntityName = ''
+            sequence = 0
+
+            startEpochMicrosec = int(time.time())
+            lastEpochMicrosec = int(time.time())
+
+            eventId = str(uuid.uuid4())
+            pass
+        else:
+            if last_event is None \
+                    or last_event['event']['commonEventHeader']['eventName'] != 'Fault_MultiCloud_VMFailure':
+                # not assert alarm yet, so no need to clear it
+                return None
+
+
+            eventName = "Fault_MultiCloud_VMFailureCleared"
+            priority = "Normal"
+            eventSeverity = "NORMAL"
+            alarmCondition = "Vm_Restart"
+            vfStatus = "Active"
+            specificProblem = "AlarmOff"
+            eventType = ''
+            reportingEntityId = ''
+            reportingEntityName = ''
+            sequence = 0
+
+            startEpochMicrosec = last_event['event']['commonEventHeader']['startEpochMicrosec']
+            lastEpochMicrosec = int(time.time())
+            eventId = last_event['event']['commonEventHeader']['eventId']
+
+            pass
+
+        # now populate the event structure
+        this_event = {
+            'event': {
+                'commonEventHeader': {
+                    'version': VES_EVENT_VERSION,
+                    'eventName': eventName,
+                    'domain': VES_EVENT_FAULT_DOMAIN,
+                    'eventId': eventId,
+                    'eventType': eventType,
+                    'sourceId': vm_data["server"]['id'],
+                    'sourceName': vm_data["server"]['name'],
+                    'reportingEntityId': reportingEntityId,
+                    'reportingEntityName': reportingEntityName,
+                    'priority': priority,
+                    'startEpochMicrosec': startEpochMicrosec,
+                    'lastEpochMicrosec': lastEpochMicrosec,
+                    'sequence': sequence
+                },
+                'faultFields': {
+                    'faultFieldsVersion': VES_EVENT_FAULT_VERSION,
+                    'eventSeverity': eventSeverity,
+                    'eventSourceType': 'virtualMachine',
+                    'alarmCondition': alarmCondition,
+                    'specificProblem': specificProblem,
+                    'vfStatus': 'Active'
+                }
+
+            }
+
+        }
+
+        return this_event
+
+    except Exception as e:
+        logger.error("exception:%s" % str(e))
+        return None
+
+
+def vm_status_is_fault(status):
+    '''
+    report VM fault when status falls into one of following state
+        ['ERROR', 'DELETED', 'PAUSED', 'REBUILD', 'RESCUE',
+                  'RESIZE','REVERT_RESIZE', 'SHELVED', 'SHELVED_OFFLOADED',
+                  'SHUTOFF', 'SOFT_DELETED','SUSPENDED', 'UNKNOWN', 'VERIFY_RESIZE']
+    :param status:
+    :return:
+    '''
+    if status in ['BUILD', 'ACTIVE', 'HARD_REBOOT', 'REBOOT', 'MIGRATING', 'PASSWORD']:
+        return False
+    else:
+        return True
