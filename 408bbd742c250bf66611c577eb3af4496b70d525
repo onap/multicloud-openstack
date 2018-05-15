@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "5a93c517_603c9ae1",
+        "filename": "ocata/docker/Dockerfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-05-15T14:59:16Z",
+      "side": 0,
+      "message": "It seems you delete this action, so have you test the built docker image? my impression is that the docker container will not be able to execute the scripts without changing the permission.",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 28
+      },
+      "revId": "408bbd742c250bf66611c577eb3af4496b70d525",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a93c517_e1e4353d",
         "filename": "ocata/run.sh",
         "patchSetId": 2
