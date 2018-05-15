@@ -162,7 +162,7 @@ class Registry(newton_registration.Registry):
 
         if extra_specs.has_key('hw:cpu_policy') or extra_specs.has_key('hw:cpu_thread_policy'):
             cpupining_capability['hpa-capability-id'] = str(feature_uuid)
-            cpupining_capability['hpa-feature'] = 'cpuPining'
+            cpupining_capability['hpa-feature'] = 'cpuPinning'
             cpupining_capability['architecture'] = 'generic'
             cpupining_capability['hpa-version'] = 'v1'
 
