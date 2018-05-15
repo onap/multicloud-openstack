@@ -17,8 +17,10 @@
 import logging
 import json
 import uuid
+import time
 
 from django.conf import settings
+from titanium_cloud.vesagent.vespublish import publishAnyEventToVES
 from common.utils.restcall import _call_req
 
 logger = logging.getLogger(__name__)
@@ -111,6 +113,8 @@ def buildBacklog_fault_vm(vimid, backlog_input):
 
 ### process backlog with domain:"fault", type:"vm"
 
+
+
 def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
     logger.debug("vesAgentConfig:%s, vesAgentState:%s, oneBacklog: %s"
                  % (vesAgentConfig, vesAgentState, oneBacklog))
@@ -150,8 +154,20 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
         logger.debug("collected data: %s" % server_resp)
 
         # encode data
+        backlog_uuid = oneBacklog.get("backlog_uuid", None)
+        backlogState = vesAgentState.get("%s" % (backlog_uuid), None)
+        last_event = backlogState.get("last_event", None)
+        logger.debug("last event: %s" % last_event)
 
-        # publish event to VES
+        this_event = data2event_fault_vm(oneBacklog, last_event, server_resp)
+
+        if this_event is not None:
+            logger.debug("this event: %s" % this_event)
+            # report data to VES
+            ves_subscription = vesAgentConfig.get("subscription", None)
+            publishAnyEventToVES(ves_subscription, this_event)
+            # store the latest data into cache, never expire
+            backlogState["last_event"] = this_event
 
     except  Exception as e:
         logger.error("exception:%s" % str(e))
@@ -160,3 +176,7 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
     logger.info("return")
     return
 
+def data2event_fault_vm(oneBacklog, last_event, vm_data):
+    this_event = {}
+
+    return this_event
