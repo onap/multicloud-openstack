@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 from common.msapi import extsys
+from titanium_cloud.vesagent.tasks import scheduleBacklogs
 from titanium_cloud.vesagent.event_domain.fault_vm import buildBacklog_fault_vm
 
 from django.core.cache import cache
@@ -257,6 +258,8 @@ class VesAgentCtrl(APIView):
                 # cache forever
                 cache.set("VesAgentBacklogs.config.%s" % vimid, VesAgentBacklogsConfigStr, None)
 
+                # notify schduler
+                scheduleBacklogs.delay(vimid)
         except Exception as e:
             self._logger.error("exception:%s" % str(e))
             VesAgentBacklogsConfig = {"error":"exception occurs during build backlogs"}
