@@ -108,3 +108,12 @@ def buildBacklog_fault_vm(vimid, backlog_input):
     logger.debug("with backlog: %s" % backlog)
     return backlog
 
+
+### process backlog with domain:"fault", type:"vm"
+
+def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
+    logger.debug("vesAgentConfig:%s, vesAgentState:%s, oneBacklog: %s"
+                 % (vesAgentConfig, vesAgentState, oneBacklog))
+
+    return
+
