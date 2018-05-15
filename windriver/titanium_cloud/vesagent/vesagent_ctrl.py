@@ -162,8 +162,23 @@ class VesAgentCtrl(APIView):
         '''
         self._logger.info("vimid: %s" % vimid)
         self._logger.debug("with META: %s" % request.META)
+        try:
+            # get vesagent_config from cloud region
+            viminfo = extsys.get_vim_by_id(vimid)
+            cloud_extra_info_str = viminfo.get('cloud_extra_info', None)
+            cloud_extra_info = json.loads(cloud_extra_info_str) if cloud_extra_info_str is not None else None
+            vesagent_config = cloud_extra_info.get("vesagent_config", None) if cloud_extra_info is not None else None
 
-        pass
+            vesagent_backlogs = self.getBacklogsOneVIM(vimid)
+
+        except Exception as e:
+            self._logger.error("exception:%s" % str(e))
+            return Response(data={'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(data={"vesagent_config":vesagent_config,
+                              "vesagent_backlogs": vesagent_backlogs},
+                        status=status.HTTP_200_OK)
 
 
     def post(self, request, vimid=""):
@@ -229,6 +244,36 @@ class VesAgentCtrl(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
+
+    def getBacklogsOneVIM(self, vimid):
+        '''
+        remove the specified backlogs for a VIM
+        :param vimid:
+        :return:
+        '''
+        self._logger.info("vimid: %s" % vimid)
+
+        vesAgentConfig = None
+        try:
+            # retrive the backlogs
+            vesAgentConfigStr = cache.get("VesAgentBacklogs.config.%s" % (vimid))
+            if vesAgentConfigStr is None:
+                logger.warn("VesAgentBacklogs.config.%s cannot be found in cache" % (vimid))
+                return None
+
+            logger.debug("VesAgentBacklogs.config.%s: %s" % (vimid, vesAgentConfigStr))
+
+            vesAgentConfig = json.loads(vesAgentConfigStr)
+            if vesAgentConfig is None:
+                logger.warn("VesAgentBacklogs.config.%s corrupts" % (vimid))
+                return None
+
+        except Exception as e:
+            self._logger.error("exception:%s" % str(e))
+            vesAgentConfig = {"error": "exception occurs"}
+
+        self._logger.info("return")
+        return vesAgentConfig
 
 
     def buildBacklogsOneVIM(self, vimid, vesagent_config = None):
