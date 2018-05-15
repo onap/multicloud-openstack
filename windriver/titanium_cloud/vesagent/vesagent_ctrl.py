@@ -23,6 +23,7 @@ from rest_framework.views import APIView
 from django.conf import settings
 from common.msapi import extsys
 
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -185,8 +186,34 @@ class VesAgentCtrl(APIView):
         '''
         self._logger.info("vimid: %s" % vimid)
         self._logger.debug("with META: %s, with data: %s" % (request.META, request.data))
+        try:
+            vesagent_config = None
+            if request.data is None or request.data.get("vesagent_config", None) is None:
+                #Try to load the vesagent_config out of cloud_region["cloud_extra_info"]
+                viminfo = extsys.get_vim_by_id(vimid)
+                cloud_extra_info_str = viminfo.get('cloud_extra_info', None)
+                cloud_extra_info = json.loads(cloud_extra_info_str) if cloud_extra_info_str is not None else None
+                vesagent_config = cloud_extra_info.get("vesagent_config", None) if cloud_extra_info is not None else None
+            else:
+                vesagent_config = request.data.get("vesagent_config", None)
 
-        pass
+            if vesagent_config is None:
+                return Response(data={'vesagent_config is not provided'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+            vesagent_backlogs = self.buildBacklogsOneVIM(vimid, vesagent_config)
+
+            # store back to cloud_extra_info
+            # tbd
+
+        except Exception as e:
+            self._logger.error("exception:%s" % str(e))
+            return Response(data={'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(data={"vesagent_config":vesagent_config,
+                              "vesagent_backlogs": vesagent_backlogs},
+                        status=status.HTTP_201_CREATED)
 
     def delete(self, request, vimid=""):
         '''
@@ -200,3 +227,44 @@ class VesAgentCtrl(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
+
+
+    def buildBacklogsOneVIM(self, vimid, vesagent_config = None):
+        '''
+        build and cache backlog for specific cloud region,spawn vesagent workers if needed
+        :param vimid:
+        :param vesagent_config: vesagent_config data in json object
+        :return:
+        '''
+        self._logger.info("vimid: %s" % vimid)
+        self._logger.debug("config data: %s" % vesagent_config)
+
+        VesAgentBacklogsConfig = None
+        try:
+            if vesagent_config :
+                # now rebuild the backlog
+                VesAgentBacklogsConfig = {
+                    "vimid": vimid,
+                    "poll_interval_default": vesagent_config.get("poll_interval_default", 0),
+                    "subscription": vesagent_config.get("ves_subscription", None),
+                    "backlogs": [self.buildBacklog(vimid, b) for b in vesagent_config.get("backlogs", [])]
+                }
+
+
+                # add/update the backlog into cache
+                VesAgentBacklogsConfigStr = json.dumps(VesAgentBacklogsConfig)
+                # cache forever
+                cache.set("VesAgentBacklogs.config.%s" % vimid, VesAgentBacklogsConfigStr, None)
+
+        except Exception as e:
+            self._logger.error("exception:%s" % str(e))
+            VesAgentBacklogsConfig = {"error":"exception occurs during build backlogs"}
+
+        self._logger.info("return")
+        return VesAgentBacklogsConfig
+
+    def buildBacklog(self, vimid, backlog_input):
+        self._logger.info("build backlog for: %s" % vimid)
+        self._logger.debug("with input: %s" % backlog_input)
+
+        return None
