@@ -18,6 +18,8 @@ import logging
 import json
 import uuid
 
+from django.conf import settings
+from common.utils.restcall import _call_req
 
 logger = logging.getLogger(__name__)
 
@@ -44,11 +46,45 @@ def buildBacklog_fault_vm(vimid, backlog_input):
                 return None
 
             # get token
-            #TBD resolve tenant_name to tenant_id
+            # resolve tenant_name to tenant_id
+            auth_api_url_format = "/{f_vim_id}/identity/v2.0/tokens"
+            auth_api_url = auth_api_url_format.format(f_vim_id=vimid)
+            auth_api_data = { "auth":{"tenantName": tenant_name} }
+            base_url = settings.MULTICLOUD_PREFIX
+            extra_headers = ''
+            ret = _call_req(base_url, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(auth_api_data))
+            if ret[0] > 0 or ret[1] is None:
+                logger.critical("call url %s failed with status %s" % (auth_api_url, ret[0]))
+                return None
+
+            token_resp = json.JSONDecoder().decode(ret[1])
+            token = token_resp["access"]["token"]["id"]
+            tenant_id = token_resp["access"]["token"]["tenant"]["id"]
 
             if server_id is None:
-                #TBD resolve server_name to server_id
-                pass
+                # resolve server_name to server_id
+                vserver_api_url_format \
+                    = "/{f_vim_id}/compute/v2.1/{f_tenant_id}/servers?name={f_server_name}"
+                vserver_api_url = vserver_api_url_format.format(f_vim_id=vimid,
+                                                                f_tenant_id=tenant_id,
+                                                                f_server_name=server_name)
+                base_url = settings.MULTICLOUD_PREFIX
+                extra_headers = {'X-Auth-Token': token}
+                ret = _call_req(base_url, "", "", 0, vserver_api_url, "GET", extra_headers, "")
+                if ret[0] > 0 or ret[1] is None:
+                    logger.critical("call url %s failed with status %s" % (vserver_api_url, ret[0]))
+                    return None
+
+                server_resp = json.JSONDecoder().decode(ret[1])
+                # find out the server wanted
+                for s in server_resp.get("servers", []):
+                    if s["name"] == server_name:
+                        server_id = s["id"]
+                        break
+                if server_id is None:
+                    logger.warn("source %s cannot be found under tenant id %s "
+                                % (server_name, tenant_id))
+                    return None
 
         #m.c. proxied OpenStack API
         api_url_fmt = "/{f_vim_id}/compute/v2.1/{f_tenant_id}/servers/{f_server_id}"
