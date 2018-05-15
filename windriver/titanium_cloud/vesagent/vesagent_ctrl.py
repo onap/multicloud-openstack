@@ -241,6 +241,13 @@ class VesAgentCtrl(APIView):
         '''
         self._logger.info("vimid: %s" % vimid)
         self._logger.debug("with META: %s" % request.META)
+        try:
+            # tbd
+            self.clearBacklogsOneVIM(vimid)
+        except Exception as e:
+            self._logger.error("exception:%s" % str(e))
+            return Response(data={'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(status=status.HTTP_200_OK)
 
@@ -275,6 +282,52 @@ class VesAgentCtrl(APIView):
         self._logger.info("return")
         return vesAgentConfig
 
+    def clearBacklogsOneVIM(self, vimid):
+        '''
+        remove the specified backlogs for a VIM
+        :param vimid:
+        :param vesagent_config:
+        :return:
+        '''
+        self._logger.info("vimid: %s" % vimid)
+
+        try:
+            # remove vimid from "VesAgentBacklogs.vimlist"
+            VesAgentBacklogsVimListStr = cache.get("VesAgentBacklogs.vimlist")
+            VesAgentBacklogsVimList = []
+            if VesAgentBacklogsVimListStr is not None:
+                VesAgentBacklogsVimList = json.loads(VesAgentBacklogsVimListStr)
+                VesAgentBacklogsVimList = [v for v in VesAgentBacklogsVimList if v != vimid]
+
+            logger.info("VesAgentBacklogs.vimlist is %s" % VesAgentBacklogsVimList)
+
+            # cache forever
+            cache.set("VesAgentBacklogs.vimlist", json.dumps(VesAgentBacklogsVimList), None)
+
+            # retrieve the backlogs
+            vesAgentConfigStr = cache.get("VesAgentBacklogs.config.%s" % (vimid))
+            if vesAgentConfigStr is None:
+                logger.warn("VesAgentBacklogs.config.%s cannot be found in cache" % (vimid))
+                return 0
+
+            logger.debug("VesAgentBacklogs.config.%s: %s" % (vimid, vesAgentConfigStr))
+
+            vesAgentConfig = json.loads(vesAgentConfigStr)
+            if vesAgentConfig is None:
+                logger.warn("VesAgentBacklogs.config.%s corrupts" % (vimid))
+                return 0
+
+            # iterate all backlog and remove the associate state!
+            # tbd
+
+            # clear the whole backlogs for a VIM
+            cache.set("VesAgentBacklogs.config.%s" % vimid, "deleting the backlogs", 1)
+
+        except Exception as e:
+            self._logger.error("exception:%s" % str(e))
+
+        self._logger.info("return")
+        return 0
 
     def buildBacklogsOneVIM(self, vimid, vesagent_config = None):
         '''
