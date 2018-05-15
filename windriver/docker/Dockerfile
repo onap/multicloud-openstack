@@ -19,6 +19,7 @@ EXPOSE 9005
 # COPY ./ /opt/windriver/
 RUN apt-get update && \
     apt-get install -y memcached && \
+    apt-get install -y rabbitmq-server && \
     apt-get install -y unzip && \
     cd /opt/ && \
     wget -O multicloud-openstack-windriver.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-windriver&e=zip&v=LATEST" && \

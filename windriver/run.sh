@@ -15,6 +15,11 @@
 
 memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
 export PYTHONPATH=lib/share
+
+service rabbitmq-server restart
+# make sure only 1 worker due to missing the synchronization between workers now
+nohup celery -A titanium_cloud worker --concurrency=1 --loglevel=debug &
+
 #nohup python manage.py runserver 0.0.0.0:9005 2>&1 &
 nohup uwsgi --http :9005 --module titanium_cloud.wsgi --master --processes 4 &
 

@@ -22,3 +22,5 @@ unittest_xml_reporting==1.12.0
 # for onap logging
 onappylog>=1.0.6
 
+# for background tasks
+celery >= 4.0
