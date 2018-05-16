@@ -24,8 +24,9 @@ def get_vim_by_id(vim_id):
     cloud_owner,cloud_region_id = decode_vim_id(vim_id)
 
     if cloud_owner and cloud_region_id:
+        # get cloud region without depth
         retcode, content, status_code = \
-            restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s?depth=1"
+            restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
                        % (cloud_owner,cloud_region_id),"GET")
         if retcode != 0:
             logger.error("Status code is %s, detail is %s.", status_code, content)
@@ -34,18 +35,20 @@ def get_vim_by_id(vim_id):
                 status_code, content)
         tmp_viminfo = json.JSONDecoder().decode(content)
 
-        #assume esr-system-info-id is composed by {cloud-owner} _ {cloud-region-id}
-#        retcode2,content2,status_code2 = \
-#            restcall.req_to_aai(("/cloud-infrastructure/cloud-regions/cloud-region/%(owner)s/%(region)s"
-#                                 "/esr-system-info-list/esr-system-info/%(owner)s_%(region)s" % {
-#                "owner": cloud_owner, "region": cloud_region_id}), "GET")
-#        if retcode2 != 0:
-#            logger.error("Status code is %s, detail is %s.", status_code, content)
-#            raise VimDriverNewtonException(
-#                "Failed to query ESR system with id (%s:%s,%s)." % (vim_id,cloud_owner,cloud_region_id),
-#                status_code2, content2)
-#        tmp_authinfo = json.JSONDecoder().decode(content2)
-        tmp_authinfo = tmp_viminfo['esr-system-info-list']['esr-system-info'][0] if tmp_viminfo else None
+        # get esr-system-info under this cloud region
+        retcode2, content2, status_code2 = \
+            restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/esr-system-info-list"
+                       % (cloud_owner,cloud_region_id),"GET")
+        if retcode2 != 0:
+            logger.error("Status code is %s, detail is %s.", status_code2, content2)
+            raise VimDriverNewtonException(
+                "Failed to query esr info for VIM with id (%s:%s,%s)." % (vim_id,cloud_owner,cloud_region_id),
+                status_code2, content2)
+        tmp_authinfo = json.JSONDecoder().decode(content2)
+
+        # get the first auth info by default
+        tmp_authinfo = tmp_authinfo['esr-system-info'][0] if tmp_authinfo \
+                                                             and tmp_authinfo.get('esr-system-info', None) else None
 
         #convert vim information
         if tmp_viminfo and tmp_authinfo:
