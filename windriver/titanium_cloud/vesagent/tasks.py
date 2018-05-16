@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 @app.task(bind=True)
 def scheduleBacklogs(self, vimid):
     # make sure only one task runs here
-    logger.info("schedule with vimid:%" % (vimid))
+    # cannot get vimid ? logger.info("schedule with vimid:%" % (vimid))
 
     logger.debug("scheduleBacklogs starts")
     backlog_count, next_time_slot = processBacklogs()

@@ -29,7 +29,7 @@ def publishAnyEventToVES(ves_subscription, event):
 
     if endpoint:
         try:
-            logger.info("publish event to VES: %s", )
+            logger.info("publish event to VES: %s", endpoint)
             headers = {'Content-Type': 'application/json'}
             request = urllib2.Request(url=endpoint, headers=headers, data=json.dumps(event))
             time.sleep(1)
