@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5a93c517_4c21959c",
+        "filename": "ocata/docker/Dockerfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-05-16T06:21:29Z",
+      "side": 0,
+      "message": "I have modified the execution permissions over the *.sh files in this commit.",
+      "parentUuid": "5a93c517_603c9ae1",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 28
+      },
+      "revId": "408bbd742c250bf66611c577eb3af4496b70d525",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a93c517_e1e4353d",
         "filename": "ocata/run.sh",
         "patchSetId": 2
