@@ -3,19 +3,23 @@ disable_existing_loggers: False
 
 loggers:
     ocata:
-      handlers: [ocata_handler]
+      handlers: [console_handler, file_handler]
       level: "DEBUG"
       propagate: False
     newton_base:
-      handlers': [ocata_handler]
+      handlers': [console_handler, file_handler]
       level: "DEBUG"
       propagate: False
     common:
-      handlers: [ocata_handler]
+      handlers: [console_handler, file_handler]
       level: "DEBUG"
       propagate: False
 handlers:
-    ocata_handler:
+    console_handler:
+        level: "DEBUG"
+        class: "logging.StreamHandler"
+        formatter: "mdcFormat"
+    file_handler:
         level: "DEBUG"
         class: "logging.handlers.RotatingFileHandler"
         filename: "/var/log/onap/multicloud/openstack/ocata/ocata.log"

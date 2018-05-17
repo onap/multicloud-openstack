@@ -1,4 +1,4 @@
-FROM python:2
+FROM python:2.7
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
@@ -17,16 +17,13 @@ ENV AAI_PASSWORD "AAI"
 
 EXPOSE 9006
 
-# COPY ./ /opt/ocata/
-RUN apt-get update && \
-    apt-get install -y memcached && \
-    apt-get install -y unzip && \
-    cd /opt/ && \
-    wget -O multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=LATEST" && \
-    unzip -q -o -B multicloud-openstack-ocata.zip && \
-    chmod +x /opt/ocata/*.sh && \
-    rm -f multicloud-openstack-ocata.zip && \
-    pip install -r /opt/ocata/requirements.txt
-
 WORKDIR /opt/ocata
-CMD /bin/sh -c /opt/ocata/run.sh
+RUN apt-get update && apt-get install -y memcached unzip
+RUN wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=LATEST" && \
+    unzip -q -o -B /opt/multicloud-openstack-ocata.zip -d /opt/ && \
+    rm -f /opt/multicloud-openstack-ocata.zip
+RUN mkdir -p /var/log/onap/multicloud/openstack/ocata/
+#COPY ./ .
+RUN pip install -r requirements.txt
+
+CMD "/opt/ocata/run.sh"
