@@ -38,17 +38,17 @@ class Flavors(APIView):
         ("extra_specs", "extraSpecs"),
     ]
 
-    def _convert_extra_specs(self, extraSpecs, extra_specs, reverse=False):
+    def _convert_extra_specs(self, extra_specs_vfc, extra_specs_openstack, reverse=False):
        if reverse == False:
           #from extraSpecs to extra_specs
-          for spec in extraSpecs:
-              extra_specs[spec['keyName']] = spec['value']
+          for spec in extra_specs_vfc:
+              extra_specs_openstack[spec['keyName']] = spec['value']
        else:
-          for k,v in extra_specs.items():
+          for k,v in extra_specs_openstack.items():
               spec={}
               spec['keyName']=k
               spec['value']=v
-              extraSpecs.append(spec)
+              extra_specs_vfc.append(spec)
 
     def get(self, request, vimid="", tenantid="", flavorid=""):
         logger.info("vimid, tenantid, flavorid = %s,%s,%s" % (vimid, tenantid, flavorid))
@@ -70,9 +70,10 @@ class Flavors(APIView):
                 extraResp = self._get_flavor_extra_specs(sess, flavor["id"])
                 extraContent = extraResp.json()
                 if extraContent["extra_specs"]:
-                    extraSpecs = []
-                    self._convert_extra_specs(extraSpecs, extraContent["extra_specs"], True)
-                    flavor["extraSpecs"] = extraSpecs
+                    extra_specs_vfc = []
+                    self._convert_extra_specs(extra_specs_vfc, extraContent["extra_specs"], True)
+                    flavor["extraSpecs"] = extra_specs_vfc
+
                 VimDriverUtils.replace_key_by_mapping(flavor,
                                                    self.keys_mapping)
                 content.update(flavor)
@@ -99,9 +100,9 @@ class Flavors(APIView):
                     extraResp = self._get_flavor_extra_specs(sess, flavor["id"])
                     extraContent = extraResp.json()
                     if extraContent["extra_specs"]:
-                        extraSpecs = []
-                        self._convert_extra_specs(extraSpecs, extraContent["extra_specs"], True)
-                        flavor["extraSpecs"] = extraSpecs
+                        extra_specs_vfc = []
+                        self._convert_extra_specs(extra_specs_vfc, extraContent["extra_specs"], True)
+                        flavor["extraSpecs"] = extra_specs_vfc
                     VimDriverUtils.replace_key_by_mapping(flavor,
                                                    self.keys_mapping)
 
@@ -200,9 +201,9 @@ class Flavors(APIView):
                 extraResp = self._get_flavor_extra_specs(sess, flavor["id"])
                 extraContent = extraResp.json()
                 if extraContent["extra_specs"]:
-                    extraSpecs = []
-                    self._convert_extra_specs(extraSpecs, extraContent["extra_specs"], True)
-                    flavor["extraSpecs"] = extraSpecs
+                    extra_specs_vfc = []
+                    self._convert_extra_specs(extra_specs_vfc, extraContent["extra_specs"], True)
+                    flavor["extraSpecs"] = extra_specs_vfc
                 VimDriverUtils.replace_key_by_mapping(flavor,
                                                self.keys_mapping)
                 vim_dict = {
@@ -214,7 +215,7 @@ class Flavors(APIView):
                 flavor.update(vim_dict)
                 return Response(data=flavor, status=tmpresp.status_code)
 
-            extraSpecs = request.data.pop("extraSpecs", None)
+            extra_specs_vfc = request.data.pop("extraSpecs", None)
             #create flavor first
             resp = self._create_flavor(sess, request)
             if resp.status_code == 202:
@@ -224,18 +225,18 @@ class Flavors(APIView):
 
 
             flavorid = resp_body['id']
-            if extraSpecs:
-                extra_specs={}
-                self._convert_extra_specs(extraSpecs, extra_specs, False)
+            if extra_specs_vfc:
+                extra_specs_openstack={}
+                self._convert_extra_specs(extra_specs_vfc, extra_specs_openstack, False)
 
-                extraResp = self._create_flavor_extra_specs(sess, extra_specs, flavorid)
+                extraResp = self._create_flavor_extra_specs(sess, extra_specs_openstack, flavorid)
                 if extraResp.status_code == 200:
                     #combine the response body and return
-                    tmpSpecs = []
+                    tmp_specs_vfc = []
                     tmpRespBody = extraResp.json()
-                    self._convert_extra_specs(tmpSpecs, tmpRespBody['extra_specs'], True)
+                    self._convert_extra_specs(tmp_specs_vfc, tmpRespBody['extra_specs'], True)
 
-                    resp_body.update({"extraSpecs":tmpSpecs})
+                    resp_body.update({"extraSpecs":tmp_specs_vfc})
                 else:
                     #rollback
                     self._delete_flavor(self, request, vimid, tenantid, flavorid)
