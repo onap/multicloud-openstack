@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Bin Yang <bin.yang@windriver.com>
+Code-Review+2: Liang Ke <lokyse@163.com>
+Submitted-by: Liang Ke <lokyse@163.com>
+Submitted-at: Thu, 17 May 2018 10:38:19 +0000
+Reviewed-on: https://gerrit.onap.org/r/48019
+Project: multicloud/openstack
+Branch: refs/heads/master
