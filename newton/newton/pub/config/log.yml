@@ -7,7 +7,7 @@ loggers:
       level: "DEBUG"
       propagate: False
     newton_base:
-      handlers': [newton_handler]
+      handlers: [newton_handler]
       level: "DEBUG"
       propagate: False
     common:

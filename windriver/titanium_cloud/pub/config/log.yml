@@ -7,7 +7,7 @@ loggers:
       level: "DEBUG"
       propagate: False
     newton_base:
-      handlers': [titanium_cloud_handler]
+      handlers: [titanium_cloud_handler]
       level: "DEBUG"
       propagate: False
     common:
