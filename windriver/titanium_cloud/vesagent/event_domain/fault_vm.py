@@ -23,6 +23,17 @@ from django.conf import settings
 from titanium_cloud.vesagent.vespublish import publishAnyEventToVES
 from common.utils.restcall import _call_req
 
+import datetime
+import time
+def get_epoch_now_usecond():
+    '''
+    get epoch timestamp of this moment in usecond
+    :return:
+    '''
+    now_time = datetime.datetime.now()
+    epoch_time_sec = time.mktime(now_time.timetuple())
+    return int(epoch_time_sec * 1e6 + now_time.microsecond)
+
 logger = logging.getLogger(__name__)
 
 ### build backlog with domain:"fault", type:"vm"
@@ -202,8 +213,8 @@ def data2event_fault_vm(oneBacklog, last_event, vm_data):
             reportingEntityName = ''
             sequence = 0
 
-            startEpochMicrosec = int(time.time())
-            lastEpochMicrosec = int(time.time())
+            startEpochMicrosec = get_epoch_now_usecond()
+            lastEpochMicrosec = get_epoch_now_usecond()
 
             eventId = str(uuid.uuid4())
             pass
@@ -226,7 +237,7 @@ def data2event_fault_vm(oneBacklog, last_event, vm_data):
             sequence = 0
 
             startEpochMicrosec = last_event['event']['commonEventHeader']['startEpochMicrosec']
-            lastEpochMicrosec = int(time.time())
+            lastEpochMicrosec = get_epoch_now_usecond()
             eventId = last_event['event']['commonEventHeader']['eventId']
 
             pass
