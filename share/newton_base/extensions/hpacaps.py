@@ -28,20 +28,20 @@ from common.msapi import extsys
 logger = logging.getLogger(__name__)
 
 
-class EpaCaps(APIView):
+class HpaCaps(APIView):
 
     def __init__(self):
         self.proxy_prefix = "multicloud"
         self._logger = logger
 
     def get(self, request, vimid=""):
-        logger.debug("EpaCaps--get::data> %s" % request.data)
-        logger.debug("EpaCaps--get::vimid> %s"
+        logger.debug("HpaCaps--get::data> %s" % request.data)
+        logger.debug("HpaCaps--get::vimid> %s"
                      % vimid)
         try:
 
             vim = VimDriverUtils.get_vim_info(vimid)
-            caps_json = json.loads(vim['cloud_epa_caps'])
+            caps_json = json.loads(vim['cloud_hpa_caps'])
 
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
             content = {

@@ -36,26 +36,26 @@ MOCK_VIM_INFO = {
     'cloud_owner':'windriver-hudson-dc',
     'cloud_region_id':'RegionOne',
     'cloud_extra_info':'',
-    'cloud_epa_caps':'{"huge_page":"true","cpu_pinning":"true",\
+    'cloud_hpa_caps':'{"huge_page":"true","cpu_pinning":"true",\
         "cpu_thread_policy":"true","numa_aware":"true","sriov":"true",\
         "dpdk_vswitch":"true","rdt":"false","numa_locality_pci":"true"}',
     'insecure':'True',
 }
 
 
-class TestEpaCaps(unittest.TestCase):
+class TestHpaCaps(unittest.TestCase):
     def setUp(self):
         self.client = Client()
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_get_epa_caps_info(self, mock_get_vim_info):
+    def test_get_hpa_caps_info(self, mock_get_vim_info):
         mock_get_vim_info.return_value = MOCK_VIM_INFO
         cloud_owner = "windriver-hudson-dc"
         cloud_region_id = "RegionOne"
         vimid = cloud_owner + "_" + cloud_region_id
 
         response = self.client.get(
-            "/api/multicloud-titanium_cloud/v0/" + vimid + "/extensions/epa-caps")
+            "/api/multicloud-titanium_cloud/v0/" + vimid + "/extensions/hpa-caps")
         json_content = response.json()
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
@@ -63,5 +63,5 @@ class TestEpaCaps(unittest.TestCase):
         self.assertEquals(cloud_owner, json_content["cloud-owner"])
         self.assertEquals(cloud_region_id, json_content["cloud-region-id"])
         self.assertEquals(vimid, json_content["vimid"])
-        self.assertEquals(json.loads(MOCK_VIM_INFO['cloud_epa_caps']),
+        self.assertEquals(json.loads(MOCK_VIM_INFO['cloud_hpa_caps']),
                           json_content["cloud-epa-caps"])

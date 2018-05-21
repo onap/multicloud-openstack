@@ -24,19 +24,19 @@ from newton_base.tests import mock_info
 from newton_base.util import VimDriverUtils
 
 
-class TestEpaCaps(unittest.TestCase):
+class TestHpaCaps(unittest.TestCase):
     def setUp(self):
         self.client = Client()
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    def test_get_epa_caps_info(self, mock_get_vim_info):
+    def test_get_hpa_caps_info(self, mock_get_vim_info):
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         cloud_owner = "windriver-hudson-dc"
         cloud_region_id = "RegionOne"
         vimid = cloud_owner + "_" + cloud_region_id
 
         response = self.client.get(
-            "/api/%s/v0/%s/extensions/epa-caps" % (
+            "/api/%s/v0/%s/extensions/hpa-caps" % (
                 test_base.MULTIVIM_VERSION,
                 vimid))
         json_content = response.json()
@@ -48,5 +48,5 @@ class TestEpaCaps(unittest.TestCase):
                           json_content["cloud-region-id"])
         self.assertEquals(vimid, json_content["vimid"])
         self.assertEquals(
-            json.loads(mock_info.MOCK_VIM_INFO['cloud_epa_caps']),
+            json.loads(mock_info.MOCK_VIM_INFO['cloud_hpa_caps']),
             json_content["cloud-epa-caps"])

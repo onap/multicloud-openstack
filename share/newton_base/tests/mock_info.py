@@ -29,7 +29,7 @@ MOCK_VIM_INFO = {
     'cloud_owner': 'windriver-hudson-dc',
     'cloud_region_id': 'RegionOne',
     'cloud_extra_info': '',
-    'cloud_epa_caps':
+    'cloud_hpa_caps':
         '{'
         '"huge_page":"true",'
         '"cpu_pinning":"true",'

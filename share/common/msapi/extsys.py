@@ -61,7 +61,7 @@ def get_vim_by_id(vim_id):
             viminfo['name'] = tmp_viminfo.get('complex-name')
             viminfo['version'] = tmp_viminfo.get('cloud-region-version')
             viminfo['cloud_extra_info'] = tmp_viminfo.get('cloud-extra-info')
-            viminfo['cloud_epa_caps'] = tmp_viminfo.get('cloud-epa-caps')
+            viminfo['cloud_hpa_caps'] = tmp_viminfo.get('cloud-epa-caps')
 
             viminfo['userName'] = tmp_authinfo['user-name']
             viminfo['password'] = tmp_authinfo['password']

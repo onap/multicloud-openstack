@@ -48,10 +48,10 @@ class Extensions(APIView):
             registered_extensions = \
                 [
                     {
-                        "alias": "epa-caps",
+                        "alias": "hpa-caps",
                         "description": "Multiple network support",
-                        "name": "EPACapsQuery",
-                        "url": self.proxy_prefix + "/%s/extensions/epa-caps" \
+                        "name": "HPACapsQuery",
+                        "url": self.proxy_prefix + "/%s/extensions/hpa-caps" \
                                        % (vimid),
                         "spec": ""
                     }

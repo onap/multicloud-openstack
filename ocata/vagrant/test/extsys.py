@@ -38,7 +38,7 @@ tisr4 = {
     'cloud_owner':'openstack-hudson-dc',
     'cloud_region_id':'RegionOne',
     'cloud_extra_info':'',
-    'cloud_epa_caps':'{"huge_page":"true","cpu_pinning":"true",\
+    'cloud_hpa_caps':'{"huge_page":"true","cpu_pinning":"true",\
         "cpu_thread_policy":"true","numa_aware":"true","sriov":"true",\
         "dpdk_vswitch":"true","rdt":"false","numa_locality_pci":"true"}',
     'insecure':'True',
@@ -104,7 +104,7 @@ def get_vim_by_id(vim_id):
             viminfo['name'] = tmp_viminfo['complex-name']
             viminfo['version'] = tmp_viminfo['cloud-region-version']
             viminfo['cloud_extra_info'] = tmp_viminfo['cloud-extra-info']
-            viminfo['cloud_epa_caps'] = tmp_viminfo['cloud-epa-caps']
+            viminfo['cloud_hpa_caps'] = tmp_viminfo['cloud-epa-caps']
 
             if tmp_authinfo:
                 viminfo['userName'] = tmp_authinfo['user-name']
