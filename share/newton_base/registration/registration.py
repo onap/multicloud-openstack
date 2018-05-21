@@ -517,18 +517,18 @@ class Registry(APIView):
             self._logger.error(traceback.format_exc())
             return
 
-    def _update_epa_caps(self, cloud_owner, cloud_region_id, epa_caps_info):
+    def _update_hpa_caps(self, cloud_owner, cloud_region_id, hpa_caps_info):
         '''
         populate cloud EPA Capabilities information into AAI
         :param cloud_owner:
         :param cloud_region_id:
-        :param epa_caps_info: dict of meta data about cloud-region's epa caps
+        :param hpa_caps_info: dict of meta data about cloud-region's epa caps
 
         :return:
         '''
 
-        cloud_epa_caps = {
-            'cloud-epa-caps': json.dumps(epa_caps_info),
+        cloud_hpa_caps = {
+            'cloud-hpa-caps': json.dumps(hpa_caps_info),
         }
 
         if cloud_owner and cloud_region_id:
@@ -542,16 +542,16 @@ class Registry(APIView):
             #add resource-version to url
             if retcode == 0 and content:
                 content = json.JSONDecoder().decode(content)
-                #cloud_epa_caps["resource-version"] = content["resource-version"]
-                content.update(cloud_epa_caps)
-                cloud_epa_caps = content
+                #cloud_hpa_caps["resource-version"] = content["resource-version"]
+                content.update(cloud_hpa_caps)
+                cloud_hpa_caps = content
 
             #update cloud-region
             retcode, content, status_code = \
-                restcall.req_to_aai(resource_url, "PUT", content=cloud_epa_caps)
+                restcall.req_to_aai(resource_url, "PUT", content=cloud_hpa_caps)
 
             self._logger.debug(
-                "update_epa_caps,vimid:%s_%s req_to_aai: update cloud-epa-caps, return %s, %s, %s"
+                "update_hpa_caps,vimid:%s_%s req_to_aai: update cloud-hpa-caps, return %s, %s, %s"
                 % (cloud_owner,cloud_region_id, retcode, content, status_code))
 
             return retcode
@@ -559,15 +559,15 @@ class Registry(APIView):
 
     def _discover_epa_resources(self, vimid="", viminfo=None):
         try:
-            cloud_epa_caps_info = {}
+            cloud_hpa_caps_info = {}
             cloud_extra_info_str = viminfo.get('cloud_extra_info')
             if cloud_extra_info_str:
                 cloud_extra_info = json.loads(cloud_extra_info_str)
-                cloud_epa_caps_info.update(cloud_extra_info.get("epa-caps"))
+                cloud_hpa_caps_info.update(cloud_extra_info.get("hpa-caps"))
 
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-            ret = self._update_epa_caps(cloud_owner, cloud_region_id,
-                                        cloud_epa_caps_info)
+            ret = self._update_hpa_caps(cloud_owner, cloud_region_id,
+                                        cloud_hpa_caps_info)
             if ret != 0:
                 # failed to update image
                 self._logger.debug("failed to populate EPA CAPs info into AAI: %s, ret:%s"
@@ -604,7 +604,7 @@ class Registry(APIView):
                 # add resource-version to url
                 if retcode == 0 and content:
                     viminfo = json.JSONDecoder().decode(content)
-                    # cloud_epa_caps["resource-version"] = content["resource-version"]
+                    # cloud_hpa_caps["resource-version"] = content["resource-version"]
                     viminfo['identity-url'] = self.proxy_prefix + "/%s/identity/v2.0" % vimid
 
                     retcode, content, status_code = \

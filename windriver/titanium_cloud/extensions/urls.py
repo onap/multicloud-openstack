@@ -16,11 +16,11 @@ from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from titanium_cloud.extensions.views import extensions
-from titanium_cloud.extensions.views import epacaps
+from titanium_cloud.extensions.views import hpacaps
 
 urlpatterns = [
     url(r'^sions/?$', extensions.Extensions.as_view()),
-    url(r'^sions/epa-caps/?$', epacaps.EpaCaps.as_view()),
+    url(r'^sions/hpa-caps/?$', hpacaps.HpaCaps.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

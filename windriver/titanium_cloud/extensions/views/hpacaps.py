@@ -19,14 +19,14 @@ import traceback
 from django.conf import settings
 
 
-from newton_base.extensions import epacaps as newton_epacaps
+from newton_base.extensions import hpacaps as newton_hpacaps
 
 logger = logging.getLogger(__name__)
 
 # DEBUG=True
 
 
-class EpaCaps(newton_epacaps.EpaCaps):
+class HpaCaps(newton_hpacaps.HpaCaps):
 
     def __init__(self):
         self.proxy_prefix = settings.MULTICLOUD_PREFIX

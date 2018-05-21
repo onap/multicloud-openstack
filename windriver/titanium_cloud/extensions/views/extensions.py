@@ -45,10 +45,10 @@ class Extensions(newton_extensions.Extensions):
             registered_extensions = \
                 [
                     {
-                        "alias": "epa-caps",
+                        "alias": "hpa-caps",
                         "description": "Multiple network support",
-                        "name": "EPACapsQuery",
-                        "url": self.proxy_prefix + "/%s/extensions/epa-caps" % (vimid),
+                        "name": "HPACapsQuery",
+                        "url": self.proxy_prefix + "/%s/extensions/hpa-caps" % (vimid),
                         "spec": ""
                     },
                     {

@@ -42,7 +42,7 @@ mock_viminfo = {
     'cloud_owner':'windriver-hudson-dc',
     'cloud_region_id':'RegionOne',
     'cloud_extra_info':'',
-    'cloud_epa_caps':'{"huge_page":"true","cpu_pinning":"true",\
+    'cloud_hpa_caps':'{"huge_page":"true","cpu_pinning":"true",\
         "cpu_thread_policy":"true","numa_aware":"true","sriov":"true",\
         "dpdk_vswitch":"true","rdt":"false","numa_locality_pci":"true"}',
     'insecure':'True',
