@@ -170,7 +170,7 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
         last_event = backlogState.get("last_event", None)
         logger.debug("last event: %s" % last_event)
 
-        this_event = data2event_fault_vm(oneBacklog, last_event, server_resp)
+        this_event = data2event_fault_vm(vimid, oneBacklog, last_event, server_resp)
 
         if this_event is not None:
             logger.debug("this event: %s" % this_event)
@@ -188,7 +188,7 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
     return
 
 
-def data2event_fault_vm(oneBacklog, last_event, vm_data):
+def data2event_fault_vm(vimid, oneBacklog, last_event, vm_data):
 
     VES_EVENT_VERSION = 3.0
     VES_EVENT_FAULT_VERSION = 2.0
@@ -207,10 +207,10 @@ def data2event_fault_vm(oneBacklog, last_event, vm_data):
             eventSeverity = "CRITICAL"
             alarmCondition = "Guest_Os_Failure"
             vfStatus = "Active"
-            specificProblem = "AlarmOn"
+            specificProblem = "Fault_MultiCloud_VMFailure"
             eventType = ''
-            reportingEntityId = ''
-            reportingEntityName = ''
+            reportingEntityId = vimid
+            reportingEntityName = vimid
             sequence = 0
 
             startEpochMicrosec = get_epoch_now_usecond()
@@ -230,15 +230,15 @@ def data2event_fault_vm(oneBacklog, last_event, vm_data):
             eventSeverity = "NORMAL"
             alarmCondition = "Vm_Restart"
             vfStatus = "Active"
-            specificProblem = "AlarmOff"
+            specificProblem = "Fault_MultiCloud_VMFailureCleared"
             eventType = ''
-            reportingEntityId = ''
-            reportingEntityName = ''
+            reportingEntityId = vimid
+            reportingEntityName = vimid
             sequence = 0
 
             startEpochMicrosec = last_event['event']['commonEventHeader']['startEpochMicrosec']
             lastEpochMicrosec = get_epoch_now_usecond()
-            eventId = last_event['event']['commonEventHeader']['eventId']
+            eventId = str(uuid.uuid4()) #last_event['event']['commonEventHeader']['eventId']
 
             pass
 
@@ -266,7 +266,18 @@ def data2event_fault_vm(oneBacklog, last_event, vm_data):
                     'eventSourceType': 'virtualMachine',
                     'alarmCondition': alarmCondition,
                     'specificProblem': specificProblem,
-                    'vfStatus': 'Active'
+                    'vfStatus': 'Active',
+                    "alarmInterfaceA": "aaaa",
+                    "alarmAdditionalInformation": [
+                        {
+                            "name": "objectType",
+                            "value": "VIM"
+                        },
+                        {
+                            "name": "eventTime",
+                            "value": str(datetime.datetime.now())
+                        }
+                    ],
                 }
 
             }
