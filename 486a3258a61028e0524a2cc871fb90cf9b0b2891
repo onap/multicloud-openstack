@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_8c7c6fed",
+        "filename": "share/common/msapi/extsys.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-05-22T00:58:59Z",
+      "side": 0,
+      "message": "cloud-epa-caps is the property of cloud region from AAI schema v11, there is no HPA terminology at that time. \nChanging from cloud-epa-caps to cloud-hpa-caps only from multicloud side will break up the integration between multilcoud and AAI. On the other hand, backward compatibility is very important which is also a principle of ONAP, this change will violate the principle of backward compatibility as well.",
+      "range": {
+        "startLine": 64,
+        "startChar": 57,
+        "endLine": 64,
+        "endChar": 71
+      },
+      "revId": "486a3258a61028e0524a2cc871fb90cf9b0b2891",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
