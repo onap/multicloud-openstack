@@ -48,15 +48,11 @@ def buildBacklog_fault_vm(vimid, backlog_input):
         #must resolve the tenant id and server id while building the backlog
         tenant_id = backlog_input.get("tenantid", None)
         server_id = backlog_input.get("sourceid", None)
+        server_name = backlog_input.get("source", None)
 
         # should resolve the name to id later
         if tenant_id is None:
             tenant_name = backlog_input["tenant"]
-            server_name = backlog_input["source"]
-
-            if tenant_name is None or server_name is None:
-                logger.warn("tenant and source should be provided as backlog config")
-                return None
 
             # get token
             # resolve tenant_name to tenant_id
@@ -74,8 +70,8 @@ def buildBacklog_fault_vm(vimid, backlog_input):
             token = token_resp["access"]["token"]["id"]
             tenant_id = token_resp["access"]["token"]["tenant"]["id"]
 
-            if server_id is None:
-                # resolve server_name to server_id
+            if server_id is None and server_name:
+                # resolve server_name to server_id in case no wildcast in server_name
                 vserver_api_url_format \
                     = "/{f_vim_id}/compute/v2.1/{f_tenant_id}/servers?name={f_server_name}"
                 vserver_api_url = vserver_api_url_format.format(f_vim_id=vimid,
@@ -100,9 +96,15 @@ def buildBacklog_fault_vm(vimid, backlog_input):
                     return None
 
         #m.c. proxied OpenStack API
-        api_url_fmt = "/{f_vim_id}/compute/v2.1/{f_tenant_id}/servers/{f_server_id}"
-        api_url = api_url_fmt.format(
-                        f_vim_id=vimid, f_tenant_id=tenant_id, f_server_id=server_id)
+        if server_id is None and server_name is None:
+            # monitor all VMs of the specified VIMs since no server_id can be resolved
+            api_url_fmt = "/{f_vim_id}/compute/v2.1/{f_tenant_id}/servers/detail"
+            api_url = api_url_fmt.format(
+                f_vim_id=vimid, f_tenant_id=tenant_id)
+        else:
+            api_url_fmt = "/{f_vim_id}/compute/v2.1/{f_tenant_id}/servers/{f_server_id}"
+            api_url = api_url_fmt.format(
+                            f_vim_id=vimid, f_tenant_id=tenant_id, f_server_id=server_id)
 
         backlog = {
             "backlog_uuid":str(uuid.uuid3(uuid.NAMESPACE_URL,
@@ -167,18 +169,30 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
         # encode data
         backlog_uuid = oneBacklog.get("backlog_uuid", None)
         backlogState = vesAgentState.get("%s" % (backlog_uuid), None)
-        last_event = backlogState.get("last_event", None)
-        logger.debug("last event: %s" % last_event)
 
-        this_event = data2event_fault_vm(vimid, oneBacklog, last_event, server_resp)
+        #iterate all VMs
+        all_events = []
+        server_1 = server_resp.get("server",None) # in case querying single server
+        for s in server_resp.get("servers",[server_1] if server_1 else []):
+            server_id = s.get("id", None)
+            server_name = s.get("name", None)
+            if not server_id:
+                continue
 
-        if this_event is not None:
-            logger.debug("this event: %s" % this_event)
-            # report data to VES
+            last_event = backlogState.get("last_event_%s" % (server_id), None)
+            logger.debug("last event for server name %s: %s" % (server_name, last_event))
+
+            this_event = data2event_fault_vm(vimid, oneBacklog, last_event, s)
+            if this_event is not None:
+                logger.debug("this event: %s" % this_event)
+                all_events.append(this_event.get("event", None))
+                backlogState["last_event_%s" % (server_id)] = this_event
+
+        # report data to VES
+        if len(all_events) > 0:
             ves_subscription = vesAgentConfig.get("subscription", None)
-            publishAnyEventToVES(ves_subscription, this_event)
+            publishAnyEventToVES(ves_subscription, all_events)
             # store the latest data into cache, never expire
-            backlogState["last_event"] = this_event
 
     except  Exception as e:
         logger.error("exception:%s" % str(e))
@@ -196,7 +210,7 @@ def data2event_fault_vm(vimid, oneBacklog, last_event, vm_data):
 
     try:
 
-        if vm_status_is_fault(vm_data["server"]["status"]):
+        if vm_status_is_fault(vm_data["status"]):
             if last_event is not None \
                     and last_event['event']['commonEventHeader']['eventName'] == 'Fault_MultiCloud_VMFailure':
                 # asserted alarm already, so no need to assert it again
@@ -214,7 +228,7 @@ def data2event_fault_vm(vimid, oneBacklog, last_event, vm_data):
             sequence = 0
 
             startEpochMicrosec = get_epoch_now_usecond()
-            lastEpochMicrosec = get_epoch_now_usecond()
+            lastEpochMicrosec = startEpochMicrosec
 
             eventId = str(uuid.uuid4())
             pass
@@ -230,7 +244,7 @@ def data2event_fault_vm(vimid, oneBacklog, last_event, vm_data):
             eventSeverity = "NORMAL"
             alarmCondition = "Vm_Restart"
             vfStatus = "Active"
-            specificProblem = "Fault_MultiCloud_VMFailureCleared"
+            specificProblem = "Fault_MultiCloud_VMFailure"
             eventType = ''
             reportingEntityId = vimid
             reportingEntityName = vimid
@@ -251,8 +265,8 @@ def data2event_fault_vm(vimid, oneBacklog, last_event, vm_data):
                     'domain': VES_EVENT_FAULT_DOMAIN,
                     'eventId': eventId,
                     'eventType': eventType,
-                    'sourceId': vm_data["server"]['id'],
-                    'sourceName': vm_data["server"]['name'],
+                    'sourceId': vm_data['id'],
+                    'sourceName': vm_data['name'],
                     'reportingEntityId': reportingEntityId,
                     'reportingEntityName': reportingEntityName,
                     'priority': priority,
