@@ -1,0 +1,284 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Service rest API"
+    },
+    "basePath": "/api/multicloud-newton/v0/",
+    "tags": [
+        {
+            "name": "MultiVIM services"
+        }
+    ],
+    "paths": {
+        "/{vimid}/{service_type}/{resource_type}": {
+            "post": {
+                "tags": [
+                    "MultiCloud Service Proxy"
+                ],
+                "summary": "create a resource",
+                "description": "create a resource",
+                "operationId": "create_openstack_resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "service_type",
+                        "in": "path",
+                        "description": "service type:identity, compute, network, server,volume,volumev2,image, etc",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resource_type",
+                        "in": "path",
+                        "description": "resource type:flavors,servers,etc.",
+                        "required": true,
+                        "type": "string"
+                    },
+					{
+                        "name": "X-Auth-Token",
+                        "in": "header",
+                        "description": "authenticated token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "parameters to create a openstack resource",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "successful operation",
+                        "type": "string"
+                    },
+                    "404": {
+                        "description": "the vim id is wrong"
+                    },
+                    "500": {
+                        "description": "the vim instance is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "MultiCloud Service Proxy"
+                ],
+                "summary": "query openstack resource list",
+                "description": "query openstack resource list",
+                "operationId": "query_openstack_resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "service_type",
+                        "in": "path",
+                        "description": "service type:identity, compute, network, server,volume,volumev2,image, etc",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resource_type",
+                        "in": "path",
+                        "description": "resource type:flavors,servers,etc.",
+                        "required": true,
+                        "type": "string"
+                    },
+					{
+                        "name": "X-Auth-Token",
+                        "in": "header",
+                        "description": "authenticated token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in":  "query",
+                        "description": "resource name to filter list",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "limit",
+                        "in":  "query",
+                        "description": "Requests a page size of items",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "marker",
+                        "in":  "query",
+                        "description": "image ID of the last-seen item",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "type": "string"
+                    },
+                    "404": {
+                        "description": "the vim id is wrong"
+                    },
+                    "500": {
+                        "description": "the vim flavor is not accessable"
+                    }
+                }
+            }
+        },
+        "/{vimid}/{service_type}/{resource_type}/{resource_id}": {
+            "delete": {
+                "tags": [
+                    "MultiCloud Service Proxy"
+                 ],
+                 "summary": "delete a openstack resource",
+                "description": "delete a openstack resource",
+                "operationId": "delete_a_openstack_resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "service_type",
+                        "in": "path",
+                        "description": "service type:identity, compute, network, server,volume,volumev2,image, etc",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resource_type",
+                        "in": "path",
+                        "description": "resource type:flavors,servers,etc.",
+                        "required": true,
+                        "type": "string"
+                    },
+					{
+                        "name": "X-Auth-Token",
+                        "in": "header",
+                        "description": "authenticated token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resource_id",
+                        "in": "path",
+                        "description": "resource id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "the vim id is wrong"
+                    },
+                    "500": {
+                        "description": "the resource is not accessable"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "MultiCloud Service Proxy"
+                ],
+                "summary": "query a openstack resource",
+                "description": "query a openstack resource",
+                "operationId": "query_a_openstack_resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "service_type",
+                        "in": "path",
+                        "description": "service type:identity, compute, network, server,volume,volumev2,image, etc",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resource_type",
+                        "in": "path",
+                        "description": "resource type:flavor,server,etc.",
+                        "required": true,
+                        "type": "string"
+                    },
+					{
+                        "name": "X-Auth-Token",
+                        "in": "header",
+                        "description": "authenticated token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resource_id",
+                        "in": "path",
+                        "description": "resource id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "type": "string"
+                    },
+                    "404": {
+                        "description": "the vim id is wrong"
+                    },
+                    "500": {
+                        "description": "the resource is not accessable"
+                    }
+                }
+            }
+        }
+    }
+}
