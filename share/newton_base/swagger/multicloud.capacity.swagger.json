@@ -1,0 +1,66 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "MultiVIM Capacity check rest API"
+    },
+    "basePath": "/api/multicloud-newton/v0/",
+    "tags": [
+        {
+            "name": "MultiVIM Capacity check"
+        }
+    ],
+    "paths": {
+        "/{vimid}/capacity_check": {
+            "post": {
+                "tags": [
+                    "MultiCloud Capacity Proxy"
+                ],
+                "summary": "check capacity",
+                "description": "check capacity",
+                "operationId": "check_openstack_capacity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "X-Auth-Token",
+                        "in": "header",
+                        "description": "authenticated token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "parameters to check openstack capacity",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "type": "string"
+                    },
+                    "404": {
+                        "description": "the vim id is wrong"
+                    },
+                    "500": {
+                        "description": "the vim capacity check is not accessable"
+                    }
+                }
+            }
+        }
+    }
+}
