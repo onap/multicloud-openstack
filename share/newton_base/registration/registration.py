@@ -126,7 +126,27 @@ class Registry(APIView):
             self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
             return
         except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            if e.http_status == status.HTTP_403_FORBIDDEN:
+                ### get the tenant information from the token response
+                try:
+                    ### get tenant info from the session
+                    tmp_auth_state = VimDriverUtils.get_auth_state(session)
+                    tmp_auth_info = json.loads(tmp_auth_state)
+                    tmp_auth_data = tmp_auth_info['body']
+                    tenant = tmp_auth_data['token']['project']
+                    tenant_info = {
+                        'tenant-id': tenant['id'],
+                        'tenant-name': tenant['name'],
+                    }
+
+                    self._update_resoure(
+                        cloud_owner, cloud_region_id, tenant['id'],
+                        tenant_info, "tenant")
+
+                except Exception as ex:
+                    self._logger.error(traceback.format_exc())
+            else:
+                self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return
         except Exception as e:
             self._logger.error(traceback.format_exc())
