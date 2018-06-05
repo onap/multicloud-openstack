@@ -248,11 +248,11 @@ def data2event_fault_vm(vimid, oneBacklog, last_event, vm_data):
             eventType = ''
             reportingEntityId = vimid
             reportingEntityName = vimid
-            sequence = 0
+            sequence = 1 #last_event['event']['commonEventHeader']['sequence'] + 1
 
             startEpochMicrosec = last_event['event']['commonEventHeader']['startEpochMicrosec']
             lastEpochMicrosec = get_epoch_now_usecond()
-            eventId = str(uuid.uuid4()) #last_event['event']['commonEventHeader']['eventId']
+            eventId = last_event['event']['commonEventHeader']['eventId']
 
             pass
 
