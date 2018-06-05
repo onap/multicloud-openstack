@@ -78,9 +78,9 @@ class CapacityCheck(APIView):
                 if e.http_status == status.HTTP_403_FORBIDDEN:
                     # Due to non administrator account cannot get hypervisor data,
                     # so construct enough resource data
-                    conVCPUS = int(resource_demand['vCPU']) + 2
-                    conFreeRamMB = int(resource_demand['Memory']) + 2
-                    conFreeDiskGB = int(resource_demand['Storage']) + 2
+                    conVCPUS = int(resource_demand['vCPU'])
+                    conFreeRamMB = int(resource_demand['Memory'])
+                    conFreeDiskGB = int(resource_demand['Storage'])
                     self._logger.info("Non administator forbidden to access hypervisor statistics data")
                     hypervisor_statistics = {'vcpus_used':0, 'vcpus':conVCPUS, 'free_ram_mb':conFreeRamMB, 'free_disk_gb':conFreeDiskGB}
                 else:
@@ -115,11 +115,11 @@ class CapacityCheck(APIView):
                 remainStorage = remainHypervisorStorage
 
             # compare resource demanded with available
-            if (int(resource_demand['vCPU']) >= remainVCPU):
+            if (int(resource_demand['vCPU']) > remainVCPU):
                 hasEnoughResource = False
-            elif (int(resource_demand['Memory']) >= remainMEM):
+            elif (int(resource_demand['Memory']) > remainMEM):
                 hasEnoughResource = False
-            elif (int(resource_demand['Storage']) >= remainStorage):
+            elif (int(resource_demand['Storage']) > remainStorage):
                 hasEnoughResource = False
             else:
                 hasEnoughResource = True
