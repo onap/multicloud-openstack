@@ -7,7 +7,8 @@ cd ${DOCKER_BUILD_DIR}
 BUILD_ARGS="--no-cache"
 VERSION="1.1.2-SNAPSHOT"
 STAGING="1.1.2-STAGING"
-IMAGE_NAME="${DOCKER_REPOSITORY:-"nexus3.onap.org:10003"}/${ORG:-"onap"}/${PROJECT:-"multicloud"}/${IMAGE:-"openstack-ocata"}"
+OS_VERSION="ocata"
+IMAGE_NAME="nexus3.onap.org:10003/onap/multicloud/openstack-${OS_VERSION}"
 
 if [ $HTTP_PROXY ]; then
     BUILD_ARGS+=" --build-arg HTTP_PROXY=${HTTP_PROXY}"
