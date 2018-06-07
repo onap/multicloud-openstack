@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_2c0404c5",
+        "filename": "ocata/docker/build_image.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-06-07T00:41:19Z",
+      "side": 1,
+      "message": "Please just hard code this part to: \"multicloud\", we prefer not adding another /openstack/ in the pathname",
+      "range": {
+        "startLine": 10,
+        "startChar": 73,
+        "endLine": 10,
+        "endChar": 106
+      },
+      "revId": "6fe2b17c826fda8c83c0539585e2a82b4d2b7ef7",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
