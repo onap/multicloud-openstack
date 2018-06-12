@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_7ee94db6",
+        "filename": "ocata/docker/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-06-12T01:06:16Z",
+      "side": 1,
+      "message": "This will not work since the AAI_ADDR and AAI_PORT can only be determined at ONAP deployment time, the default AAI_ADDR \"aai.api.xxxx\" will be wrong in certain deploymenet, e.g. oom based deployment.\nLet\u0027s think of refactor this exposing variable, e.g. expose the whole end point of AAI to container, so it works for both CSIT and real deployment.\nthanks",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 53
+      },
+      "revId": "6977fcf2cf81af41da2d3777b8111af5600174ad",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
