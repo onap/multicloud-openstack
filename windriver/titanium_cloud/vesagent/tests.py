@@ -97,3 +97,31 @@ class VesAgentCtrlTest(unittest.TestCase):
         self.assertEquals(vesAgentConfig, mock_vesagent_config)
 
         pass
+
+    @mock.patch.object(cache, 'set')
+    @mock.patch.object(cache, 'get')
+    def test_clearBacklogsOneVIM(self, mock_get, mock_set):
+        mock_VesAgentBacklogs_vimlist = ["windriver-hudson-dc_RegionOne"]
+        mock_vesagent_config = {"backlogs": [{"backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
+                                              "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
+                                              "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae", "api_method": "GET",
+                                              "source": "onap-aaf",
+                                              "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721",
+                                              "domain": "fault", "type": "vm", "tenant": "VIM"}],
+                                "poll_interval_default": 10, "vimid": "onaplab_RegionOne",
+                                "subscription": {"username": "user", "password": "password",
+                                                 "endpoint": "http://127.0.0.1:9005/sample"}}
+
+        mock_get.side_effect= [
+                    json.dumps(mock_VesAgentBacklogs_vimlist),
+                    json.dumps(mock_vesagent_config)
+                ]
+
+
+        mock_set.return_value = "mocked cache set"
+
+        result = self.view.clearBacklogsOneVIM(vimid="windriver-hudson-dc_RegionOne")
+        self.assertEquals(0, result)
+
+
+        pass
