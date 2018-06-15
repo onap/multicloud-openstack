@@ -22,6 +22,8 @@ from rest_framework import status
 from django.core.cache import cache
 from common.msapi import extsys
 from titanium_cloud.vesagent import vesagent_ctrl
+from titanium_cloud.vesagent.event_domain import fault_vm
+
 
 
 MOCK_VIM_INFO = {
@@ -151,6 +153,25 @@ class VesAgentCtrlTest(unittest.TestCase):
 
         VesAgentBacklogsConfig = self.view.buildBacklogsOneVIM(vimid="windriver-hudson-dc_RegionOne",
                                                                vesagent_config = mock_vesagent_config)
+        self.assertIsNotNone(VesAgentBacklogsConfig)
+
+        pass
+
+
+    @mock.patch.object(fault_vm, 'buildBacklog_fault_vm')
+    def test_buildBacklog(self, mock_buildBacklog_fault_vm):
+        mock_backlog_input = {"backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
+                                              "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
+                                              "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae", "api_method": "GET",
+                                              "source": "onap-aaf",
+                                              "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721",
+                                              "domain": "fault", "type": "vm", "tenant": "VIM"}
+
+
+        mock_buildBacklog_fault_vm.return_value = "mocked buildBacklog_fault_vm"
+
+        VesAgentBacklogsConfig = self.view.buildBacklog(vimid="windriver-hudson-dc_RegionOne",
+                                                        backlog_input = mock_backlog_input)
         self.assertIsNotNone(VesAgentBacklogsConfig)
 
         pass

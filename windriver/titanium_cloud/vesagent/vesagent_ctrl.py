@@ -23,7 +23,7 @@ from rest_framework.views import APIView
 from django.conf import settings
 from common.msapi import extsys
 from titanium_cloud.vesagent.tasks import scheduleBacklogs
-from titanium_cloud.vesagent.event_domain.fault_vm import buildBacklog_fault_vm
+from titanium_cloud.vesagent.event_domain import fault_vm
 
 from django.core.cache import cache
 
@@ -393,7 +393,7 @@ class VesAgentCtrl(APIView):
 
         try:
             if backlog_input["domain"] == "fault" and backlog_input["type"] == "vm":
-                return buildBacklog_fault_vm(vimid, backlog_input)
+                return fault_vm.buildBacklog_fault_vm(vimid, backlog_input)
             else:
                 self._logger.warn("return with failure: unsupported backlog domain:%s, type:%s"
                                   % (backlog_input["domain"], backlog_input["type"] == "vm"))
