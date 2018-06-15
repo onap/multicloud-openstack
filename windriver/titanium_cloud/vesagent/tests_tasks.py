@@ -80,3 +80,27 @@ class VesTaskTest(unittest.TestCase):
         self.assertEquals(COUNT_TIME_SLOT_ONE_VIM, result)
         pass
 
+    @mock.patch.object(tasks, 'processOneBacklog')
+    @mock.patch.object(cache, 'set')
+    @mock.patch.object(cache, 'get')
+    def test_tasks_processBacklogsOfOneVIM(self, mock_cache_get, mock_cache_set, mock_tasks_processOneBacklog):
+        mock_VesAgentBacklogs_vimlist = ["windriver-hudson-dc_RegionOne"]
+        mock_vesagent_config = {"backlogs": [{"backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
+                                              "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
+                                              "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae", "api_method": "GET",
+                                              "source": "onap-aaf",
+                                              "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721",
+                                              "domain": "fault", "type": "vm", "tenant": "VIM"}],
+                                "poll_interval_default": 10, "vimid": "onaplab_RegionOne",
+                                "subscription": {"username": "user", "password": "password",
+                                                 "endpoint": "http://127.0.0.1:9005/sample"}}
+        mock_cache_get.side_effect= [
+                    json.dumps(mock_vesagent_config),
+                    json.dumps({})
+                ]
+        mock_tasks_processOneBacklog.return_value = (1, 11)
+        mock_cache_set.return_value = "mocked cache set"
+        result = tasks.processBacklogsOfOneVIM(vimid="windriver-hudson-dc_RegionOne")
+        COUNT_TIME_SLOT = (1, 10)
+        self.assertEquals(COUNT_TIME_SLOT, result)
+        pass
