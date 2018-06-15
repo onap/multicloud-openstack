@@ -74,3 +74,16 @@ class VesAgentCtrlTest(unittest.TestCase):
         self.assertEquals(status.HTTP_201_CREATED, response.status_code)
 
         pass
+
+    @mock.patch.object(vesagent_ctrl.VesAgentCtrl, 'clearBacklogsOneVIM')
+    @mock.patch.object(extsys, 'get_vim_by_id')
+    def test_delete(self, mock_get_vim_by_id, mock_clearBacklogsOneVIM):
+        mock_get_vim_by_id.return_value = MOCK_VIM_INFO
+        mock_clearBacklogsOneVIM.return_value = "mocked vesagent_backlogs"
+        mock_request = mock.Mock()
+        mock_request.META = {"testkey": "testvalue"}
+
+        response = self.view.delete(request=mock_request, vimid="windriver-hudson-dc_RegionOne")
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+
+        pass
