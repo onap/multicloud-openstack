@@ -21,7 +21,7 @@ from rest_framework import status
 
 from django.core.cache import cache
 from common.msapi import extsys
-
+from titanium_cloud.vesagent import vesagent_ctrl
 
 
 MOCK_VIM_INFO = {
@@ -43,9 +43,11 @@ MOCK_VIM_INFO = {
     'insecure': 'True',
 }
 
+
 class VesAgentCtrlTest(unittest.TestCase):
     def setUp(self):
         self.client = Client()
+        self.view = vesagent_ctrl.VesAgentCtrl()
 
     def tearDown(self):
         pass
@@ -58,3 +60,17 @@ class VesAgentCtrlTest(unittest.TestCase):
 
         response = self.client.get("/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/vesagent")
         self.assertEqual(status.HTTP_200_OK, response.status_code, response.content)
+
+    @mock.patch.object(vesagent_ctrl.VesAgentCtrl, 'buildBacklogsOneVIM')
+    @mock.patch.object(extsys, 'get_vim_by_id')
+    def test_post(self, mock_get_vim_by_id, mock_buildBacklogsOneVIM):
+        mock_get_vim_by_id.return_value = MOCK_VIM_INFO
+        mock_buildBacklogsOneVIM.return_value = "mocked vesagent_backlogs"
+        mock_request = mock.Mock()
+        mock_request.META = {"testkey":"testvalue"}
+        mock_request.data = {"testdatakey":"testdatavalue"}
+
+        response = self.view.post(request=mock_request, vimid="windriver-hudson-dc_RegionOne")
+        self.assertEquals(status.HTTP_201_CREATED, response.status_code)
+
+        pass
