@@ -181,6 +181,7 @@ class VesAgentCtrl(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        self._logger.info("return with %s" % status.HTTP_200_OK)
         return Response(data={"vesagent_config":vesagent_config,
                               "vesagent_backlogs": vesagent_backlogs},
                         status=status.HTTP_200_OK)
@@ -233,6 +234,7 @@ class VesAgentCtrl(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        self._logger.info("return with %s" % status.HTTP_201_CREATED)
         return Response(data={"vesagent_config":vesagent_config,
                               "vesagent_backlogs": vesagent_backlogs},
                         status=status.HTTP_201_CREATED)
@@ -254,6 +256,7 @@ class VesAgentCtrl(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        self._logger.info("return with %s" % status.HTTP_200_OK)
         return Response(status=status.HTTP_200_OK)
 
 
@@ -263,7 +266,7 @@ class VesAgentCtrl(APIView):
         :param vimid:
         :return:
         '''
-        self._logger.info("vimid: %s" % vimid)
+        self._logger.debug("vimid: %s" % vimid)
 
         vesAgentConfig = None
         try:
@@ -284,7 +287,7 @@ class VesAgentCtrl(APIView):
             self._logger.error("exception:%s" % str(e))
             vesAgentConfig = {"error": "exception occurs"}
 
-        self._logger.info("return")
+        self._logger.debug("return")
         return vesAgentConfig
 
     def clearBacklogsOneVIM(self, vimid):
@@ -294,7 +297,7 @@ class VesAgentCtrl(APIView):
         :param vesagent_config:
         :return:
         '''
-        self._logger.info("vimid: %s" % vimid)
+        self._logger.debug("vimid: %s" % vimid)
 
         try:
             # remove vimid from "VesAgentBacklogs.vimlist"
@@ -304,7 +307,7 @@ class VesAgentCtrl(APIView):
                 VesAgentBacklogsVimList = json.loads(VesAgentBacklogsVimListStr)
                 VesAgentBacklogsVimList = [v for v in VesAgentBacklogsVimList if v != vimid]
 
-            logger.info("VesAgentBacklogs.vimlist is %s" % VesAgentBacklogsVimList)
+            logger.debug("VesAgentBacklogs.vimlist is %s" % VesAgentBacklogsVimList)
 
             # cache forever
             cache.set("VesAgentBacklogs.vimlist", json.dumps(VesAgentBacklogsVimList), None)
@@ -331,7 +334,7 @@ class VesAgentCtrl(APIView):
         except Exception as e:
             self._logger.error("exception:%s" % str(e))
 
-        self._logger.info("return")
+        self._logger.debug("return")
         return 0
 
     def buildBacklogsOneVIM(self, vimid, vesagent_config = None):
@@ -341,7 +344,7 @@ class VesAgentCtrl(APIView):
         :param vesagent_config: vesagent_config data in json object
         :return:
         '''
-        self._logger.info("vimid: %s" % vimid)
+        self._logger.debug("vimid: %s" % vimid)
         self._logger.debug("config data: %s" % vesagent_config)
 
         VesAgentBacklogsConfig = None
@@ -370,7 +373,7 @@ class VesAgentCtrl(APIView):
                     VesAgentBacklogsVimList = [v for v in VesAgentBacklogsVimList if v != vimid]
                     VesAgentBacklogsVimList.append(vimid)
 
-                logger.info("VesAgentBacklogs.vimlist is %s" % VesAgentBacklogsVimList)
+                logger.debug("VesAgentBacklogs.vimlist is %s" % VesAgentBacklogsVimList)
 
                 #cache forever
                 cache.set("VesAgentBacklogs.vimlist", json.dumps(VesAgentBacklogsVimList), None)
@@ -381,11 +384,11 @@ class VesAgentCtrl(APIView):
             self._logger.error("exception:%s" % str(e))
             VesAgentBacklogsConfig = {"error":"exception occurs during build backlogs"}
 
-        self._logger.info("return")
+        self._logger.debug("return")
         return VesAgentBacklogsConfig
 
     def buildBacklog(self, vimid, backlog_input):
-        self._logger.info("build backlog for: %s" % vimid)
+        self._logger.debug("build backlog for: %s" % vimid)
         self._logger.debug("with input: %s" % backlog_input)
 
         try:
@@ -399,5 +402,5 @@ class VesAgentCtrl(APIView):
             self._logger.error("exception:%s" % str(e))
             return None
 
-        self._logger.info("return without backlog")
+        self._logger.debug("return without backlog")
         return None
