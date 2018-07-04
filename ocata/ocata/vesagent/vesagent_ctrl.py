@@ -258,6 +258,21 @@ class VesAgentCtrl(APIView):
                 # cache forever
                 cache.set("VesAgentBacklogs.config.%s" % vimid, VesAgentBacklogsConfigStr, None)
 
+                # update list of vimid for vesagent
+                # get the whole list of backlog
+                VesAgentBacklogsVimListStr = cache.get("VesAgentBacklogs.vimlist")
+                VesAgentBacklogsVimList = [vimid]
+                if VesAgentBacklogsVimListStr is not None:
+                    VesAgentBacklogsVimList = json.loads(VesAgentBacklogsVimListStr)
+                    VesAgentBacklogsVimList = [v for v in VesAgentBacklogsVimList if v != vimid]
+                    VesAgentBacklogsVimList = self.vimid_
+                    VesAgentBacklogsVimList.append(vimid)
+
+                logger.info("VesAgentBacklogs.vimlist is %s" % VesAgentBacklogsVimList)
+
+                #cache forever
+                cache.set("VesAgentBacklogs.vimlist", json.dumps(VesAgentBacklogsVimList), None)
+
                 # notify schduler
                 scheduleBacklogs.delay(vimid)
         except Exception as e:
