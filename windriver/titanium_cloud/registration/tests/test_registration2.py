@@ -77,6 +77,27 @@ MOCK_GET_FLAVOR_RESPONSE = {
     ]
 }
 
+MOCK_GET_FLAVOR_RESPONSE_w_hpa_numa = {
+    "flavors": [
+        {
+            "id": "1", "name": "onap.big", "vcpus": 6, "ram": "8192",
+            "disk": "10", "OS-FLV-EXT-DATA:ephemeral": False,
+            "swap": True, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}]
+         }
+    ]
+}
+MOCK_GET_FLAVOR_EXTRASPECS_RESPONSE_w_hpa_numa = {
+    "flavors": [
+        {
+            "id": "1", "name": "onap.big", "vcpus": 6, "ram": "8192",
+            "disk": "10", "OS-FLV-EXT-DATA:ephemeral": False,
+            "swap": True, "os-flavor-access:is_public": True,
+            "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}]
+         }
+    ]
+}
+
 class TestRegistration2(unittest.TestCase):
     def setUp(self):
         self.client = Client()
@@ -87,9 +108,26 @@ class TestRegistration2(unittest.TestCase):
 
 
     def test_discover_flavors(self):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
         mock_session =  test_base.get_mock_session(
                 ["get"], {"get": {
                     "content": MOCK_GET_FLAVOR_RESPONSE}}),
+
+        resp = self.view._discover_flavors(vimid="windriver-hudson-dc_RegionOne",
+                                           session=mock_session, viminfo=MOCK_VIM_INFO)
+
+        self.assertIsNone(resp)
+
+    def test_discover_flavors_w_hpa_numa(self):
+        restcall.req_to_aai = mock.Mock()
+        restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
+        mock_session = test_base.get_mock_session(
+                ["get"], {"side_effect": [{
+                    "content": MOCK_GET_FLAVOR_RESPONSE_w_hpa_numa},
+                {
+                    "content": MOCK_GET_FLAVOR_EXTRASPECS_RESPONSE_w_hpa_numa}
+            ]}),
 
         resp = self.view._discover_flavors(vimid="windriver-hudson-dc_RegionOne",
                                            session=mock_session, viminfo=MOCK_VIM_INFO)
