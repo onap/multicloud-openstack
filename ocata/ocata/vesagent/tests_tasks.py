@@ -67,4 +67,16 @@ class VesTaskTest(unittest.TestCase):
         self.assertEquals(None, result)
         pass
 
+    @mock.patch.object(tasks, 'processBacklogsOfOneVIM')
+    @mock.patch.object(cache, 'get')
+    def test_tasks_processBacklogs(self, mock_cache_get, mock_tasks_processBacklogsOfOneVIM):
+        mock_VesAgentBacklogs_vimlist = ["windriver-hudson-dc_RegionOne"]
+        COUNT_TIME_SLOT_ONE_VIM = (1, 1)
+        mock_tasks_processBacklogsOfOneVIM.return_value = COUNT_TIME_SLOT_ONE_VIM
+        mock_cache_get.side_effect= [
+                    json.dumps(mock_VesAgentBacklogs_vimlist),
+                ]
+        result = tasks.processBacklogs()
+        self.assertEquals(COUNT_TIME_SLOT_ONE_VIM, result)
+        pass
 
