@@ -88,14 +88,7 @@ MOCK_GET_FLAVOR_RESPONSE_w_hpa_numa = {
     ]
 }
 MOCK_GET_FLAVOR_EXTRASPECS_RESPONSE_w_hpa_numa = {
-    "flavors": [
-        {
-            "id": "1", "name": "onap.big", "vcpus": 6, "ram": "8192",
-            "disk": "10", "OS-FLV-EXT-DATA:ephemeral": False,
-            "swap": True, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}]
-         }
-    ]
+    "hw:numa_nodes": 2
 }
 
 class TestRegistration2(unittest.TestCase):
