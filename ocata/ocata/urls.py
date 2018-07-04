@@ -18,6 +18,7 @@ from ocata.registration.views import registration
 from newton_base.openoapi import tenants
 from ocata.resource.views import capacity
 from ocata.resource.views import events
+from ocata.vesagent import vesagent_ctrl
 
 urlpatterns = [
     url(r'^', include('ocata.swagger.urls')),
@@ -40,6 +41,9 @@ urlpatterns = [
     # events
     url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/events_check/?$',
         events.EventsCheck.as_view()),
+    url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/vesagent/?$',
+        vesagent_ctrl.VesAgentCtrl.as_view()),
+
 ]
 
 
