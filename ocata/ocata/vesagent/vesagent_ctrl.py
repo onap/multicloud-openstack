@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 from common.msapi import extsys
+from ocata.vesagent.event_domain.fault_vm import buildBacklog_fault_vm
 
 from django.core.cache import cache
 
@@ -267,4 +268,16 @@ class VesAgentCtrl(APIView):
         self._logger.info("build backlog for: %s" % vimid)
         self._logger.debug("with input: %s" % backlog_input)
 
+        try:
+            if backlog_input["domain"] == "fault" and backlog_input["type"] == "vm":
+                return buildBacklog_fault_vm(vimid, backlog_input)
+            else:
+                self._logger.warn("return with failure: unsupported backlog domain:%s, type:%s"
+                                  % (backlog_input["domain"], backlog_input["type"] == "vm"))
+                return None
+        except Exception as e:
+            self._logger.error("exception:%s" % str(e))
+            return None
+
+        self._logger.info("return without backlog")
         return None
