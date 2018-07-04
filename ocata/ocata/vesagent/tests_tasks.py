@@ -23,6 +23,7 @@ from django.core.cache import cache
 from common.msapi import extsys
 
 from ocata.vesagent import tasks
+from ocata.vesagent.event_domain import fault_vm
 
 
 
@@ -104,3 +105,33 @@ class VesTaskTest(unittest.TestCase):
         COUNT_TIME_SLOT = (1, 10)
         self.assertEquals(COUNT_TIME_SLOT, result)
         pass
+
+    @mock.patch.object(fault_vm, 'processBacklog_fault_vm')
+    def test_tasks_processOneBacklog(self, mock_fault_vm_processBacklog_fault_vm):
+        mock_fault_vm_processBacklog_fault_vm.return_value = None
+        vesagent_config = {"backlogs": [{"backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
+                                              "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
+                                              "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae", "api_method": "GET",
+                                              "source": "onap-aaf",
+                                              "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721",
+                                              "domain": "fault", "type": "vm", "tenant": "VIM"}],
+                                "poll_interval_default": 10, "vimid": "onaplab_RegionOne",
+                                "subscription": {"username": "user", "password": "password",
+                                                 "endpoint": "http://127.0.0.1:9005/sample"}}
+
+        vesagent_onebacklog = {"backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
+                                              "poll_interval": 10,
+                                              "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
+                                              "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae", "api_method": "GET",
+                                              "source": "onap-aaf",
+                                              "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721",
+                                              "domain": "fault", "type": "vm", "tenant": "VIM"}
+
+        result = tasks.processOneBacklog(vesAgentConfig = vesagent_config,
+                                                vesAgentState = {},
+                                                poll_interval_default = 10,
+                                                oneBacklog = vesagent_onebacklog)
+        COUNT_TIME_SLOT = (1, 10)
+        self.assertEquals(COUNT_TIME_SLOT, result)
+        pass
+
