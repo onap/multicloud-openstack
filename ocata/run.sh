@@ -15,4 +15,9 @@
 
 memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
 export PYTHONPATH=lib/share
+
+service rabbitmq-server restart
+# make sure only 1 worker due to missing the synchronization between workers now
+nohup celery -A ocata worker --concurrency=1 --loglevel=debug &
+
 uwsgi --http :9006 --module ocata.wsgi --master --processes 4
