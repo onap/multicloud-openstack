@@ -115,5 +115,48 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
     logger.debug("vesAgentConfig:%s, vesAgentState:%s, oneBacklog: %s"
                  % (vesAgentConfig, vesAgentState, oneBacklog))
 
+    try:
+        vimid = vesAgentConfig["vimid"]
+        tenant_name = oneBacklog["tenant"]
+
+        # get token
+        auth_api_url_format = "/{f_vim_id}/identity/v2.0/tokens"
+        auth_api_url = auth_api_url_format.format(f_vim_id=vimid)
+        auth_api_data = { "auth":{"tenantName": tenant_name} }
+        base_url = settings.MULTICLOUD_PREFIX
+        extra_headers = ''
+        logger.debug("authenticate with url:%s" % auth_api_url)
+        ret = _call_req(base_url, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(auth_api_data))
+        if ret[0] > 0 or ret[1] is None:
+            logger.critical("call url %s failed with status %s" % (auth_api_url, ret[0]))
+
+        token_resp = json.JSONDecoder().decode(ret[1])
+        logger.debug("authenticate resp: %s" % token_resp)
+        token = token_resp["access"]["token"]["id"]
+
+        # collect data by issue API
+        api_link = oneBacklog["api_link"]
+        method = oneBacklog["api_method"]
+        base_url = settings.MULTICLOUD_PREFIX
+        data = ''
+        extra_headers = {'X-Auth-Token': token}
+        #which one is correct? extra_headers = {'HTTP_X_AUTH_TOKEN': token}
+        logger.debug("authenticate with url:%s, header:%s" % (auth_api_url,extra_headers))
+        ret = _call_req(base_url, "", "", 0, api_link, method, extra_headers, data)
+        if ret[0] > 0 or ret[1] is None:
+            logger.critical("call url %s failed with status %s" % (api_link, ret[0]))
+
+        server_resp = json.JSONDecoder().decode(ret[1])
+        logger.debug("collected data: %s" % server_resp)
+
+        # encode data
+
+        # publish event to VES
+
+    except  Exception as e:
+        logger.error("exception:%s" % str(e))
+        return
+
+    logger.info("return")
     return
 
