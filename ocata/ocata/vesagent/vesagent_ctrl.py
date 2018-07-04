@@ -164,10 +164,15 @@ class VesAgentCtrl(APIView):
         self._logger.debug("with META: %s" % request.META)
         try:
             # get vesagent_config from cloud region
-            viminfo = extsys.get_vim_by_id(vimid)
-            cloud_extra_info_str = viminfo.get('cloud_extra_info', None)
-            cloud_extra_info = json.loads(cloud_extra_info_str) if cloud_extra_info_str is not None else None
-            vesagent_config = cloud_extra_info.get("vesagent_config", None) if cloud_extra_info is not None else None
+            try:
+                viminfo = extsys.get_vim_by_id(vimid)
+                cloud_extra_info_str = viminfo.get('cloud_extra_info', '')
+                cloud_extra_info = json.loads(cloud_extra_info_str) if cloud_extra_info_str != '' else None
+                vesagent_config = cloud_extra_info.get("vesagent_config", None) if cloud_extra_info is not None else None
+            except Exception as e:
+                #ignore this error
+                self._logger.warn("cloud extra info is provided with data in  bad format: %s" % cloud_extra_info_str)
+                pass
 
             vesagent_backlogs = self.getBacklogsOneVIM(vimid)
 
@@ -363,7 +368,6 @@ class VesAgentCtrl(APIView):
                 if VesAgentBacklogsVimListStr is not None:
                     VesAgentBacklogsVimList = json.loads(VesAgentBacklogsVimListStr)
                     VesAgentBacklogsVimList = [v for v in VesAgentBacklogsVimList if v != vimid]
-                    VesAgentBacklogsVimList = self.vimid_
                     VesAgentBacklogsVimList.append(vimid)
 
                 logger.info("VesAgentBacklogs.vimlist is %s" % VesAgentBacklogsVimList)
