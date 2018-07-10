@@ -1,0 +1,23 @@
+# rest framework
+Django==1.9.6
+djangorestframework==3.3.3
+
+# for call rest api
+httplib2==0.9.2
+
+# for call openstack auth and transport api
+keystoneauth1==2.18.0
+
+#python-memcached
+python-memcached
+
+#uwsgi for parallel processing
+uwsgi
+
+# for unit test
+coverage==4.2
+mock==2.0.0
+unittest_xml_reporting==1.12.0
+
+# for onap logging
+onappylog>=1.0.6
