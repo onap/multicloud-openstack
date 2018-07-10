@@ -1,0 +1,23 @@
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "bento/ubuntu-16.04"
+
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", 9192]
+    vb.customize ["modifyvm", :id, "--cpus", 4]
+    vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+    vb.customize "post-boot",["controlvm", :id, "setlinkstate1", "on"]
+  end
+
+  config.vm.define "onap" do |config|
+    config.vm.hostname = "onap"
+    config.vm.synced_folder "../..", "/openstack"
+    config.vm.network "private_network", ip: "192.168.0.30"
+    config.vm.network :private_network,  ip: "192.168.1.30"
+    config.vm.provision "shell", path: "piprepo.sh", privileged: false
+    config.vm.provision "shell", path: "test/test_multicloud.sh", privileged: false
+  end
+
+end

@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!--
+ Copyright (c) 2017-2018 Wind River Systems, Inc.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.onap.oparent</groupId>
+        <artifactId>oparent</artifactId>
+        <version>1.1.0</version>
+        <relativePath>../oparent</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.onap.multicloud.openstack</groupId>
+    <artifactId>multicloud-openstack-pike</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>multicloud/openstack/pike</name>
+    <description>multicloud for openstack pike</description>
+    <properties>
+        <encoding>UTF-8</encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <nexusproxy>https://nexus.onap.org</nexusproxy>
+        <sonar.sources>.</sonar.sources>
+        <sonar.junit.reportsPath>xunit-results.xml</sonar.junit.reportsPath>
+        <sonar.python.coverage.reportPath>coverage.xml</sonar.python.coverage.reportPath>
+        <sonar.language>py</sonar.language>
+        <sonar.pluginName>Python</sonar.pluginName>
+        <sonar.inclusions>**/*.py</sonar.inclusions>
+        <sonar.exclusions>**/venv-tox/**,**/.tox/**, **/tests/**,setup.py</sonar.exclusions>
+    </properties>
+    <build>
+      <pluginManagement>
+        <plugins>
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>exec-maven-plugin</artifactId>
+              <version>1.2.1</version>
+              <configuration>
+                <executable>${project.basedir}/mvn-phase-script.sh</executable>
+                <environmentVariables>
+                  <!-- make mvn properties as env for our script -->
+                  <MVN_PROJECT_GROUPID>${project.groupId}</MVN_PROJECT_GROUPID>
+                  <MVN_PROJECT_ARTIFACTID>${project.artifactId}</MVN_PROJECT_ARTIFACTID>
+                  <MVN_PROJECT_VERSION>${project.version}</MVN_PROJECT_VERSION>
+                </environmentVariables>
+              </configuration>
+            </plugin>
+        </plugins>
+      </pluginManagement>
+        <plugins>
+        <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2.1</version>
+            <executions>
+              <execution>
+                <id>clean phase script</id>
+                <phase>clean</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <arguments>
+                    <argument>__</argument>
+                    <argument>clean</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>test script</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <arguments>
+                    <argument>__</argument>
+                    <argument>test</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+                <appendAssemblyId>false</appendAssemblyId>
+                <descriptors>
+                    <descriptor>assembly.xml</descriptor>
+                </descriptors>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>make-assembly</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>single</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+      </plugins>
+    </build>
+</project>
