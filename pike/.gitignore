@@ -1,0 +1,13 @@
+.project
+.classpath
+.settings/
+.checkstyle
+target/
+logs/*.log
+*.pyc
+.tox
+.coverage
+htmlcov/
+coverage.xml
+test-reports/
+
