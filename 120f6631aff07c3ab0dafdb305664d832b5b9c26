@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_7bdccd74",
+        "filename": "pike/pike/swagger/views.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-07-12T00:39:20Z",
+      "side": 1,
+      "message": "should be changed to \"OpenStack Pike\"",
+      "range": {
+        "startLine": 43,
+        "startChar": 79,
+        "endLine": 43,
+        "endChar": 94
+      },
+      "revId": "120f6631aff07c3ab0dafdb305664d832b5b9c26",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_1bd34960",
+        "filename": "pike/run.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-07-12T00:39:20Z",
+      "side": 1,
+      "message": "9006 is allocated to multicloud-ocata micro-service. another port should be allocated. use 9007 in case that other plugins (azure,k8s) is not using it. So please check with Victor and Avi via email, and copy all multicloud committers. Thanks",
+      "range": {
+        "startLine": 18,
+        "startChar": 14,
+        "endLine": 18,
+        "endChar": 18
+      },
+      "revId": "120f6631aff07c3ab0dafdb305664d832b5b9c26",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_bbc9f5ad",
+        "filename": "pike/stop.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-07-12T00:39:20Z",
+      "side": 1,
+      "message": "The same comment as run.sh",
+      "range": {
+        "startLine": 17,
+        "startChar": 30,
+        "endLine": 17,
+        "endChar": 34
+      },
+      "revId": "120f6631aff07c3ab0dafdb305664d832b5b9c26",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
