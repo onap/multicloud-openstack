@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9dcd25_64e25b05",
+        "filename": "pike/vagrant/piprepo.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-07-17T05:03:28Z",
+      "side": 1,
+      "message": "please remove the trailing space",
+      "range": {
+        "startLine": 6,
+        "startChar": 27,
+        "endLine": 6,
+        "endChar": 29
+      },
+      "revId": "c933d97ece7910ee4c0a6e3a214263091f6d19db",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9dcd25_44dddf41",
+        "filename": "pike/vagrant/test/Dockerfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-07-17T05:03:28Z",
+      "side": 1,
+      "message": "are you exposing wrong port number?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 11
+      },
+      "revId": "c933d97ece7910ee4c0a6e3a214263091f6d19db",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
