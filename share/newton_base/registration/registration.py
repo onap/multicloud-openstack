@@ -537,72 +537,6 @@ class Registry(APIView):
             self._logger.error(traceback.format_exc())
             return
 
-    def _update_epa_caps(self, cloud_owner, cloud_region_id, epa_caps_info):
-        '''
-        populate cloud EPA Capabilities information into AAI
-        :param cloud_owner:
-        :param cloud_region_id:
-        :param epa_caps_info: dict of meta data about cloud-region's epa caps
-
-        :return:
-        '''
-
-        cloud_epa_caps = {
-            'cloud-epa-caps': json.dumps(epa_caps_info),
-        }
-
-        if cloud_owner and cloud_region_id:
-            resource_url = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s" \
-                           % (cloud_owner, cloud_region_id)
-
-            # get cloud-region
-            retcode, content, status_code = \
-                restcall.req_to_aai(resource_url, "GET")
-
-            #add resource-version to url
-            if retcode == 0 and content:
-                content = json.JSONDecoder().decode(content)
-                #cloud_epa_caps["resource-version"] = content["resource-version"]
-                content.update(cloud_epa_caps)
-                cloud_epa_caps = content
-
-            #update cloud-region
-            retcode, content, status_code = \
-                restcall.req_to_aai(resource_url, "PUT", content=cloud_epa_caps)
-
-            self._logger.debug(
-                "update_epa_caps,vimid:%s_%s req_to_aai: update cloud-epa-caps, return %s, %s, %s"
-                % (cloud_owner,cloud_region_id, retcode, content, status_code))
-
-            return retcode
-        return 1  # unknown cloud owner,region_id
-
-    def _discover_epa_resources(self, vimid="", viminfo=None):
-        try:
-            cloud_epa_caps_info = {}
-            cloud_extra_info_str = viminfo.get('cloud_extra_info')
-            if cloud_extra_info_str:
-                cloud_extra_info = json.loads(cloud_extra_info_str)
-                cloud_epa_caps_info.update(cloud_extra_info.get("epa-caps"))
-
-            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-            ret = self._update_epa_caps(cloud_owner, cloud_region_id,
-                                        cloud_epa_caps_info)
-            if ret != 0:
-                # failed to update image
-                self._logger.debug("failed to populate EPA CAPs info into AAI: %s, ret:%s"
-                                   % (vimid, ret))
-
-        except VimDriverNewtonException as e:
-            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
-            return
-        except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
-            return
-        except Exception as e:
-            self._logger.error(traceback.format_exc())
-            return
-
     def _update_proxy_identity_endpoint(self, vimid):
         '''
         update cloud_region's identity url
@@ -624,7 +558,6 @@ class Registry(APIView):
                 # add resource-version to url
                 if retcode == 0 and content:
                     viminfo = json.JSONDecoder().decode(content)
-                    # cloud_epa_caps["resource-version"] = content["resource-version"]
                     viminfo['identity-url'] = self.proxy_prefix + "/%s/identity/v2.0" % vimid
 
                     retcode, content, status_code = \
@@ -689,9 +622,6 @@ class Registry(APIView):
 
             # discover all pservers
             self._discover_pservers(vimid, sess, viminfo)
-
-            # discover all epa resources, e.g. sriov pf and vf, etc.
-            self._discover_epa_resources(vimid, viminfo)
 
             return Response(status=status.HTTP_202_ACCEPTED)
 

@@ -42,7 +42,6 @@ MOCK_VIM_INFO = {
     'cloud_owner': 'windriver-hudson-dc',
     'cloud_region_id': 'RegionOne',
     'cloud_extra_info': '{"vesagent_config":{"backlogs":[{"source":"onap-aaf","domain":"fault","type":"vm","tenant":"VIM"}],"poll_interval_default":10,"ves_subscription":{"username":"user","password":"password","endpoint":"http://127.0.0.1:9005/sample"}}}',
-    'cloud_epa_caps': '',
     'insecure': 'True',
 }
 
