@@ -41,15 +41,7 @@ class TestExtensions(unittest.TestCase):
                           json_content["cloud-region-id"])
         self.assertEquals(vimid, json_content["vimid"])
 
-        self.assertEquals("epa-caps",
-                          json_content["extensions"][0]["alias"])
         self.assertEquals("Multiple network support",
                           json_content["extensions"][0][
                               "description"])
-        self.assertEquals("EPACapsQuery",
-                          json_content["extensions"][0]["name"])
-        self.assertEquals(
-            "http://127.0.0.1:80/api/%s/v0/%s/extensions/epa-caps" % (
-                test_base.MULTIVIM_VERSION, vimid),
-            json_content["extensions"][0]["url"])
         self.assertEquals("", json_content["extensions"][0]["spec"])

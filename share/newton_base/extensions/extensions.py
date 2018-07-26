@@ -45,17 +45,7 @@ class Extensions(APIView):
                      % vimid)
         try:
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-            registered_extensions = \
-                [
-                    {
-                        "alias": "epa-caps",
-                        "description": "Multiple network support",
-                        "name": "EPACapsQuery",
-                        "url": self.proxy_prefix + "/%s/extensions/epa-caps" \
-                                       % (vimid),
-                        "spec": ""
-                    }
-                ]
+            registered_extensions = []
 
             content = {
                 "cloud-owner":cloud_owner,

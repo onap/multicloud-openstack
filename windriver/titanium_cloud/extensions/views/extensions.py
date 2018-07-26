@@ -45,13 +45,6 @@ class Extensions(newton_extensions.Extensions):
             registered_extensions = \
                 [
                     {
-                        "alias": "epa-caps",
-                        "description": "Multiple network support",
-                        "name": "EPACapsQuery",
-                        "url": self.proxy_prefix + "/%s/extensions/epa-caps" % (vimid),
-                        "spec": ""
-                    },
-                    {
                         "alias": "guest-monitor",
                         "description": "Multiple network support",
                         "name": "Guest Monitor",
