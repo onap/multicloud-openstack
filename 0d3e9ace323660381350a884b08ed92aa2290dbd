@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6a9dd7_6bb6a9de",
+        "filename": "ocata/ocata/extensions/tests/test_extensions.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-07-31T01:49:24Z",
+      "side": 0,
+      "message": "The line is for extensions, you can\u0027t delete it.",
+      "range": {
+        "startLine": 41,
+        "startChar": 96,
+        "endLine": 41,
+        "endChar": 99
+      },
+      "revId": "0d3e9ace323660381350a884b08ed92aa2290dbd",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
