@@ -404,3 +404,24 @@ class VesAgentCtrl(APIView):
 
         self._logger.debug("return without backlog")
         return None
+
+
+class VesAgentCtrlV1(VesAgentCtrl):
+
+    def __init__(self):
+        self._logger = logger
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
+
+    def get(self, request, cloud_owner="", cloud_region_id=""):
+        '''
+        :param request:
+        :param cloud_owner:
+        :param cloud_region_id:
+        :return:
+        '''
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+        self._logger.debug("with META: %s" % request.META)
+
+        #temp realization for API upgrading only, assume cloud_owner does not contains "_" , refactor it later
+        vimid = cloud_owner+"_"+cloud_region_id
+        return super(VesAgentCtrlV1,self).get(request, vimid)

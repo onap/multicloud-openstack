@@ -19,6 +19,7 @@ from newton_base.openoapi import tenants
 from titanium_cloud.resource.views import capacity
 from titanium_cloud.resource.views import events
 from titanium_cloud.vesagent import vesagent_ctrl
+from titanium_cloud.vesagent import vesagent_ctrlV1
 
 urlpatterns = [
     url(r'^', include('titanium_cloud.swagger.urls')),
@@ -44,6 +45,27 @@ urlpatterns = [
     url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/vesagent/?$',
         vesagent_ctrl.VesAgentCtrl.as_view()),
 
+#API upgrading
+#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry/?$',
+#        registration.Registry.as_view()),
+#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/?$',
+#        registration.Registry.as_view()),
+#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/exten',
+#        include('titanium_cloud.extensions.urls')),
+#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/',
+#        include('titanium_cloud.proxy.urls')),
+#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/tenants/?$',
+#        tenants.Tenants.as_view()),
+#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/'
+#        '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('titanium_cloud.requests.urls')),
+    # CapacityCheck
+#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
+#        capacity.CapacityCheck.as_view()),
+    # events
+#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/events_check/?$',
+#        events.EventsCheck.as_view()),
+    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/vesagent/?$',
+        vesagent_ctrl.VesAgentCtrlV1.as_view()),
 ]
 
 
