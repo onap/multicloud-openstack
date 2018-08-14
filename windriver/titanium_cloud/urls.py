@@ -39,8 +39,8 @@ urlpatterns = [
     url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.CapacityCheck.as_view()),
     # events
-#    url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/events_check/?$',
-#        events.EventsCheck.as_view()),
+    url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/events_check/?$',
+        events.EventsCheck.as_view()),
     url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/vesagent/?$',
         vesagent_ctrl.VesAgentCtrl.as_view()),
 
