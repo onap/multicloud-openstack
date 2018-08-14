@@ -226,3 +226,49 @@ class DnsaasDelegate(Services):
         self._logger.debug("META,data> %s , %s" % (request.META, request.data))
 
         return self._do_action("delete", request, vimid, "dns", requri)
+
+
+
+class APIv1DnsaasDelegate(Services):
+    '''
+    DNSaaS delegate service API V1
+    '''
+
+    def __init__(self):
+        self._logger = logger
+
+    def get(self, request, cloud_owner="", cloud_region_id="", servicetype="dns-delegate", requri=""):
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1DnsaasDelegate,self).get(request, vimid, servicetype, requri)
+
+    def head(self, request, cloud_owner="", cloud_region_id="", servicetype="dns-delegate", requri=""):
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1DnsaasDelegate,self).head(request, vimid, servicetype, requri)
+
+    def post(self, request, cloud_owner="", cloud_region_id="", servicetype="dns-delegate", requri=""):
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1DnsaasDelegate,self).post(request, vimid, servicetype, requri)
+
+    def put(self, request, cloud_owner="", cloud_region_id="", servicetype="dns-delegate", requri=""):
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1DnsaasDelegate,self).put(request, vimid, servicetype, requri)
+
+    def patch(self, request, cloud_owner="", cloud_region_id="", servicetype="dns-delegate", requri=""):
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1DnsaasDelegate,self).patch(request, vimid, servicetype, requri)
+
+    def delete(self, request, cloud_owner="", cloud_region_id="", servicetype="dns-delegate", requri=""):
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1DnsaasDelegate,self).delete(request, vimid, servicetype, requri)

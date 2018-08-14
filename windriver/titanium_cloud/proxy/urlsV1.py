@@ -17,11 +17,9 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from titanium_cloud.proxy.views import identityV3
 from titanium_cloud.proxy.views import services
-#from newton_base.proxy import dnsaasdelegate
+from newton_base.proxy import dnsaasdelegate
 
 urlpatterns = [
-    #    url(r'^identity/v2)$',
-    #        identityV2.Tokens.as_view()),
     url(r'^identity/v3/auth/tokens/?$',
         identityV3.APIv1Tokens.as_view()),
     url(r'^identity/v3/?$',
@@ -32,8 +30,8 @@ urlpatterns = [
         identityV3.APIv1TokensV2.as_view()),
     url(r'^identity/v2.0/tenants/?$',
         services.APIv1GetTenants.as_view()),
-#    url(r'dns-delegate/(?P<requri>[0-9a-zA-Z./_-]*)$',
-#        dnsaasdelegate.APIv1DnsaasDelegate.as_view()),
+    url(r'dns-delegate/(?P<requri>[0-9a-zA-Z./_-]*)$',
+        dnsaasdelegate.APIv1DnsaasDelegate.as_view()),
     url(r'^(?P<servicetype>[0-9a-zA-Z_-]{,18})/(?P<requri>[0-9a-zA-Z./_-]*)$',
         services.APIv1Services.as_view()),
 ]
