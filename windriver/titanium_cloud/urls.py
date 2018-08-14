@@ -47,12 +47,12 @@ urlpatterns = [
 #API upgrading
     url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry/?$',
         registration.RegistryV1.as_view()),
-#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/?$',
-#        registration.Registry.as_view()),
+    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/?$',
+        registration.RegistryV1.as_view()),
 #    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/exten',
 #        include('titanium_cloud.extensions.urls')),
-#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/',
-#        include('titanium_cloud.proxy.urls')),
+    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/',
+        include('titanium_cloud.proxy.urlsV1')),
 #    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/tenants/?$',
 #        tenants.Tenants.as_view()),
 #    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/'
