@@ -58,8 +58,8 @@ urlpatterns = [
 #    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/'
 #        '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('titanium_cloud.requests.urls')),
     # CapacityCheck
-#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
-#        capacity.CapacityCheck.as_view()),
+    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
+        capacity.CapacityCheckV1.as_view()),
     # events
 #    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/events_check/?$',
 #        events.EventsCheck.as_view()),

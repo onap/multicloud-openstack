@@ -140,3 +140,16 @@ class CapacityCheck(APIView):
             return Response(data={'result': hasEnoughResource, 'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+class CapacityCheckV1(APIView):
+
+    def __init__(self):
+        self._logger = logger
+
+    def post(self, request, cloud_owner="", cloud_region_id=""):
+        self._logger.info("vimid, data> %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
+        self._logger.debug("META> %s" % request.META)
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(CapacityCheckV1, self).post(request, vimid)

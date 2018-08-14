@@ -423,5 +423,5 @@ class VesAgentCtrlV1(VesAgentCtrl):
         self._logger.debug("with META: %s" % request.META)
 
         #temp realization for API upgrading only, assume cloud_owner does not contains "_" , refactor it later
-        vimid = cloud_owner+"_"+cloud_region_id
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(VesAgentCtrlV1,self).get(request, vimid)
