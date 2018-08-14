@@ -20,6 +20,7 @@ import uuid
 from rest_framework import status
 
 from common.exceptions import VimDriverNewtonException
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -103,9 +104,14 @@ class ProxyUtils(object):
                             # populate metadata_catalog
                             one_catalog['prefix'] = real_prefix
                             one_catalog['suffix'] = real_suffix if real_suffix else ''
-                            one_catalog['proxy_prefix'] = multicould_namespace + "/%s" % vimid
 
-                            endpoint_url = multicould_namespace + "/%s" % vimid
+                            if (multicould_namespace[-3:] == "/v0"):
+                                one_catalog['proxy_prefix'] = multicould_namespace + "/%s" % vimid
+                                endpoint_url = multicould_namespace + "/%s" % vimid
+                            else:#api v1 or future
+                                cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+                                one_catalog['proxy_prefix'] = multicould_namespace + "/%s/%s" % (cloud_owner, cloud_region_id)
+                                endpoint_url = multicould_namespace + "/%s/%s" % (cloud_owner, cloud_region_id)
 
                             tmp_pattern = re.compile(item["type"])
                             if not real_suffix or not re.match(tmp_pattern, real_suffix):
@@ -116,7 +122,11 @@ class ProxyUtils(object):
                                 endpoint_url += "/" + real_suffix
 
                             if item["type"] == "identity":
-                                endpoint_url = multicould_namespace + "/%s/identity/v3" % vimid
+                                if (multicould_namespace[-3:] == "/v0"):
+                                    endpoint_url = multicould_namespace + "/%s/identity/v3" % vimid
+                                else:#api v1 or future
+                                    cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+                                    endpoint_url = multicould_namespace + "/%s/%s/identity/v3" % (cloud_owner, cloud_region_id)
 
                         else:
                             #something wrong
@@ -153,20 +163,36 @@ class ProxyUtils(object):
                     or not cloud_dns_delegate_info.get("cloud-region-id"):
                 #DNSaaS deleget was not configured yet
                 return catalog
-
-            dns_catalog = {
-                "name":"dns-delegate",
-                "type":"dns",
-                "id": str(uuid.uuid1()),
-                "endpoints": [{
-                    "interface": "public",
-                    "region": cloud_dns_delegate_info.get("cloud-region-id"),
-                    "region_id": cloud_dns_delegate_info.get("cloud-region-id"),
+            if (multicould_namespace[-3:] == "/v0"):
+                dns_catalog = {
+                    "name":"dns-delegate",
+                    "type":"dns",
                     "id": str(uuid.uuid1()),
-                    "url": multicould_namespace + "/%s/dns-delegate" % vimid,
-                }]
-            }
-            catalog.append(dns_catalog)
+                    "endpoints": [{
+                        "interface": "public",
+                        "region": cloud_dns_delegate_info.get("cloud-region-id"),
+                        "region_id": cloud_dns_delegate_info.get("cloud-region-id"),
+                        "id": str(uuid.uuid1()),
+                        "url": multicould_namespace + "/%s/dns-delegate" % vimid,
+                    }]
+                }
+                catalog.append(dns_catalog)
+            else:  # api v1 or future
+                cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+                dns_catalog = {
+                    "name":"dns-delegate",
+                    "type":"dns",
+                    "id": str(uuid.uuid1()),
+                    "endpoints": [{
+                        "interface": "public",
+                        "region": cloud_dns_delegate_info.get("cloud-region-id"),
+                        "region_id": cloud_dns_delegate_info.get("cloud-region-id"),
+                        "id": str(uuid.uuid1()),
+                        "url": multicould_namespace + "/%s/%s/dns-delegate" % (cloud_owner, cloud_region_id),
+                    }]
+                }
+                catalog.append(dns_catalog)
+
 
             return catalog
 

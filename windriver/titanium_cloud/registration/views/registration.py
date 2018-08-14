@@ -367,7 +367,7 @@ class Registry(newton_registration.Registry):
 
 class RegistryV1(Registry):
     def __init__(self):
-        self.proxy_prefix = settings.MULTICLOUD_PREFIX
+        self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
         self._logger = logger
 
