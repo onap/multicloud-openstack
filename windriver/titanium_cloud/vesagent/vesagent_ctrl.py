@@ -412,6 +412,7 @@ class VesAgentCtrlV1(VesAgentCtrl):
         self._logger = logger
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
 
+
     def get(self, request, cloud_owner="", cloud_region_id=""):
         '''
         :param request:
@@ -422,6 +423,34 @@ class VesAgentCtrlV1(VesAgentCtrl):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
         self._logger.debug("with META: %s" % request.META)
 
-        #temp realization for API upgrading only, assume cloud_owner does not contains "_" , refactor it later
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(VesAgentCtrlV1,self).get(request, vimid)
+
+
+    def post(self, request, cloud_owner="", cloud_region_id=""):
+        '''
+        wrapper for inherited API with VIM ID
+        :param request:
+        :param cloud_owner:
+        :param cloud_region_id:
+        :return:
+        '''
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+        self._logger.debug("with META: %s, with data: %s" % (request.META, request.data))
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(VesAgentCtrlV1,self).post(request, vimid)
+
+
+    def delete(self, request, cloud_owner="", cloud_region_id=""):
+        '''
+        wrapper of inherited API with VIM ID
+        :param request:
+        :param cloud_owner:
+        :param cloud_region_id:
+        :return:
+        '''
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+        self._logger.debug("with META: %s" % request.META)
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(VesAgentCtrlV1,self).delete(request, vimid)
+
