@@ -70,6 +70,9 @@ def get_vim_by_id(vim_id):
             viminfo['tenant'] = tmp_authinfo.get('default-tenant')
             viminfo['cacert'] = tmp_authinfo.get('ssl-cacert')
             viminfo['insecure'] = tmp_authinfo.get('ssl-insecure')
+            viminfo["complex-name"] = tmp_viminfo.get("complex-name")
+            viminfo['openstack_region_id'] = tmp_viminfo.get("cloud-epa-caps") \
+                if tmp_viminfo.get("cloud-epa-caps") else cloud_region_id
 
             return viminfo
     return None

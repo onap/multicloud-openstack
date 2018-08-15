@@ -41,7 +41,7 @@ class Registry(APIView):
             vimid, content_key):
         service = {'service_type': service_type,
                    'interface': 'public',
-                   'region_id': viminfo['cloud_region_id']}
+                   'region_id': viminfo['openstack_region_id'] if viminfo.get('openstack_region_id') else viminfo['cloud_region_id']}
         self._logger.info("making request with URI:%s" % resource_url)
         resp = session.get(resource_url, endpoint_filter=service)
         self._logger.info("request returns with status %s" % resp.status_code)
@@ -248,7 +248,7 @@ class Registry(APIView):
                     req_resource = schema
                     service = {'service_type': "image",
                                'interface': 'public',
-                               'region_id': viminfo['cloud_region_id']}
+                               'region_id': viminfo['openstack_region_id'] if viminfo.get('openstack_region_id') else viminfo['cloud_region_id']}
                     self._logger.info("making request with URI:%s" % req_resource)
                     resp = session.get(req_resource, endpoint_filter=service)
                     self._logger.info("request returns with status %s" % resp.status_code)
@@ -291,7 +291,7 @@ class Registry(APIView):
                         req_resource = "/os-hypervisors/detail?hypervisor_hostname_pattern=%s" % k
                         service = {'service_type': "compute",
                                    'interface': 'public',
-                                   'region_id': viminfo['cloud_region_id']}
+                                   'region_id': viminfo['openstack_region_id'] if viminfo.get('openstack_region_id') else viminfo['cloud_region_id']}
                         self._logger.info("making request with URI:%s" % req_resource)
                         resp = session.get(req_resource, endpoint_filter=service)
                         self._logger.info("request returns with status %s" % resp.status_code)
@@ -558,7 +558,9 @@ class Registry(APIView):
                 # add resource-version to url
                 if retcode == 0 and content:
                     viminfo = json.JSONDecoder().decode(content)
-                    viminfo['identity-url'] = self.proxy_prefix + "/%s/identity/v2.0" % vimid
+                    viminfo['identity-url'] = self.proxy_prefix + "/%s/identity/v2.0" % vimid \
+                        if self.proxy_prefix[-3:] == "/v0" else \
+                        self.proxy_prefix + "/%s/%s/identity/v2.0" % extsys.decode_vim_id(vimid)
 
                     retcode, content, status_code = \
                         restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
