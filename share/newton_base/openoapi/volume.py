@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 from common.exceptions import VimDriverNewtonException
 
 from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ class Volumes(APIView):
         try:
             # prepare request resource to vim instance
             query = VimDriverUtils.get_query_part(request)
-            content, status_code = self.get_volumes(query, vimid, tenantid, volumeid)
+            content, status_code = self._get_volumes(query, vimid, tenantid, volumeid)
             logger.info("response with status = %s" % status_code)
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
@@ -62,7 +63,7 @@ class Volumes(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_volumes(self, query="", vimid="", tenantid="", volumeid=None):
+    def _get_volumes(self, query="", vimid="", tenantid="", volumeid=None):
 
         # prepare request resource to vim instance
         req_resouce = "volumes"
@@ -85,6 +86,8 @@ class Volumes(APIView):
         vim_dict = {
             "vimName": vim["name"],
             "vimId": vim["vimId"],
+            "cloud-owner": vim["cloud_owner"],
+            "cloud-region-id": vim["cloud_region_id"],
             "tenantId": tenantid,
         }
         content.update(vim_dict)
@@ -111,7 +114,7 @@ class Volumes(APIView):
         try:
             #check if created already: check name
             query = "name=%s" % request.data["name"]
-            content, status_code = self.get_volumes(query, vimid, tenantid)
+            content, status_code = self._get_volumes(query, vimid, tenantid)
             existed = False
             if status_code == 200:
                 for volume in content["volumes"]:
@@ -145,6 +148,8 @@ class Volumes(APIView):
             vim_dict = {
                 "vimName": vim["name"],
                 "vimId": vim["vimId"],
+                "cloud-owner": vim["cloud_owner"],
+                "cloud-region-id": vim["cloud_region_id"],
                 "tenantId": tenantid,
                 "returnCode": 1,
             }
@@ -188,3 +193,23 @@ class Volumes(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class APIv1Volumes(Volumes):
+
+    def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", volumeid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Volumes, self).get(request, vimid, tenantid, volumeid)
+
+    def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", volumeid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Volumes, self).post(request, vimid, tenantid, volumeid)
+
+    def delete(self, request, cloud_owner="", cloud_region_id="", tenantid="", volumeid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Volumes, self).delete(request, vimid, tenantid, volumeid)

@@ -142,7 +142,7 @@ class CapacityCheck(APIView):
 
 
 
-class CapacityCheckV1(APIView):
+class APIv1CapacityCheck(APIView):
 
     def __init__(self):
         self._logger = logger
@@ -152,4 +152,5 @@ class CapacityCheckV1(APIView):
         self._logger.debug("META> %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(CapacityCheckV1, self).post(request, vimid)
+        return super(APIv1CapacityCheck, self).post(request, vimid)
+

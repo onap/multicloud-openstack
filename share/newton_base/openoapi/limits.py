@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 from common.exceptions import VimDriverNewtonException
 
 from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,8 @@ class Limits(APIView):
             vim_dict = {
                 "vimName": vim["name"],
                 "vimId": vim["vimId"],
+                "cloud-owner": vim["cloud_owner"],
+                "cloud-region-id": vim["cloud_region_id"],
                 "tenantId": tenantid,
             }
             content_all.update(vim_dict)
@@ -90,4 +93,13 @@ class Limits(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class APIv1Limits(Limits):
+
+    def get(self, request, cloud_owner="", cloud_region_id="", tenantid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Limits, self).get(request, vimid, tenantid)
 

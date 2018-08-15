@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 
 from common.exceptions import VimDriverNewtonException
 from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +111,8 @@ class Flavors(APIView):
             vim_dict = {
                 "vimName": vim["name"],
                 "vimId": vim["vimId"],
+                "cloud-owner": vim["cloud_owner"],
+                "cloud-region-id": vim["cloud_region_id"],
                 "tenantId": tenantid,
             }
             content.update(vim_dict)
@@ -209,6 +212,8 @@ class Flavors(APIView):
                 vim_dict = {
                     "vimName": vim["name"],
                     "vimId": vim["vimId"],
+                    "cloud-owner": vim["cloud_owner"],
+                    "cloud-region-id": vim["cloud_region_id"],
                     "tenantId": tenantid,
                      "returnCode": 0,
                 }
@@ -246,6 +251,8 @@ class Flavors(APIView):
             vim_dict = {
                 "vimName": vim["name"],
                 "vimId": vim["vimId"],
+                "cloud-owner": vim["cloud_owner"],
+                "cloud-region-id": vim["cloud_region_id"],
                 "tenantId": tenantid,
                  "returnCode": 1,
             }
@@ -396,3 +403,25 @@ class Flavors(APIView):
         logger.info("request returns with status %s" % resp.status_code)
 
         return resp
+
+
+
+class APIv1Flavors(Flavors):
+
+    def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", flavorid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Flavors, self).get(request, vimid, tenantid, flavorid)
+
+    def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", flavorid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Flavors, self).post(request, vimid, tenantid, flavorid)
+
+    def delete(self, request, cloud_owner="", cloud_region_id="", tenantid="", flavorid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Flavors, self).delete(request, vimid, tenantid, flavorid)

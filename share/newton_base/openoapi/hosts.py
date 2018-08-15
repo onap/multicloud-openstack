@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 from common.exceptions import VimDriverNewtonException
 
 from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -97,3 +98,11 @@ class Hosts(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class APIv1Hosts(Hosts):
+
+    def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", hostname=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Hosts, self).get(request, vimid, tenantid, hostname)

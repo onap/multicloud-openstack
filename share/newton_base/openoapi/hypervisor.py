@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 
 from common.exceptions import VimDriverNewtonException
 from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ class Hypervisors(APIView):
             query = VimDriverUtils.get_query_part(request)
             content, status_code = self.get_hypervisors(query, vimid, tenantid, hypervisorid)
 
-            logger.info("response with status = %s" % resp.status_code)
+            logger.info("response with status = %s" % status_code)
 
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
@@ -71,7 +72,7 @@ class Hypervisors(APIView):
         vim["domain"] = "Default"
         sess = VimDriverUtils.get_session(vim, tenantid)
 
-        logger.info("making request with URI:%s" % req_resouce)
+        logger.info("making request with URI:%s" % req_resource)
 
         resp = sess.get(req_resource, endpoint_filter = self.service)
 
@@ -84,3 +85,17 @@ class Hypervisors(APIView):
 
         return content, resp.status_code
 
+
+class APIv1Hypervisors(Hypervisors):
+
+    def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", hypervisorid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Hypervisors, self).get(request, vimid, tenantid, hypervisorid)
+
+    def get_hypervisors(self, request, cloud_owner="", cloud_region_id="", tenantid="", hypervisorid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Hypervisors, self).get_hypervisors(request, vimid, tenantid, hypervisorid)

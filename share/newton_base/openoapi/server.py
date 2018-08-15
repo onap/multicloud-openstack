@@ -24,6 +24,7 @@ from rest_framework.views import APIView
 
 from common.exceptions import VimDriverNewtonException
 from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -267,6 +268,8 @@ class Servers(APIView):
         vim_dict = {
             "vimName": vim["name"],
             "vimId": vim["vimId"],
+            "cloud-owner": vim["cloud_owner"],
+            "cloud-region-id": vim["cloud_region_id"],
             "tenantId": tenantid,
         }
         content.update(vim_dict)
@@ -414,6 +417,8 @@ class Servers(APIView):
             vim_dict = {
                 "vimName": vim["name"],
                 "vimId": vim["vimId"],
+                "cloud-owner": vim["cloud_owner"],
+                "cloud-region-id": vim["cloud_region_id"],
                 "tenantId": tenantid,
                 "returnCode": 1,
             }
@@ -470,3 +475,23 @@ class Servers(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class APIv1Servers(Servers):
+
+    def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Servers, self).get(request, vimid, tenantid, serverid)
+
+    def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Servers, self).post(request, vimid, tenantid, serverid)
+
+    def delete(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Servers, self).delete(request, vimid, tenantid, serverid)

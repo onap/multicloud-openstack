@@ -24,6 +24,7 @@ from rest_framework.views import APIView
 from common.exceptions import VimDriverNewtonException
 
 from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ class Images(APIView):
         try:
             # prepare request resource to vim instance
             query = VimDriverUtils.get_query_part(request)
-            content, status_code = self.get_images(query, vimid, tenantid, imageid)
+            content, status_code = self._get_images(query, vimid, tenantid, imageid)
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
             logger.error("response with status = %s" % e.status_code)
@@ -100,7 +101,7 @@ class Images(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_images(self, query="", vimid="", tenantid="", imageid=""):
+    def _get_images(self, query="", vimid="", tenantid="", imageid=""):
         logger.info("vimid, tenantid, imageid, query = %s,%s,%s,%s" % (vimid, tenantid, imageid, query))
         # prepare request resource to vim instance
         req_resouce = "v2/images"
@@ -149,7 +150,7 @@ class Images(APIView):
         try:
             #check if created already: check name
             query = "name=%s" % request.data["name"]
-            content, status_code = self.get_images(query, vimid, tenantid)
+            content, status_code = self._get_images(query, vimid, tenantid)
             existed = False
             if status_code == 200:
                 for image in content["images"]:
@@ -253,3 +254,23 @@ class Images(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class APIv1Images(Images):
+
+    def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", imageid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Images, self).get(request, vimid, tenantid, imageid)
+
+    def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", imageid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Images, self).post(request, vimid, tenantid, imageid)
+
+    def delete(self, request, cloud_owner="", cloud_region_id="", tenantid="", imageid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Images, self).delete(request, vimid, tenantid, imageid)

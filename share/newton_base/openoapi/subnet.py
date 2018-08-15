@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 from common.exceptions import VimDriverNewtonException
 
 from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ class Subnets(APIView):
         try:
             # prepare request resource to vim instance
             query = VimDriverUtils.get_query_part(request)
-            content, status_code = self.get_subnets(query, vimid, tenantid, subnetid)
+            content, status_code = self._get_subnets(query, vimid, tenantid, subnetid)
             logger.info("request returns with status %s" % status_code)
             return Response(data=content, status=status_code)
         except VimDriverNewtonException as e:
@@ -62,7 +63,7 @@ class Subnets(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_subnets(self, query="", vimid="", tenantid="", subnetid=""):
+    def _get_subnets(self, query="", vimid="", tenantid="", subnetid=""):
 
         # prepare request resource to vim instance
         req_resouce = "v2.0/subnets"
@@ -84,6 +85,8 @@ class Subnets(APIView):
         vim_dict = {
             "vimName": vim["name"],
             "vimId": vim["vimId"],
+            "cloud-owner": vim["cloud_owner"],
+            "cloud-region-id": vim["cloud_region_id"],
             "tenantId": tenantid,
         }
         content.update(vim_dict)
@@ -110,7 +113,7 @@ class Subnets(APIView):
         try:
             #check if created already: check name
             query = "name=%s" % request.data["name"]
-            content, status_code = self.get_subnets(query, vimid, tenantid)
+            content, status_code = self._get_subnets(query, vimid, tenantid)
             existed = False
             if status_code == 200:
                 for subnet in content["subnets"]:
@@ -143,6 +146,8 @@ class Subnets(APIView):
             vim_dict = {
                 "vimName": vim["name"],
                 "vimId": vim["vimId"],
+                "cloud-owner": vim["cloud_owner"],
+                "cloud-region-id": vim["cloud_region_id"],
                 "tenantId": tenantid,
                 "returnCode": 1,
             }
@@ -189,3 +194,24 @@ class Subnets(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class APIv1Subnets(Subnets):
+
+    def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", subnetid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Subnets, self).get(request, vimid, tenantid, subnetid)
+
+    def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", subnetid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Subnets, self).post(request, vimid, tenantid, subnetid)
+
+    def delete(self, request, cloud_owner="", cloud_region_id="", tenantid="", subnetid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Subnets, self).delete(request, vimid, tenantid, subnetid)

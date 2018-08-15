@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 from common.exceptions import VimDriverNewtonException
 
 from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ class Networks(APIView):
             pass
         try:
             query = VimDriverUtils.get_query_part(request)
-            content, status_code = self.get_networks(query, vimid, tenantid, networkid)
+            content, status_code = self._get_networks(query, vimid, tenantid, networkid)
             logger.info("response with status = %s" % status_code)
             return Response(data=content, status=status_code)
 
@@ -60,7 +61,7 @@ class Networks(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_networks(self, query, vimid="", tenantid="", networkid=""):
+    def _get_networks(self, query, vimid="", tenantid="", networkid=""):
 
         # prepare request resource to vim instance
         req_resouce = "v2.0/networks"
@@ -82,6 +83,8 @@ class Networks(APIView):
         vim_dict = {
             "vimName": vim["name"],
             "vimId": vim["vimId"],
+            "cloud-owner": vim["cloud_owner"],
+            "cloud-region-id": vim["cloud_region_id"],
             "tenantId": tenantid,
         }
         content.update(vim_dict)
@@ -108,7 +111,7 @@ class Networks(APIView):
         try:
             #check if created already: check name
             query = "name=%s" % request.data["name"]
-            content, status_code = self.get_networks(query, vimid, tenantid)
+            content, status_code = self._get_networks(query, vimid, tenantid)
             existed = False
             if status_code == 200:
                 for network in content["networks"]:
@@ -143,6 +146,8 @@ class Networks(APIView):
             vim_dict = {
                 "vimName": vim["name"],
                 "vimId": vim["vimId"],
+                "cloud-owner": vim["cloud_owner"],
+                "cloud-region-id": vim["cloud_region_id"],
                 "tenantId": tenantid,
                 "returnCode": 1,
             }
@@ -190,5 +195,23 @@ class Networks(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class Subnets(APIView):
-    pass
+
+class APIv1Networks(Networks):
+
+    def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", networkid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Networks, self).get(request, vimid, tenantid, networkid)
+
+    def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", networkid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Networks, self).post(request, vimid, tenantid, networkid)
+
+    def delete(self, request, cloud_owner="", cloud_region_id="", tenantid="", networkid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Networks, self).delete(request, vimid, tenantid, networkid)

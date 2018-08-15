@@ -406,7 +406,7 @@ class VesAgentCtrl(APIView):
         return None
 
 
-class VesAgentCtrlV1(VesAgentCtrl):
+class APIv1VesAgentCtrl(VesAgentCtrl):
 
     def __init__(self):
         self._logger = logger
@@ -421,10 +421,9 @@ class VesAgentCtrlV1(VesAgentCtrl):
         :return:
         '''
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
-        self._logger.debug("with META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(VesAgentCtrlV1,self).get(request, vimid)
+        return super(APIv1VesAgentCtrl,self).get(request, vimid)
 
 
     def post(self, request, cloud_owner="", cloud_region_id=""):
@@ -436,9 +435,9 @@ class VesAgentCtrlV1(VesAgentCtrl):
         :return:
         '''
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
-        self._logger.debug("with META: %s, with data: %s" % (request.META, request.data))
+
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(VesAgentCtrlV1,self).post(request, vimid)
+        return super(APIv1VesAgentCtrl,self).post(request, vimid)
 
 
     def delete(self, request, cloud_owner="", cloud_region_id=""):
@@ -450,7 +449,7 @@ class VesAgentCtrlV1(VesAgentCtrl):
         :return:
         '''
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
-        self._logger.debug("with META: %s" % request.META)
+
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(VesAgentCtrlV1,self).delete(request, vimid)
+        return super(APIv1VesAgentCtrl,self).delete(request, vimid)
 
