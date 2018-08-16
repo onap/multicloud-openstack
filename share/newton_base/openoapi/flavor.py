@@ -63,6 +63,11 @@ class Flavors(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
+
             resp = self._get_flavor(sess, request, flavorid)
             content = resp.json()
 
@@ -186,6 +191,10 @@ class Flavors(APIView):
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
 
             #check if the flavor is already created: name or id
             tmpresp = self._get_flavor(sess, request)
@@ -328,6 +337,10 @@ class Flavors(APIView):
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
 
             #delete extra specs one by one
             resp = self._delete_flavor_extra_specs(sess, flavorid)

@@ -52,6 +52,11 @@ class Tenants(APIView):
                 req_resouce = "/v2.0/tenants"
 
             sess = VimDriverUtils.get_session(vim)
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
+
             logger.info("making request with URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=self.service)
             logger.info("request returns with status %s" % resp.status_code)

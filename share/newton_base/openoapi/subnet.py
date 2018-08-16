@@ -75,6 +75,11 @@ class Subnets(APIView):
 
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
+
+        self.service['region_id'] = vim['openstack_region_id'] \
+            if vim.get('openstack_region_id') \
+            else vim['cloud_region_id']
+
         logger.info("making request with URI:%s" % req_resouce)
         resp = sess.get(req_resouce, endpoint_filter=self.service)
         logger.info("request returns with status %s" % resp.status_code)
@@ -136,6 +141,11 @@ class Subnets(APIView):
             VimDriverUtils.replace_key_by_mapping(subnet,
                                                   self.keys_mapping, True)
             req_body = json.JSONEncoder().encode({"subnet": subnet})
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
+
             logger.info("making request with URI:%s" % req_resouce)
             logger.debug("with data:%s" % req_body)
             resp = sess.post(req_resouce, data=req_body,
@@ -180,6 +190,11 @@ class Subnets(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
+
             logger.info("making request with URI:%s" % req_resouce)
             resp = sess.delete(req_resouce, endpoint_filter=self.service)
             logger.info("request returns with status %s" % resp.status_code)

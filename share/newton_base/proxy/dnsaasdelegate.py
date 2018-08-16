@@ -128,8 +128,11 @@ class DnsaasDelegate(Services):
             service = {
                 'service_type': servicetype,
                 'interface': interface,
-                'region_id': regionid
+                'region_id': vim['openstack_region_id']
+                           if vim.get('openstack_region_id')
+                           else vim['cloud_region_id']
             }
+
 
             req_resource = requri
             querystr = VimDriverUtils.get_query_part(request)

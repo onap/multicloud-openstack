@@ -103,8 +103,11 @@ class Services(APIView):
             service = {
                 'service_type': servicetype,
                 'interface': interface,
-                       'region_id': regionid
+                       'region_id': vim['openstack_region_id']
+                           if vim.get('openstack_region_id')
+                           else vim['cloud_region_id']
             }
+
 
             querystr = VimDriverUtils.get_query_part(request)
             if querystr:
@@ -183,7 +186,11 @@ class Services(APIView):
             interface = 'public'
             service = {'service_type': servicetype,
                        'interface': interface,
-                       'region_id': regionid}
+                       'region_id': vim['openstack_region_id']
+                           if vim.get('openstack_region_id')
+                           else vim['cloud_region_id']
+                       }
+
 
             self._logger.info("service head request with uri %s" % (req_resource))
             resp = sess.head(req_resource, endpoint_filter=service)
