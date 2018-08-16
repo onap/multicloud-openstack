@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_bb936f4e",
+        "filename": "ocata/ocata/proxy/views/identityV3.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1899
+      },
+      "writtenOn": "2018-08-16T10:38:03Z",
+      "side": 1,
+      "message": "For my understand, logging setting has nothing to do with this problem. \nBecause the subclass dose not invoke \u0027super(APIv1Tokens,self).__init__()\u0027 to inherit the \u0027_logger\u0027 property from  parent class.",
+      "parentUuid": "1a76adc5_97b0c98c",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 29
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_977769d4",
         "filename": "ocata/ocata/proxy/views/identityV3.py",
         "patchSetId": 1
