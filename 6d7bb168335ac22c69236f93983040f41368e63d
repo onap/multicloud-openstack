@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_e11a9a16",
+        "filename": "newton/newton/resource/views/capacity.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:29:36Z",
+      "side": 1,
+      "message": "Extra spaces need to be removed",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 8
+      },
+      "revId": "6d7bb168335ac22c69236f93983040f41368e63d",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
