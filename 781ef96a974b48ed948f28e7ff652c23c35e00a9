@@ -82,6 +82,29 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_e155bac6",
+        "filename": "ocata/ocata/proxy/views/identityV3.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:16:15Z",
+      "side": 1,
+      "message": "Are we using different tokens for different API versions? For example, if we upgrade to API v2 etc. in the future, do we need another method, APIv2Tokens, APIv3Tokens, ... APIvnTokens? Is there a way to handle tokens consistently across API versions?",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 25
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_97b0c98c",
         "filename": "ocata/ocata/proxy/views/identityV3.py",
         "patchSetId": 1
@@ -193,6 +216,29 @@
         "startChar": 1,
         "endLine": 46,
         "endChar": 29
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_6159aafd",
+        "filename": "ocata/ocata/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:16:15Z",
+      "side": 1,
+      "message": "Why do we need to have methods for specific versions?",
+      "range": {
+        "startLine": 378,
+        "startChar": 0,
+        "endLine": 378,
+        "endChar": 27
       },
       "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
