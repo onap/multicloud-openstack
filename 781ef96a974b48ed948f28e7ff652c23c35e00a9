@@ -2,6 +2,86 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a76adc5_5e9a4964",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-16T14:43:42Z",
+      "side": 1,
+      "message": "I suggest to include a description paragraph for this change",
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_fe71d544",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-16T14:43:42Z",
+      "side": 1,
+      "message": "API Ocata upgrade",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 14
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_1ea4d1a4",
+        "filename": "ocata/ocata/extensions/urlsV1.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-16T14:43:42Z",
+      "side": 1,
+      "message": "2018 Intel Corporation",
+      "range": {
+        "startLine": 1,
+        "startChar": 16,
+        "endLine": 1,
+        "endChar": 44
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_fea8f578",
+        "filename": "ocata/ocata/extensions/views/extensions.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-16T14:43:42Z",
+      "side": 1,
+      "message": "nit: this line exceeds 72 characters, I recommend to split it in two",
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_97b0c98c",
         "filename": "ocata/ocata/proxy/views/identityV3.py",
         "patchSetId": 1
@@ -73,6 +153,30 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_9e7a21f0",
+        "filename": "ocata/ocata/proxy/views/identityV3.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-16T14:43:42Z",
+      "side": 1,
+      "message": "I don\u0027t think that\u0027s necessary to override the __init__ method on any subclass given that they are setting up the same properties with same values. In other words, these should be implemented as follows:\n\n    class APIv1Tokens(Tokens):\n        pass\n\n    class APIv1TokensV2(TokensV2):\n        pass",
+      "parentUuid": "1a76adc5_bb936f4e",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 29
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_977769d4",
         "filename": "ocata/ocata/proxy/views/identityV3.py",
         "patchSetId": 1
@@ -90,6 +194,109 @@
         "endLine": 46,
         "endChar": 29
       },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_5e8489d3",
+        "filename": "ocata/ocata/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-16T14:43:42Z",
+      "side": 1,
+      "message": "this override is not needed.",
+      "range": {
+        "startLine": 379,
+        "startChar": 0,
+        "endLine": 382,
+        "endChar": 29
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_fe723510",
+        "filename": "ocata/ocata/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-16T14:43:42Z",
+      "side": 1,
+      "message": "nit: split this line in two to reduce the number of chars per line",
+      "range": {
+        "startLine": 385,
+        "startChar": 8,
+        "endLine": 385,
+        "endChar": 88
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_de773901",
+        "filename": "ocata/ocata/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-16T14:43:42Z",
+      "side": 1,
+      "message": "make sure that the request doesn\u0027t contain sensitive data.",
+      "range": {
+        "startLine": 386,
+        "startChar": 45,
+        "endLine": 386,
+        "endChar": 57
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_9e61c13b",
+        "filename": "ocata/ocata/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-16T14:43:42Z",
+      "side": 1,
+      "message": "ditto: line 385",
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_5e5b2987",
+        "filename": "ocata/ocata/settings.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-16T14:43:42Z",
+      "side": 1,
+      "message": "Shouldn\u0027t be better to define a variable that contains the version number?",
       "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
