@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_a1bb42e4",
+        "filename": "share/newton_base/openoapi/flavor.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 409,
+        "startChar": 0,
+        "endLine": 409,
+        "endChar": 28
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_21cf3281",
+        "filename": "share/newton_base/openoapi/hosts.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 24
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_01c4765d",
+        "filename": "share/newton_base/openoapi/hypervisor.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 36
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_a1a262ac",
+        "filename": "share/newton_base/openoapi/image.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 258,
+        "startChar": 0,
+        "endLine": 258,
+        "endChar": 26
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_81af2694",
+        "filename": "share/newton_base/openoapi/limits.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 26
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_41910e51",
+        "filename": "share/newton_base/openoapi/network.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 199,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 30
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_a1890228",
+        "filename": "share/newton_base/openoapi/server.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 479,
+        "startChar": 0,
+        "endLine": 479,
+        "endChar": 28
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_41782e2b",
+        "filename": "share/newton_base/openoapi/subnet.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 199,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 28
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_a1902244",
+        "filename": "share/newton_base/openoapi/tenants.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 28
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_e1adba89",
+        "filename": "share/newton_base/openoapi/volume.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 197,
+        "startChar": 0,
+        "endLine": 197,
+        "endChar": 28
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_a1b7c2d7",
+        "filename": "share/newton_base/openoapi/vport.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 232,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 26
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_c1bafebf",
+        "filename": "windriver/titanium_cloud/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 845
+      },
+      "writtenOn": "2018-08-16T16:39:42Z",
+      "side": 1,
+      "message": "The general comment as I had on other patches: do we use version-specific method? How to consider forward compatibility when we upgrade to API v2, v3, vn etc. in the future?",
+      "range": {
+        "startLine": 368,
+        "startChar": 0,
+        "endLine": 368,
+        "endChar": 30
+      },
+      "revId": "400e1b7c35a1db4cdcf20f4453631bc0888a330f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
