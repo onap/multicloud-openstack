@@ -48,6 +48,11 @@ class Limits(APIView):
             req_resouce = "/limits"
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
+
             logger.info("making request with URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=self.service)
             logger.info("request returns with status %s" % resp.status_code)
@@ -66,6 +71,11 @@ class Limits(APIView):
             #now get quota
             # prepare request resource to vim instance
             req_resouce = "/v2.0/quotas/%s" % tenantid
+
+            self.service_network['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
+
             logger.info("making request with URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=self.service_network)
             logger.info("request returns with status %s" % resp.status_code)
@@ -75,6 +85,11 @@ class Limits(APIView):
             #now get volume limits
             # prepare request resource to vim instance
             req_resouce = "/limits"
+
+            self.service_volume['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
+
             logger.info("making request with URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=self.service_volume)
             logger.info("request returns with status %s" % resp.status_code)

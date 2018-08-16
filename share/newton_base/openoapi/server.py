@@ -63,6 +63,10 @@ class ServerVolumeAttachThread (threading.Thread):
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
 
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
+
             #check if server is ready to attach
             logger.debug("Servers--attach_volume, wait for server to be ACTIVE::>%s" % serverid)
             req_resouce = "servers/%s" % serverid
@@ -108,6 +112,10 @@ class ServerVolumeAttachThread (threading.Thread):
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
 
             #wait server to be ready to detach volume
 
@@ -158,6 +166,10 @@ class Servers(APIView):
         # assume attachment id is the same as volume id
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
+
+        self.service['region_id'] = vim['openstack_region_id'] \
+            if vim.get('openstack_region_id') \
+            else vim['cloud_region_id']
 
         for volumeid in volumeIds:
             req_resouce = "servers/%s/os-volume_attachments/%s" % (serverId, volumeid)
@@ -234,6 +246,11 @@ class Servers(APIView):
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
         req_resouce = "servers/%s/os-interface" % serverid
+
+        self.service['region_id'] = vim['openstack_region_id'] \
+            if vim.get('openstack_region_id') \
+            else vim['cloud_region_id']
+
         logger.info("making request with URI:%s" % req_resouce)
         resp = sess.get(req_resouce, endpoint_filter=self.service)
         logger.info("request returns with status %s" % resp.status_code)
@@ -258,6 +275,11 @@ class Servers(APIView):
 
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
+
+        self.service['region_id'] = vim['openstack_region_id'] \
+            if vim.get('openstack_region_id') \
+            else vim['cloud_region_id']
+
         logger.info("making request with URI:%s" % req_resouce)
         resp = sess.get(req_resouce, endpoint_filter=self.service)
         logger.info("request returns with status %s" % resp.status_code)
@@ -392,6 +414,11 @@ class Servers(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
+
             logger.info("making request with URI:%s" % req_resouce)
             resp = sess.post(req_resouce, data=req_body,
                              endpoint_filter=self.service,
@@ -449,6 +476,10 @@ class Servers(APIView):
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
 
             #check and dettach them if volumes attached to server
             server, status_code = self._get_servers("", vimid, tenantid, serverid)

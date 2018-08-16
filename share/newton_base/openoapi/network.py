@@ -73,6 +73,11 @@ class Networks(APIView):
 
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
+
+        self.service['region_id'] = vim['openstack_region_id'] \
+            if vim.get('openstack_region_id') \
+            else vim['cloud_region_id']
+
         logger.info("making request with URI:%s" % req_resouce)
         resp = sess.get(req_resouce, endpoint_filter=self.service)
         logger.info("request returns with status %s" % resp.status_code)
@@ -135,6 +140,10 @@ class Networks(APIView):
                                                   self.keys_mapping, True)
             req_body = json.JSONEncoder().encode({"network": network})
 
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
+
             logger.info("making request with URI:%s" % req_resouce)
             logger.debug("with data:%s" % req_body)
             resp = sess.post(req_resouce, data=req_body,
@@ -177,6 +186,10 @@ class Networks(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
+
+            self.service['region_id'] = vim['openstack_region_id'] \
+                if vim.get('openstack_region_id') \
+                else vim['cloud_region_id']
 
             logger.info("making delete request with URI:%s" % req_resouce)
             resp = sess.delete(req_resouce, endpoint_filter=self.service)

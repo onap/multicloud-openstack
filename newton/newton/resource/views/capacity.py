@@ -45,16 +45,19 @@ class CapacityCheck(APIView):
         try :
             resource_demand = request.data
 
+            tenant_name = None
+            vim = VimDriverUtils.get_vim_info(vimid)
+            sess = VimDriverUtils.get_session(vim, tenant_name)
+
             #get token:
             cloud_owner, regionid = extsys.decode_vim_id(vimid)
             interface = 'public'
             service = {'service_type': 'compute',
                        'interface': interface,
-                       'region_id': regionid}
-
-            tenant_name = None
-            vim = VimDriverUtils.get_vim_info(vimid)
-            sess = VimDriverUtils.get_session(vim, tenant_name)
+                       'region_id': vim['openstack_region_id']
+                           if vim.get('openstack_region_id')
+                           else vim['cloud_region_id']
+                       }
 
             #get limit for this tenant
             req_resouce = "/limits"

@@ -72,7 +72,11 @@ class Hypervisors(APIView):
         vim["domain"] = "Default"
         sess = VimDriverUtils.get_session(vim, tenantid)
 
-        logger.info("making request with URI:%s" % req_resource)
+        self.service['region_id'] = vim['openstack_region_id'] \
+            if vim.get('openstack_region_id') \
+            else vim['cloud_region_id']
+
+        logger.info("making request with URI:%s" % req_resouce)
 
         resp = sess.get(req_resource, endpoint_filter = self.service)
 
