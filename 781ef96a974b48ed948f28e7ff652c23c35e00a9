@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_574eb1c2",
+        "filename": "ocata/ocata/urls.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-08-16T07:10:05Z",
+      "side": 1,
+      "message": "vimid should be replaced by cloud-owner and cloud-region-id",
+      "range": {
+        "startLine": 48,
+        "startChar": 39,
+        "endLine": 48,
+        "endChar": 44
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
