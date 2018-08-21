@@ -246,6 +246,30 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_d0a87879",
+        "filename": "ocata/ocata/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-08-21T00:56:51Z",
+      "side": 1,
+      "message": "They are different API handler for API v0 and v1 respectively",
+      "parentUuid": "1a76adc5_6159aafd",
+      "range": {
+        "startLine": 378,
+        "startChar": 0,
+        "endLine": 378,
+        "endChar": 27
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_5e8489d3",
         "filename": "ocata/ocata/registration/views/registration.py",
         "patchSetId": 1
@@ -303,6 +327,30 @@
       "writtenOn": "2018-08-16T14:43:42Z",
       "side": 1,
       "message": "make sure that the request doesn\u0027t contain sensitive data.",
+      "range": {
+        "startLine": 386,
+        "startChar": 45,
+        "endLine": 386,
+        "endChar": 57
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_90ba00bf",
+        "filename": "ocata/ocata/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-08-21T00:56:51Z",
+      "side": 1,
+      "message": "There is no sensitive data in this specific request",
+      "parentUuid": "1a76adc5_de773901",
       "range": {
         "startLine": 386,
         "startChar": 45,
