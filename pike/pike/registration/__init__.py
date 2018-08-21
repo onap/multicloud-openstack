@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2018 Wind River Systems, Inc.
+# Copyright (c) 2018 Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,18 +11,4 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from django.conf.urls import include, url
-
-from newton_base.openoapi import tenants
-
-urlpatterns = [
-    url(r'^', include('pike.swagger.urls')),
-    url(r'^', include('pike.samples.urls')),
-    url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/registry$',
-        registration.Registry.as_view()),
-    url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/exten',
-        include('pike.extensions.urls')),
-]
-
 
