@@ -44,6 +44,14 @@ urlpatterns = [
     url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/vesagent/?$',
         vesagent_ctrl.VesAgentCtrl.as_view()),
 
+    # API upgrading
+    url(r'^api/multicloud-ocata/v1/(?P<vimid>[0-9a-zA-Z_-]+)/registry$',
+        registration.RegistryV1.as_view()),
+    url(r'^api/multicloud-ocata/v1/(?P<vimid>[0-9a-zA-Z_-]+)$',
+        registration.RegistryV1.as_view()),
+    url(r'^api/multicloud-ocata/v1/(?P<vimid>[0-9a-zA-Z_-]+)/exten',
+        include('ocata.extensions.urlsV1')),
+
 ]
 
 
