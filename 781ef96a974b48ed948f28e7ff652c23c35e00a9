@@ -224,6 +224,54 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_d0bf18a9",
+        "filename": "ocata/ocata/proxy/views/identityV3.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-08-22T06:45:27Z",
+      "side": 1,
+      "message": "If MULTICLOUD_API_V1_PREFIX and MULTICLOUD_API_PREFIX have different values, how to work.",
+      "parentUuid": "1a76adc5_9e7a21f0",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 29
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_907d20ea",
+        "filename": "ocata/ocata/proxy/views/identityV3.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-08-22T06:45:27Z",
+      "side": 1,
+      "message": "If we want to print log in this class, we don\u0027t set it. then",
+      "parentUuid": "1a76adc5_97b0c98c",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 29
+      },
+      "revId": "781ef96a974b48ed948f28e7ff652c23c35e00a9",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_977769d4",
         "filename": "ocata/ocata/proxy/views/identityV3.py",
         "patchSetId": 1
