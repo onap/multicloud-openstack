@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_5683fb03",
+        "filename": "pike/pike/urls.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-08-22T00:52:52Z",
+      "side": 1,
+      "message": "api/multicloud/v0 is the namespace for broker which exposed cloud agnostic API to consumers, each plugin has dedicated namespace on their own, and broker will dispatch the incoming request to plugins respectively based on this dedicated namespace via MSB.",
+      "parentUuid": "1a76adc5_07ac7434",
+      "range": {
+        "startLine": 22,
+        "startChar": 11,
+        "endLine": 22,
+        "endChar": 33
+      },
+      "revId": "94a8018ab72f9df78f6ea5efe0a7e43b72992fdf",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_a7aa6017",
         "filename": "pike/pike/urls.py",
         "patchSetId": 1
