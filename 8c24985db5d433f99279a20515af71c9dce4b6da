@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_995f84e5",
+        "filename": "INFO.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 481
+      },
+      "writtenOn": "2018-08-22T02:50:03Z",
+      "side": 1,
+      "message": "This is project name rather than path like in other INFO files.",
+      "parentUuid": "1a76adc5_992784b6",
+      "range": {
+        "startLine": 31,
+        "startChar": 7,
+        "endLine": 31,
+        "endChar": 27
+      },
+      "revId": "8c24985db5d433f99279a20515af71c9dce4b6da",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_5921ec9d",
         "filename": "INFO.yaml",
         "patchSetId": 1
