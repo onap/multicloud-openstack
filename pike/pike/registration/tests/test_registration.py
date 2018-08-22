@@ -21,7 +21,7 @@ from newton_base.tests import mock_info
 from newton_base.tests import test_base
 from newton_base.util import VimDriverUtils
 
-OCATA_MOCK_VIM_INFO = {
+PIKE_MOCK_VIM_INFO = {
     "createTime": "2017-04-01 02:22:27",
     "domain": "Default",
     "name": "TiS_R4",
@@ -245,7 +245,7 @@ class TestRegistration(test_base.TestRequest):
             self, mock_get_vim_info, mock_get_session):
         restcall.req_to_aai = mock.Mock()
         restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
-        mock_get_vim_info.return_value = OCATA_MOCK_VIM_INFO
+        mock_get_vim_info.return_value = PIKE_MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
                 "side_effect": [
