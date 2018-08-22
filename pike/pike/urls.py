@@ -24,6 +24,9 @@ urlpatterns = [
         registration.Registry.as_view()),
     url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/exten',
         include('pike.extensions.urls')),
+    url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/',
+             include('pike.proxy.urls')),
+
 ]
 
 
