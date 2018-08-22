@@ -26,6 +26,8 @@ urlpatterns = [
         include('pike.extensions.urls')),
     url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/',
              include('pike.proxy.urls')),
+    url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/tenants$',
+             tenants.Tenants.as_view()),
 
 ]
 
