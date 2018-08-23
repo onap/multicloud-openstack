@@ -321,33 +321,38 @@ class Registry(newton_registration.Registry):
         return instruction_capability
 
     def _get_pci_passthrough_capabilities(self, extra_specs):
-        instruction_capability = {}
+        pci_capability = {}
         feature_uuid = uuid.uuid4()
 
         if extra_specs.has_key('pci_passthrough:alias'):
             value1 = extra_specs['pci_passthrough:alias'].split(':')
             value2 = value1[0].split('-')
 
-            instruction_capability['hpa-capability-id'] = str(feature_uuid)
-            instruction_capability['hpa-feature'] = 'pciePassthrough'
-            instruction_capability['architecture'] = str(value2[2])
-            instruction_capability['hpa-version'] = 'v1'
+            pci_capability['hpa-capability-id'] = str(feature_uuid)
+            pci_capability['hpa-feature'] = 'pciePassthrough'
+            pci_capability['architecture'] = str(value2[2])
+            pci_capability['hpa-version'] = 'v1'
+
+            if value2[0] == "sriov" and value2[1] == "nic":
+                vnic_type = "vnic-type"
 
 
-            instruction_capability['hpa-feature-attributes'] = []
-            instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciCount',
-                                                       'hpa-attribute-value':
-                                                      '{{\"value\":\"{0}\"}}'.format(value1[1])
-                                                                     })
-            instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciVendorId',
-                                                       'hpa-attribute-value':
-                                                      '{{\"value\":\"{0}\"}}'.format(value2[3])
-                                                                     })
-            instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciDeviceId',
-                                                       'hpa-attribute-value':
-                                                      '{{\"value\":\"{0}\"}}'.format(value2[4])
-                                                                     })
-        return instruction_capability
+            pci_capability['hpa-feature-attributes'] = []
+            pci_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciCount',
+                                          'hpa-attribute-value':
+                                          '{{\"value\":\"{0}\"}}'.format(value1[1]) })
+            pci_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciVendorId',
+                                          'hpa-attribute-value':
+                                          '{{\"value\":\"{0}\"}}'.format(value2[3]) })
+            pci_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciDeviceId',
+                                          'hpa-attribute-value':
+                                          '{{\"value\":\"{0}\"}}'.format(value2[4]) })
+            pci_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'directive',
+                                          'hpa-attribute-value':'['
+                                          '{{\"attribute_name\":\"vnic-type\", \"attribute_value\":\"{0}\"}}'.format(vnic_type) + ',' + 
+                                          '{{\"attribute_name\":\"physical-network\", \"attribute_value\":\"{0}\"}}'.format(value2[5]) +
+                                          ']' })
+        return pci_capability
 
     def _get_ovsdpdk_capabilities(self, viminfo):
         ovsdpdk_capability = {}
