@@ -252,6 +252,12 @@ class Registry(APIView):
             self._logger.debug("pci_passthrough_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
+        # SRIOV-NIC capabilities
+        caps_dict = self._get_sriov_nic_capabilities(extra_specs)
+        if len(caps_dict) > 0:
+            self._logger.debug("sriov_nic_capabilities_info: %s" % caps_dict)
+            hpa_caps.append(caps_dict)
+
         # ovsdpdk capabilities
         caps_dict = self._get_ovsdpdk_capabilities(extra_specs, viminfo)
         if len(caps_dict) > 0:
@@ -468,6 +474,34 @@ class Registry(APIView):
                                                                      })
 
         return pci_passthrough_capability
+
+    def _get_sriov_nic_capabilities(self, extra_specs):
+        sriov_capability = {}
+        feature_uuid = uuid.uuid4()
+
+        if extra_specs.has_key('sriov_nic'):
+            value1 = extra_specs['sriov_nic'].split(':')
+            value2 = value1[0].split('-')
+
+            sriov_capability['hpa-capability-id'] = str(feature_uuid)
+            sriov_capability['hpa-feature'] = 'sriovNICNetwork'
+            sriov_capability['architecture'] = str(value2[2])
+            sriov_capability['hpa-version'] = 'v1'
+
+            sriov_capability['hpa-feature-attributes'] = []
+            sriov_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciCount',
+                                          'hpa-attribute-value':
+                                          '{{\"value\":\"{0}\"}}'.format(value1[1]) })
+            sriov_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciVendorId',
+                                          'hpa-attribute-value':
+                                          '{{\"value\":\"{0}\"}}'.format(value2[3]) })
+            sriov_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciDeviceId',
+                                          'hpa-attribute-value':
+                                          '{{\"value\":\"{0}\"}}'.format(value2[4]) })
+            sriov_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'physicalNetwork',
+                                          'hpa-attribute-value':
+                                          '{{\"value\":\"{0}\"}}'.format(value2[5]) })
+        return sriov_capability
 
     def _get_ovsdpdk_capabilities(self, extra_specs, viminfo):
         ovsdpdk_capability = {}
