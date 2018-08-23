@@ -438,3 +438,35 @@ class Servers(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         pass
+
+
+class ServerAction(APIView):
+    service = {'service_type': 'compute',
+               'interface': 'public'}
+    def post(self, request, vimid="", tenantid="", serverid=""):
+        logger.debug("ServerAction--post::> %s" % request.data)
+        logger.debug("vimid=%s, tenantid=%s, serverid=%s", vimid, tenantid, serverid)
+        try:
+            # prepare request resource to vim instance
+            vim = VimDriverUtils.get_vim_info(vimid)
+            sess = VimDriverUtils.get_session(vim, tenantid)
+
+            # operate server now
+            req_resouce = "servers/{server_id}/action".format(server_id=serverid)
+            req_body = json.JSONEncoder().encode(request.data)
+            resp = sess.post(req_resouce, data=req_body,
+                             endpoint_filter=self.service,
+                             headers={"Content-Type": "application/json",
+                                      "Accept": "application/json"})
+            resp_body = resp.json()
+
+            return Response(data=resp_body, status=resp.status_code)
+        except VimDriverKiloException as e:
+            return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
