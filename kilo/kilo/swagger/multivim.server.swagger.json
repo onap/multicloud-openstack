@@ -231,6 +231,65 @@
                     }
                 }
             }
+        },
+        "/{vimid}/{tenantid}/servers/{serverid}/action": {
+            "post": {
+                "tags": [
+                    "vim servers action"
+                ],
+                "summary": "operate a server",
+                "description": "operate a server",
+                "operationId": "operate_vim_server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "vimid",
+                        "in": "path",
+                        "description": "vim instance id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "tenantid",
+                        "in": "path",
+                        "description": "tenant UUID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "serverid",
+                        "in": "path",
+                        "description": "vim server id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "operate vim server request param",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/OperateVimServer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "the vim id, tenant UUID or server id is wrong"
+                    },
+                    "500": {
+                        "description": "the vim server is not accessable"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -481,6 +540,29 @@
                 "returnCode": {
                     "type": "integer",
                     "description": "0: Already exist 1: Newly created"
+                }
+            }
+        },
+        "OperateVimServer": {
+            "type": "object",
+            "properties": {
+                "os-start": {
+                    "type": "null",
+                    "description": "the action to start a stopped server"
+                },
+                "os-stop": {
+                    "type": "null",
+                    "description": "the action to stop a running server"
+                },
+                "reboot": {
+                    "type": "object",
+                    "description": "The action to reboot a server",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "description": "the type of the reboot action: the valid values are HARD and SOFT"
+                        }
+                    }
                 }
             }
         }
