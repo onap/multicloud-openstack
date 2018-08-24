@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_548a061c",
+        "filename": "pike/pike/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 2977
+      },
+      "writtenOn": "2018-08-24T06:30:43Z",
+      "side": 1,
+      "message": "Hi Haibin, should it be \u0027direct\u0027 here? And do we need to add one default value(\u0027normal\u0027) for parameter \u0027vnic_type\u0027?",
+      "range": {
+        "startLine": 337,
+        "startChar": 28,
+        "endLine": 337,
+        "endChar": 39
+      },
+      "revId": "ee9f1445d20a2ba49519257711e4c11fb68a02ec",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
