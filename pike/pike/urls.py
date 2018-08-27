@@ -17,6 +17,7 @@ from django.conf.urls import include, url
 from pike.registration.views import registration
 from newton_base.openoapi import tenants
 from pike.resource.views import capacity
+from pike.resource.views import infra_workload
 
 urlpatterns = [
     url(r'^', include('pike.swagger.urls')),
@@ -33,7 +34,8 @@ urlpatterns = [
         '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('pike.requests.urls')),
     url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.CapacityCheck.as_view()),
-
+    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
+        infra_workload.APIv1InfraWorkload.as_view()),
 ]
 
 
