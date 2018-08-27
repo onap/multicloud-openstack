@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_40e6b6b5",
+        "filename": "pike/pike/resource/views/infra_workload.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-27T19:05:36Z",
+      "side": 1,
+      "message": "Usually the imports are grouped in three, following some additional guidelines (like alphabetical order), these are the OpenStack guidelines for imports:\n\nhttps://docs.openstack.org/hacking/latest/user/hacking.html#imports",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 31
+      },
+      "revId": "d05e5819f8bd2605492c5826a8bf4ab141052251",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_60f89249",
+        "filename": "pike/pike/resource/views/infra_workload.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-27T19:05:36Z",
+      "side": 1,
+      "message": "is this link correct?",
+      "range": {
+        "startLine": 56,
+        "startChar": 32,
+        "endLine": 56,
+        "endChar": 160
+      },
+      "revId": "d05e5819f8bd2605492c5826a8bf4ab141052251",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_00975eed",
+        "filename": "pike/pike/resource/views/infra_workload.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-27T19:05:36Z",
+      "side": 1,
+      "message": "is the Workload ID constant?",
+      "range": {
+        "startLine": 88,
+        "startChar": 32,
+        "endLine": 88,
+        "endChar": 68
+      },
+      "revId": "d05e5819f8bd2605492c5826a8bf4ab141052251",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
