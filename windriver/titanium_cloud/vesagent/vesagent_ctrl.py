@@ -409,8 +409,9 @@ class VesAgentCtrl(APIView):
 class APIv1VesAgentCtrl(VesAgentCtrl):
 
     def __init__(self):
-        self._logger = logger
-        self.proxy_prefix = settings.MULTICLOUD_PREFIX
+        super(APIv1VesAgentCtrl, self).__init__()
+        # self._logger = logger
+        self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
 
 
     def get(self, request, cloud_owner="", cloud_region_id=""):

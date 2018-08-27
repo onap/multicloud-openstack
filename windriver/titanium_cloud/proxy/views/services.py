@@ -27,7 +27,8 @@ logger = logging.getLogger(__name__)
 class Services(newton_services.Services):
 
     def __init__(self):
-        self._logger = logger
+        super(Services, self).__init__()
+        # self._logger = logger
 
 
 class GetTenants(newton_services.GetTenants):
@@ -36,7 +37,8 @@ class GetTenants(newton_services.GetTenants):
     '''
 
     def __init__(self):
-        self._logger = logger
+        super(GetTenants, self).__init__()
+        # self._logger = logger
 
     def get(self, request, vimid="", servicetype="identity", requri='v3/projects'):
         self._logger.info("vimid: %s" % (vimid))
@@ -47,12 +49,13 @@ class GetTenants(newton_services.GetTenants):
 class APIv1Services(Services):
 
     def __init__(self):
-        self._logger = logger
+        super(APIv1Services, self).__init__()
+        # self._logger = logger
 
     def head(self, request, cloud_owner="", cloud_region_id="", servicetype="", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
-#        self._logger.info("servicetype, requri> %s,%s" % (servicetype, requri))
-#        self._logger.debug("META, data> %s , %s" % (request.META, request.data))
+        # self._logger.info("servicetype, requri> %s,%s" % (servicetype, requri))
+        # self._logger.debug("META, data> %s , %s" % (request.META, request.data))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(APIv1Services,self).head(request, vimid, servicetype, requri)
@@ -94,12 +97,13 @@ class APIv1GetTenants(GetTenants):
     '''
 
     def __init__(self):
-        self._logger = logger
+        super(APIv1GetTenants, self).__init__()
+        # self._logger = logger
 
     def head(self, request, cloud_owner="", cloud_region_id="", servicetype="identity", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
-#        self._logger.info("servicetype, requri> %s,%s" % (servicetype, requri))
-#        self._logger.debug("META, data> %s , %s" % (request.META, request.data))
+        # self._logger.info("servicetype, requri> %s,%s" % (servicetype, requri))
+        # self._logger.debug("META, data> %s , %s" % (request.META, request.data))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(APIv1GetTenants,self).head(request, vimid, servicetype, requri)

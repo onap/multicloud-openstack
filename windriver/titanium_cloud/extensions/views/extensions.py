@@ -32,7 +32,8 @@ logger = logging.getLogger(__name__)
 class Extensions(newton_extensions.Extensions):
 
     def __init__(self):
-        self._logger = logger
+        super(Extensions, self).__init__()
+        # self._logger = logger
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
 
 
@@ -76,7 +77,8 @@ class Extensions(newton_extensions.Extensions):
 class APIv1Extensions(Extensions):
 
     def __init__(self):
-        self._logger = logger
+        super(APIv1Extensions, self).__init__()
+        # self._logger = logger
         self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
 
 

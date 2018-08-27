@@ -145,10 +145,11 @@ class CapacityCheck(APIView):
 
 
 
-class APIv1CapacityCheck(APIView):
+class APIv1CapacityCheck(CapacityCheck):
 
     def __init__(self):
-        self._logger = logger
+        super(APIv1CapacityCheck, self).__init__()
+        # self._logger = logger
 
     def post(self, request, cloud_owner="", cloud_region_id=""):
         self._logger.info("vimid, data> %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))

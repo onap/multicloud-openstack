@@ -33,9 +33,10 @@ logger = logging.getLogger(__name__)
 class Registry(newton_registration.Registry):
 
     def __init__(self):
+        super(Registry, self).__init__()
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
-        self._logger = logger
+        # self._logger = logger
 
     def _discover_flavors(self, vimid="", session=None, viminfo=None):
         try:
@@ -370,9 +371,10 @@ class Registry(newton_registration.Registry):
 class APIv1Registry(Registry):
 
     def __init__(self):
+        super(APIv1Registry, self).__init__()
         self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
-        self._logger = logger
+        # self._logger = logger
 
 
     def _update_cloud_region(self, cloud_owner, cloud_region_id, openstack_region_id, viminfo, session=None):
