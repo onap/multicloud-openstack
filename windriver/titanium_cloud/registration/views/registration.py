@@ -508,10 +508,10 @@ class APIv1Registry(Registry):
                 #create cloud region with composed AAI cloud_region_id except for the one onboarded externally (e.g. ESR)
                 gen_cloud_region_id = cloud_region_id + "." + regionid if region_specified != regionid else cloud_region_id
                 self._update_cloud_region(cloud_owner, gen_cloud_region_id, regionid, viminfo)
-                return super(RegistryV1, self).post(request, vimid)
+                return super(APIv1Registry, self).post(request, vimid)
         else:
             self._update_cloud_region(cloud_owner, cloud_region_id, region_specified, viminfo)
-            return super(RegistryV1, self).post(request, vimid)
+            return super(APIv1Registry, self).post(request, vimid)
 
 
 
