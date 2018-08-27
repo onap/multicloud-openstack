@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_604ad2ad",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-27T18:53:38Z",
+      "side": 1,
+      "message": "Given that this project doesn\u0027t use guava, this commit message should be rephrased to \"Bump oparent version\"",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 44
+      },
+      "revId": "c28ce13d3ea5001ad8d62aaa4b668009aec9c85d",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
