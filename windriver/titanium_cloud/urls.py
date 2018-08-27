@@ -19,6 +19,7 @@ from newton_base.openoapi import tenants
 from titanium_cloud.resource.views import capacity
 from titanium_cloud.resource.views import events
 from titanium_cloud.vesagent import vesagent_ctrl
+from titanium_cloud.resource.views import infra_workload
 
 urlpatterns = [
     url(r'^', include('titanium_cloud.swagger.urls')),
@@ -65,6 +66,8 @@ urlpatterns = [
 #        events.EventsCheck.as_view()),
     url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/vesagent/?$',
         vesagent_ctrl.APIv1VesAgentCtrl.as_view()),
+    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
+        infra_workload.APIv1InfraWorkload.as_view()),
 ]
 
 
