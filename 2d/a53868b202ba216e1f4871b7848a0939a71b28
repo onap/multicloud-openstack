@@ -1,0 +1,9 @@
+Code-Review+2: Victor Morales <victor.morales@intel.com>
+Code-Review+2: Bin Hu <bh526r@att.com>
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Verified+1: Victor Morales <victor.morales@intel.com>
+Submitted-by: Victor Morales <victor.morales@intel.com>
+Submitted-at: Tue, 28 Aug 2018 20:10:03 +0000
+Reviewed-on: https://gerrit.onap.org/r/62685
+Project: multicloud/openstack
+Branch: refs/heads/master
