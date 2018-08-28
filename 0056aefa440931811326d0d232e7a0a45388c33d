@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_261dd273",
+        "filename": "windriver/titanium_cloud/registration/views/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-08-28T01:12:38Z",
+      "side": 0,
+      "message": "this should not be deleted",
+      "range": {
+        "startLine": 354,
+        "startChar": 0,
+        "endLine": 368,
+        "endChar": 37
+      },
+      "revId": "0056aefa440931811326d0d232e7a0a45388c33d",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
