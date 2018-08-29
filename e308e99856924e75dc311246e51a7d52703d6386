@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_66950086",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-29T13:49:24Z",
+      "side": 1,
+      "message": "Please provide a description paragraph explaining the purpose of this change",
+      "revId": "e308e99856924e75dc311246e51a7d52703d6386",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_867a9c75",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-29T13:49:24Z",
+      "side": 1,
+      "message": "nit: s/ovsdpdk/OvS-DPDK",
+      "range": {
+        "startLine": 7,
+        "startChar": 17,
+        "endLine": 7,
+        "endChar": 24
+      },
+      "revId": "e308e99856924e75dc311246e51a7d52703d6386",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_a65b18f5",
+        "filename": "share/newton_base/registration/registration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-29T13:49:24Z",
+      "side": 1,
+      "message": "this instruction is not required, usually the pythonic way to do this is catching the error in the try/catch block",
+      "range": {
+        "startLine": 476,
+        "startChar": 9,
+        "endLine": 476,
+        "endChar": 54
+      },
+      "revId": "e308e99856924e75dc311246e51a7d52703d6386",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_c60734c9",
+        "filename": "share/newton_base/registration/registration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-29T13:49:24Z",
+      "side": 1,
+      "message": "I think that this two instructions can be combined in one.",
+      "range": {
+        "startLine": 491,
+        "startChar": 16,
+        "endLine": 494,
+        "endChar": 119
+      },
+      "revId": "e308e99856924e75dc311246e51a7d52703d6386",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
