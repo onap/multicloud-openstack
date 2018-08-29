@@ -183,7 +183,7 @@ class Registry(APIView):
                     req_resouce = "/flavors/%s/os-extra_specs" % flavor['id']
                     extraResp = self._get_list_resources(req_resouce, "compute", session, viminfo, vimid, "extra_specs")
 
-                    hpa_capabilities = self._get_hpa_capabilities(flavor, extraResp)
+                    hpa_capabilities = self._get_hpa_capabilities(flavor, extraResp, viminfo)
                     flavor_info['hpa-capabilities'] = {'hpa-capability': hpa_capabilities}
 
                 self._update_resoure(
@@ -200,7 +200,7 @@ class Registry(APIView):
             self._logger.error(traceback.format_exc())
             return
 
-    def _get_hpa_capabilities(self, flavor, extra_specs):
+    def _get_hpa_capabilities(self, flavor, extra_specs, viminfo):
         hpa_caps = []
 
         # Basic capabilties
@@ -238,13 +238,13 @@ class Registry(APIView):
         if len(caps_dict) > 0:
             self._logger.debug("storage_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
-        
+
         # CPU instruction set extension capabilities
         caps_dict = self._get_instruction_set_capabilities(extra_specs)
         if len(caps_dict) > 0:
             self._logger.debug("instruction_set_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
-        
+
         # PCI passthrough capabilities
         caps_dict = self._get_pci_passthrough_capabilities(extra_specs)
         if len(caps_dict) > 0:
@@ -252,7 +252,7 @@ class Registry(APIView):
             hpa_caps.append(caps_dict)
 
         # ovsdpdk capabilities
-        caps_dict = self._get_ovsdpdk_capabilities(extra_specs)
+        caps_dict = self._get_ovsdpdk_capabilities(extra_specs, viminfo)
         if len(caps_dict) > 0:
             self._logger.debug("ovsdpdk_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
@@ -468,20 +468,30 @@ class Registry(APIView):
 
         return pci_passthrough_capability
 
-    def _get_ovsdpdk_capabilities(self, extra_specs):
+    def _get_ovsdpdk_capabilities(self, extra_specs, viminfo):
         ovsdpdk_capability = {}
         feature_uuid = uuid.uuid4()
 
-        ovsdpdk_capability['hpa-capability-id'] = str(feature_uuid)
-        ovsdpdk_capability['hpa-feature'] = 'ovsDpdk'
-        ovsdpdk_capability['architecture'] = 'Intel64'
-        ovsdpdk_capability['hpa-version'] = 'v1'
+        cloud_extra_info_str = viminfo.get('cloud_extra_info')
+        if not isinstance(cloud_extra_info_str, dict):
+            try:
+                cloud_extra_info_str = json.loads(cloud_extra_info_str)
+            except Exception as ex:
+                logger.error("Can not convert cloud extra info %s %s" % (
+                             str(ex), cloud_extra_info_str))
+                return {}
+        if cloud_extra_info_str :
+            cloud_dpdk_info = cloud_extra_info_str.get("ovsDpdk")
+            if cloud_dpdk_info :
+                ovsdpdk_capability['hpa-capability-id'] = str(feature_uuid)
+                ovsdpdk_capability['hpa-feature'] = 'ovsDpdk'
+                ovsdpdk_capability['architecture'] = 'Intel64'
+                ovsdpdk_capability['hpa-version'] = 'v1'
 
-        ovsdpdk_capability['hpa-feature-attributes'] = []
-        ovsdpdk_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'dataProcessingAccelerationLibrary',
-                                                     'hpa-attribute-value':
-                                                      '{{\"value\":\"{0}\"}}'.format("v17.02")
-                                                                 })
+                ovsdpdk_capability['hpa-feature-attributes'] = []
+                ovsdpdk_capability['hpa-feature-attributes'].append({'hpa-attribute-key': str(cloud_dpdk_info.get("libname")),
+                                                         'hpa-attribute-value':
+                                                      '{{\"value\":\"{0}\"}}'.format(cloud_dpdk_info.get("libversion"))                                                                                                                 })
         return ovsdpdk_capability
 
     # def update_image_metadata(self, cloud_owner, cloud_region_id, image_id, metadatainfo):

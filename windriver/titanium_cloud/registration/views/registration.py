@@ -38,7 +38,7 @@ class Registry(newton_registration.Registry):
         self.aai_base_url = settings.AAI_BASE_URL
         # self._logger = logger
 
-    def _get_ovsdpdk_capabilities(self, extra_specs):
+    def _get_ovsdpdk_capabilities(self, extra_specs, viminfo):
         instruction_capability = {}
         feature_uuid = uuid.uuid4()
 
