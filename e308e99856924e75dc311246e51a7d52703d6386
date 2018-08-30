@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a76adc5_a06773e8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-08-30T23:08:14Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "1a76adc5_66950086",
+      "revId": "e308e99856924e75dc311246e51a7d52703d6386",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a76adc5_867a9c75",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2018-08-29T13:49:24Z",
       "side": 1,
       "message": "nit: s/ovsdpdk/OvS-DPDK",
+      "range": {
+        "startLine": 7,
+        "startChar": 17,
+        "endLine": 7,
+        "endChar": 24
+      },
+      "revId": "e308e99856924e75dc311246e51a7d52703d6386",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_806a77b1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-08-30T23:08:14Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "1a76adc5_867a9c75",
       "range": {
         "startLine": 7,
         "startChar": 17,
@@ -100,6 +142,30 @@
       "writtenOn": "2018-08-29T13:49:24Z",
       "side": 1,
       "message": "I think that this two instructions can be combined in one.",
+      "range": {
+        "startLine": 491,
+        "startChar": 16,
+        "endLine": 494,
+        "endChar": 119
+      },
+      "revId": "e308e99856924e75dc311246e51a7d52703d6386",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_c06cefd2",
+        "filename": "share/newton_base/registration/registration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-08-30T23:08:14Z",
+      "side": 1,
+      "message": "Can you give me an example of how to combine the two instructions?",
+      "parentUuid": "1a76adc5_c60734c9",
       "range": {
         "startLine": 491,
         "startChar": 16,
