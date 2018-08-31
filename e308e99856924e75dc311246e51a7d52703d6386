@@ -175,6 +175,30 @@
       "revId": "e308e99856924e75dc311246e51a7d52703d6386",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_b8400335",
+        "filename": "share/newton_base/registration/registration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-08-31T19:36:31Z",
+      "side": 1,
+      "message": "Maybe this one:\n\n    ovsdpdk_capability[\u0027hpa-feature-attributes\u0027] \u003d [\n        {\n            \u0027hpa-attribute-key\u0027: str(cloud_dpdk_info.get(\"libname\")),\n            \u0027hpa-attribute-value\u0027: \u0027{{\\\"value\\\":\\\"{0}\\\"}}\u0027.format(cloud_dpdk_info.get(\"libversion\")\n        },]\n\nI also noticed that your current implementation you missed a \u0027}\u0027 line 494 after the (\"libversion\")",
+      "parentUuid": "1a76adc5_c06cefd2",
+      "range": {
+        "startLine": 491,
+        "startChar": 16,
+        "endLine": 494,
+        "endChar": 119
+      },
+      "revId": "e308e99856924e75dc311246e51a7d52703d6386",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
