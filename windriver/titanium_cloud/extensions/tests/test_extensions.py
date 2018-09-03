@@ -27,7 +27,7 @@ class TestExtensions(unittest.TestCase):
         vimid = cloud_owner + "_" + cloud_region_id
 
         response = self.client.get(
-            "/api/multicloud-titanium_cloud/v0/" + vimid + "/extensions/")
+            "/api/multicloud-titaniumcloud/v0/" + vimid + "/extensions/")
         json_content = response.json()
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)

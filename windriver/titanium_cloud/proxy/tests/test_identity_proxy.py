@@ -524,7 +524,7 @@ class TestIdentityService(unittest.TestCase):
 
         #simulate client to make the request
         data ={}
-        response = self.client.post("/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens", data=data, format='json')
+        response = self.client.post("/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens", data=data, format='json')
         self.failUnlessEqual(status.HTTP_201_CREATED, response.status_code)
         context = response.json()
 
@@ -561,7 +561,7 @@ class TestIdentityService(unittest.TestCase):
         # simulate client to make the request
         data = {}
         response = self.client.post(
-            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/identity/v2.0/tokens",
+            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/identity/v2.0/tokens",
             data=data, format='json')
         self.failUnlessEqual(status.HTTP_200_OK,
                              response.status_code)
@@ -622,7 +622,7 @@ class TestIdentityService(unittest.TestCase):
         }
 
         response = self.client.post(
-            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens",
+            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens",
             data=json.dumps(token_data), content_type='application/json')
         self.failUnlessEqual(status.HTTP_201_CREATED,
                              response.status_code)
@@ -671,7 +671,7 @@ class TestIdentityService(unittest.TestCase):
         }
 
         response = self.client.post(
-            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/identity/v2.0/tokens",
+            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/identity/v2.0/tokens",
             data=json.dumps(token_data), content_type='application/json')
         self.failUnlessEqual(status.HTTP_200_OK,
                              response.status_code)
@@ -728,7 +728,7 @@ class TestIdentityService(unittest.TestCase):
         }
 
         response = self.client.post(
-            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens",
+            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens",
             data=json.dumps(token_data), content_type='application/json')
         self.failUnlessEqual(status.HTTP_201_CREATED,
                              response.status_code)
