@@ -27,6 +27,45 @@ from newton_base.swagger import views as newton_json_view
 logger = logging.getLogger(__name__)
 
 
+class SwaggerJsonViewDepreciated(newton_json_view.SwaggerJsonView):
+
+    def get(self, request):
+        '''
+        reuse newton code and update the basePath
+        :param request:
+        :return:
+        '''
+
+        resp = super(SwaggerJsonViewDepreciated,self).get(request)
+        json_data = resp.data if resp else None
+        if json_data:
+            json_data["basePath"] = "/api/multicloud-titanium_cloud/v0/"
+            json_data["info"]["title"] = "Depreciated Service NBI of MultiCloud plugin for Titanium Cloud"
+            return Response(data=json_data, status=200)
+        else:
+            return Response(data={'error':'internal error'}, status=500)
+
+
+
+class APIv1SwaggerJsonViewDepreciated(newton_json_view.SwaggerJsonView):
+
+    def get(self, request):
+        '''
+        reuse newton code and update the basePath
+        :param request:
+        :return:
+        '''
+
+        resp = super(APIv1SwaggerJsonViewDepreciated,self).get(request)
+        json_data = resp.data if resp else None
+        if json_data:
+            json_data["basePath"] = "/api/multicloud-titanium_cloud/v1/"
+            json_data["info"]["title"] = "Depreciated Service NBI v1 of MultiCloud plugin for Titanium Cloud"
+            return Response(data=json_data, status=200)
+        else:
+            return Response(data={'error':'internal error'}, status=500)
+
+
 class SwaggerJsonView(newton_json_view.SwaggerJsonView):
 
     def get(self, request):
@@ -39,10 +78,27 @@ class SwaggerJsonView(newton_json_view.SwaggerJsonView):
         resp = super(SwaggerJsonView,self).get(request)
         json_data = resp.data if resp else None
         if json_data:
-            json_data["basePath"] = "/api/multicloud-titanium_cloud/v0/"
-            json_data["info"]["title"] = "Service NBI of MultiCloud plugin for Titanium Cloud"
+            json_data["basePath"] = "/api/multicloud-titaniumcloud/v0/"
+            json_data["info"]["title"] = "Service NBI v0 of MultiCloud plugin for Titanium Cloud"
             return Response(data=json_data, status=200)
         else:
             return Response(data={'error':'internal error'}, status=500)
 
 
+class APIv1SwaggerJsonView(newton_json_view.SwaggerJsonView):
+
+    def get(self, request):
+        '''
+        reuse newton code and update the basePath
+        :param request:
+        :return:
+        '''
+
+        resp = super(APIv1SwaggerJsonView,self).get(request)
+        json_data = resp.data if resp else None
+        if json_data:
+            json_data["basePath"] = "/api/multicloud-titaniumcloud/v1/"
+            json_data["info"]["title"] = "Service NBI v1 of MultiCloud plugin for Titanium Cloud"
+            return Response(data=json_data, status=200)
+        else:
+            return Response(data={'error':'internal error'}, status=500)

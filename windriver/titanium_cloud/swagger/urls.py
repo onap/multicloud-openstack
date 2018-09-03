@@ -15,10 +15,24 @@
 from django.conf.urls import patterns, url
 from rest_framework.urlpatterns import format_suffix_patterns
 
+from titanium_cloud.swagger.views import SwaggerJsonViewDepreciated
+from titanium_cloud.swagger.views import APIv1SwaggerJsonViewDepreciated
 from titanium_cloud.swagger.views import SwaggerJsonView
+from titanium_cloud.swagger.views import APIv1SwaggerJsonView
 
 urlpatterns = [
-    url(r'^api/multicloud-titanium_cloud/v0/swagger.json$', SwaggerJsonView.as_view()),
+    # API v0, depreciated
+    url(r'^api/multicloud-titanium_cloud/v0/swagger.json$', SwaggerJsonViewDepreciated.as_view()),
+
+    # API v1, depreciated
+    url(r'^api/multicloud-titanium_cloud/v1/swagger.json$', APIv1SwaggerJsonViewDepreciated.as_view()),
+
+    # API v0, new namespace: MULTICLOUD-335
+    url(r'^api/multicloud-titaniumcloud/v0/swagger.json$', SwaggerJsonView.as_view()),
+
+    # API v1, new namespace: MULTICLOUD-335
+    url(r'^api/multicloud-titaniumcloud/v1/swagger.json$', APIv1SwaggerJsonView.as_view()),
+
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

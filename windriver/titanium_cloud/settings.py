@@ -97,10 +97,10 @@ MSB_SERVICE_ADDR = os.environ.get('MSB_ADDR', DEFAULT_MSB_ADDR)
 MSB_SERVICE_PORT = os.environ.get('MSB_PORT', "80")
 
 #[Multicloud]
-MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-titanium_cloud/v0" % (
+MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-titaniumcloud/v0" % (
     MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
-MULTICLOUD_API_V1_PREFIX = "http://%s:%s/api/multicloud-titanium_cloud/v1" % (
+MULTICLOUD_API_V1_PREFIX = "http://%s:%s/api/multicloud-titaniumcloud/v1" % (
     MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
 # [A&AI]
@@ -113,12 +113,12 @@ AAI_PASSWORD = os.environ.get('AAI_PASSWORD', "AAI")
 
 AAI_BASE_URL = "%s/%s" % (AAI_SERVICE_URL, AAI_SCHEMA_VERSION)
 
-MULTICLOUD_APP_ID = 'MultiCloud-Titanium_Cloud'
+MULTICLOUD_APP_ID = 'MultiCloud-TitaniumCloud'
 
 # [IMAGE LOCAL PATH]
 ROOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-OPENSTACK_VERSION = "titanium_cloud"
+OPENSTACK_VERSION = "titaniumcloud"
 MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
 
 

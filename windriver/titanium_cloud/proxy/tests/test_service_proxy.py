@@ -490,72 +490,72 @@ MOCK_AUTH_STATE = {
 
 MOCK_INTERNAL_METADATA_CATALOG = {
    "identity" : {
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/identity",
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/identity",
       "prefix" : "http://128.224.180.14:5000",
       "suffix" : "v3"
    },
    "patching" : {
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/patching",
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/patching",
       "suffix" : "",
       "prefix" : "http://128.224.180.14:15491"
    },
    "orchestration" : {
       "suffix" : "v1/fcca3cc49d5e42caae15459e27103efc",
       "prefix" : "http://128.224.180.14:8004",
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/orchestration"
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/orchestration"
    },
    "volume" : {
       "prefix" : "http://128.224.180.14:8776",
       "suffix" : "v1/fcca3cc49d5e42caae15459e27103efc",
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/volume"
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/volume"
    },
    "metering" : {
       "suffix" : "",
       "prefix" : "http://128.224.180.14:8777",
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/metering"
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/metering"
    },
    "volumev3" : {
       "prefix" : "http://128.224.180.14:8776",
       "suffix" : "v3/fcca3cc49d5e42caae15459e27103efc",
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/volumev3"
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/volumev3"
    },
    "compute" : {
       "suffix" : "v2.1/fcca3cc49d5e42caae15459e27103efc",
       "prefix" : "http://128.224.180.14:8774",
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/compute"
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/compute"
    },
    "platform" : {
       "prefix" : "http://128.224.180.14:6385",
       "suffix" : "v1",
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/platform"
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/platform"
    },
    "nfv" : {
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/nfv",
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/nfv",
       "prefix" : "http://128.224.180.14:4545",
       "suffix" : ""
    },
    "volumev2" : {
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/volumev2",
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/volumev2",
       "suffix" : "v2/fcca3cc49d5e42caae15459e27103efc",
       "prefix" : "http://128.224.180.14:8776"
    },
    "image" : {
       "suffix" : "",
       "prefix" : "http://128.224.180.14:9292",
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/image"
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/image"
    },
    "network" : {
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/network",
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/network",
       "prefix" : "http://128.224.180.14:9696",
       "suffix" : ""
    },
    "alarming" : {
       "suffix" : "",
       "prefix" : "http://128.224.180.14:8042",
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/alarming"
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/alarming"
    },
    "cloudformation" : {
-      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/cloudformation",
+      "proxy_prefix" : "http://172.16.77.20:9003/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/cloudformation",
       "prefix" : "http://128.224.180.14:8000",
       "suffix" : "v1/fcca3cc49d5e42caae15459e27103efc"
    }
@@ -719,13 +719,13 @@ class TestServiceProxy(unittest.TestCase):
        mock_get_session.return_value = mock_session
        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE),json.dumps(MOCK_INTERNAL_METADATA_CATALOG))
        response = self.client.head(
-          "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+          "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
           {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
        self.assertEquals(status.HTTP_200_OK, response.status_code)
 
     def test_unauthorized_access(self):
        response = self.client.get(
-          "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers")
+          "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers")
        self.assertEquals(status.HTTP_403_FORBIDDEN, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -733,7 +733,7 @@ class TestServiceProxy(unittest.TestCase):
        mock_get_vim_info.return_value = MOCK_VIM_INFO
 
        response = self.client.get(
-          "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+          "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
           {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
        self.assertEquals(status.HTTP_403_FORBIDDEN, response.status_code)
 
@@ -743,7 +743,7 @@ class TestServiceProxy(unittest.TestCase):
        mock_get_vim_info.return_value = MOCK_VIM_INFO
        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), {})
        servicetype = "compute"
-       url = ("/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/" + servicetype +
+       url = ("/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/" + servicetype +
               "/v2.1/fcca3cc49d5e42caae15459e27103efc/servers")
        response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
@@ -815,7 +815,7 @@ class TestServiceProxy(unittest.TestCase):
 
        # Create resource
        response = self.client.post(
-           "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+           "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
            MOCK_POST_SERVER_REQUEST, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
 
        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
@@ -825,7 +825,7 @@ class TestServiceProxy(unittest.TestCase):
 
        # Retrieve resource
        response = self.client.get(
-           "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+           "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
            {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
        self.assertEquals(status.HTTP_200_OK, response.status_code)
        context = response.json()
@@ -835,7 +835,7 @@ class TestServiceProxy(unittest.TestCase):
 
        # Update resource
        response = self.client.get(
-           "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+           "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
            {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
        self.assertEquals(status.HTTP_200_OK, response.status_code)
        context = response.json()
@@ -845,7 +845,7 @@ class TestServiceProxy(unittest.TestCase):
 
        #simulate client to make the request
        response = self.client.delete(
-           "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers/324dfb7d-f4a9-419a-9a19-237df04b443b",
+           "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers/324dfb7d-f4a9-419a-9a19-237df04b443b",
            HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
 
        self.assertEquals(status.HTTP_204_NO_CONTENT, response.status_code)
