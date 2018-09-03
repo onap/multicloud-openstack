@@ -958,8 +958,148 @@ class Registry(APIView):
         self._logger.debug("Registration--delete::data> %s" % request.data)
         self._logger.debug("Registration--delete::vimid > %s"% vimid)
         try:
-            ret_code = VimDriverUtils.delete_vim_info(vimid)
-            return Response(status=status.HTTP_202_ACCEPTED if ret_code==0 else status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # prepare request resource to vim instance
+            # get token:
+            viminfo = VimDriverUtils.get_vim_info(vimid)
+            if not viminfo:
+                raise VimDriverNewtonException(
+                    "There is no cloud-region with {cloud-owner}_{cloud-region-id}=%s in AAI" % vimid)
+
+            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+
+            #get the resource first
+            resource_url = ("/cloud-infrastructure/cloud-regions/"
+                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s?depth=all"
+                     % {
+                         "cloud_owner": cloud_owner,
+                         "cloud_region_id": cloud_region_id,
+                     })
+
+            # get cloud-region
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "GET")
+
+            # add resource-version
+            if retcode == 0 and content:
+                cloudregiondata = json.JSONDecoder().decode(content)
+
+            # step 1. remove all tenants
+            tenants = cloudregiondata.get("tenants", None)
+            for tenant in tenants.get("tenant", []) if tenants else []:
+                resource_url = ("/cloud-infrastructure/cloud-regions/"
+                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                     "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                     "?resource-version=%(resource-version)s"
+                     % {
+                         "cloud_owner": cloud_owner,
+                         "cloud_region_id": cloud_region_id,
+                         "resource_type": "tenant",
+                         "resoure_id": tenant["tenant-id"],
+                         "resource-version": tenant["resource-version"]
+                     })
+                # remove tenant
+                retcode, content, status_code = \
+                    restcall.req_to_aai(resource_url, "DELETE")
+
+            # remove all flavors
+            flavors = cloudregiondata.get("flavors", None)
+            for flavor in flavors.get("flavor", []) if flavors else []:
+                # iterate hpa-capabilities
+                hpa_capabilities = flavor.get("hpa-capabilities", None)
+                for hpa_capability in hpa_capabilities.get("hpa-capability", []) if hpa_capabilities else []:
+                    resource_url = ("/cloud-infrastructure/cloud-regions/"
+                                    "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                                    "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                                    "hpa-capabilities/hpa-capability/%(hpa-capability-id)s/"
+                                    "?resource-version=%(resource-version)s"
+                                    % {
+                                        "cloud_owner": cloud_owner,
+                                        "cloud_region_id": cloud_region_id,
+                                        "resource_type": "flavor",
+                                        "resoure_id": flavor["flavor-id"],
+                                        "hpa-capability-id": hpa_capability["hpa-capability-id"],
+                                        "resource-version": hpa_capability["resource-version"]
+                                    })
+                    # remove hpa-capability
+                    retcode, content, status_code = \
+                        restcall.req_to_aai(resource_url, "DELETE")
+
+                # remove flavor
+                resource_url = ("/cloud-infrastructure/cloud-regions/"
+                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                     "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                     "?resource-version=%(resource-version)s"
+                     % {
+                         "cloud_owner": cloud_owner,
+                         "cloud_region_id": cloud_region_id,
+                         "resource_type": "flavor",
+                         "resoure_id": flavor["flavor-id"],
+                         "resource-version": flavor["resource-version"]
+                     })
+
+                retcode, content, status_code = \
+                    restcall.req_to_aai(resource_url, "DELETE")
+
+            # remove all images
+            images = cloudregiondata.get("images", None)
+            for image in images.get("image", []) if images else []:
+                resource_url = ("/cloud-infrastructure/cloud-regions/"
+                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                     "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                     "?resource-version=%(resource-version)s"
+                     % {
+                         "cloud_owner": cloud_owner,
+                         "cloud_region_id": cloud_region_id,
+                         "resource_type": "image",
+                         "resoure_id": image["image-id"],
+                         "resource-version": image["resource-version"]
+                     })
+                # remove image
+                retcode, content, status_code = \
+                    restcall.req_to_aai(resource_url, "DELETE")
+
+            # remove all az
+
+            # remove all vg
+
+            # remove all snapshots
+            snapshots = cloudregiondata.get("snapshots", None)
+            for snapshot in snapshots.get("snapshot", []) if snapshots else []:
+                resource_url = ("/cloud-infrastructure/cloud-regions/"
+                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                     "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                     "?resource-version=%(resource-version)s"
+                     % {
+                         "cloud_owner": cloud_owner,
+                         "cloud_region_id": cloud_region_id,
+                         "resource_type": "snapshot",
+                         "resoure_id": snapshot["snapshot-id"],
+                         "resource-version": snapshot["resource-version"]
+                     })
+                # remove snapshot
+                retcode, content, status_code = \
+                    restcall.req_to_aai(resource_url, "DELETE")
+
+            # remove all server groups
+
+            # remove all pservers
+
+            # remove cloud region itself
+            resource_url = ("/cloud-infrastructure/cloud-regions/"
+                 "cloud-region/%(cloud_owner)s/%(cloud_region_id)s"
+                 "?resource-version=%(resource-version)s"
+                 % {
+                     "cloud_owner": cloud_owner,
+                     "cloud_region_id": cloud_region_id,
+                     "resource-version": cloudregiondata["resource-version"]
+                 })
+            # remove cloud region
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "DELETE")
+
+            #ret_code = VimDriverUtils.delete_vim_info(vimid)
+            return Response(status=status.HTTP_202_ACCEPTED if retcode==0 else status.HTTP_500_INTERNAL_SERVER_ERROR)
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:

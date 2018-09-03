@@ -268,18 +268,18 @@ class TestRegistration(test_base.TestRequest):
         self.assertEquals(status.HTTP_202_ACCEPTED,
                           response.status_code)
 
-    @mock.patch.object(VimDriverUtils, 'delete_vim_info')
-    def test_unregister_endpoint_successfully(
-            self, mock_delete_vim_info):
-        mock_delete_vim_info.return_value = 0
+#    @mock.patch.object(VimDriverUtils, 'delete_vim_info')
+#    def test_unregister_endpoint_successfully(
+#            self, mock_delete_vim_info):
+#        mock_delete_vim_info.return_value = 0
 
-        response = self.client.delete((
-            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), "{}", content_type="application/json",
-            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
+#        response = self.client.delete((
+#            "/api/multicloud-ocata/v0/windriver-hudson-dc_RegionOne/"
+#            "registry"), "{}", content_type="application/json",
+#            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
-                          response.status_code)
+#        self.assertEquals(status.HTTP_202_ACCEPTED,
+#                          response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'delete_vim_info')
     def test_fail_unregister_endpoint(
