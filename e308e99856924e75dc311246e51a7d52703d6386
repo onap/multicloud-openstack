@@ -199,6 +199,30 @@
       "revId": "e308e99856924e75dc311246e51a7d52703d6386",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a76adc5_de6b67ef",
+        "filename": "share/newton_base/registration/registration.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-09-03T08:15:11Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "1a76adc5_b8400335",
+      "range": {
+        "startLine": 491,
+        "startChar": 16,
+        "endLine": 494,
+        "endChar": 119
+      },
+      "revId": "e308e99856924e75dc311246e51a7d52703d6386",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
