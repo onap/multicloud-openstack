@@ -234,7 +234,7 @@ class TestRegistration(test_base.TestRequest):
             })
 
         response = self.client.post((
-            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/"
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
@@ -247,7 +247,7 @@ class TestRegistration(test_base.TestRequest):
         mock_delete_vim_info.return_value = 0
 
         response = self.client.delete((
-            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/"
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
             "registry"), "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
@@ -261,7 +261,7 @@ class TestRegistration(test_base.TestRequest):
         mock_delete_vim_info.return_value = 1
 
         response = self.client.delete((
-            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/"
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
             "registry"), "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
@@ -291,7 +291,7 @@ class TestRegistration(test_base.TestRequest):
             })
 
         response = self.client.post((
-            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/"
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
@@ -321,7 +321,7 @@ class TestRegistration(test_base.TestRequest):
             })
 
         response = self.client.post((
-            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/"
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
@@ -352,7 +352,7 @@ class TestRegistration(test_base.TestRequest):
             })
 
         response = self.client.post((
-            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/"
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
@@ -382,7 +382,7 @@ class TestRegistration(test_base.TestRequest):
             })
 
         response = self.client.post((
-            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/"
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
@@ -412,7 +412,7 @@ class TestRegistration(test_base.TestRequest):
             })
 
         response = self.client.post((
-            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/"
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
@@ -442,7 +442,7 @@ class TestRegistration(test_base.TestRequest):
             })
 
         response = self.client.post((
-            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/"
+            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/"
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
