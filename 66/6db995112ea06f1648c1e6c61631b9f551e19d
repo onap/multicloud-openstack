@@ -1,0 +1,9 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Bin Yang <bin.yang@windriver.com>
+Verified+1: Bin Yang <bin.yang@windriver.com>
+Code-Review+2: Huang Haibin <haibin.huang@intel.com>
+Submitted-by: Huang Haibin <haibin.huang@intel.com>
+Submitted-at: Mon, 03 Sep 2018 23:58:43 +0000
+Reviewed-on: https://gerrit.onap.org/r/64301
+Project: multicloud/openstack
+Branch: refs/heads/master
