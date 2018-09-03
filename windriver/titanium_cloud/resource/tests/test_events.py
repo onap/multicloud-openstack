@@ -355,7 +355,7 @@ class TestEvents(test_base.TestRequest):
             })
 
         response = self.client.post(
-            "/api/multicloud-titanium_cloud/v0/windriver-hudson-dc_RegionOne/events_check",
+            "/api/multicloud-titaniumcloud/v0/windriver-hudson-dc_RegionOne/events_check",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)

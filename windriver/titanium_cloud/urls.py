@@ -24,6 +24,8 @@ from titanium_cloud.resource.views import infra_workload
 urlpatterns = [
     url(r'^', include('titanium_cloud.swagger.urls')),
     url(r'^', include('titanium_cloud.samples.urls')),
+
+    # API v0, depreciated due to MULTICLOUD-335
     url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/registry/?$',
         registration.Registry.as_view()),
     url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/?$',
@@ -45,7 +47,7 @@ urlpatterns = [
     url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/vesagent/?$',
         vesagent_ctrl.VesAgentCtrl.as_view()),
 
-#API upgrading
+    # API v1, depreciated due to MULTICLOUD-335
     url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry/?$',
         registration.APIv1Registry.as_view()),
     url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/?$',
@@ -62,11 +64,52 @@ urlpatterns = [
     url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.APIv1CapacityCheck.as_view()),
     # events
-#    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/events_check/?$',
-#        events.EventsCheck.as_view()),
+    # url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/events_check/?$',
+    # events.EventsCheck.as_view()),
     url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/vesagent/?$',
         vesagent_ctrl.APIv1VesAgentCtrl.as_view()),
     url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
+        infra_workload.APIv1InfraWorkload.as_view()),
+
+    # API v0, new namespace due to MULTICLOUD-335
+    url(r'^api/multicloud-titaniumcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/registry/?$',
+        registration.Registry.as_view()),
+    url(r'^api/multicloud-titaniumcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/?$',
+        registration.Registry.as_view()),
+    url(r'^api/multicloud-titaniumcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/exten',
+        include('titanium_cloud.extensions.urls')),
+    url(r'^api/multicloud-titaniumcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/',
+             include('titanium_cloud.proxy.urls')),
+    url(r'^api/multicloud-titaniumcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/tenants/?$',
+             tenants.Tenants.as_view()),
+    url(r'^api/multicloud-titaniumcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/'
+        '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('titanium_cloud.requests.urls')),
+    # CapacityCheck
+    url(r'^api/multicloud-titaniumcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/capacity_check/?$',
+        capacity.CapacityCheck.as_view()),
+    # events
+    url(r'^api/multicloud-titaniumcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/vesagent/?$',
+        vesagent_ctrl.VesAgentCtrl.as_view()),
+
+    # API v1, new namespace due to MULTICLOUD-335
+    url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry/?$',
+        registration.APIv1Registry.as_view()),
+    url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/?$',
+        registration.APIv1Registry.as_view()),
+    url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/exten',
+        include('titanium_cloud.extensions.urlsV1')),
+    url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/',
+        include('titanium_cloud.proxy.urlsV1')),
+    url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/tenants/?$',
+        tenants.APIv1Tenants.as_view()),
+    url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/'
+        '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('titanium_cloud.requests.urlsV1')),
+    # CapacityCheck
+    url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
+        capacity.APIv1CapacityCheck.as_view()),
+    url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/vesagent/?$',
+        vesagent_ctrl.APIv1VesAgentCtrl.as_view()),
+    url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
         infra_workload.APIv1InfraWorkload.as_view()),
 ]
 
