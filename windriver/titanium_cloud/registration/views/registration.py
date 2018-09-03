@@ -21,6 +21,8 @@ from django.conf import settings
 
 from newton_base.registration import registration as newton_registration
 from common.exceptions import VimDriverNewtonException
+from rest_framework import status
+from rest_framework.response import Response
 from common.msapi import extsys
 from keystoneauth1.exceptions import HttpError
 from newton_base.util import VimDriverUtils
@@ -33,8 +35,34 @@ logger = logging.getLogger(__name__)
 class Registry(newton_registration.Registry):
 
     def __init__(self):
-        super(Registry, self).__init__()
+        super(APIv1Registry, self).__init__()
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
+        self.aai_base_url = settings.AAI_BASE_URL
+        # self._logger = logger
+
+
+    def _get_ovsdpdk_capabilities(self, extra_specs, viminfo):
+        instruction_capability = {}
+        feature_uuid = uuid.uuid4()
+
+        instruction_capability['hpa-capability-id'] = str(feature_uuid)
+        instruction_capability['hpa-feature'] = 'ovsDpdk'
+        instruction_capability['architecture'] = 'Intel64'
+        instruction_capability['hpa-version'] = 'v1'
+
+        instruction_capability['hpa-feature-attributes'] = []
+        instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'dataProcessingAccelerationLibrary',
+                                                     'hpa-attribute-value':
+                                                      '{{\"value\":\"{0}\"}}'.format("v17.02")
+                                                                 })
+        return instruction_capability
+
+
+class APIv1Registry(newton_registration.Registry):
+
+    def __init__(self):
+        super(APIv1Registry, self).__init__()
+        self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
         # self._logger = logger
 
@@ -53,15 +81,6 @@ class Registry(newton_registration.Registry):
                                                       '{{\"value\":\"{0}\"}}'.format("v17.02")
                                                                  })
         return instruction_capability
-
-class APIv1Registry(Registry):
-
-    def __init__(self):
-        super(APIv1Registry, self).__init__()
-        self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
-        self.aai_base_url = settings.AAI_BASE_URL
-        # self._logger = logger
-
 
     def _update_cloud_region(self, cloud_owner, cloud_region_id, openstack_region_id, viminfo, session=None):
         if cloud_owner and cloud_region_id:
@@ -144,17 +163,27 @@ class APIv1Registry(Registry):
         try:
             regions = []
             vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-            for region in self._get_list_resources(
+            isDistributedCloud = False;
+            openstackregions = self._get_list_resources(
                     "/regions", "identity", session, viminfo, vimid,
-                    "regions"):
+                    "regions")
+
+            for region in openstackregions:
+                if (region['id'] == 'SystemController'):
+                    isDistributedCloud = True;
+                    break;
+                else:
+                    continue
+
+            for region in openstackregions:
                 if (region['id'] == 'SystemController'):
                     continue
-                elif (region['id'] == 'RegionOne'):
+                elif (region['id'] == 'RegionOne' and isDistributedCloud == True):
                     continue
                 else:
                     regions.append(region['id'])
 
-
+            self._logger.info("Discovered Regions :%s" % regions)
             return regions
 
         except HttpError as e:
@@ -167,38 +196,58 @@ class APIv1Registry(Registry):
     def post(self, request, cloud_owner="", cloud_region_id=""):
         self._logger.info("registration with : %s, %s" % (cloud_owner, cloud_region_id))
 
-        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        try:
+            vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
 
-        viminfo = VimDriverUtils.get_vim_info(vimid)
-        cloud_extra_info = viminfo['cloud_extra_info']
-        region_specified = cloud_extra_info["openstack-region-id"] if cloud_extra_info else None
-        multi_region_discovery = cloud_extra_info["multi-region-discovery"] if cloud_extra_info else None
+            viminfo = VimDriverUtils.get_vim_info(vimid)
+            cloud_extra_info = viminfo['cloud_extra_info']
+            region_specified = cloud_extra_info["openstack-region-id"] if cloud_extra_info else None
+            multi_region_discovery = cloud_extra_info["multi-region-discovery"] if cloud_extra_info else None
 
-        # discover the regions
-        region_ids = self._discover_regions(cloud_owner, cloud_region_id, None, viminfo)
+            # set the default tenant since there is no tenant info in the VIM yet
+            sess = VimDriverUtils.get_session(
+                viminfo, tenant_name=viminfo['tenant'])
 
-        # compare the regions with region_specified and then cloud_region_id
-        if (region_specified in region_ids):
-            pass
-        elif (cloud_region_id in region_ids):
-            region_specified = cloud_region_id
-            pass
-        else:
-            # assume the first region be the primary region since we have no other way to determine it.
-            region_specified = region_ids[0]
+            # discover the regions
+            region_ids = self._discover_regions(cloud_owner, cloud_region_id, sess, viminfo)
 
-        # update cloud region and discover/register resource
-        if (multi_region_discovery and multi_region_discovery.upper() == "TRUE"):
-            # no input for specified cloud region, so discover all cloud region?
-            for regionid in region_ids:
-                #create cloud region with composed AAI cloud_region_id except for the one onboarded externally (e.g. ESR)
-                gen_cloud_region_id = cloud_region_id + "." + regionid if region_specified != regionid else cloud_region_id
-                self._update_cloud_region(cloud_owner, gen_cloud_region_id, regionid, viminfo)
+            if (len(region_ids) == 0):
+                self._logger.error("_discover_regions, return regions:%s" % (region_ids))
+                return Response(
+                data={'error': "no region found for cloud region: %s,%s" % (cloud_owner, cloud_region_id)},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+            # compare the regions with region_specified and then cloud_region_id
+            if (region_specified in region_ids):
+                pass
+            elif (cloud_region_id in region_ids):
+                region_specified = cloud_region_id
+                pass
+            else:
+                # assume the first region be the primary region since we have no other way to determine it.
+                region_specified = region_ids.pop();
+
+            # update cloud region and discover/register resource
+            if (multi_region_discovery and multi_region_discovery.upper() == "TRUE"):
+                # no input for specified cloud region, so discover all cloud region?
+                for regionid in region_ids:
+                    #create cloud region with composed AAI cloud_region_id except for the one onboarded externally (e.g. ESR)
+                    gen_cloud_region_id = cloud_region_id + "." + regionid if region_specified != regionid else cloud_region_id
+                    self._update_cloud_region(cloud_owner, gen_cloud_region_id, regionid, viminfo)
+                    return super(APIv1Registry, self).post(request, vimid)
+            else:
+                self._update_cloud_region(cloud_owner, cloud_region_id, region_specified, viminfo)
                 return super(APIv1Registry, self).post(request, vimid)
-        else:
-            self._update_cloud_region(cloud_owner, cloud_region_id, region_specified, viminfo)
-            return super(APIv1Registry, self).post(request, vimid)
 
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return Response(
+                data={'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -207,3 +256,25 @@ class APIv1Registry(Registry):
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(APIv1Registry, self).delete(request, vimid)
+
+
+### APIv0 handler upgrading: leverage APIv1 handler
+class APIv0Registry(APIv1Registry):
+
+    def __init__(self):
+        super(APIv0Registry, self).__init__()
+        self.proxy_prefix = settings.MULTICLOUD_PREFIX
+        self.aai_base_url = settings.AAI_BASE_URL
+        # self._logger = logger
+
+    def post(self, request, vimid=""):
+        self._logger.info("registration with :  %s" % (vimid))
+
+        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+        return super(APIv0Registry, self).post(request, cloud_owner, cloud_region_id)
+
+    def delete(self, request, vimid=""):
+        self._logger.debug("unregister cloud region: %s" % (vimid))
+
+        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+        return super(APIv0Registry, self).delete(request, cloud_owner, cloud_region_id)

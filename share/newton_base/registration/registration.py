@@ -14,6 +14,7 @@
 
 import logging
 import json
+import uuid
 import traceback
 
 from keystoneauth1.exceptions import HttpError
