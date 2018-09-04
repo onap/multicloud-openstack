@@ -1099,7 +1099,7 @@ class Registry(APIView):
                 restcall.req_to_aai(resource_url, "DELETE")
 
             #ret_code = VimDriverUtils.delete_vim_info(vimid)
-            return Response(status=status.HTTP_202_ACCEPTED if retcode==0 else status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(status=status.HTTP_204_NO_CONTENT if retcode==0 else status.HTTP_500_INTERNAL_SERVER_ERROR)
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
