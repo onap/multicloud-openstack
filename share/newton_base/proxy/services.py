@@ -269,7 +269,28 @@ class GetTenants(Services):
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data={'tenants': content['projects'],'tenants_links':[]},
                             status=resp.status_code)
         else:
-            return resp
+            viminfo = VimDriverUtils.get_vim_info(vimid)
+            session = VimDriverUtils.get_session(
+                viminfo, tenant_name=viminfo['tenant'])
+            tmp_auth_state = VimDriverUtils.get_auth_state(session)
+            tmp_auth_info = json.loads(tmp_auth_state)
+            tmp_auth_data = tmp_auth_info['body']
+            tenant = tmp_auth_data['token']['project']
+            content =  {'projects': [
+                {
+                    'is_domain': False,
+                    'description': 'tenant info provisioned by VIM onborading',
+                    'enabled': True,
+                    'domain_id': viminfo['domain'],
+                    'parent_id': 'default',
+                    'id': tenant['id'],
+                    'name': tenant['name']
+                }
+            ]}
+            return Response(headers={'X-Subject-Token': tmp_auth_token}, data={'tenants': content['projects'],'tenants_links':[]},
+                            status=status.HTTP_200_OK)
+
+            # return resp
 
     def head(self, request, vimid="", servicetype="", requri=""):
         self._logger.warn("wrong request with vimid, servicetype, requri> %s,%s,%s"
