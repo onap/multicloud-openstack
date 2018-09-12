@@ -39,24 +39,54 @@ class InfraWorkload(APIView):
         self._logger.debug("META: %s" % request.META)
 
         try :
+            vim = VimDriverUtils.get_vim_info(vimid)
+            cloud_owner, regionid = extsys.decode_vim_id(vimid)
 
-            # stub response
-            resp_template = {
-                "template_type": "heat",
-                "workload_id": "3095aefc-09fb-4bc7-b1f0-f21a304e864c",
-                "template_response":
-                {
-                    "stack": {
-                        "id": "3095aefc-09fb-4bc7-b1f0-f21a304e864c",
-                        "links": [
-                            {
-                                "href": "http://192.168.123.200:8004/v1/eb1c63a4f77141548385f113a28f0f52/stacks/teststack/3095aefc-09fb-4bc7-b1f0-f21a304e864c",
-                                "rel": "self"
-                            }
-                        ]
-                    }
+            data = request.data
+            generic_vnf_id = data["generic-vnf-id"]
+            vf_module_id = data["vf-module-id"]
+            oof_directive = data["oof_directive"]
+            template_type = data["template_type"]
+            template_data = data["template_data"]
+
+            resp_template = None
+            if "heat" == template_type:
+                tenant_name = None
+                interface = 'public'
+                service = {'service_type': 'orchestration',
+                           'interface': interface,
+                           'region_id': vim['openstack_region_id']
+                               if vim.get('openstack_region_id')
+                                else vim['cloud_region_id']}
+
+                str_data = json.dumps(template_data)
+
+                for directive in template_data["directives"]:
+                    if directive["type"] == "vnfc":
+                        for directive2 in directive["directives"]:
+                            if directive2["type"] == flavor_directive:
+                               flavor_label = directive2[0]["attribute_name"]
+                               flavor_value = directive2[0]["attribute_value"]
+                               str_data = str_data.replace(flavor_label, flavor_value)
+
+                req_body = json.loads(str_data)
+                sess = VimDriverUtils.get_session(vim, tenant_name)
+                resp = sess.post(req_resource,
+                                 data = req_body,
+                                 endpoint_filter = service)
+
+                resp_template = {
+                    "template_type": template_type,
+                    "workload_id": resp["stack"]["id"],
+                    "template_response": resp
                 }
-            }
+
+            elif "tosca" == template_type:
+                #TODO
+                self._logger.info("TBD")
+            else:
+                self._logger.warn("This template type is not supported")
+
 
             self._logger.info("RESP with data> result:%s" % resp_template)
             return Response(data=resp_template, status=status.HTTP_201_CREATED)
