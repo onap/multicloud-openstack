@@ -21,7 +21,7 @@ import time
 
 from django.conf import settings
 from ocata.vesagent.vespublish import publishAnyEventToVES
-from common.utils.restcall import _call_req
+from common.utils import restcall
 
 import datetime
 import time
@@ -61,7 +61,7 @@ def buildBacklog_fault_vm(vimid, backlog_input):
             auth_api_data = { "auth":{"tenantName": tenant_name} }
             base_url = settings.MULTICLOUD_PREFIX
             extra_headers = ''
-            ret = _call_req(base_url, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(auth_api_data))
+            ret = restcall._call_req(base_url, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(auth_api_data))
             if ret[0] > 0 or ret[1] is None:
                 logger.critical("call url %s failed with status %s" % (auth_api_url, ret[0]))
                 return None
@@ -79,7 +79,7 @@ def buildBacklog_fault_vm(vimid, backlog_input):
                                                                 f_server_name=server_name)
                 base_url = settings.MULTICLOUD_PREFIX
                 extra_headers = {'X-Auth-Token': token}
-                ret = _call_req(base_url, "", "", 0, vserver_api_url, "GET", extra_headers, "")
+                ret = restcall._call_req(base_url, "", "", 0, vserver_api_url, "GET", extra_headers, "")
                 if ret[0] > 0 or ret[1] is None:
                     logger.critical("call url %s failed with status %s" % (vserver_api_url, ret[0]))
                     return None
@@ -143,7 +143,7 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
         base_url = settings.MULTICLOUD_PREFIX
         extra_headers = ''
         logger.debug("authenticate with url:%s" % auth_api_url)
-        ret = _call_req(base_url, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(auth_api_data))
+        ret = restcall._call_req(base_url, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(auth_api_data))
         if ret[0] > 0 or ret[1] is None:
             logger.critical("call url %s failed with status %s" % (auth_api_url, ret[0]))
 
@@ -159,7 +159,7 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
         extra_headers = {'X-Auth-Token': token}
         #which one is correct? extra_headers = {'HTTP_X_AUTH_TOKEN': token}
         logger.debug("authenticate with url:%s, header:%s" % (auth_api_url,extra_headers))
-        ret = _call_req(base_url, "", "", 0, api_link, method, extra_headers, data)
+        ret = restcall._call_req(base_url, "", "", 0, api_link, method, extra_headers, data)
         if ret[0] > 0 or ret[1] is None:
             logger.critical("call url %s failed with status %s" % (api_link, ret[0]))
 
