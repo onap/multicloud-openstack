@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_7f1a1fc7",
+        "filename": "pike/pike/resource/views/infra_workload.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-09-12T12:52:38Z",
+      "side": 1,
+      "message": "I understood this is to replace the flavor id, but instead this will replace the flavor label itself.",
+      "range": {
+        "startLine": 68,
+        "startChar": 31,
+        "endLine": 68,
+        "endChar": 86
+      },
+      "revId": "5fa620f611a9c50c12153f84d0e29d12103633ab",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
