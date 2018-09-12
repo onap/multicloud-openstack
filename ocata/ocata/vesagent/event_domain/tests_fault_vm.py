@@ -46,6 +46,8 @@ MOCK_BACKLOG_INPUT_wo_server = {"domain": "fault", "type": "vm", "tenant": "VIM"
 
 MOCK_SERVER_GET_RESPONSE = {"server": {"wrs-res:topology": "node:0,  4096MB, pgsize:2M, vcpus:0,1, pol:sha", "OS-EXT-STS:task_state": None, "addresses": {"oam_onap_BTHY": [{"OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:6c:0d:6b", "version": 4, "addr": "10.0.13.1", "OS-EXT-IPS:type": "fixed"}, {"OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:6c:0d:6b", "version": 4, "addr": "10.12.5.185", "OS-EXT-IPS:type": "floating"}]}, "links": [], "image": {"id": "6e219e86-cd94-4989-9119-def29aa10b12", "links": []}, "wrs-if:nics": [], "wrs-sg:server_group": "", "OS-EXT-STS:vm_state": "active", "OS-SRV-USG:launched_at": "2018-04-26T08:01:28.000000", "flavor": {}, "id": "c4b575fa-ed85-4642-ab4b-335cb5744721", "security_groups": [{"name": "onap_sg_BTHY"}], "user_id": "ba76c94eb5e94bb7bec6980e5507aae2", "OS-DCF:diskConfig": "MANUAL", "accessIPv4": "", "accessIPv6": "", "progress": 0, "OS-EXT-STS:power_state": 1, "OS-EXT-AZ:availability_zone": "nova", "metadata": {}, "status": "ACTIVE", "updated": "2018-04-26T08:01:28Z", "hostId": "17acc9f2ae4f618c314e4cdf0c206585b895bc72a9ec57e57b254133", "OS-SRV-USG:terminated_at": None, "wrs-res:pci_devices": "", "wrs-res:vcpus": [2, 2, 2], "key_name": "onap_key_BTHY", "name": "onap-aaf", "created": "2018-04-26T08:01:20Z", "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae", "os-extended-volumes:volumes_attached": [], "config_drive": ""}}
 
+MOCK_SERVER_GET_RESPONSE_empty = {}
+
 MOCK_vesAgentConfig = {"backlogs": [{"backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
                                               "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
                                               "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae", "api_method": "GET",
@@ -148,3 +150,18 @@ class FaultVMTest(unittest.TestCase):
         self.assertIsNone(result)
         pass
 
+    @mock.patch.object(vespublish, 'publishAnyEventToVES')
+    @mock.patch.object(restcall, '_call_req')
+    def test_processBacklog_fault_vm_wo_server(self, mock_call_req, mock_publishAnyEventToVES):
+
+        mock_call_req.side_effect= [
+            (0, json.dumps(MOCK_TOKEN_RESPONSE), "MOCKED response body"),
+            (0, json.dumps(MOCK_SERVER_GET_RESPONSE_empty), "MOCKED response body")
+                ]
+        mock_publishAnyEventToVES.return_value = "mocked return value"
+
+        result = fault_vm.processBacklog_fault_vm(vesAgentConfig=MOCK_vesAgentConfig,
+                                                   vesAgentState=MOCK_vesAgentState,
+                                                   oneBacklog=MOCK_oneBacklog)
+        self.assertIsNone(result)
+        pass
