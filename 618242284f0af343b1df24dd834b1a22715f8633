@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_e83f52b2",
+        "filename": "pike/pike/resource/views/infra_workload.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-09-13T13:41:02Z",
+      "side": 1,
+      "message": "There is chance that the flavor_label is not correct hence not populated into template_data, in that case this statement will raise exception. To be robust, please check if the flavor_label can be found in the dictionary.",
+      "range": {
+        "startLine": 66,
+        "startChar": 31,
+        "endLine": 66,
+        "endChar": 72
+      },
+      "revId": "618242284f0af343b1df24dd834b1a22715f8633",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
