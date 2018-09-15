@@ -23,6 +23,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from common.msapi import extsys
+from common.msapi.helper import Helper as helper
+from common.utils import restcall
 from common.exceptions import VimDriverNewtonException
 from newton_base.util import VimDriverUtils
 
@@ -109,21 +111,54 @@ class InfraWorkload(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-    def get(self, request, vimid=""):
-        self._logger.info("vimid: %s" % (vimid))
+    def get(self, request, vimid="", requri=""):
+        self._logger.info("vimid, requri: %s, %s" % (vimid, requri))
         self._logger.debug("META: %s" % request.META)
 
         try :
+            # we just support heat template
+            workload_id = requri
+            tenant_name = None
+            vim = VimDriverUtils.get_vim_info(vimid)
+            cloud_owner, regionid = extsys.decode_vim_id(vimid)
+            v2_token_resp_json = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+                                                             cloud_owner, regionid, "/v2.0/tokens")
+            if not v2_token_resp_json:
+                logger.error("authenticate fails:%s,%s" % (cloud_owner, regionid))
+                return
+            tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+            req_source = "/v1/%s/stacks" % (tenant_id)
+ 
+            interface = 'public'
+            service = {'service_type': 'orchestration',
+                       'interface': interface,
+                       'region_id': vim['openstack_region_id']
+                             if vim.get('openstack_region_id')
+                             else vim['cloud_region_id']}
 
-            # stub response
+            req_body = template_data
+            sess = VimDriverUtils.get_session(vim, tenant_name)
+            resp = sess.get(req_resource,
+                            data = req_body,
+                            endpoint_filter = service)
+
+            stack_info = resp.json()
+            stacks = stack_info["stacks"]
+            for stack in stacks:
+                if workload_id == stack["id"]:
+                    break
+            stack_name = stack["stack_name"]
+            stack_status = stack["stack_status"]
+            req_source = "/v1/%s/stacks/%s/%s" % (tenant_id, stack_name, workload_id)
             resp_template = {
-                "template_type": "heat",
-                "workload_id": "3095aefc-09fb-4bc7-b1f0-f21a304e864c",
-                "workload_status": "CREATE_IN_PROCESS",
+                "template_type": template_type,
+                "workload_id": workload_id,
+                "workload_status": stack_status
             }
 
+            resp_status = status.HTTP_200_OK
             self._logger.info("RESP with data> result:%s" % resp_template)
-            return Response(data=resp_template, status=status.HTTP_200_OK)
+            return Response(data=resp_template, status=resp_status)
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
                                   % (e.status_code, e.content))
