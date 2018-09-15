@@ -169,15 +169,50 @@ class InfraWorkload(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def delete(self, request, vimid=""):
-        self._logger.info("vimid: %s" % (vimid))
+    def delete(self, request, vimid="", requri=""):
+        self._logger.info("vimid, requri: %s" % (vimid, requri))
         self._logger.debug("META: %s" % request.META)
 
         try :
+            # we just support heat template
+            workload_id = requri
+            tenant_name = None
+            vim = VimDriverUtils.get_vim_info(vimid)
+            cloud_owner, regionid = extsys.decode_vim_id(vimid)
+            v2_token_resp_json = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+                                                             cloud_owner, regionid, "/v2.0/tokens")
+            if not v2_token_resp_json:
+                logger.error("authenticate fails:%s,%s" % (cloud_owner, regionid))
+                return
+            tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+            interface = 'public'
+            service = {'service_type': 'orchestration',
+                       'interface': interface,
+                       'region_id': vim['openstack_region_id']
+                           if vim.get('openstack_region_id')
+                           else vim['cloud_region_id']}
 
-            # stub response
+            req_body = template_data
+            url_get = "/v1/%s/stacks" % (tenant_id)
+            sess = VimDriverUtils.get_session(vim, tenant_name)
+            get_resp = sess.get(url_get,
+                            data = req_body,
+                            endpoint_filter = service)
+            stack_info = get_resp.json()
+            stacks = stack_info["stacks"]
+            stack_name = ""
+            for stack in stacks:
+                if workload_id == stack["id"]:
+                    stack_name = stack["stack_name"]
+                    break
+
+            req_source = "/v1/%s/stacks/%s/%s" % (tenant_id, stack_name, workload_id)
+            resp = sess.delete(req_resource,
+                               endpoint_filter = service)
+
+            resp_status = status.HTTP_204_NO_CONTENT
             self._logger.info("RESP with data> result:%s" % "")
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=resp_status)
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
                                   % (e.status_code, e.content))
