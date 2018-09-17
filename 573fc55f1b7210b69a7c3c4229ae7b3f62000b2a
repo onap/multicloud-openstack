@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_5c14fae7",
+        "filename": "pike/pike/resource/views/infra_workload.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 399
+      },
+      "writtenOn": "2018-09-17T08:28:02Z",
+      "side": 1,
+      "message": "Also add requri here?",
+      "revId": "573fc55f1b7210b69a7c3c4229ae7b3f62000b2a",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
