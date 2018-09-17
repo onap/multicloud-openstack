@@ -37,12 +37,20 @@ class InfraWorkload(APIView):
         self._logger = logger
 
     def post(self, request, vimid=""):
-        self._logger.info("vimid, data: %s, %s" % (vimid, request.data))
+        self._logger.info("vimid: %s" % (vimid))
+        self._logger.info("data: %s" % request.data)
         self._logger.debug("META: %s" % request.META)
 
         try :
             vim = VimDriverUtils.get_vim_info(vimid)
             cloud_owner, regionid = extsys.decode_vim_id(vimid)
+            v2_token_resp_json = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+                                                             cloud_owner, regionid, "/v2.0/tokens")
+            if not v2_token_resp_json:
+                logger.error("authenticate fails:%s,%s" % (cloud_owner, regionid))
+                return
+            tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+            req_source = "/v1/%s/stacks" % (tenant_id)
 
             data = request.data
             oof_directive = data["oof_directive"]
@@ -65,17 +73,16 @@ class InfraWorkload(APIView):
                     self._logger.error("we can't find parameters in heat template")
                     return Response(data=None, status=HTTP_400_BADREQUEST)
 
-                for directive in template_data["directives"]:
+                for directive in oof_directive["directives"]:
                     if directive["type"] == "vnfc":
                         for directive2 in directive["directives"]:
-                            if directive2["type"] == flavor_directive:
-                                flavor_label = directive2[0]["attribute_name"]
-                                flavor_value = directive2[0]["attribute_value"]
-                                if parameters.has_key(flavor_label):
-                                    template_data["parameters"][flavor_label] = flavor_value
+                            if directive2["type"] in ["flavor_directives", "sriovNICNetwork_directives"]:
+                                label_name = directive2[0]["attribute_name"]
+                                label_value = directive2[0]["attribute_value"]
+                                if parameters.has_key(label_name):
+                                    template_data["parameters"][label_name] = label_value
                                 else:
-                                    self._logger.warn("we can't find the flavor_label: %s" % 
-                                                        flavor_label)
+                                    self._logger.warn("we can't find the label_name: %s" % label_name)
 
                 req_body = template_data
                 sess = VimDriverUtils.get_session(vim, tenant_name)
