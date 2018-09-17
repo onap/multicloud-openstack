@@ -171,7 +171,7 @@ class APIv1Registry(newton_registration.Registry):
             for region in openstackregions:
                 if (region['id'] == 'SystemController'):
                     isDistributedCloud = True;
-                    break;
+                    break
                 else:
                     continue
 
@@ -200,9 +200,17 @@ class APIv1Registry(newton_registration.Registry):
             vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
 
             viminfo = VimDriverUtils.get_vim_info(vimid)
-            cloud_extra_info = viminfo['cloud_extra_info']
-            region_specified = cloud_extra_info["openstack-region-id"] if cloud_extra_info else None
-            multi_region_discovery = cloud_extra_info["multi-region-discovery"] if cloud_extra_info else None
+            cloud_extra_info_str = viminfo['cloud_extra_info']
+            cloud_extra_info = None
+            try:
+                cloud_extra_info = json.loads(cloud_extra_info_str) if cloud_extra_info_str else None
+            except Exception as ex:
+                logger.error("Can not convert cloud extra info %s %s" % (
+                             str(ex), cloud_extra_info_str))
+                pass
+
+            region_specified = cloud_extra_info.get("openstack-region-id", None) if cloud_extra_info else None
+            multi_region_discovery = cloud_extra_info.get("multi-region-discovery", None) if cloud_extra_info else None
 
             # set the default tenant since there is no tenant info in the VIM yet
             sess = VimDriverUtils.get_session(
@@ -226,19 +234,27 @@ class APIv1Registry(newton_registration.Registry):
                 pass
             else:
                 # assume the first region be the primary region since we have no other way to determine it.
-                region_specified = region_ids.pop();
+                region_specified = region_ids.pop(0);
 
             # update cloud region and discover/register resource
-            if (multi_region_discovery and multi_region_discovery.upper() == "TRUE"):
+            if (multi_region_discovery):
                 # no input for specified cloud region, so discover all cloud region?
                 for regionid in region_ids:
+                    # do not update the specified region here
+                    if region_specified == regionid:
+                        continue
+
                     #create cloud region with composed AAI cloud_region_id except for the one onboarded externally (e.g. ESR)
-                    gen_cloud_region_id = cloud_region_id + "." + regionid if region_specified != regionid else cloud_region_id
+                    gen_cloud_region_id = cloud_region_id + "." + regionid
+                    self._logger.info("create a cloud region: %s,%s,%s" % (cloud_owner,gen_cloud_region_id,regionid))
+
                     self._update_cloud_region(cloud_owner, gen_cloud_region_id, regionid, viminfo)
-                    return super(APIv1Registry, self).post(request, vimid)
-            else:
-                self._update_cloud_region(cloud_owner, cloud_region_id, region_specified, viminfo)
-                return super(APIv1Registry, self).post(request, vimid)
+                    super(APIv1Registry, self).post(request, vimid)
+
+
+            # update the specified region
+            self._update_cloud_region(cloud_owner, cloud_region_id, region_specified, viminfo)
+            return super(APIv1Registry, self).post(request, vimid)
 
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
