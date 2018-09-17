@@ -36,13 +36,21 @@ class InfraWorkload(APIView):
     def __init__(self):
         self._logger = logger
 
-    def post(self, request, vimid=""):
-        self._logger.info("vimid, data: %s, %s" % (vimid, request.data))
+    def post(self, request, vimid="", requri=""):
+        self._logger.info("vimid, requri: %s, %s" % (vimid, requri))
+        self._logger.info("data: %s" % request.data)
         self._logger.debug("META: %s" % request.META)
 
         try :
             vim = VimDriverUtils.get_vim_info(vimid)
             cloud_owner, regionid = extsys.decode_vim_id(vimid)
+            v2_token_resp_json = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+                                                             cloud_owner, regionid, "/v2.0/tokens")
+            if not v2_token_resp_json:
+                logger.error("authenticate fails:%s,%s" % (cloud_owner, regionid))
+                return
+            tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+            req_source = "/v1/%s/stacks" % (tenant_id)
 
             data = request.data
             oof_directive = data["oof_directive"]
@@ -74,7 +82,7 @@ class InfraWorkload(APIView):
                                 if parameters.has_key(flavor_label):
                                     template_data["parameters"][flavor_label] = flavor_value
                                 else:
-                                    self._logger.warn("we can't find the flavor_label: %s" % 
+                                    self._logger.warn("we can't find the flavor_label: %s" %
                                                         flavor_label)
 
                 req_body = template_data
@@ -232,12 +240,12 @@ class APIv1InfraWorkload(InfraWorkload):
         super(APIv1InfraWorkload, self).__init__()
         # self._logger = logger
 
-    def post(self, request, cloud_owner="", cloud_region_id=""):
+    def post(self, request, cloud_owner="", cloud_region_id="", requri=""):
         #self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
         #self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1InfraWorkload, self).post(request, vimid)
+        return super(APIv1InfraWorkload, self).post(request, vimid, requri)
 
     def get(self, request, cloud_owner="", cloud_region_id="", requri=""):
         #self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
