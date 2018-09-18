@@ -32,10 +32,11 @@ class Helper(object):
         ret = restcall._call_req(multicloud_api_prefix, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(data))
         if ret[0] > 0 or ret[1] is None:
             logger.critical("call url %s failed with status %s" % (multicloud_api_prefix+auth_api_url, ret[0]))
-            return None
+            return ret
 
         resp = json.JSONDecoder().decode(ret[1])
-        return resp
+        ret[1] = resp
+        return ret
 
     # The consumer of this api must be attaching to the same management network of multicloud,
     # The constraints comes from the returned catalog endpoint url e.g. "http://10.0.14.1:80/api/multicloud-titaniumcloud/v0/pod25_RegionOne/identity/v3"
@@ -52,8 +53,9 @@ class Helper(object):
                 ret = restcall._call_req(endpoint_url, "", "", 0, uri, method, extra_headers, json.dumps(data) if data else "")
                 if ret[0] > 0 or ret[1] is None:
                     logger.critical("call url %s failed with status %s" % (endpoint_url+uri, ret[0]))
-                    return None
+                    return ret
 
                 content = json.JSONDecoder().decode(ret[1])
-                return content
+                ret[1] = content
+                return ret
             pass
