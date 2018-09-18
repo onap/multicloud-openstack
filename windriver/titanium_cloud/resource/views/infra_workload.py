@@ -39,33 +39,71 @@ class InfraWorkload(APIView):
     def __init__(self):
         self._logger = logger
 
-    def post(self, request, vimid="", requri=""):
-        self._logger.info("vimid,requri: %s, %s" % (vimid, requri))
+    def post(self, request, vimid=""):
+        self._logger.info("vimid: %s" % (vimid))
         self._logger.info("data: %s, %s" % (request.data))
         self._logger.debug("META: %s" % request.META)
 
         try :
 
-            # stub response
-            resp_template = {
-                "template_type": "heat",
-                "workload_id": "3095aefc-09fb-4bc7-b1f0-f21a304e864c",
-                "template_response":
-                {
-                    "stack": {
-                        "id": "3095aefc-09fb-4bc7-b1f0-f21a304e864c",
-                        "links": [
-                            {
-                                "href": "http://192.168.123.200:8004/v1/eb1c63a4f77141548385f113a28f0f52/stacks/teststack/3095aefc-09fb-4bc7-b1f0-f21a304e864c",
-                                "rel": "self"
-                            }
-                        ]
-                    }
-                }
-            }
+            data = request.data
+            oof_directive = data["oof_directive"]
+            template_type = data["template_type"]
+            template_data = data["template_data"]
+            resp_template = None
+            if template_type and "heat" == template_type.lower():
+                # update heat parameters from oof_directive
+                parameters = template_data.get("parameters", {})
 
-            self._logger.info("RESP with data> result:%s" % resp_template)
-            return Response(data=resp_template, status=status.HTTP_201_CREATED)
+                for directive in oof_directive.get("directives",[]):
+                    if directive["type"] == "vnfc":
+                        for directive2 in directive.get("directives",[]):
+                            if directive2["type"] == "flavor_directives":
+                                for attr in directive2.get("attributes",[]):
+                                    flavor_label = attr.get("attribute_name", None)
+                                    flavor_value = attr.get("attribute_value", None)
+                                    if parameters.has_key(flavor_label):
+                                        parameters[flavor_label] = flavor_value
+                                    else:
+                                        self._logger.warn("There is no parameter exist: %s" %
+                                                          flavor_label)
+
+                # update parameters
+                template_data["parameters"]=parameters
+
+                # reset to make sure "files" are empty
+                template_data["files"] = {}
+
+                # authenticate
+                cloud_owner, regionid = extsys.decode_vim_id(vimid)
+                # should go via multicloud proxy so that the selflink is updated by multicloud
+                retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+                                                                     cloud_owner, regionid, "/v2.0/tokens")
+                if retcode > 0 or not v2_token_resp_json:
+                    logger.error("authenticate fails:%s,%s, %s" % (cloud_owner, regionid, v2_token_resp_json))
+                    return
+                # tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+
+                service_type = "orchestration"
+                resource_uri = "/stacks"
+                self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
+                                                         resource_uri, None, "POST")
+                stack1 = content.get('stack', None) if retcode == 0 and content else None
+                resp_template = {
+                    "template_type": template_type,
+                    "workload_id": stack1["id"] if stack1 else "",
+                    "template_response": content
+                }
+                self._logger.info("RESP with data> result:%s" % resp_template)
+
+                return Response(data=resp_template, status=os_status)
+
+            else:
+                msg = "The template type %s is not supported" % (template_type)
+                self._logger.warn(msg)
+                return Response(data={"error":msg}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
                                   % (e.status_code, e.content))
@@ -84,18 +122,44 @@ class InfraWorkload(APIView):
         self._logger.debug("META: %s" % request.META)
 
         try :
+            # assume the workload_type is heat
             stack_id = requri
-            workload_data = self.heatbridge_update(request, vimid, stack_id)
+            cloud_owner, regionid = extsys.decode_vim_id(vimid)
+            # should go via multicloud proxy so that the selflink is updated by multicloud
+            retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(
+                settings.MULTICLOUD_API_V1_PREFIX,
+                cloud_owner, regionid, "/v2.0/tokens")
+            if retcode > 0  or not v2_token_resp_json:
+                logger.error("authenticate fails:%s, %s, %s" % (cloud_owner, regionid, v2_token_resp_json))
+                return
+            # tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+            # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
+
+            # get stack status
+            service_type = "orchestration"
+            resource_uri = "/stacks?id=%s" % stack_id if stack_id else "/stacks"
+            self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
+            retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
+                                                                         service_type, resource_uri, None, "GET")
+            resources = content.get('stacks', []) if retcode > 0 and content else []
+
+            resource_status = resources[0]["resource_status"] if len(resources)>0 else ""
+
             # stub response
             resp_template = {
-                "template_type": "heat",
-                "workload_id": "3095aefc-09fb-4bc7-b1f0-f21a304e864c",
-                "workload_status": "CREATE_IN_PROCESS",
-                'workload_data': workload_data
+                "template_type": "HEAT",
+                "workload_id": stack_id,
+                "workload_status": resource_status
             }
 
+            if retcode > 0:
+                resp_template['workload_response'] = content
+
+            if ('CREATE_COMPLETE' == resource_status):
+                self.heatbridge_update(request, vimid, stack_id)
+
             self._logger.info("RESP with data> result:%s" % resp_template)
-            return Response(data=resp_template, status=status.HTTP_200_OK)
+            return Response(data=resp_template, status=os_status)
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
                                   % (e.status_code, e.content))
@@ -142,11 +206,11 @@ class InfraWorkload(APIView):
 
         cloud_owner, regionid = extsys.decode_vim_id(vimid)
         # should go via multicloud proxy so that the selflink is updated by multicloud
-        v2_token_resp_json = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+        retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
                                                              cloud_owner, regionid, "/v2.0/tokens")
-        if not v2_token_resp_json:
-            logger.error("authenticate fails:%s,%s" % (cloud_owner, regionid))
-            return
+        if retcode > 0:
+            logger.error("authenticate fails:%s, %s, %s" % (cloud_owner, regionid, v2_token_resp_json))
+            return None
         tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
         # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
 
@@ -158,21 +222,23 @@ class InfraWorkload(APIView):
         service_type = "orchestration"
         resource_uri = "/stacks/%s/resources"%(stack_id)
         self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
-        content = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type, resource_uri, None, "GET")
-        resources = content.get('resources', []) if content else []
+        retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type, resource_uri, None, "GET")
+        resources = content.get('resources', []) if retcode==0 and content else []
 
         #find and update resources
         transactions = []
         for resource in resources:
+            if resource.get('resource_status', None) != "CREATED_COMPLETE":
+                continue
             if resource.get('resource_type', None) == 'OS::Nova::Server':
                 # retrieve vserver details
                 service_type = "compute"
                 resource_uri = "/servers/%s" % (resource['physical_resource_id'])
                 self._logger.info("retrieve vserver detail, URI:%s" % resource_uri)
-                content = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
                                                        resource_uri, None, "GET")
                 self._logger.debug(" resp data:%s" % content)
-                vserver_detail = content.get('server', None) if content else None
+                vserver_detail = content.get('server', None) if retcode == 0 and content else None
                 if vserver_detail:
                     # compose inventory entry for vserver
                     vserver_link = ""
@@ -214,16 +280,18 @@ class InfraWorkload(APIView):
                     pass
 
         for resource in resources:
+            if resource.get('resource_status', None) != "CREATE_COMPLETE":
+                continue
             if resource.get('resource_type', None) == 'OS::Neutron::Port':
                 # retrieve vserver details
                 service_type = "network"
                 resource_uri = "/v2.0/ports/%s" % (resource['physical_resource_id'])
                 self._logger.info("retrieve vserver detail, URI:%s" % resource_uri)
-                content = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
                                                        resource_uri, None, "GET")
                 self._logger.debug(" resp data:%s" % content)
 
-                vport_detail = content.get('port', None)
+                vport_detail = content.get('port', None) if retcode == 0 and content else None
                 if vport_detail:
                     # compose inventory entry for vport
                     # note: l3-interface-ipv4-address-list, l3-interface-ipv6-address-list are not updated yet
@@ -279,12 +347,12 @@ class APIv1InfraWorkload(InfraWorkload):
         super(APIv1InfraWorkload, self).__init__()
         # self._logger = logger
 
-    def post(self, request, cloud_owner="", cloud_region_id="", requri=""):
+    def post(self, request, cloud_owner="", cloud_region_id=""):
         #self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
         #self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1InfraWorkload, self).post(request, vimid, requri)
+        return super(APIv1InfraWorkload, self).post(request, vimid)
 
     def get(self, request, cloud_owner="", cloud_region_id="", requri=""):
         #self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
