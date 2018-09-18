@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_1eec2dba",
+        "filename": "pike/pike/resource/views/infra_workload.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-09-18T14:36:40Z",
+      "side": 1,
+      "message": "this is not aligned to spec/SO implementation: \"oof_directives\"",
+      "range": {
+        "startLine": 44,
+        "startChar": 28,
+        "endLine": 44,
+        "endChar": 49
+      },
+      "revId": "a29520b72c716f28e2b0f6733afe15d909106127",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
