@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_de66b550",
+        "filename": "pike/pike/resource/views/infra_workload.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-09-18T14:44:28Z",
+      "side": 1,
+      "message": "suggest that you refactor these code with multicloud helper methods which not only reduce code footprint, but also make this infra_workload a wrapper of multicloud heat endpoint.",
+      "range": {
+        "startLine": 151,
+        "startChar": 12,
+        "endLine": 177,
+        "endChar": 52
+      },
+      "revId": "f9cd83168e024b54b577d8ccdd86b8622ce847a6",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
