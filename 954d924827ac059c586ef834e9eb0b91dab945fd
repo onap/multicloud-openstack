@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_75dc6446",
+        "filename": "pike/pike/resource/views/infra_workload.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 399
+      },
+      "writtenOn": "2018-09-18T06:56:48Z",
+      "side": 1,
+      "message": "post method don\u0027t need workload_id, since it\u0027s not yet created.",
+      "range": {
+        "startLine": 39,
+        "startChar": 36,
+        "endLine": 39,
+        "endChar": 47
+      },
+      "revId": "954d924827ac059c586ef834e9eb0b91dab945fd",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
