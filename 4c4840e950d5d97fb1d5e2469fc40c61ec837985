@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a76adc5_f8e5c937",
+        "filename": "windriver/titanium_cloud/resource/views/infra_workload.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-09-18T09:13:00Z",
+      "side": 1,
+      "message": "This should be flavor_directives instead of flavor_directive",
+      "range": {
+        "startLine": 61,
+        "startChar": 54,
+        "endLine": 61,
+        "endChar": 70
+      },
+      "revId": "4c4840e950d5d97fb1d5e2469fc40c61ec837985",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
