@@ -41,13 +41,13 @@ class InfraWorkload(APIView):
 
     def post(self, request, vimid=""):
         self._logger.info("vimid: %s" % (vimid))
-        self._logger.info("data: %s, %s" % (request.data))
+        self._logger.info("data: %s" % (request.data))
         self._logger.debug("META: %s" % request.META)
 
         try :
 
             data = request.data
-            oof_directive = data["oof_directive"]
+            oof_directive = data["oof_directives"]
             template_type = data["template_type"]
             template_data = data["template_data"]
             resp_template = None
