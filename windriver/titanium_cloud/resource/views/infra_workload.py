@@ -141,21 +141,21 @@ class InfraWorkload(APIView):
             self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
             retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
                                                                          service_type, resource_uri, None, "GET")
-            resources = content.get('stacks', []) if retcode > 0 and content else []
-
-            resource_status = resources[0]["resource_status"] if len(resources)>0 else ""
+            stacks = content.get('stacks', []) if retcode == 0 and content else []
+            stack_status = stacks[0]["stack_status"] if len(stacks) > 0 else ""
 
             # stub response
             resp_template = {
                 "template_type": "HEAT",
                 "workload_id": stack_id,
-                "workload_status": resource_status
+                "workload_status": stack_status
             }
 
             if retcode > 0:
+                # return error messsages
                 resp_template['workload_response'] = content
 
-            if ('CREATE_COMPLETE' == resource_status):
+            if ('CREATE_COMPLETE' == stack_status):
                 self.heatbridge_update(request, vimid, stack_id)
 
             self._logger.info("RESP with data> result:%s" % resp_template)
@@ -177,11 +177,53 @@ class InfraWorkload(APIView):
         self._logger.debug("META: %s" % request.META)
 
         try :
+            # assume the workload_type is heat
             stack_id = requri
+            cloud_owner, regionid = extsys.decode_vim_id(vimid)
+            # should go via multicloud proxy so that the selflink is updated by multicloud
+            retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(
+                settings.MULTICLOUD_API_V1_PREFIX,
+                cloud_owner, regionid, "/v2.0/tokens")
+            if retcode > 0  or not v2_token_resp_json:
+                logger.error("authenticate fails:%s, %s, %s" % (cloud_owner, regionid, v2_token_resp_json))
+                return
+            # tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+            # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
+
+            # get stack status
+            service_type = "orchestration"
+            resource_uri = "/stacks?id=%s" % stack_id if stack_id else "/stacks"
+            self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
+            retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
+                                                                         service_type, resource_uri, None, "GET")
+            stacks = content.get('stacks', []) if retcode == 0 and content else []
+            # assume there is at most 1 stack returned since it was filtered by id
+            stack1 = stacks[0] if stacks else None
+            stack_status = ""
+
+            if stack1 and 'CREATE_COMPLETE' == stack1['stack_status']:
+                # delete the stack
+                resource_uri = "/stacks/%s/%s" % (stack1['stack_name'], stack1['id'])
+                self._logger.info("delete stack, URI:%s" % resource_uri)
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
+                                                                             service_type, resource_uri, None, "DELETE")
+                if retcode == 0:
+                    stack_status = "DELETE_IN_PROCESS"
+                    # and update AAI inventory by heatbridge-delete
+                    self.heatbridge_delete(request, vimid, stack1['id'])
 
             # stub response
-            self._logger.info("RESP with data> result:%s" % "")
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            resp_template = {
+                "template_type": "HEAT",
+                "workload_id": stack_id,
+                "workload_status": stack_status
+            }
+
+            if retcode > 0:
+                resp_template["workload_response"] = content
+
+            self._logger.info("RESP with data> result:%s" % resp_template)
+            return Response(status=os_status)
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
                                   % (e.status_code, e.content))
@@ -223,7 +265,7 @@ class InfraWorkload(APIView):
         resource_uri = "/stacks/%s/resources"%(stack_id)
         self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
         retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type, resource_uri, None, "GET")
-        resources = content.get('resources', []) if retcode==0 and content else []
+        resources = content.get('resources', []) if retcode == 0 and content else []
 
         #find and update resources
         transactions = []
@@ -328,7 +370,7 @@ class InfraWorkload(APIView):
 
         return  aai_transactions
 
-    def heatbridge_delete(self, request, stack_id, vimid, tenant_id):
+    def heatbridge_delete(self, request, stack_id, vimid):
         '''
         remove heat resource from AAI for the specified cloud region and tenant
         The resources includes: vserver, vserver/l-interface,

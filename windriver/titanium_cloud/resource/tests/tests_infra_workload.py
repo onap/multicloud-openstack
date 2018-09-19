@@ -102,7 +102,7 @@ MOCK_HEAT_CREATE_RESPONSE1 = {
 MOCK_HEAT_LIST_RESPONSE1 = {
     'stacks': [
         {
-            'resource_status':"CREATE_IN_PROCESS"
+            'stack_status':"CREATE_IN_PROCESS"
         }
     ]
 }

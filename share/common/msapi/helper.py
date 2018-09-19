@@ -16,6 +16,7 @@ import re
 from common.exceptions import VimDriverNewtonException
 from common.utils import restcall
 
+from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
@@ -30,12 +31,9 @@ class Helper(object):
                                                   f_uri=uri)
         extra_headers = header
         ret = restcall._call_req(multicloud_api_prefix, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(data))
-        if ret[0] > 0 or ret[1] is None:
-            logger.critical("call url %s failed with status %s" % (multicloud_api_prefix+auth_api_url, ret[0]))
-            return ret
-
-        resp = json.JSONDecoder().decode(ret[1])
-        ret[1] = resp
+        if ret[0] == 0 and ret[1]:
+            content = json.JSONDecoder().decode(ret[1])
+            ret[1] = content
         return ret
 
     # The consumer of this api must be attaching to the same management network of multicloud,
@@ -51,11 +49,8 @@ class Helper(object):
                 endpoint_url = catalog['endpoints'][0]['publicURL']
                 extra_headers = {'X-Auth-Token': token}
                 ret = restcall._call_req(endpoint_url, "", "", 0, uri, method, extra_headers, json.dumps(data) if data else "")
-                if ret[0] > 0 or ret[1] is None:
-                    logger.critical("call url %s failed with status %s" % (endpoint_url+uri, ret[0]))
-                    return ret
-
-                content = json.JSONDecoder().decode(ret[1])
-                ret[1] = content
+                if ret[0] == 0 and ret[1]:
+                    content = json.JSONDecoder().decode(ret[1])
+                    ret[1] = content
                 return ret
-            pass
+        return [1, None, status.HTTP_404_NOT_FOUND] # return resource not found in case no type found

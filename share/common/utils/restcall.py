@@ -80,7 +80,7 @@ def _call_req(base_url, user, passwd, auth_type,
                                                   headers=headers)
                 resp_status, resp_body = \
                     resp['status'], codecs.decode(
-                        resp_content, 'UTF-8')
+                        resp_content, 'UTF-8') if resp_content else None
                 if resp_status in status_ok_list:
                     ret = [0, resp_body, resp_status]
                 else:
