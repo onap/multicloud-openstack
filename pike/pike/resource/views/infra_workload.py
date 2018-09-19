@@ -55,10 +55,11 @@ class InfraWorkload(APIView):
                 for directive in oof_directive.get("directives", []):
                     if directive["type"] == "vnfc":
                         for directive2 in directive.get("directives", []):
-                            if directive2["type"] in ["flavor_directives", "sriovNICNetwork_directives"]:
-                                for attr in directives2.get("attributes", []):
-                                    label_name = directive2[0]["attribute_name"]
-                                    label_value = directive2[0]["attribute_value"]
+                            #if directive2["type"] in ["flavor_directives", "sriovNICNetwork_directives"]:
+                            if directive2["type"] == "flavor_directives":
+                                for attr in directive2.get("attributes", []):
+                                    label_name = attr["attribute_name"]
+                                    label_value = attr["attribute_value"]
                                     if parameters.has_key(label_name):
                                         template_data["parameters"][label_name] = label_value
                                     else:
@@ -154,6 +155,7 @@ class InfraWorkload(APIView):
                 self.heatbridge_update(request, vimid, stack_id)
 
             self._logger.info("RESP with data> result:%s" % resp_template)
+            return Response(data=resp_template, status=status.HTTP_200_OK)
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
                                   % (e.status_code, e.content))
