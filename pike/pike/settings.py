@@ -97,6 +97,9 @@ MSB_SERVICE_PORT = os.environ.get('MSB_PORT', "80")
 MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-pike/v0" % (
     MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
+MULTICLOUD_API_V1_PREFIX = "http://%s:%s/api/multicloud-pike/v1" % (
+    MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
+
 # [A&AI]
 AAI_ADDR = os.environ.get('AAI_ADDR', "aai.api.simpledemo.openecomp.org")
 AAI_PORT = os.environ.get('AAI_PORT', "8443")
