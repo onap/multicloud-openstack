@@ -23,6 +23,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from common.msapi import extsys
+from common.msapi.helper import Helper as helper
+from common.utils import restcall
 from common.exceptions import VimDriverNewtonException
 from newton_base.util import VimDriverUtils
 
@@ -34,68 +36,72 @@ class InfraWorkload(APIView):
     def __init__(self):
         self._logger = logger
 
-    def post(self, request, vimid=""):
-        self._logger.info("vimid, data: %s, %s" % (vimid, request.data))
+    def post(self, request, vimid="", requri=""):
+        self._logger.info("vimid, requri: %s, %s" % (vimid, requri))
+        self._logger.info("data: %s" % request.data)
         self._logger.debug("META: %s" % request.META)
 
         try :
-            vim = VimDriverUtils.get_vim_info(vimid)
-            cloud_owner, regionid = extsys.decode_vim_id(vimid)
-
             data = request.data
-            oof_directive = data["oof_directive"]
+            oof_directive = data["oof_directives"]
             template_type = data["template_type"]
             template_data = data["template_data"]
 
             resp_template = None
-            if "heat" == template_type:
-                tenant_name = None
-                interface = 'public'
-                service = {'service_type': 'orchestration',
-                           'interface': interface,
-                           'region_id': vim['openstack_region_id']
-                               if vim.get('openstack_region_id')
-                                else vim['cloud_region_id']}
+            if template_type and "heat" == template_type.lower():
+                # update heat parameters from oof_directive
+                parameters = template_data.get("parameters", {})
 
-                if template_data.has_key("parameters"):
-                    paramters = template_data["parameters"]
-                else:
-                    self._logger.error("we can't find parameters in heat template")
-                    return Response(data=None, status=HTTP_400_BADREQUEST)
-
-                for directive in template_data["directives"]:
+                for directive in oof_directive.get("directives", []):
                     if directive["type"] == "vnfc":
-                        for directive2 in directive["directives"]:
-                            if directive2["type"] == flavor_directive:
-                                flavor_label = directive2[0]["attribute_name"]
-                                flavor_value = directive2[0]["attribute_value"]
-                                if parameters.has_key(flavor_label):
-                                    template_data["parameters"][flavor_label] = flavor_value
-                                else:
-                                    self._logger.warn("we can't find the flavor_label: %s" % 
-                                                        flavor_label)
+                        for directive2 in directive.get("directives", []):
+                            if directive2["type"] in ["flavor_directives", "sriovNICNetwork_directives"]:
+                                for attr in directives2.get("attributes", []):
+                                    label_name = directive2[0]["attribute_name"]
+                                    label_value = directive2[0]["attribute_value"]
+                                    if parameters.has_key(label_name):
+                                        template_data["parameters"][label_name] = label_value
+                                    else:
+                                        self._logger.warn("There is no parameter exist: %s" % label_name)
 
-                req_body = template_data
-                sess = VimDriverUtils.get_session(vim, tenant_name)
-                resp = sess.post(req_resource,
-                                 data = req_body,
-                                 endpoint_filter = service)
+                # update parameters
+                template_data["parameters"] = parameters
 
+                #reset to make sure "files" are empty
+                template_data["file"] = {}
+
+                #authenticate
+                cloud_owner, regionid = extsys.decode_vim_id(vimid)
+                # should go via multicloud proxy so that the selflink is updated by multicloud
+                retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(
+                                                 settings.MULTICLOUD_API_V1_PREFIX,
+                                                 cloud_owner, regionid, "/v2.0/tokens")
+                if retcode > 0 or not v2_token_resp_json:
+                    logger.error("authenticate fails:%s,%s, %s" %
+                                 (cloud_owner, regionid, v2_token_resp_json))
+                    return
+
+                service_type = "orchestration"
+                resource_uri = "/stacks"
+                self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner,
+                                                         regionid, v2_token_resp_json, service_type,
+                                                         resource_uri, None, "POST")
+                stack1 = content.get('stack', None) if retcode == 0 and content else None
                 resp_template = {
                     "template_type": template_type,
-                    "workload_id": resp["stack"]["id"],
-                    "template_response": resp
+                    "workload_id": stack1["id"] if stack1 else "",
+                    "template_response": content
                 }
+                self._logger.info("RESP with data> result:%s" % resp_template)
 
-            elif "tosca" == template_type:
-                #TODO
-                self._logger.info("TBD")
+                return Response(data=resp_template, status=os_status)
+
             else:
-                self._logger.warn("This template type is not supported")
+                msg = "The template type %s is not supported" % (template_type)
+                self._logger.warn(msg)
+                return Response(data={"error":msg}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-            self._logger.info("RESP with data> result:%s" % resp_template)
-            return Response(data=resp_template, status=status.HTTP_201_CREATED)
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
                                   % (e.status_code, e.content))
@@ -109,21 +115,45 @@ class InfraWorkload(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-    def get(self, request, vimid=""):
-        self._logger.info("vimid: %s" % (vimid))
+    def get(self, request, vimid="", requri=""):
+        self._logger.info("vimid, requri: %s, %s" % (vimid, requri))
         self._logger.debug("META: %s" % request.META)
 
         try :
+            # assume the workload_type is heat
+            stack_id = requri
+            cloud_owner, regionid = extsys.decode_vim_id(vimid)
+            # should go via multicloud proxy so that the selflink is updated by multicloud
+            retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(
+                settings.MULTICLOUD_API_V1_PREFIX,
+                cloud_owner, regionid, "/v2.0/tokens")
+            if retcode > 0  or not v2_token_resp_json:
+                logger.error("authenticate fails:%s, %s, %s" % (cloud_owner, regionid, v2_token_resp_json))
+                return
 
-            # stub response
+            # get stack status
+            service_type = "orchestration"
+            resource_uri = "/stacks?id=%s" % stack_id if stack_id else "/stacks"
+            self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
+            retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
+                                                                         service_type, resource_uri, None, "GET")
+            resources = content.get('stacks', []) if retcode > 0 and content else []
+
+            resource_status = resources[0]["resource_status"] if len(resources)>0 else ""
+
             resp_template = {
-                "template_type": "heat",
-                "workload_id": "3095aefc-09fb-4bc7-b1f0-f21a304e864c",
-                "workload_status": "CREATE_IN_PROCESS",
+                "template_type": "HEAT",
+                "workload_id": stack_id,
+                "workload_status": resource_status
             }
 
+            if retcode > 0:
+                resp_template['workload_response'] = content
+
+            if ('CREATE_COMPLETE' == resource_status):
+                self.heatbridge_update(request, vimid, stack_id)
+
             self._logger.info("RESP with data> result:%s" % resp_template)
-            return Response(data=resp_template, status=status.HTTP_200_OK)
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
                                   % (e.status_code, e.content))
@@ -136,15 +166,184 @@ class InfraWorkload(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def delete(self, request, vimid=""):
-        self._logger.info("vimid: %s" % (vimid))
+    def heatbridge_update(self, request, vimid, stack_id):
+        '''
+        update heat resource to AAI for the specified cloud region and tenant
+        The resources includes: vserver, vserver/l-interface,
+        :param request:
+        :param vimid:
+        :param stack_id:
+        :return:
+        '''
+
+        cloud_owner, regionid = extsys.decode_vim_id(vimid)
+        # should go via multicloud proxy so that the selflink is updated by multicloud
+        retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+                                                             cloud_owner, regionid, "/v2.0/tokens")
+        if retcode > 0:
+            logger.error("authenticate fails:%s, %s, %s" % (cloud_owner, regionid, v2_token_resp_json))
+            return None
+        tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+        # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
+
+        # common prefix
+        aai_cloud_region = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
+                                  % (cloud_owner, regionid, tenant_id)
+
+        # get stack resource
+        service_type = "orchestration"
+        resource_uri = "/stacks/%s/resources"%(stack_id)
+        self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
+        retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type, resource_uri, None, "GET")
+        resources = content.get('resources', []) if retcode==0 and content else []
+
+        #find and update resources
+        transactions = []
+        for resource in resources:
+            if resource.get('resource_status', None) != "CREATED_COMPLETE":
+                continue
+            if resource.get('resource_type', None) == 'OS::Nova::Server':
+                # retrieve vserver details
+                service_type = "compute"
+                resource_uri = "/servers/%s" % (resource['physical_resource_id'])
+                self._logger.info("retrieve vserver detail, URI:%s" % resource_uri)
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
+                                                       resource_uri, None, "GET")
+                self._logger.debug(" resp data:%s" % content)
+                vserver_detail = content.get('server', None) if retcode == 0 and content else None
+                if vserver_detail:
+                    # compose inventory entry for vserver
+                    vserver_link = ""
+                    for link in vserver_detail['links']:
+                        if link['rel'] == 'self':
+                            vserver_link = link['href']
+                            break
+                        pass
+
+                    # note: relationship-list to flavor/image is not be update yet
+                    # note: volumes is not updated yet
+                    # note: relationship-list to vnf will be handled somewhere else
+                    aai_resource = {
+                        'body': {
+                            'vserver-name': vserver_detail['name'],
+                            'vserver-name2': vserver_detail['name'],
+                            "vserver-id": vserver_detail['id'],
+                            "vserver-selflink": vserver_link,
+                            "prov-status": vserver_detail['status']
+                        },
+                        "uri": aai_cloud_region + "/vservers/vserver/%s"\
+                                                             % ( vserver_detail['id'])}
+
+                    try:
+                        # then update the resource
+                        retcode, content, status_code = \
+                            restcall.req_to_aai(aai_resource['uri'], "PUT", content=aai_resource['body'])
+
+                        if retcode == 0 and content:
+                            content = json.JSONDecoder().decode(content)
+                            self._logger.debug("AAI update %s response: %s" % (aai_resource['uri'], content))
+                    except Exception as e:
+                        self._logger.error(traceback.format_exc())
+                        pass
+
+                    aai_resource_transactions = {"put": [aai_resource]}
+                    transactions.append(aai_resource_transactions)
+                    #self._logger.debug("aai_resource :%s" % aai_resource_transactions)
+                    pass
+
+        for resource in resources:
+            if resource.get('resource_status', None) != "CREATE_COMPLETE":
+                continue
+            if resource.get('resource_type', None) == 'OS::Neutron::Port':
+                # retrieve vserver details
+                service_type = "network"
+                resource_uri = "/v2.0/ports/%s" % (resource['physical_resource_id'])
+                self._logger.info("retrieve vserver detail, URI:%s" % resource_uri)
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
+                                                       resource_uri, None, "GET")
+                self._logger.debug(" resp data:%s" % content)
+
+                vport_detail = content.get('port', None) if retcode == 0 and content else None
+                if vport_detail:
+                    # compose inventory entry for vport
+                    # note: l3-interface-ipv4-address-list, l3-interface-ipv6-address-list are not updated yet
+                    # note: network-name is not update yet since the detail coming with network-id
+                    aai_resource = {
+                        "body": {
+                            "interface-name": vport_detail['name'],
+                            "interface-id": vport_detail['id'],
+                            "macaddr": vport_detail['mac_address']
+                        },
+                        'uri': aai_cloud_region + "/vservers/vserver/%s/l-interfaces/l-interface/%s" \
+                                                  % (vport_detail['device_id'], vport_detail['name'])
+                    }
+                    try:
+                        # then update the resource
+                        retcode, content, status_code = \
+                            restcall.req_to_aai(aai_resource['uri'], "PUT", content=aai_resource['body'])
+
+                        if retcode == 0 and content:
+                            content = json.JSONDecoder().decode(content)
+                            self._logger.debug("AAI update %s response: %s" % (aai_resource['uri'], content))
+                    except Exception as e:
+                        self._logger.error(traceback.format_exc())
+                        pass
+
+                    aai_resource_transactions = {"put": [aai_resource]}
+                    transactions.append(aai_resource_transactions)
+                    # self._logger.debug("aai_resource :%s" % aai_resource_transactions)
+
+                    pass
+
+        aai_transactions = {"transactions": transactions}
+        self._logger.debug("aai_transactions :%s" % aai_transactions)
+
+        return  aai_transactions
+
+    def delete(self, request, vimid="", requri=""):
+        self._logger.info("vimid, requri: %s" % (vimid, requri))
         self._logger.debug("META: %s" % request.META)
 
         try :
+            # we just support heat template
+            workload_id = requri
+            tenant_name = None
+            vim = VimDriverUtils.get_vim_info(vimid)
+            cloud_owner, regionid = extsys.decode_vim_id(vimid)
+            v2_token_resp_json = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+                                                             cloud_owner, regionid, "/v2.0/tokens")
+            if not v2_token_resp_json:
+                logger.error("authenticate fails:%s,%s" % (cloud_owner, regionid))
+                return
+            tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+            interface = 'public'
+            service = {'service_type': 'orchestration',
+                       'interface': interface,
+                       'region_id': vim['openstack_region_id']
+                           if vim.get('openstack_region_id')
+                           else vim['cloud_region_id']}
 
-            # stub response
+            req_body = template_data
+            url_get = "/v1/%s/stacks" % (tenant_id)
+            sess = VimDriverUtils.get_session(vim, tenant_name)
+            get_resp = sess.get(url_get,
+                            data = req_body,
+                            endpoint_filter = service)
+            stack_info = get_resp.json()
+            stacks = stack_info["stacks"]
+            stack_name = ""
+            for stack in stacks:
+                if workload_id == stack["id"]:
+                    stack_name = stack["stack_name"]
+                    break
+
+            req_source = "/v1/%s/stacks/%s/%s" % (tenant_id, stack_name, workload_id)
+            resp = sess.delete(req_resource,
+                               endpoint_filter = service)
+
+            resp_status = status.HTTP_204_NO_CONTENT
             self._logger.info("RESP with data> result:%s" % "")
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=resp_status)
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
                                   % (e.status_code, e.content))
@@ -164,23 +363,23 @@ class APIv1InfraWorkload(InfraWorkload):
         super(APIv1InfraWorkload, self).__init__()
         # self._logger = logger
 
-    def post(self, request, cloud_owner="", cloud_region_id=""):
+    def post(self, request, cloud_owner="", cloud_region_id="", requri=""):
         #self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
         #self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1InfraWorkload, self).post(request, vimid)
+        return super(APIv1InfraWorkload, self).post(request, vimid, requri)
 
-    def get(self, request, cloud_owner="", cloud_region_id=""):
+    def get(self, request, cloud_owner="", cloud_region_id="", requri=""):
         #self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
         #self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1InfraWorkload, self).get(request, vimid)
+        return super(APIv1InfraWorkload, self).get(request, vimid, requri)
 
-    def delete(self, request, cloud_owner="", cloud_region_id=""):
+    def delete(self, request, cloud_owner="", cloud_region_id="", requri=""):
         #self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
         #self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1InfraWorkload, self).delete(request, vimid)
+        return super(APIv1InfraWorkload, self).delete(request, vimid, requri)
