@@ -252,7 +252,8 @@ def data2event_fault_vm(vimid, oneBacklog, last_event, vm_data):
 
             startEpochMicrosec = last_event['event']['commonEventHeader']['startEpochMicrosec']
             lastEpochMicrosec = get_epoch_now_usecond()
-            eventId = last_event['event']['commonEventHeader']['eventId']
+            # holmes requires that eventId must be unique for each event!
+            eventId = str(uuid.uuid4())
 
             pass
 
