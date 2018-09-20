@@ -195,7 +195,7 @@ class TokensV2(Tokens):
                         v2_catalog1_endpoints = {
                             "id": v3_endpoint['id'],
                             "region":v3_endpoint['region'],
-                            "region_id": v3_endpoint['region_id'],
+                            "region_name": v3_endpoint['region_id'],
                             'interface':v3_endpoint['interface']
                         }
                         if v3_endpoint['interface'] == 'public':

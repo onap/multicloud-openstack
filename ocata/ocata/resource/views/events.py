@@ -53,7 +53,7 @@ class EventsCheck(APIView):
             interface = 'public'
             service = {'service_type': 'compute',
                        'interface': interface,
-                       'region_id': vim['openstack_region_id']
+                       'region_name': vim['openstack_region_id']
                            if vim.get('openstack_region_id')
                            else vim['cloud_region_id']}
 

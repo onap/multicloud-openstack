@@ -103,9 +103,8 @@ class Services(APIView):
             service = {
                 'service_type': servicetype,
                 'interface': interface,
-                       'region_id': vim['openstack_region_id']
-                           if vim.get('openstack_region_id')
-                           else vim['cloud_region_id']
+                'region_name': vim['openstack_region_id']
+                     if vim.get('openstack_region_id') else vim['cloud_region_id']
             }
 
 
@@ -113,7 +112,7 @@ class Services(APIView):
             if querystr:
                 req_resource += "?" + querystr
 
-            self._logger.info("service " + action + " request with uri %s" % (req_resource))
+            self._logger.info("service " + action + " request with uri %s,%s" % (req_resource, service))
             if(action == "get"):
                 resp = sess.get(req_resource, endpoint_filter=service,
                                 headers={"Content-Type": "application/json",
@@ -186,13 +185,13 @@ class Services(APIView):
             interface = 'public'
             service = {'service_type': servicetype,
                        'interface': interface,
-                       'region_id': vim['openstack_region_id']
+                       'region_name': vim['openstack_region_id']
                            if vim.get('openstack_region_id')
                            else vim['cloud_region_id']
                        }
 
 
-            self._logger.info("service head request with uri %s" % (req_resource))
+            self._logger.info("service head request with uri %s, %s" % (req_resource, service))
             resp = sess.head(req_resource, endpoint_filter=service)
             self._logger.info("service head response status %s" % (resp.status_code))
 

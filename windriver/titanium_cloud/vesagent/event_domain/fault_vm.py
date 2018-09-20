@@ -22,6 +22,7 @@ import time
 from django.conf import settings
 from titanium_cloud.vesagent.vespublish import publishAnyEventToVES
 from common.utils import restcall
+from common.msapi.helper import Helper as helper
 
 import datetime
 import time

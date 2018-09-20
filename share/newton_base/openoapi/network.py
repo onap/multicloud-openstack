@@ -74,7 +74,7 @@ class Networks(APIView):
         vim = VimDriverUtils.get_vim_info(vimid)
         sess = VimDriverUtils.get_session(vim, tenantid)
 
-        self.service['region_id'] = vim['openstack_region_id'] \
+        self.service['region_name'] = vim['openstack_region_id'] \
             if vim.get('openstack_region_id') \
             else vim['cloud_region_id']
 
@@ -140,7 +140,7 @@ class Networks(APIView):
                                                   self.keys_mapping, True)
             req_body = json.JSONEncoder().encode({"network": network})
 
-            self.service['region_id'] = vim['openstack_region_id'] \
+            self.service['region_name'] = vim['openstack_region_id'] \
                 if vim.get('openstack_region_id') \
                 else vim['cloud_region_id']
 
@@ -187,7 +187,7 @@ class Networks(APIView):
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
 
-            self.service['region_id'] = vim['openstack_region_id'] \
+            self.service['region_name'] = vim['openstack_region_id'] \
                 if vim.get('openstack_region_id') \
                 else vim['cloud_region_id']
 

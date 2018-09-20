@@ -42,7 +42,7 @@ class Registry(APIView):
             vimid, content_key):
         service = {'service_type': service_type,
                    'interface': 'public',
-                   'region_id': viminfo['openstack_region_id']
+                   'region_name': viminfo['openstack_region_id']
                        if viminfo.get('openstack_region_id')
                        else viminfo['cloud_region_id']}
 
@@ -591,7 +591,7 @@ class Registry(APIView):
                     req_resource = schema
                     service = {'service_type': "image",
                                'interface': 'public',
-                               'region_id': viminfo['openstack_region_id']
+                               'region_name': viminfo['openstack_region_id']
                                if viminfo.get('openstack_region_id')
                                else viminfo['cloud_region_id']
                                }
@@ -638,7 +638,7 @@ class Registry(APIView):
                         req_resource = "/os-hypervisors/detail?hypervisor_hostname_pattern=%s" % k
                         service = {'service_type': "compute",
                                    'interface': 'public',
-                                   'region_id': viminfo['openstack_region_id']
+                                   'region_name': viminfo['openstack_region_id']
                                    if viminfo.get('openstack_region_id')
                                    else viminfo['cloud_region_id']
                                    }

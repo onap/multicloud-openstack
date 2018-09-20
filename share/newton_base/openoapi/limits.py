@@ -49,7 +49,7 @@ class Limits(APIView):
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
 
-            self.service['region_id'] = vim['openstack_region_id'] \
+            self.service['region_name'] = vim['openstack_region_id'] \
                 if vim.get('openstack_region_id') \
                 else vim['cloud_region_id']
 
@@ -72,7 +72,7 @@ class Limits(APIView):
             # prepare request resource to vim instance
             req_resouce = "/v2.0/quotas/%s" % tenantid
 
-            self.service_network['region_id'] = vim['openstack_region_id'] \
+            self.service_network['region_name'] = vim['openstack_region_id'] \
                 if vim.get('openstack_region_id') \
                 else vim['cloud_region_id']
 
@@ -86,7 +86,7 @@ class Limits(APIView):
             # prepare request resource to vim instance
             req_resouce = "/limits"
 
-            self.service_volume['region_id'] = vim['openstack_region_id'] \
+            self.service_volume['region_name'] = vim['openstack_region_id'] \
                 if vim.get('openstack_region_id') \
                 else vim['cloud_region_id']
 

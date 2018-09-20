@@ -36,17 +36,18 @@ class ProxyUtils(object):
         if not content:
             return content
 
+        content_str = json.dumps(content)
+
         for (servicetype, service_metadata) in metadata_catalog.items():
-            real_prefix = service_metadata['prefix']
-            proxy_prefix = service_metadata['proxy_prefix']
+            real_prefix = service_metadata.get('prefix', None)
+            proxy_prefix = service_metadata.get('proxy_prefix', None)
 
-            if content:
+            if real_prefix and proxy_prefix:
                 # filter the resp content and replace all endpoint prefix
-                tmp_content = json.dumps(content)
                 tmp_pattern = re.compile(real_prefix+r'([^:])')
-                tmp_content = tmp_pattern.sub(proxy_prefix+r'\1', tmp_content)
-                content = json.loads(tmp_content)
+                content_str = tmp_pattern.sub(proxy_prefix+r'\1', content_str)
 
+        content = json.loads(content_str)
         return content
 
     @staticmethod
