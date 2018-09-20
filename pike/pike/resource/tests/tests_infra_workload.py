@@ -51,6 +51,16 @@ MOCK_HEAT_CREATE_BODY1 =   {
                              "attribute_value":"m1.hpa.medium"
                          }
                      ]
+                 },
+                 {
+                     "type":"sriovNetNetwork_directives",
+                     "attributes":[
+                         {
+                             "attribute_name":"physnetwork_label",
+                             "attribute_value":"physnet1"
+                         }
+                     ]
+
                  }
                  ]
              }

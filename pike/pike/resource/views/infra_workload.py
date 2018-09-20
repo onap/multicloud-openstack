@@ -55,8 +55,7 @@ class InfraWorkload(APIView):
                 for directive in oof_directive.get("directives", []):
                     if directive["type"] == "vnfc":
                         for directive2 in directive.get("directives", []):
-                            #if directive2["type"] in ["flavor_directives", "sriovNICNetwork_directives"]:
-                            if directive2["type"] == "flavor_directives":
+                            if directive2["type"] in ["flavor_directives", "sriovNICNetwork_directives"]:
                                 for attr in directive2.get("attributes", []):
                                     label_name = attr["attribute_name"]
                                     label_value = attr["attribute_value"]
