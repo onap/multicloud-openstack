@@ -303,7 +303,7 @@ class InfraWorkload(APIView):
         return  aai_transactions
 
     def delete(self, request, vimid="", requri=""):
-        self._logger.info("vimid, requri: %s" % (vimid, requri))
+        self._logger.info("vimid, requri: %s, %s" % (vimid, requri))
         self._logger.debug("META: %s" % request.META)
 
         try :
