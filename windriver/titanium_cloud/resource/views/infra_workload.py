@@ -270,7 +270,7 @@ class InfraWorkload(APIView):
         #find and update resources
         transactions = []
         for resource in resources:
-            if resource.get('resource_status', None) != "CREATED_COMPLETE":
+            if resource.get('resource_status', None) != "CREATE_COMPLETE":
                 continue
             if resource.get('resource_type', None) == 'OS::Nova::Server':
                 # retrieve vserver details
@@ -325,10 +325,10 @@ class InfraWorkload(APIView):
             if resource.get('resource_status', None) != "CREATE_COMPLETE":
                 continue
             if resource.get('resource_type', None) == 'OS::Neutron::Port':
-                # retrieve vserver details
+                # retrieve vport details
                 service_type = "network"
                 resource_uri = "/v2.0/ports/%s" % (resource['physical_resource_id'])
-                self._logger.info("retrieve vserver detail, URI:%s" % resource_uri)
+                self._logger.info("retrieve vport detail, URI:%s" % resource_uri)
                 retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
                                                        resource_uri, None, "GET")
                 self._logger.debug(" resp data:%s" % content)

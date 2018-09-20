@@ -40,11 +40,16 @@ class Registry(APIView):
     def _get_list_resources(
             self, resource_url, service_type, session, viminfo,
             vimid, content_key):
-        service = {'service_type': service_type,
-                   'interface': 'public',
-                   'region_name': viminfo['openstack_region_id']
-                       if viminfo.get('openstack_region_id')
-                       else viminfo['cloud_region_id']}
+        service = {
+            'service_type': service_type,
+            'interface': 'public'
+        }
+
+        # identity service should not filtered by region since it is might be first call
+        # to figure out available region list
+        if service_type != 'identity':
+            service['region_name'] = viminfo['openstack_region_id']\
+                if viminfo.get('openstack_region_id') else viminfo['cloud_region_id']
 
         self._logger.info("making request with URI:%s" % resource_url)
         resp = session.get(resource_url, endpoint_filter=service)
