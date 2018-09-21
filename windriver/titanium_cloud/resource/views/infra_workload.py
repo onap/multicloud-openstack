@@ -370,16 +370,79 @@ class InfraWorkload(APIView):
 
         return  aai_transactions
 
-    def heatbridge_delete(self, request, stack_id, vimid):
+    def heatbridge_delete(self, request, vimid, stack_id):
         '''
         remove heat resource from AAI for the specified cloud region and tenant
         The resources includes: vserver, vserver/l-interface,
         :param request:
-        :param stack_id:
         :param vimid:
+        :param stack_id:
         :param tenant_id:
         :return:
         '''
+
+        # enumerate the resources
+        cloud_owner, regionid = extsys.decode_vim_id(vimid)
+        # should go via multicloud proxy so that the selflink is updated by multicloud
+        retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+                                                             cloud_owner, regionid, "/v2.0/tokens")
+        if retcode > 0:
+            logger.error("authenticate fails:%s, %s, %s" % (cloud_owner, regionid, v2_token_resp_json))
+            return None
+
+        tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+        # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
+
+        # common prefix
+        aai_cloud_region = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
+                                  % (cloud_owner, regionid, tenant_id)
+
+        # get stack resource
+        service_type = "orchestration"
+        resource_uri = "/stacks/%s/resources"%(stack_id)
+        self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
+        retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type, resource_uri, None, "GET")
+        resources = content.get('resources', []) if retcode == 0 and content else []
+
+        vserver_list = [resource['physical_resource_id'] for resource in resources
+                        if resource.get('resource_type', None) == 'OS::Nova::Server']
+
+        try:
+            # get list of vservers
+            vserver_list_url = aai_cloud_region + "/vservers?depth=all"
+            retcode, content, status_code = \
+                restcall.req_to_aai(vserver_list_url, "GET")
+            if retcode > 0 or not content:
+                self._logger.debug("AAI get %s response: %s" % (vserver_list_url, content))
+                return None
+            content = json.JSONDecoder().decode(content)
+            vservers = content['vserver']
+            for vserver in vservers:
+                if vserver['vserver-id'] not in vserver_list:
+                    continue
+
+                try:
+                    # iterate vport, except will be raised if no l-interface exist
+                    for vport in vserver['l-interfaces']['l-interface']
+                        # delete vport
+                        vport_delete_url = aai_cloud_region + "/vservers/vserver/%s/l-interfaces/l-interface/%s?resource-version=%s" \
+                                                   % (vserver['vserver-id'], vport['interface-name'],
+                                                      vport['resource-version'])
+                        restcall.req_to_aai(vport_delete_url, "DELETE")
+                except Exception as e:
+                    pass
+
+                try:
+                    # delete vserver
+                    vserver_delete_url = aai_cloud_region + "/vservers/vserver/%s?resource-version=%s" \
+                                                            % (vserver['vserver-id'], vserver['resource-version'])
+                    restcall.req_to_aai(vserver_delete_url, "DELETE")
+                except Exception as e:
+                    continue
+
+        except Exception:
+            self._logger.error(traceback.format_exc())
+            return None
         pass
 
 
