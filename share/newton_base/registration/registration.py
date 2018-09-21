@@ -1027,6 +1027,40 @@ class Registry(APIView):
             # step 1. remove all tenants
             tenants = cloudregiondata.get("tenants", None)
             for tenant in tenants.get("tenant", []) if tenants else []:
+                # common prefix
+                aai_cloud_region = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
+                                   % (cloud_owner, cloud_region_id, tenant['tenant-id'])
+
+                # remove all vservers
+                try:
+                    # get list of vservers
+                    vservers = tenant['vservers']['vserver']
+                    for vserver in vservers:
+                        try:
+                            # iterate vport, except will be raised if no l-interface exist
+                            for vport in vserver['l-interfaces']['l-interface']:
+                                # delete vport
+                                vport_delete_url = aai_cloud_region + "/vservers/vserver/%s/l-interfaces/l-interface/%s?resource-version=%s" \
+                                                                      % (vserver['vserver-id'], vport['interface-name'],
+                                                                         vport['resource-version'])
+                                restcall.req_to_aai(vport_delete_url, "DELETE")
+                        except Exception as e:
+                            pass
+
+                        try:
+                            # delete vserver
+                            vserver_delete_url = aai_cloud_region + "/vservers/vserver/%s?resource-version=%s" \
+                                                                    % (
+                                                                    vserver['vserver-id'], vserver['resource-version'])
+                            restcall.req_to_aai(vserver_delete_url, "DELETE")
+                        except Exception as e:
+                            continue
+
+                except Exception:
+                    self._logger.error(traceback.format_exc())
+                    return None
+                pass
+
                 resource_url = ("/cloud-infrastructure/cloud-regions/"
                      "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
                      "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
