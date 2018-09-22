@@ -51,7 +51,7 @@ class Registry(APIView):
             service['region_name'] = viminfo['openstack_region_id']\
                 if viminfo.get('openstack_region_id') else viminfo['cloud_region_id']
 
-        self._logger.info("making request with URI:%s" % resource_url)
+        self._logger.info("making request with URI:%s,%s" % (resource_url,service))
         resp = session.get(resource_url, endpoint_filter=service)
         self._logger.info("request returns with status %s" % resp.status_code)
         if resp.status_code == status.HTTP_200_OK:
@@ -1034,7 +1034,7 @@ class Registry(APIView):
                 # remove all vservers
                 try:
                     # get list of vservers
-                    vservers = tenant['vservers']['vserver']
+                    vservers = tenant.get('vservers', {}).get('vserver', [])
                     for vserver in vservers:
                         try:
                             # iterate vport, except will be raised if no l-interface exist
@@ -1058,8 +1058,7 @@ class Registry(APIView):
 
                 except Exception:
                     self._logger.error(traceback.format_exc())
-                    return None
-                pass
+                    pass
 
                 resource_url = ("/cloud-infrastructure/cloud-regions/"
                      "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
