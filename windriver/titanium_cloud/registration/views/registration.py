@@ -100,7 +100,9 @@ class APIv1Registry(newton_registration.Registry):
                 "cloud-region-id": cloud_region_id,
                 "cloud-type": viminfo["type"],
                 "cloud-region-version": viminfo["version"],
-                "identity-url": self.proxy_prefix + "/%s/%s/identity/v2.0" % (cloud_owner, cloud_region_id),
+                "identity-url": self.proxy_prefix + "/%s_%s/identity/v2.0" % (cloud_owner, cloud_region_id) \
+                    if self.proxy_prefix[-3:] == "/v0" else \
+                    self.proxy_prefix + "/%s/%s/identity/v2.0" % (cloud_owner, cloud_region_id),
                 "complex-name": viminfo["complex-name"],
                 "cloud-extra-info": viminfo["cloud_extra_info"],
                 "cloud-epa-caps":openstack_region_id,
@@ -156,6 +158,17 @@ class APIv1Registry(newton_registration.Registry):
                     "content": content,
                     "status_code": status_code,
                 })
+
+            # wait and confirm the update has been available for next AAI calls
+            while True:
+                # get cloud-region
+                retcode2, content2, status_code2 = \
+                    restcall.req_to_aai(resource_url, "GET")
+                if retcode2 == 0 and content2:
+                    content2 = json.JSONDecoder().decode(content2)
+                    if content2.get("identity-url", None) == resource_info.get("identity-url", None):
+                        break
+
             return retcode
         return 1  # unknown cloud owner,region_id
 
