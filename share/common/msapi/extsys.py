@@ -117,7 +117,7 @@ def encode_vim_id(cloud_owner, cloud_region_id):
     return vim_id
 
 def decode_vim_id(vim_id):
-    m = re.search(r'^([0-9a-zA-Z-]+)_([0-9a-zA-Z_-]+)$', vim_id)
+    m = re.search(r'^([0-9a-zA-Z-]+)_([0-9a-zA-Z_.-]+)$', vim_id)
     cloud_owner, cloud_region_id = m.group(1), m.group(2)
     return cloud_owner, cloud_region_id
 
