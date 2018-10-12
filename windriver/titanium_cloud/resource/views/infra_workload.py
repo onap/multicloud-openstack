@@ -87,8 +87,8 @@ class InfraWorkload(APIView):
                 service_type = "orchestration"
                 resource_uri = "/stacks"
                 self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
-                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
-                                                         resource_uri, None, "POST")
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
+                                                                             service_type, resource_uri, template_data, "POST")
                 stack1 = content.get('stack', None) if retcode == 0 and content else None
                 resp_template = {
                     "template_type": template_type,
@@ -264,7 +264,8 @@ class InfraWorkload(APIView):
         service_type = "orchestration"
         resource_uri = "/stacks/%s/resources"%(stack_id)
         self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
-        retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type, resource_uri, None, "GET")
+        retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
+                                                                     service_type, resource_uri, None, "GET")
         resources = content.get('resources', []) if retcode == 0 and content else []
 
         #find and update resources
@@ -277,8 +278,8 @@ class InfraWorkload(APIView):
                 service_type = "compute"
                 resource_uri = "/servers/%s" % (resource['physical_resource_id'])
                 self._logger.info("retrieve vserver detail, URI:%s" % resource_uri)
-                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
-                                                       resource_uri, None, "GET")
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
+                                                                             service_type, resource_uri, None, "GET")
                 self._logger.debug(" resp data:%s" % content)
                 vserver_detail = content.get('server', None) if retcode == 0 and content else None
                 if vserver_detail:
@@ -329,8 +330,8 @@ class InfraWorkload(APIView):
                 service_type = "network"
                 resource_uri = "/v2.0/ports/%s" % (resource['physical_resource_id'])
                 self._logger.info("retrieve vport detail, URI:%s" % resource_uri)
-                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
-                                                       resource_uri, None, "GET")
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
+                                                                             service_type, resource_uri, None, "GET")
                 self._logger.debug(" resp data:%s" % content)
 
                 vport_detail = content.get('port', None) if retcode == 0 and content else None
@@ -401,7 +402,8 @@ class InfraWorkload(APIView):
         service_type = "orchestration"
         resource_uri = "/stacks/%s/resources"%(stack_id)
         self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
-        retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type, resource_uri, None, "GET")
+        retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
+                                                                     service_type, resource_uri, None, "GET")
         resources = content.get('resources', []) if retcode == 0 and content else []
 
         vserver_list = [resource['physical_resource_id'] for resource in resources

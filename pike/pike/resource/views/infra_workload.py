@@ -86,7 +86,7 @@ class InfraWorkload(APIView):
                 self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
                 retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner,
                                                          regionid, v2_token_resp_json, service_type,
-                                                         resource_uri, None, "POST")
+                                                         resource_uri, template_data, "POST")
                 stack1 = content.get('stack', None) if retcode == 0 and content else None
                 resp_template = {
                     "template_type": template_type,
