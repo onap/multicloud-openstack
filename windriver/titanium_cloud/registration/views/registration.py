@@ -258,7 +258,7 @@ class APIv1Registry(newton_registration.Registry):
                         continue
 
                     #create cloud region with composed AAI cloud_region_id except for the one onboarded externally (e.g. ESR)
-                    gen_cloud_region_id = cloud_region_id + "." + regionid
+                    gen_cloud_region_id = cloud_region_id + "_" + regionid
                     self._logger.info("create a cloud region: %s,%s,%s" % (cloud_owner,gen_cloud_region_id,regionid))
 
                     self._update_cloud_region(cloud_owner, gen_cloud_region_id, regionid, viminfo)
