@@ -262,7 +262,8 @@ class APIv1Registry(newton_registration.Registry):
                     self._logger.info("create a cloud region: %s,%s,%s" % (cloud_owner,gen_cloud_region_id,regionid))
 
                     self._update_cloud_region(cloud_owner, gen_cloud_region_id, regionid, viminfo)
-                    super(APIv1Registry, self).post(request, vimid)
+                    new_vimid = extsys.encode_vim_id(cloud_owner, gen_cloud_region_id)
+                    super(APIv1Registry, self).post(request, new_vimid)
 
 
             # update the specified region
