@@ -16,9 +16,11 @@ from django.conf.urls import patterns, url
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from ocata.swagger.views import SwaggerJsonView
+from ocata.swagger.views import APIv1SwaggerJsonView
 
 urlpatterns = [
     url(r'^api/multicloud-ocata/v0/swagger.json$', SwaggerJsonView.as_view()),
+    url(r'^api/multicloud-ocata/v1/swagger.json$', APIv1SwaggerJsonView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

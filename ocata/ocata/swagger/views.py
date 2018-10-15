@@ -45,4 +45,20 @@ class SwaggerJsonView(newton_json_view.SwaggerJsonView):
         else:
             return Response(data={'error':'internal error'}, status=500)
 
+class APIv1SwaggerJsonView(newton_json_view.SwaggerJsonView):
 
+    def get(self, request):
+        '''
+        reuse newton code and update the basePath
+        :param request:
+        :return:
+        '''
+
+        resp = super(APIv1SwaggerJsonView,self).get(request)
+        json_data = resp.data if resp else None
+        if json_data:
+            json_data["basePath"] = "/api/multicloud-ocata/v1/"
+            json_data["info"]["title"] = "Service NBI v1 of MultiCloud plugin for Ocata"
+            return Response(data=json_data, status=200)
+        else:
+            return Response(data={'error':'internal error'}, status=500)
