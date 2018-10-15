@@ -27,3 +27,14 @@ class Extensions(newton_extensions.Extensions):
         self._logger = logger
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
 
+class APIv1Extensions(Extensions):
+
+    def __init__(self):
+        self._logger = logger 
+        self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
+
+    def get(self, request, cloud_owner="", cloud_region_id=""):
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Extensions,self).get(request, vimid) 
