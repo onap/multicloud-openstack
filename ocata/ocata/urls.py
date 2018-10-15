@@ -60,6 +60,8 @@ urlpatterns = [
         '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('ocata.requests.urlsV1')),
     url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.APIv1CapacityCheck.as_view()),
+    url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/vesagent/?$',
+        vesagent_ctrl.APIv1VesAgentCtrl.as_view()),
     url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
         infra_workload.APIv1InfraWorkload.as_view()),
     url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/(?P<requri>[0-9a-zA-Z_-]*)/?$',

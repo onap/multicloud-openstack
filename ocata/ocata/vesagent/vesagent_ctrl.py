@@ -404,3 +404,53 @@ class VesAgentCtrl(APIView):
 
         self._logger.debug("return without backlog")
         return None
+
+
+class APIv1VesAgentCtrl(VesAgentCtrl):
+
+    def __init__(self):
+        super(APIv1VesAgentCtrl, self).__init__()
+        # self._logger = logger
+        self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
+
+
+    def get(self, request, cloud_owner="", cloud_region_id=""):
+        '''
+        :param request:
+        :param cloud_owner:
+        :param cloud_region_id:
+        :return:
+        '''
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1VesAgentCtrl,self).get(request, vimid)
+
+
+    def post(self, request, cloud_owner="", cloud_region_id=""):
+        '''
+        wrapper for inherited API with VIM ID
+        :param request:
+        :param cloud_owner:
+        :param cloud_region_id:
+        :return:
+        '''
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1VesAgentCtrl,self).post(request, vimid)
+
+
+    def delete(self, request, cloud_owner="", cloud_region_id=""):
+        '''
+        wrapper of inherited API with VIM ID
+        :param request:
+        :param cloud_owner:
+        :param cloud_region_id:
+        :return:
+        '''
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1VesAgentCtrl,self).delete(request, vimid)
+
