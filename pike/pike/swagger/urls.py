@@ -16,9 +16,11 @@ from django.conf.urls import patterns, url
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from pike.swagger.views import SwaggerJsonView
+from pike.swagger.views import APIv1SwaggerJsonView
 
 urlpatterns = [
     url(r'^api/multicloud-pike/v0/swagger.json$', SwaggerJsonView.as_view()),
+    url(r'^api/multicloud-pike/v1/swagger.json$', APIv1SwaggerJsonView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
