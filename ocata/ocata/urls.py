@@ -52,6 +52,8 @@ urlpatterns = [
         registration.RegistryV1.as_view()),
     url(r'^api/multicloud-ocata/v1/(?P<vimid>[0-9a-zA-Z_-]+)/exten',
         include('ocata.extensions.urlsV1')),
+    url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/',
+        include('ocata.proxy.urlsV1')),
     url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
         infra_workload.APIv1InfraWorkload.as_view()),
     url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/(?P<requri>[0-9a-zA-Z_-]*)/?$',
