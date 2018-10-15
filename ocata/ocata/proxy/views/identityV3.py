@@ -16,6 +16,7 @@ import logging
 
 from django.conf import settings
 from newton_base.proxy import identityV3 as newton_identityV3
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -79,4 +80,3 @@ class APIv1TokensV2(TokensV2):
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(APIv1TokensV2,self).post(request, vimid)
-
