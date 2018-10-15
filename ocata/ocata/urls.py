@@ -19,6 +19,7 @@ from newton_base.openoapi import tenants
 from ocata.resource.views import capacity
 from ocata.resource.views import events
 from ocata.vesagent import vesagent_ctrl
+from ocata.resource.views import infra_workload
 
 urlpatterns = [
     url(r'^', include('ocata.swagger.urls')),
@@ -51,7 +52,10 @@ urlpatterns = [
         registration.RegistryV1.as_view()),
     url(r'^api/multicloud-ocata/v1/(?P<vimid>[0-9a-zA-Z_-]+)/exten',
         include('ocata.extensions.urlsV1')),
-
+    url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
+        infra_workload.APIv1InfraWorkload.as_view()),
+    url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/(?P<requri>[0-9a-zA-Z_-]*)/?$',
+        infra_workload.APIv1InfraWorkload.as_view()),
 ]
 
 
