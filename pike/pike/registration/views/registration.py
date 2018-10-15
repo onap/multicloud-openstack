@@ -34,3 +34,22 @@ class Registry(newton_registration.Registry):
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
         self._logger = logger
+
+class RegistryV1(Registry):
+    def __init__(self):
+        self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
+        self.aai_base_url = settings.AAI_BASE_URL
+        self._logger = logger
+
+    def post(self, request, cloud_owner="", cloud_region_id=""):
+        self._logger.info("registration with : %s, %s" % (cloud_owner, cloud_region_id))
+        self._logger.debug("with data: %s" % request.data)
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(RegistryV1, self).post(request, vimid)
+
+    def delete(self, request, cloud_owner="", cloud_region_id=""):
+        self._logger.debug("unregister cloud region: %s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(RegistryV1, self).delete(request, vimid)
