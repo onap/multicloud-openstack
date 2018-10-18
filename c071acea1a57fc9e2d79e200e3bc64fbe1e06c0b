@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bada0100_48b5c7ec",
+        "filename": "kilo/.gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-10-18T00:46:14Z",
+      "side": 1,
+      "message": "suggest drop changes to this file",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 32
+      },
+      "revId": "c071acea1a57fc9e2d79e200e3bc64fbe1e06c0b",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
