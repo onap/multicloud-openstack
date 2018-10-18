@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bada0100_88bbafe4",
+        "filename": "newton/.gitignore",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-10-18T00:45:49Z",
+      "side": 1,
+      "message": "suggest drop the change to this file",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 32
+      },
+      "revId": "b0d3eb62052cc229a84fb702a183ab4e6093a2ff",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
