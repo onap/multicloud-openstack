@@ -269,6 +269,7 @@ class Registry(APIView):
             self._logger.debug("ovsdpdk_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
+        logger.debug("hpa_caps:%s" % hpa_caps)
         return hpa_caps
 
     def _get_hpa_basic_capabilities(self, flavor):
@@ -512,9 +513,9 @@ class Registry(APIView):
         feature_uuid = uuid.uuid4()
 
         try:
-            if extra_specs.has_key('sriov_nic'):
-                value1 = extra_specs['sriov_nic'].split(':')
-                value2 = value1[0].split('-')
+            if extra_specs.has_key('aggregate_instance_extra_specs:sriov_nic'):
+                value1 = extra_specs['aggregate_instance_extra_specs:sriov_nic'].split(':')
+                value2 = value1[0].split('-', 5)
 
                 sriov_capability['hpa-capability-id'] = str(feature_uuid)
                 sriov_capability['hpa-feature'] = 'sriovNICNetwork'
