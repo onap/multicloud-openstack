@@ -117,6 +117,46 @@ MOCK_HEAT_LIST_RESPONSE1 = {
     ]
 }
 
+
+MOCK_HEAT_CREATE_BODY2 =   {
+     "generic-vnf-id":"MOCK_GENERIF_VNF_ID1",
+     "vf-module-id":"MOCK_VF_MODULE_ID1",
+     "template_type":"HEAT",
+     "template_data":{
+         "files":{  },
+         "disable_rollback":True,
+         "parameters":{
+             "flavor1":"m1.heat"
+         },
+         "stack_name":"teststack",
+         "template":{
+             "heat_template_version":"2013-05-23",
+             "description":"Simple template to test heat commands",
+             "parameters":
+                 {
+                     "flavor":{
+                         "default":"m1.tiny",
+                         "type":"string"
+                     }
+                 },
+             "resources":{
+                 "hello_world":{
+                     "type":"OS::Nova::Server",
+                     "properties":{
+                         "key_name":"heat_key",
+                         "flavor":{
+                             "get_param":"flavor"
+                         },
+                         "image":"40be8d1a-3eb9-40de-8abd-43237517384f",
+                         "user_data":"#!/bin/bash -xv\necho \"hello world\" &gt; /root/hello-world.txt\n"
+                     }
+                 }
+             }
+         },
+         "timeout_mins":60
+     }
+}
+
 class InfraWorkloadTest(unittest.TestCase):
     def setUp(self):
         self._InfraWorkload = InfraWorkload()
@@ -146,6 +186,27 @@ class InfraWorkloadTest(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         pass
 
+
+    @mock.patch.object(helper, 'MultiCloudServiceHelper')
+    @mock.patch.object(helper, 'MultiCloudIdentityHelper')
+    def test_post_wo_oof_directive(self,  mock_MultiCloudIdentityHelper, mock_MultiCloudServiceHelper):
+        mock_request = mock.Mock()
+        mock_request.META = {"testkey": "testvalue"}
+        mock_request.data = MOCK_HEAT_CREATE_BODY2
+
+        mock_MultiCloudIdentityHelper.side_effect= [
+            (0, MOCK_TOKEN_RESPONSE, status.HTTP_201_CREATED)
+                ]
+
+        mock_MultiCloudServiceHelper.side_effect= [
+            (0, MOCK_HEAT_CREATE_RESPONSE1, status.HTTP_201_CREATED)
+                ]
+
+        vimid = "CloudOwner_Region1"
+
+        response = self._InfraWorkload.post(mock_request, vimid)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        pass
 
     @mock.patch.object(helper, 'MultiCloudServiceHelper')
     @mock.patch.object(helper, 'MultiCloudIdentityHelper')

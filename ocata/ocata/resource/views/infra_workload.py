@@ -43,9 +43,9 @@ class InfraWorkload(APIView):
 
         try :
             data = request.data
-            oof_directive = data["oof_directives"]
-            template_type = data["template_type"]
-            template_data = data["template_data"]
+            oof_directive = data.get("oof_directives", {})
+            template_type = data.get("template_type", None)
+            template_data = data.get("template_data", {})
 
             resp_template = None
             if template_type and "heat" == template_type.lower():
