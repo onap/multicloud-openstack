@@ -33,7 +33,7 @@ EXPOSE 9006
 
 WORKDIR /opt/ocata
 RUN apt-get update && apt-get install -y memcached unzip rabbitmq-server
-RUN wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=LATEST" && \
+RUN wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=1.2.2-SNAPSHOT" && \
     unzip -q -o -B /opt/multicloud-openstack-ocata.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-ocata.zip
 RUN mkdir -p /var/log/onap/multicloud/openstack/ocata/

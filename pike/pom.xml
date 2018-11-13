@@ -24,7 +24,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.onap.multicloud.openstack</groupId>
     <artifactId>multicloud-openstack-pike</artifactId>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>1.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>multicloud-openstack-pike</name>
     <description>multicloud for openstack pike</description>

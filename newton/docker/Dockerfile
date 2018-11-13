@@ -35,7 +35,7 @@ RUN apt-get update && \
     apt-get install -y memcached && \
     apt-get install -y unzip && \
     cd /opt/ && \
-    wget -O multicloud-openstack-newton.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-newton&e=zip&v=LATEST" && \
+    wget -O multicloud-openstack-newton.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-newton&e=zip&v=1.2.2-SNAPSHOT" && \
     unzip -q -o -B multicloud-openstack-newton.zip && \
     chmod +x /opt/newton/*.sh && \
     rm -f multicloud-openstack-newton.zip && \
