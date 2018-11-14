@@ -190,7 +190,7 @@ class TestFlavorsNewton(unittest.TestCase, AbstractTestResource):
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
         context = response.json()
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
+        self.assertEquals(status.HTTP_200_OK,
                           response.status_code)
         self.assertIsNotNone(context['id'])
         self.assertEqual(1, context['returnCode'])
