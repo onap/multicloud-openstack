@@ -182,17 +182,17 @@ class Servers(APIView):
             logger.info("request returns with status %s" % resp.status_code)
             logger.debug("Servers--dettachVolume resp status::>%s" % resp.status_code)
 
-    def _convert_metadata(self, metadata_vfc, metadata_openstack, reverse=True):
-        if not reverse:
-            # from vfc format to openstack format
-            for spec in metadata_vfc:
-                metadata_openstack[spec['keyName']] = spec['value']
-        else:
-            for k, v in metadata_openstack.items():
-                spec = {}
-                spec['keyName'] = k
-                spec['value'] = v
-                metadata_vfc.append(spec)
+    #def _convert_metadata(self, metadata_vfc, metadata_openstack, reverse=True):
+    #    if not reverse:
+    #        # from vfc format to openstack format
+    #        for spec in metadata_vfc:
+    #            metadata_openstack[spec['keyName']] = spec['value']
+    #    else:
+    #        for k, v in metadata_openstack.items():
+    #            spec = {}
+    #            spec['keyName'] = k
+    #            spec['value'] = v
+    #            metadata_vfc.append(spec)
 
     def _convert_resp(self, server):
         #convert volumeArray
@@ -299,11 +299,11 @@ class Servers(APIView):
         if not serverid:
             # convert the key naming in servers
             for server in content["servers"]:
-                metadata_openstack = server.pop("metadata", None)
-                if metadata_openstack:
-                    metadata_vfc = []
-                    self._convert_metadata(metadata_vfc, metadata_openstack, True)
-                    server["metadata"] = metadata_vfc
+                #metadata_openstack = server.pop("metadata", None)
+                #if metadata_openstack:
+                #    metadata_vfc = []
+                #    self._convert_metadata(metadata_vfc, metadata_openstack, True)
+                #    server["metadata"] = metadata_vfc
                 VimDriverUtils.replace_key_by_mapping(server,
                                                       self.keys_mapping)
                 self._convert_resp(server)
@@ -312,11 +312,11 @@ class Servers(APIView):
         else:
             # convert the key naming in the server specified by id
             server = content.pop("server", None)
-            metadata_openstack = server.pop("metadata", None)
-            if metadata_openstack:
-                metadata_vfc = []
-                self._convert_metadata(metadata_vfc, metadata_openstack, True)
-                server["metadata"] = metadata_vfc
+            #metadata_openstack = server.pop("metadata", None)
+            #if metadata_openstack:
+            #    metadata_vfc = []
+            #    self._convert_metadata(metadata_vfc, metadata_openstack, True)
+            #    server["metadata"] = metadata_vfc
             VimDriverUtils.replace_key_by_mapping(server,
                                                   self.keys_mapping)
             self._convert_resp(server)
@@ -378,11 +378,11 @@ class Servers(APIView):
             if len(networks) > 0:
                 server["networks"] = networks
 
-            metadata_vfc = server.pop("metadata", None)
-            if metadata_vfc:
-                metadata_openstack = {}
-                self._convert_metadata(metadata_vfc, metadata_openstack, False)
-                server["metadata"] = metadata_openstack
+            #metadata_vfc = server.pop("metadata", None)
+            #if metadata_vfc:
+            #    metadata_openstack = {}
+            #    self._convert_metadata(metadata_vfc, metadata_openstack, False)
+            #    server["metadata"] = metadata_openstack
 
             contextarray = server.pop("contextArray", None)
             volumearray = server.pop("volumeArray", None)
@@ -434,11 +434,11 @@ class Servers(APIView):
                     volumeIds = [extraVolume["volumeId"] for extraVolume in volumearray]
                     self._attachVolume(vimid, tenantid, resp_body["id"], *volumeIds)
 
-            metadata_openstack = resp_body.pop("metadata", None)
-            if metadata_openstack:
-                metadata_vfc = []
-                self._convert_metadata(metadata_vfc, metadata_openstack, True)
-                resp_body["metadata"] = metadata_vfc
+            #metadata_openstack = resp_body.pop("metadata", None)
+            #if metadata_openstack:
+            #    metadata_vfc = []
+            #    self._convert_metadata(metadata_vfc, metadata_openstack, True)
+            #    resp_body["metadata"] = metadata_vfc
 
             VimDriverUtils.replace_key_by_mapping(resp_body, self.keys_mapping)
             vim_dict = {
