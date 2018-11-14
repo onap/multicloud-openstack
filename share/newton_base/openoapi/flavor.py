@@ -232,7 +232,7 @@ class Flavors(APIView):
             extra_specs_vfc = request.data.pop("extraSpecs", None)
             #create flavor first
             resp = self._create_flavor(sess, request)
-            if resp.status_code == 202:
+            if resp.status_code == 200:
                 resp_body = resp.json()["flavor"]
             else:
                 return resp
