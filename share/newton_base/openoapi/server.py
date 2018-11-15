@@ -335,6 +335,7 @@ class Servers(APIView):
             servername = request.data["name"]
             query = "name=%s" % servername
             content, status_code = self._get_servers(query, vimid, tenantid)
+            logger.info("content %s" % content)
             existed = False
             if status_code == status.HTTP_200_OK:
                 for server in content["servers"]:
@@ -381,44 +382,50 @@ class Servers(APIView):
             #metadata_vfc = server.pop("metadata", None)
             #if metadata_vfc:
             #    metadata_openstack = {}
-            #    self._convert_metadata(metadata_vfc, metadata_openstack, False)
+            #    self._convert_metadata(metadata_vfc, metadata_openstack, True)
             #    server["metadata"] = metadata_openstack
 
             contextarray = server.pop("contextArray", None)
             volumearray = server.pop("volumeArray", None)
-            userdata = server.pop("userdata", None)
-            if contextarray:
-                user_data = []
-                strUserData = ''
-                source_content = ""
-                dest_path = ""
-                user_data.append("#cloud-config\n")
-                for context in contextarray:
-                    user_data.append("write_files:\n")
-                    user_data.append("-   encoding: b64\n")
-                    user_data.append("    content: " + context["source_data_base64"] + "\n")
-                    user_data.append("    owner: root:root\n")
-                    user_data.append("    path: " + context["dest_path"] + "\n")
-                    user_data.append("    permissions: '0644'\n")
-                    user_data.append("\n")
-                if userdata:
-                    user_data.append("runcmd:\n")
-                    user_data.append("-   " + userdata + "\n")
 
-                strUserData.join(user_data)
-                server["user_data"] = strUserData
+            # inject files
+            logger.info("Start inject files contextarray %s" % contextarray)
+            if contextarray is not None:
+                if isinstance(contextarray, list):
+                    personalities = []
+                    for context in contextarray:
+                        personality = {}
+                        personality["path"] = context["dest_path"]
+                        personality["contents"] = context["source_data_base64"]
+                        personalities.append(personality)
+
+                    if len(personalities) > 0:
+                        server["personality"] = personalities
+                    logger.info("List personalities %s" % personalities)
+                elif isinstance(contextarray, dict):
+                    personalities = []
+                    personality = {}
+                    context = contextarray
+                    personality["path"] = context["dest_path"]
+                    personality["contents"] = context["source_data_base64"]
+                    personalities.append(personality)
+
+                    if len(personalities) > 0:
+                        server["personality"] = personalities
+                    logger.info("Personalities %s" % personalities)
+                else:
+                    logger.warn("Dict contextarray %s format is not right.", contextarray)
 
             VimDriverUtils.replace_key_by_mapping(server,
                                                   self.keys_mapping, True)
             req_body = json.JSONEncoder().encode({"server": server})
-
+            logger.info("-server %s, json_server %s" % (server, req_body))
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenantid)
 
             self.service['region_name'] = vim['openstack_region_id'] \
                 if vim.get('openstack_region_id') \
                 else vim['cloud_region_id']
-
             logger.info("making request with URI:%s" % req_resouce)
             resp = sess.post(req_resouce, data=req_body,
                              endpoint_filter=self.service,
