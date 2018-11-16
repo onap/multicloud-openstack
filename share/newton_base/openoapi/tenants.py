@@ -48,8 +48,8 @@ class Tenants(APIView):
 
             vim = VimDriverUtils.get_vim_info(vimid)
             req_resouce = "/projects"
-            if '/v2' in vim["url"]:
-                req_resouce = "/v2.0/tenants"
+            if '/v2.0' in vim["url"]:
+                req_resouce = "/tenants"
 
             sess = VimDriverUtils.get_session(vim)
 
