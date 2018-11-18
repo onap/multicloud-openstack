@@ -1007,7 +1007,7 @@ class Registry(APIView):
             #self._discover_volumegroups(vimid, sess, viminfo)
 
             # discover all snapshots
-            self._discover_snapshots(vimid, sess, viminfo)
+            #self._discover_snapshots(vimid, sess, viminfo)
 
             # discover all server groups
             #self.discover_servergroups(request, vimid, sess, viminfo)
