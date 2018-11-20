@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9adffdf1_f68ed6cf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2018-11-20T18:17:11Z",
+      "side": 1,
+      "message": "Shouldn\u0027t be better to remove the method and its references to  reduce the number of lines to maintain?",
+      "revId": "0a7c7e111f471d3c6b81ce00f5e968741897d8d5",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
