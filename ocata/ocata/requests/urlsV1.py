@@ -34,6 +34,8 @@ urlpatterns = [
         image.APIv1Images.as_view()),
     url(r'^volumes(/(?P<volumeid>[0-9a-zA-Z_-]+))?',
         volume.APIv1Volumes.as_view()),
+    url(r'^servers(/(?P<serverid>[0-9a-zA-Z_-]+))/action/?$',
+        server.ServerAction.as_view()),
     url(r'^servers(/(?P<serverid>[0-9a-zA-Z_-]+))?',
         server.APIv1Servers.as_view()),
     url(r'^ports(/(?P<portid>[0-9a-zA-Z_-]+))?',
