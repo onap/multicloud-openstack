@@ -36,6 +36,8 @@ urlpatterns = [
         volume.Volumes.as_view()),
     url(r'^servers(/(?P<serverid>[0-9a-zA-Z_-]+))?',
         server.Servers.as_view()),
+    url(r'^servers(/(?P<serverid>[0-9a-zA-Z_-]+))/action/?$',
+        server.ServerAction.as_view()),
     url(r'^ports(/(?P<portid>[0-9a-zA-Z_-]+))?',
         vport.Vports.as_view()),
     url(r'^flavors(/(?P<flavorid>[0-9a-zA-Z_-]+))?',
