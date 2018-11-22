@@ -34,6 +34,8 @@ urlpatterns = [
         image.Images.as_view()),
     url(r'^volumes(/(?P<volumeid>[0-9a-zA-Z_-]+))?',
         volume.Volumes.as_view()),
+    url(r'^servers(/(?P<serverid>[0-9a-zA-Z_-]+))/action/?$',
+        server.ServerAction.as_view()),
     url(r'^servers(/(?P<serverid>[0-9a-zA-Z_-]+))?',
         server.Servers.as_view()),
     url(r'^servers(/(?P<serverid>[0-9a-zA-Z_-]+))/action/?$',
