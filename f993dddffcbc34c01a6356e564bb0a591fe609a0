@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9adffdf1_1f9b6673",
+        "filename": "windriver/titanium_cloud/requests/urlsV1.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-11-22T09:12:10Z",
+      "side": 1,
+      "message": "This will not work since the v1 api handler is needed to accommodate the different VIM id format: {cloud owner}/{cloud region id}",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 39
+      },
+      "revId": "f993dddffcbc34c01a6356e564bb0a591fe609a0",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
