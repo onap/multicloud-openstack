@@ -555,7 +555,7 @@ class ServerAction(APIView):
                              endpoint_filter=self.service,
                              headers={"Content-Type": "application/json",
                                       "Accept": "application/json"})
-            resp_body = resp.json()
+            resp_body = {}
 
             return Response(data=resp_body, status=resp.status_code)
         except VimDriverKiloException as e:
