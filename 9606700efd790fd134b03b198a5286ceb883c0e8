@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9adffdf1_f576c33d",
+        "filename": "kilo/tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-11-23T01:05:03Z",
+      "side": 1,
+      "message": "kilo has been obsolete since R1, please do not change anything unless anyone is willing to own this module",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "9606700efd790fd134b03b198a5286ceb883c0e8",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9adffdf1_15726749",
+        "filename": "newton/tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2018-11-23T01:05:03Z",
+      "side": 1,
+      "message": "newton module has been depreciated since R3, so no change will be made to this module unless critical error need to be fixed",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 25
+      },
+      "revId": "9606700efd790fd134b03b198a5286ceb883c0e8",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
