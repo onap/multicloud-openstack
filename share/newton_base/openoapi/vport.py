@@ -47,7 +47,11 @@ class Vports(APIView):
             pass
         try:
             # prepare request resource to vim instance
-            query = VimDriverUtils.get_query_part(request)
+            querystr = VimDriverUtils.get_query_part(request)
+            query = "project_id=%s" % (tenantid)
+            if querystr:
+                query += "&" + querystr
+
             content, status_code = self._get_ports(query, vimid, tenantid, portid)
             logger.info("response with status = %s" % status_code)
             return Response(data=content, status=status_code)
@@ -127,7 +131,10 @@ class Vports(APIView):
             pass
         try:
             #check if already created: name
-            query = "name=%s" % request.data["name"]
+            query = "project_id=%s&name=%s" % (tenantid, request.data["name"])
+            networkid = request.data.get("networkId", None)
+            if networkid:
+                query += "&network_id=%s" % networkid
             content, status_code = self._get_ports(query, vimid, tenantid, portid)
             existed = False
             if status_code == 200:

@@ -48,7 +48,11 @@ class Subnets(APIView):
             pass
         try:
             # prepare request resource to vim instance
-            query = VimDriverUtils.get_query_part(request)
+            querystr = VimDriverUtils.get_query_part(request)
+            query = "project_id=%s" % (tenantid)
+            if querystr:
+                query += "&" + querystr
+
             content, status_code = self._get_subnets(query, vimid, tenantid, subnetid)
             logger.info("request returns with status %s" % status_code)
             return Response(data=content, status=status_code)
@@ -117,7 +121,11 @@ class Subnets(APIView):
             pass
         try:
             #check if created already: check name
-            query = "name=%s" % request.data["name"]
+            query = "project_id=%s&name=%s" % (tenantid, request.data["name"])
+            networkid = request.data.get("networkId", None)
+            if networkid:
+                query += "&network_id=%s" % networkid
+
             content, status_code = self._get_subnets(query, vimid, tenantid)
             existed = False
             if status_code == 200:
