@@ -45,7 +45,11 @@ class Networks(APIView):
             logger.debug("With data = %s" % request.data)
             pass
         try:
-            query = VimDriverUtils.get_query_part(request)
+            querystr = VimDriverUtils.get_query_part(request)
+            query = "project_id=%s" % (tenantid)
+            if querystr:
+                query += "&" + querystr
+
             content, status_code = self._get_networks(query, vimid, tenantid, networkid)
             logger.info("response with status = %s" % status_code)
             return Response(data=content, status=status_code)
@@ -115,7 +119,7 @@ class Networks(APIView):
             pass
         try:
             #check if created already: check name
-            query = "name=%s" % request.data["name"]
+            query = "project_id=%s&name=%s" % (tenantid, request.data["name"])
             content, status_code = self._get_networks(query, vimid, tenantid)
             existed = False
             if status_code == 200:
