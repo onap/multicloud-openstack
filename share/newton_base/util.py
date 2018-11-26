@@ -22,6 +22,11 @@ from keystoneauth1 import session
 
 from common.msapi import extsys
 
+# profiler decoration
+import cProfile
+import pstats
+import os
+
 logger = logging.getLogger(__name__)
 
 
@@ -147,3 +152,28 @@ class VimDriverUtils(object):
     def replace_key_by_mapping(dict_obj, mapping, reverse=False):
         for k in mapping:
             VimDriverUtils._replace_a_key(dict_obj, k, reverse)
+
+    # profiler decoration
+    @staticmethod
+    def do_cprofile(filename):
+        """
+        Decorator for function profiling.
+        """
+        def wrapper(func):
+            def profiled_func(*args, **kwargs):
+                # Flag for do profiling or not.
+                DO_PROF = True # os.getenv("PROFILING")
+                if DO_PROF:
+                    profile = cProfile.Profile()
+                    profile.enable()
+                    result = func(*args, **kwargs)
+                    profile.disable()
+                    # Sort stat by internal time.
+                    sortby = "tottime"
+                    ps = pstats.Stats(profile).sort_stats(sortby)
+                    ps.dump_stats(filename)
+                else:
+                    result = func(*args, **kwargs)
+                return result
+            return profiled_func
+        return wrapper
