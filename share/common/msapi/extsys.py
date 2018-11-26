@@ -12,6 +12,7 @@
 import json
 import logging
 import re
+from django.core.cache import cache
 
 from common.exceptions import VimDriverNewtonException
 from common.utils import restcall
@@ -21,6 +22,12 @@ logger = logging.getLogger(__name__)
 
 
 def get_vim_by_id(vim_id):
+
+    # try to load from cache
+    cachedviminfostr = cache.get(vim_id)
+    if cachedviminfostr:
+        viminfo = json.loads(cachedviminfostr)
+        return viminfo
 
     cloud_owner,cloud_region_id = decode_vim_id(vim_id)
 
@@ -74,6 +81,8 @@ def get_vim_by_id(vim_id):
             viminfo['openstack_region_id'] = tmp_viminfo.get("cloud-epa-caps") \
                 if tmp_viminfo.get("cloud-epa-caps") else cloud_region_id
 
+            # cache the viminfo for 24 hour
+            cache.set("vim_id", json.dumps(viminfo), 3600*24)
             return viminfo
     return None
 
