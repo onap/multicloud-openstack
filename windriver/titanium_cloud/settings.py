@@ -96,7 +96,7 @@ CACHES = {
 MSB_SERVICE_ADDR = os.environ.get('MSB_ADDR', DEFAULT_MSB_ADDR)
 MSB_SERVICE_PORT = os.environ.get('MSB_PORT', "80")
 
-#[Multicloud]
+# [Multicloud]
 MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-titaniumcloud/v0" % (
     MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
@@ -129,7 +129,7 @@ config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
 
 if 'test' in sys.argv:
 
-    #LOGGING['handlers']['titanium_cloud_handler']['filename'] = 'logs/titanium_cloud.log'
+    # LOGGING['handlers']['titanium_cloud_handler']['filename'] = 'logs/titanium_cloud.log'
 
     REST_FRAMEWORK = {}
     import platform

@@ -19,6 +19,7 @@ from onaplogging.mdcContext import MDC
 FORWARDED_FOR_FIELDS = ["HTTP_X_FORWARDED_FOR", "HTTP_X_FORWARDED_HOST",
                         "HTTP_X_FORWARDED_SERVER"]
 
+
 class LogContextMiddleware(object):
 
     #  the last IP behind multiple proxies,  if no exist proxies
@@ -43,7 +44,6 @@ class LogContextMiddleware(object):
 
         return ip
 
-
     def process_request(self, request):
         # fetch propageted Id from other component. if do not fetch id,
         # generate one.
@@ -62,4 +62,3 @@ class LogContextMiddleware(object):
 
         MDC.clear()
         return response
-
