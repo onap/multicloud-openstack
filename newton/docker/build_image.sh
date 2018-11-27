@@ -20,8 +20,8 @@ cd ${DOCKER_BUILD_DIR}
 
 BUILD_ARGS="--no-cache"
 ORG="onap"
-VERSION="1.2.2-SNAPSHOT"
-STAGING="1.2.2-STAGING"
+VERSION="1.2.3-SNAPSHOT"
+STAGING="1.2.3-STAGING"
 PROJECT="multicloud"
 IMAGE="openstack-newton"
 DOCKER_REPOSITORY="nexus3.onap.org:10003"
