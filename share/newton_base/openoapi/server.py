@@ -567,3 +567,10 @@ class ServerAction(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class APIv1ServerAction(ServerAction):
+    def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1ServerAction, self).post(request, vimid, tenantid, serverid)
