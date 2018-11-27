@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
+# import json
 import logging
-import os
-import traceback
+# import os
+# import traceback
 
-from rest_framework import status
+# from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
+# from rest_framework.views import APIView
 
-from common.exceptions import VimDriverNewtonException
+# from common.exceptions import VimDriverNewtonException
 from newton_base.swagger import views as newton_json_view
 
 logger = logging.getLogger(__name__)
@@ -36,15 +36,14 @@ class SwaggerJsonViewDepreciated(newton_json_view.SwaggerJsonView):
         :return:
         '''
 
-        resp = super(SwaggerJsonViewDepreciated,self).get(request)
+        resp = super(SwaggerJsonViewDepreciated, self).get(request)
         json_data = resp.data if resp else None
         if json_data:
             json_data["basePath"] = "/api/multicloud-titanium_cloud/v0/"
             json_data["info"]["title"] = "Depreciated Service NBI of MultiCloud plugin for Titanium Cloud"
             return Response(data=json_data, status=200)
         else:
-            return Response(data={'error':'internal error'}, status=500)
-
+            return Response(data={'error': 'internal error'}, status=500)
 
 
 class APIv1SwaggerJsonViewDepreciated(newton_json_view.SwaggerJsonView):
@@ -56,14 +55,14 @@ class APIv1SwaggerJsonViewDepreciated(newton_json_view.SwaggerJsonView):
         :return:
         '''
 
-        resp = super(APIv1SwaggerJsonViewDepreciated,self).get(request)
+        resp = super(APIv1SwaggerJsonViewDepreciated, self).get(request)
         json_data = resp.data if resp else None
         if json_data:
             json_data["basePath"] = "/api/multicloud-titanium_cloud/v1/"
             json_data["info"]["title"] = "Depreciated Service NBI v1 of MultiCloud plugin for Titanium Cloud"
             return Response(data=json_data, status=200)
         else:
-            return Response(data={'error':'internal error'}, status=500)
+            return Response(data={'error': 'internal error'}, status=500)
 
 
 class SwaggerJsonView(newton_json_view.SwaggerJsonView):
@@ -75,14 +74,14 @@ class SwaggerJsonView(newton_json_view.SwaggerJsonView):
         :return:
         '''
 
-        resp = super(SwaggerJsonView,self).get(request)
+        resp = super(SwaggerJsonView, self).get(request)
         json_data = resp.data if resp else None
         if json_data:
             json_data["basePath"] = "/api/multicloud-titaniumcloud/v0/"
             json_data["info"]["title"] = "Service NBI v0 of MultiCloud plugin for Titanium Cloud"
             return Response(data=json_data, status=200)
         else:
-            return Response(data={'error':'internal error'}, status=500)
+            return Response(data={'error': 'internal error'}, status=500)
 
 
 class APIv1SwaggerJsonView(newton_json_view.SwaggerJsonView):
@@ -94,11 +93,11 @@ class APIv1SwaggerJsonView(newton_json_view.SwaggerJsonView):
         :return:
         '''
 
-        resp = super(APIv1SwaggerJsonView,self).get(request)
+        resp = super(APIv1SwaggerJsonView, self).get(request)
         json_data = resp.data if resp else None
         if json_data:
             json_data["basePath"] = "/api/multicloud-titaniumcloud/v1/"
             json_data["info"]["title"] = "Service NBI v1 of MultiCloud plugin for Titanium Cloud"
             return Response(data=json_data, status=200)
         else:
-            return Response(data={'error':'internal error'}, status=500)
+            return Response(data={'error': 'internal error'}, status=500)

@@ -18,7 +18,7 @@ import traceback
 from keystoneauth1.exceptions import HttpError
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
+# from rest_framework.views import APIView
 
 from django.conf import settings
 from common.exceptions import VimDriverNewtonException
@@ -29,13 +29,13 @@ logger = logging.getLogger(__name__)
 
 # DEBUG=True
 
+
 class Extensions(newton_extensions.Extensions):
 
     def __init__(self):
         super(Extensions, self).__init__()
         # self._logger = logger
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
-
 
     def get(self, request, vimid=""):
         logger.debug("Extensions--get::data> %s" % request.data)
@@ -55,9 +55,9 @@ class Extensions(newton_extensions.Extensions):
                 ]
 
             content = {
-                "cloud-owner":cloud_owner,
-                "cloud-region-id":cloud_region_id,
-                "vimid":vimid,
+                "cloud-owner": cloud_owner,
+                "cloud-region-id": cloud_region_id,
+                "vimid": vimid,
                 "extensions": registered_extensions
             }
             return Response(data=content, status=status.HTTP_200_OK)
@@ -73,7 +73,6 @@ class Extensions(newton_extensions.Extensions):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class APIv1Extensions(Extensions):
 
     def __init__(self):
@@ -81,9 +80,10 @@ class APIv1Extensions(Extensions):
         # self._logger = logger
         self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
 
-
     def get(self, request, cloud_owner="", cloud_region_id=""):
-        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+        self._logger.info(
+            "cloud_owner,cloud_region_id: %s,%s" %
+            (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1Extensions,self).get(request, vimid)
+        return super(APIv1Extensions, self).get(request, vimid)
