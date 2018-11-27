@@ -20,7 +20,7 @@ import traceback
 from django.conf import settings
 
 from newton_base.registration import registration as newton_registration
-from common.exceptions import VimDriverNewtonException
+# from common.exceptions import VimDriverNewtonException
 from rest_framework import status
 from rest_framework.response import Response
 from common.msapi import extsys
@@ -30,16 +30,16 @@ from common.utils import restcall
 
 logger = logging.getLogger(__name__)
 
+
 # DEBUG=True
 
-class Registry(newton_registration.Registry):
 
+class Registry(newton_registration.Registry):
     def __init__(self):
         super(Registry, self).__init__()
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
         # self._logger = logger
-
 
     def _get_ovsdpdk_capabilities(self, extra_specs, viminfo):
         instruction_capability = {}
@@ -51,15 +51,15 @@ class Registry(newton_registration.Registry):
         instruction_capability['hpa-version'] = 'v1'
 
         instruction_capability['hpa-feature-attributes'] = []
-        instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'dataProcessingAccelerationLibrary',
-                                                     'hpa-attribute-value':
-                                                      '{{\"value\":\"{0}\"}}'.format("v17.02")
-                                                                 })
+        instruction_capability['hpa-feature-attributes'].append(
+            {'hpa-attribute-key': 'dataProcessingAccelerationLibrary',
+             'hpa-attribute-value':
+                 '{{\"value\":\"{0}\"}}'.format("v17.02")
+             })
         return instruction_capability
 
 
 class APIv1Registry(newton_registration.Registry):
-
     def __init__(self):
         super(APIv1Registry, self).__init__()
         self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
@@ -76,10 +76,11 @@ class APIv1Registry(newton_registration.Registry):
         instruction_capability['hpa-version'] = 'v1'
 
         instruction_capability['hpa-feature-attributes'] = []
-        instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'dataProcessingAccelerationLibrary',
-                                                     'hpa-attribute-value':
-                                                      '{{\"value\":\"{0}\"}}'.format("v17.02")
-                                                                 })
+        instruction_capability['hpa-feature-attributes'].append(
+            {'hpa-attribute-key': 'dataProcessingAccelerationLibrary',
+             'hpa-attribute-value':
+                 '{{\"value\":\"{0}\"}}'.format("v17.02")
+             })
         return instruction_capability
 
     def _update_cloud_region(self, cloud_owner, cloud_region_id, openstack_region_id, viminfo, session=None):
@@ -92,29 +93,30 @@ class APIv1Registry(newton_registration.Registry):
                     "cloud_region_id": cloud_region_id
                 })
 
-            #Note1: The intent is to populate the openstack region id into property: cloud-region.esr-system-info.openstackRegionId
-            #Note2: As temp solution: the openstack region id was put into AAI cloud-region["cloud-epa-caps"]
+            # Note1: The intent is to populate the openstack region id into property: cloud-region.esr-system-info.openstackRegionId
+            # Note2: As temp solution: the openstack region id was put into AAI cloud-region["cloud-epa-caps"]
 
             resource_info = {
                 "cloud-owner": cloud_owner,
                 "cloud-region-id": cloud_region_id,
                 "cloud-type": viminfo["type"],
                 "cloud-region-version": viminfo["version"],
-                "identity-url": self.proxy_prefix + "/%s_%s/identity/v2.0" % (cloud_owner, cloud_region_id) \
-                    if self.proxy_prefix[-3:] == "/v0" else \
+                "identity-url":
+                    self.proxy_prefix + "/%s_%s/identity/v2.0" % (cloud_owner, cloud_region_id)
+                    if self.proxy_prefix[-3:] == "/v0" else
                     self.proxy_prefix + "/%s/%s/identity/v2.0" % (cloud_owner, cloud_region_id),
                 "complex-name": viminfo["complex-name"],
                 "cloud-extra-info": viminfo["cloud_extra_info"],
-                "cloud-epa-caps":openstack_region_id,
-                "esr-system-info-list":{
-                    "esr-system-info":[
+                "cloud-epa-caps": openstack_region_id,
+                "esr-system-info-list": {
+                    "esr-system-info": [
                         {
                             "esr-system-info-id": str(uuid.uuid4()),
                             "service-url": viminfo["url"],
                             "user-name": viminfo["userName"],
                             "password": viminfo["password"],
-                            "system-type":"VIM",
-                            "ssl-cacert":viminfo["cacert"],
+                            "system-type": "VIM",
+                            "ssl-cacert": viminfo["cacert"],
                             "ssl-insecure": viminfo["insecure"],
                             "cloud-domain": viminfo["domain"],
                             "default-tenant": viminfo["tenant"]
@@ -124,13 +126,13 @@ class APIv1Registry(newton_registration.Registry):
                 }
             }
 
-            #get the resource first
+            # get the resource first
             resource_url = ("/cloud-infrastructure/cloud-regions/"
-                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s"
-                     % {
-                         "cloud_owner": cloud_owner,
-                         "cloud_region_id": cloud_region_id
-                     })
+                            "cloud-region/%(cloud_owner)s/%(cloud_region_id)s"
+                            % {
+                                "cloud_owner": cloud_owner,
+                                "cloud_region_id": cloud_region_id
+                            })
 
             # get cloud-region
             retcode, content, status_code = \
@@ -139,11 +141,11 @@ class APIv1Registry(newton_registration.Registry):
             # add resource-version
             if retcode == 0 and content:
                 content = json.JSONDecoder().decode(content)
-                #resource_info["resource-version"] = content["resource-version"]
+                # resource_info["resource-version"] = content["resource-version"]
                 content.update(resource_info)
                 resource_info = content
 
-            #then update the resource
+            # then update the resource
             retcode, content, status_code = \
                 restcall.req_to_aai(resource_url, "PUT", content=resource_info)
 
@@ -176,22 +178,22 @@ class APIv1Registry(newton_registration.Registry):
         try:
             regions = []
             vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-            isDistributedCloud = False;
+            isDistributedCloud = False
             openstackregions = self._get_list_resources(
-                    "/regions", "identity", session, viminfo, vimid,
-                    "regions")
+                "/regions", "identity", session, viminfo, vimid,
+                "regions")
 
             for region in openstackregions:
-                if (region['id'] == 'SystemController'):
-                    isDistributedCloud = True;
+                if region['id'] == 'SystemController':
+                    isDistributedCloud = True
                     break
                 else:
                     continue
 
             for region in openstackregions:
-                if (region['id'] == 'SystemController'):
+                if region['id'] == 'SystemController':
                     continue
-                elif (region['id'] == 'RegionOne' and isDistributedCloud == True):
+                elif region['id'] == 'RegionOne' and isDistributedCloud:
                     continue
                 else:
                     regions.append(region['id'])
@@ -202,7 +204,7 @@ class APIv1Registry(newton_registration.Registry):
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return
-        except Exception as e:
+        except Exception:
             self._logger.error(traceback.format_exc())
             return
 
@@ -219,7 +221,7 @@ class APIv1Registry(newton_registration.Registry):
                 cloud_extra_info = json.loads(cloud_extra_info_str) if cloud_extra_info_str else None
             except Exception as ex:
                 logger.error("Can not convert cloud extra info %s %s" % (
-                             str(ex), cloud_extra_info_str))
+                    str(ex), cloud_extra_info_str))
                 pass
 
             region_specified = cloud_extra_info.get("openstack-region-id", None) if cloud_extra_info else None
@@ -232,39 +234,37 @@ class APIv1Registry(newton_registration.Registry):
             # discover the regions
             region_ids = self._discover_regions(cloud_owner, cloud_region_id, sess, viminfo)
 
-            if (len(region_ids) == 0):
+            if len(region_ids) == 0:
                 self._logger.error("_discover_regions, return regions:%s" % (region_ids))
                 return Response(
-                data={'error': "no region found for cloud region: %s,%s" % (cloud_owner, cloud_region_id)},
+                    data={'error': "no region found for cloud region: %s,%s" % (cloud_owner, cloud_region_id)},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
             # compare the regions with region_specified and then cloud_region_id
-            if (region_specified in region_ids):
+            if region_specified in region_ids:
                 pass
-            elif (cloud_region_id in region_ids):
+            elif cloud_region_id in region_ids:
                 region_specified = cloud_region_id
                 pass
             else:
                 # assume the first region be the primary region since we have no other way to determine it.
-                region_specified = region_ids.pop(0);
+                region_specified = region_ids.pop(0)
 
             # update cloud region and discover/register resource
-            if (multi_region_discovery):
+            if multi_region_discovery:
                 # no input for specified cloud region, so discover all cloud region?
                 for regionid in region_ids:
                     # do not update the specified region here
                     if region_specified == regionid:
                         continue
 
-                    #create cloud region with composed AAI cloud_region_id except for the one onboarded externally (e.g. ESR)
+                    # create cloud region with composed AAI cloud_region_id except for the one onboarded externally (e.g. ESR)
                     gen_cloud_region_id = cloud_region_id + "_" + regionid
-                    self._logger.info("create a cloud region: %s,%s,%s" % (cloud_owner,gen_cloud_region_id,regionid))
+                    self._logger.info("create a cloud region: %s,%s,%s" % (cloud_owner, gen_cloud_region_id, regionid))
 
                     self._update_cloud_region(cloud_owner, gen_cloud_region_id, regionid, viminfo)
                     new_vimid = extsys.encode_vim_id(cloud_owner, gen_cloud_region_id)
                     super(APIv1Registry, self).post(request, new_vimid)
-
 
             # update the specified region
             self._update_cloud_region(cloud_owner, cloud_region_id, region_specified, viminfo)
@@ -279,8 +279,6 @@ class APIv1Registry(newton_registration.Registry):
                 data={'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
     def delete(self, request, cloud_owner="", cloud_region_id=""):
         self._logger.debug("unregister cloud region: %s, %s" % (cloud_owner, cloud_region_id))
 
@@ -288,9 +286,8 @@ class APIv1Registry(newton_registration.Registry):
         return super(APIv1Registry, self).delete(request, vimid)
 
 
-### APIv0 handler upgrading: leverage APIv1 handler
+# APIv0 handler upgrading: leverage APIv1 handler
 class APIv0Registry(APIv1Registry):
-
     def __init__(self):
         super(APIv0Registry, self).__init__()
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
