@@ -17,15 +17,18 @@
 import logging
 import json
 import uuid
-import time
 
 from django.conf import settings
 from titanium_cloud.vesagent.vespublish import publishAnyEventToVES
 from common.utils import restcall
-from common.msapi.helper import Helper as helper
+# from common.msapi.helper import Helper as helper
 
 import datetime
 import time
+
+logger = logging.getLogger(__name__)
+
+
 def get_epoch_now_usecond():
     '''
     get epoch timestamp of this moment in usecond
@@ -35,18 +38,16 @@ def get_epoch_now_usecond():
     epoch_time_sec = time.mktime(now_time.timetuple())
     return int(epoch_time_sec * 1e6 + now_time.microsecond)
 
-logger = logging.getLogger(__name__)
-
-### build backlog with domain:"fault", type:"vm"
 
 def buildBacklog_fault_vm(vimid, backlog_input):
+    # build backlog with domain:"fault", type:"vm"
 
     logger.info("vimid: %s" % vimid)
     logger.debug("with input: %s" % backlog_input)
 
     try:
 
-        #must resolve the tenant id and server id while building the backlog
+        # must resolve the tenant id and server id while building the backlog
         tenant_id = backlog_input.get("tenantid", None)
         server_id = backlog_input.get("sourceid", None)
         server_name = backlog_input.get("source", None)
@@ -59,10 +60,11 @@ def buildBacklog_fault_vm(vimid, backlog_input):
             # resolve tenant_name to tenant_id
             auth_api_url_format = "/{f_vim_id}/identity/v2.0/tokens"
             auth_api_url = auth_api_url_format.format(f_vim_id=vimid)
-            auth_api_data = { "auth":{"tenantName": tenant_name} }
+            auth_api_data = {"auth": {"tenantName": tenant_name}}
             base_url = settings.MULTICLOUD_PREFIX
             extra_headers = ''
-            ret = restcall._call_req(base_url, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(auth_api_data))
+            ret = restcall._call_req(base_url, "", "", 0, auth_api_url,
+                                     "POST", extra_headers, json.dumps(auth_api_data))
             if ret[0] > 0 or ret[1] is None:
                 logger.critical("call url %s failed with status %s" % (auth_api_url, ret[0]))
                 return None
@@ -96,7 +98,7 @@ def buildBacklog_fault_vm(vimid, backlog_input):
                                 % (server_name, tenant_id))
                     return None
 
-        #m.c. proxied OpenStack API
+        # m.c. proxied OpenStack API
         if server_id is None and server_name is None:
             # monitor all VMs of the specified VIMs since no server_id can be resolved
             api_url_fmt = "/{f_vim_id}/compute/v2.1/{f_tenant_id}/servers/detail"
@@ -105,11 +107,12 @@ def buildBacklog_fault_vm(vimid, backlog_input):
         else:
             api_url_fmt = "/{f_vim_id}/compute/v2.1/{f_tenant_id}/servers/{f_server_id}"
             api_url = api_url_fmt.format(
-                            f_vim_id=vimid, f_tenant_id=tenant_id, f_server_id=server_id)
+                f_vim_id=vimid, f_tenant_id=tenant_id, f_server_id=server_id)
 
         backlog = {
-            "backlog_uuid":str(uuid.uuid3(uuid.NAMESPACE_URL,
-                                          str("%s-%s-%s"%(vimid, tenant_id,server_id)))),
+            "backlog_uuid":
+                str(uuid.uuid3(uuid.NAMESPACE_URL,
+                               str("%s-%s-%s" % (vimid, tenant_id, server_id)))),
             "tenant_id": tenant_id,
             "server_id": server_id,
             "api_method": "GET",
@@ -125,8 +128,7 @@ def buildBacklog_fault_vm(vimid, backlog_input):
     return backlog
 
 
-### process backlog with domain:"fault", type:"vm"
-
+# process backlog with domain:"fault", type:"vm"
 
 
 def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
@@ -140,13 +142,15 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
         # get token
         auth_api_url_format = "/{f_vim_id}/identity/v2.0/tokens"
         auth_api_url = auth_api_url_format.format(f_vim_id=vimid)
-        auth_api_data = { "auth":{"tenantName": tenant_name} }
+        auth_api_data = {"auth": {"tenantName": tenant_name}}
         base_url = settings.MULTICLOUD_PREFIX
         extra_headers = ''
         logger.debug("authenticate with url:%s" % auth_api_url)
-        ret = restcall._call_req(base_url, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(auth_api_data))
+        ret = restcall._call_req(base_url, "", "", 0, auth_api_url,
+                                 "POST", extra_headers, json.dumps(auth_api_data))
         if ret[0] > 0 or ret[1] is None:
-            logger.critical("call url %s failed with status %s" % (auth_api_url, ret[0]))
+            logger.critical("call url %s failed with status %s" %
+                            (auth_api_url, ret[0]))
 
         token_resp = json.JSONDecoder().decode(ret[1])
         logger.debug("authenticate resp: %s" % token_resp)
@@ -158,8 +162,9 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
         base_url = settings.MULTICLOUD_PREFIX
         data = ''
         extra_headers = {'X-Auth-Token': token}
-        #which one is correct? extra_headers = {'HTTP_X_AUTH_TOKEN': token}
-        logger.debug("authenticate with url:%s, header:%s" % (auth_api_url,extra_headers))
+        # which one is correct? extra_headers = {'HTTP_X_AUTH_TOKEN': token}
+        logger.debug("authenticate with url:%s, header:%s" %
+                     (auth_api_url, extra_headers))
         ret = restcall._call_req(base_url, "", "", 0, api_link, method, extra_headers, data)
         if ret[0] > 0 or ret[1] is None:
             logger.critical("call url %s failed with status %s" % (api_link, ret[0]))
@@ -171,10 +176,10 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
         backlog_uuid = oneBacklog.get("backlog_uuid", None)
         backlogState = vesAgentState.get("%s" % (backlog_uuid), None)
 
-        #iterate all VMs
+        # iterate all VMs
         all_events = []
-        server_1 = server_resp.get("server",None) # in case querying single server
-        for s in server_resp.get("servers",[server_1] if server_1 else []):
+        server_1 = server_resp.get("server", None)  # in case querying single server
+        for s in server_resp.get("servers", [server_1] if server_1 else []):
             server_id = s.get("id", None)
             server_name = s.get("name", None)
             if not server_id:
@@ -195,7 +200,7 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
             publishAnyEventToVES(ves_subscription, all_events)
             # store the latest data into cache, never expire
 
-    except  Exception as e:
+    except Exception as e:
         logger.error("exception:%s" % str(e))
         return
 
@@ -204,7 +209,6 @@ def processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog):
 
 
 def data2event_fault_vm(vimid, oneBacklog, last_event, vm_data):
-
     VES_EVENT_VERSION = 3.0
     VES_EVENT_FAULT_VERSION = 2.0
     VES_EVENT_FAULT_DOMAIN = "fault"
@@ -221,7 +225,7 @@ def data2event_fault_vm(vimid, oneBacklog, last_event, vm_data):
             priority = "High"
             eventSeverity = "CRITICAL"
             alarmCondition = "Guest_Os_Failure"
-            vfStatus = "Active"
+            # vfStatus = "Active"
             specificProblem = "Fault_MultiCloud_VMFailure"
             eventType = ''
             reportingEntityId = vimid
@@ -239,17 +243,16 @@ def data2event_fault_vm(vimid, oneBacklog, last_event, vm_data):
                 # not assert alarm yet, so no need to clear it
                 return None
 
-
             eventName = "Fault_MultiCloud_VMFailureCleared"
             priority = "Normal"
             eventSeverity = "NORMAL"
             alarmCondition = "Vm_Restart"
-            vfStatus = "Active"
+            # vfStatus = "Active"
             specificProblem = "Fault_MultiCloud_VMFailure"
             eventType = ''
             reportingEntityId = vimid
             reportingEntityName = vimid
-            sequence = 1 #last_event['event']['commonEventHeader']['sequence'] + 1
+            sequence = 1  # last_event['event']['commonEventHeader']['sequence'] + 1
 
             startEpochMicrosec = last_event['event']['commonEventHeader']['startEpochMicrosec']
             lastEpochMicrosec = get_epoch_now_usecond()

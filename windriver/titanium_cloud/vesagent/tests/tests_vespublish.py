@@ -15,17 +15,19 @@
 import mock
 
 import unittest
-import json
+# import json
 import urllib2
 
 from titanium_cloud.vesagent import vespublish
 
 MOCK_VESENDPOINT = {
-    "endpoint" : "MOCKED_VES_COLLECTOR_EP1",
-    "username" : "MOCKED_VES_COLLECTOR_USER1",
-    "password" : "MOCKED_VES_COLLECTOR_PASSWD1",
+    "endpoint": "MOCKED_VES_COLLECTOR_EP1",
+    "username": "MOCKED_VES_COLLECTOR_USER1",
+    "password": "MOCKED_VES_COLLECTOR_PASSWD1",
 }
-MOCK_VESPUBLISH_EVENT1 = [{"name":"event1"}]
+
+MOCK_VESPUBLISH_EVENT1 = [{"name": "event1"}]
+
 
 class VespublishTest(unittest.TestCase):
     def setUp(self):
@@ -39,16 +41,14 @@ class VespublishTest(unittest.TestCase):
     def test_publishAnyEventToVES(self, mock_Request, mock_urlopen):
         mock_request = mock.Mock()
 
-        mock_Request.side_effect= [
+        mock_Request.side_effect = [
             mock_request
-                ]
+        ]
 
         mock_response = mock.Mock(["read"])
         mock_response.read.return_value = "MOCKED_VESPUBLISH_RESPONSE_MESSAGE"
-        mock_urlopen.side_effect= [
+        mock_urlopen.side_effect = [
             mock_response
-                ]
+        ]
 
         vespublish.publishAnyEventToVES(MOCK_VESENDPOINT, MOCK_VESPUBLISH_EVENT1)
-
-        pass
