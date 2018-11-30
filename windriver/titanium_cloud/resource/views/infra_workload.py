@@ -196,6 +196,12 @@ class InfraWorkload(APIView):
         self._logger.debug("META: %s" % request.META)
 
         try:
+            if requri == "":
+                raise VimDriverNewtonException(
+                    message="workload_id is not specified",
+                    content="workload_id must be specified to delete the workload",
+                    status_code=400)
+
             # assume the workload_type is heat
             stack_id = requri
             cloud_owner, regionid = extsys.decode_vim_id(vimid)
