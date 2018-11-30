@@ -41,7 +41,7 @@ class InfraWorkload(APIView):
         self._logger.info("data: %s" % request.data)
         self._logger.debug("META: %s" % request.META)
 
-        try :
+        try:
             data = request.data
             oof_directive = data.get("oof_directives", {})
             template_type = data.get("template_type", None)
@@ -59,7 +59,7 @@ class InfraWorkload(APIView):
                                 for attr in directive2.get("attributes", []):
                                     label_name = attr["attribute_name"]
                                     label_value = attr["attribute_value"]
-                                    if parameters.has_key(label_name):
+                                    if label_name in parameters:
                                         template_data["parameters"][label_name] = label_value
                                     else:
                                         self._logger.warn("There is no parameter exist: %s" % label_name)
@@ -119,7 +119,7 @@ class InfraWorkload(APIView):
         self._logger.info("vimid, requri: %s, %s" % (vimid, requri))
         self._logger.debug("META: %s" % request.META)
 
-        try :
+        try:
             # assume the workload_type is heat
             template_type = "heat"
             stack_id = requri
@@ -299,13 +299,19 @@ class InfraWorkload(APIView):
         aai_transactions = {"transactions": transactions}
         self._logger.debug("aai_transactions :%s" % aai_transactions)
 
-        return  aai_transactions
+        return aai_transactions
 
     def delete(self, request, vimid="", requri=""):
         self._logger.info("vimid, requri: %s, %s" % (vimid, requri))
         self._logger.debug("META: %s" % request.META)
 
-        try :
+        try:
+            if requri == "":
+                raise VimDriverNewtonException(
+                    message="workload_id is not specified",
+                    content="internal bug in creating flavor extra specs",
+                    status_code=400)
+
             # assume the workload_type is heat
             template_type = "heat"
             stack_id = requri
