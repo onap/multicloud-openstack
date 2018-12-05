@@ -93,7 +93,7 @@ CACHES = {
 MSB_SERVICE_ADDR = os.environ.get('MSB_ADDR', "127.0.0.1")
 MSB_SERVICE_PORT = os.environ.get('MSB_PORT', "80")
 
-#[Multicloud]
+# [Multicloud]
 MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-pike/v0" % (
     MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
@@ -129,7 +129,7 @@ config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
 
 if 'test' in sys.argv:
 
-    #LOGGING['handlers']['pike_handler']['filename'] = 'logs/pike.log'
+    # LOGGING['handlers']['pike_handler']['filename'] = 'logs/pike.log'
 
     REST_FRAMEWORK = {}
     import platform
