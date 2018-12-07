@@ -16,6 +16,24 @@
       "revId": "298e5d31e2d14d1600da52dae0f116c3565e1620",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9adffdf1_92e87fb5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2018-12-07T01:06:14Z",
+      "side": 1,
+      "message": "./vagrant/test/extsys.py:21:1: F401 \u0027common.utils.restcall.req_by_msb\u0027 imported but unused\n./vagrant/test/extsys.py:21:45: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:38:18: E231 missing whitespace after \u0027:\u0027\n./vagrant/test/extsys.py:39:22: E231 missing whitespace after \u0027:\u0027\n./vagrant/test/extsys.py:40:23: E231 missing whitespace after \u0027:\u0027\n./vagrant/test/extsys.py:41:15: E231 missing whitespace after \u0027:\u0027\n./vagrant/test/extsys.py:46:1: E302 expected 2 blank lines, found 1\n./vagrant/test/extsys.py:51:1: E302 expected 2 blank lines, found 1\n./vagrant/test/extsys.py:56:1: E265 block comment should start with \u0027# \u0027\n./vagrant/test/extsys.py:64:1: E302 expected 2 blank lines, found 1\n./vagrant/test/extsys.py:67:16: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:72:38: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:72:55: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:76:68: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:76:80: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:80:9: E265 block comment should start with \u0027# \u0027\n./vagrant/test/extsys.py:81:17: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:81:26: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:83:24: W503 line break before binary operator\n./vagrant/test/extsys.py:83:72: E502 the backslash is redundant between brackets\n./vagrant/test/extsys.py:84:38: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:84:54: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:84:66: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:89:75: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:89:87: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:93:9: E265 block comment should start with \u0027# \u0027\n./vagrant/test/extsys.py:122:1: E302 expected 2 blank lines, found 1\n./vagrant/test/extsys.py:128:27: E201 whitespace after \u0027(\u0027\n./vagrant/test/extsys.py:132:76: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:132:88: E231 missing whitespace after \u0027,\u0027\n./vagrant/test/extsys.py:138:1: E302 expected 2 blank lines, found 1",
+      "parentUuid": "9adffdf1_debdb669",
+      "revId": "298e5d31e2d14d1600da52dae0f116c3565e1620",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
