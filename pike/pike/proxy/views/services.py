@@ -14,15 +14,13 @@
 
 import logging
 
-from rest_framework import status
-
-from django.conf import settings
 from newton_base.proxy import services as newton_services
 from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
 # DEBUG=True
+
 
 class Services(newton_services.Services):
 
@@ -42,9 +40,10 @@ class GetTenants(newton_services.GetTenants):
         self._logger.debug("GetTenants--get::META> %s" % request.META)
         self._logger.debug("GetTenants--get::data> %s" % request.data)
         self._logger.debug("GetTenants--get::vimid, servicetype, requri> %s,%s,%s"
-                     % (vimid, servicetype, requri))
+                           % (vimid, servicetype, requri))
 
-        return super(GetTenants,self).get(request, vimid, servicetype, requri)
+        return super(GetTenants, self).get(request, vimid, servicetype, requri)
+
 
 class APIv1Services(Services):
 
@@ -58,37 +57,37 @@ class APIv1Services(Services):
         # self._logger.debug("META, data> %s , %s" % (request.META, request.data))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1Services,self).head(request, vimid, servicetype, requri)
+        return super(APIv1Services, self).head(request, vimid, servicetype, requri)
 
     def get(self, request, cloud_owner="", cloud_region_id="", servicetype="", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1Services,self).get(request, vimid, servicetype, requri)
+        return super(APIv1Services, self).get(request, vimid, servicetype, requri)
 
     def post(self, request, cloud_owner="", cloud_region_id="", servicetype="", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1Services,self).post(request, vimid, servicetype, requri)
+        return super(APIv1Services, self).post(request, vimid, servicetype, requri)
 
     def put(self, request, cloud_owner="", cloud_region_id="", servicetype="", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1Services,self).put(request, vimid, servicetype, requri)
+        return super(APIv1Services, self).put(request, vimid, servicetype, requri)
 
     def patch(self, request, cloud_owner="", cloud_region_id="", servicetype="", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1Services,self).patch(request, vimid, servicetype, requri)
+        return super(APIv1Services, self).patch(request, vimid, servicetype, requri)
 
     def delete(self, request, cloud_owner="", cloud_region_id="", servicetype="", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1Services,self).delete(request, vimid, servicetype, requri)
+        return super(APIv1Services, self).delete(request, vimid, servicetype, requri)
 
 
 class APIv1GetTenants(GetTenants):
@@ -106,7 +105,7 @@ class APIv1GetTenants(GetTenants):
         # self._logger.debug("META, data> %s , %s" % (request.META, request.data))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1GetTenants,self).head(request, vimid, servicetype, requri)
+        return super(APIv1GetTenants, self).head(request, vimid, servicetype, requri)
 
     def get(self, request, cloud_owner="", cloud_region_id="", servicetype="identity", requri='v3/projects'):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
@@ -114,7 +113,7 @@ class APIv1GetTenants(GetTenants):
         #        self._logger.debug("with META> %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1GetTenants,self).get(request, vimid, servicetype, requri)
+        return super(APIv1GetTenants, self).get(request, vimid, servicetype, requri)
 
     def post(self, request, cloud_owner="", cloud_region_id="", servicetype="identity", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
@@ -123,22 +122,22 @@ class APIv1GetTenants(GetTenants):
         #        self._logger.debug("with data> %s" % request.data)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1GetTenants,self).post(request, vimid, servicetype, requri)
+        return super(APIv1GetTenants, self).post(request, vimid, servicetype, requri)
 
     def put(self, request, cloud_owner="", cloud_region_id="", servicetype="identity", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1GetTenants,self).put(request, vimid, servicetype, requri)
+        return super(APIv1GetTenants, self).put(request, vimid, servicetype, requri)
 
     def patch(self, request, cloud_owner="", cloud_region_id="", servicetype="identity", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1GetTenants,self).patch(request, vimid, servicetype, requri)
+        return super(APIv1GetTenants, self).patch(request, vimid, servicetype, requri)
 
     def delete(self, request, cloud_owner="", cloud_region_id="", servicetype="identity", requri=""):
         self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1GetTenants,self).delete(request, vimid, servicetype, requri)
+        return super(APIv1GetTenants, self).delete(request, vimid, servicetype, requri)
