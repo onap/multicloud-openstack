@@ -13,12 +13,8 @@
 # limitations under the License.
 
 import logging
-import json
 import traceback
 
-from rest_framework import status
-
-from django.conf import settings
 from common.exceptions import VimDriverNewtonException
 from newton_base.util import VimDriverUtils
 
@@ -42,30 +38,29 @@ class CapacityCheck(APIView):
         self._logger.debug("CapacityCheck--post::META> %s" % request.META)
 
         hasEnoughResource = False
-        try :
+        try:
             resource_demand = request.data
 
             tenant_name = None
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenant_name)
 
-            #get token:
+            # get token:
             cloud_owner, regionid = extsys.decode_vim_id(vimid)
             interface = 'public'
             service = {'service_type': 'compute',
                        'interface': interface,
                        'region_name': vim['openstack_region_id']
-                           if vim.get('openstack_region_id')
-                           else vim['cloud_region_id']}
+                       if vim.get('openstack_region_id')
+                       else vim['cloud_region_id']}
 
-
-            #get limit for this tenant
+            # get limit for this tenant
             req_resouce = "/limits"
             resp = sess.get(req_resouce, endpoint_filter=service)
             content = resp.json()
             compute_limits = content['limits']['absolute']
 
-            #get total resource of this cloud region
+            # get total resource of this cloud region
             try:
                 req_resouce = "/os-hypervisors/statistics"
                 self._logger.info("check os-hypervisors statistics> URI:%s" % req_resouce)
@@ -82,12 +77,12 @@ class CapacityCheck(APIView):
                     conFreeRamMB = int(resource_demand['Memory'])
                     conFreeDiskGB = int(resource_demand['Storage'])
                     self._logger.info("Non administator forbidden to access hypervisor statistics data")
-                    hypervisor_statistics = {'vcpus_used':0, 'vcpus':conVCPUS, 'free_ram_mb':conFreeRamMB, 'free_disk_gb':conFreeDiskGB}
+                    hypervisor_statistics = {'vcpus_used': 0, 'vcpus': conVCPUS, 'free_ram_mb': conFreeRamMB, 'free_disk_gb': conFreeDiskGB}
                 else:
                     # non forbiden exeption will be redirected
                     raise e
 
-            #get storage limit for this tenant
+            # get storage limit for this tenant
             service['service_type'] = 'volumev2'
             req_resouce = "/limits"
             resp = sess.get(req_resouce, endpoint_filter=service)
@@ -123,7 +118,7 @@ class CapacityCheck(APIView):
 
             return Response(data={'result': hasEnoughResource}, status=status.HTTP_200_OK)
         except VimDriverNewtonException as e:
-            return Response(data={'result': hasEnoughResource,'error': e.content}, status=e.status_code)
+            return Response(data={'result': hasEnoughResource, 'error': e.content}, status=e.status_code)
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             resp = e.response.json()
@@ -133,6 +128,7 @@ class CapacityCheck(APIView):
             self._logger.error(traceback.format_exc())
             return Response(data={'result': hasEnoughResource, 'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class APIv1CapacityCheck(CapacityCheck):
 
@@ -146,4 +142,3 @@ class APIv1CapacityCheck(CapacityCheck):
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(APIv1CapacityCheck, self).post(request, vimid)
-
