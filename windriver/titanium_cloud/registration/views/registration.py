@@ -166,13 +166,15 @@ class APIv1Registry(newton_registration.Registry):
                     restcall.req_to_aai(resource_url, "GET")
                 if retcode2 == 0 and content2:
                     content2 = json.JSONDecoder().decode(content2)
-                    if content2.get("identity-url", None) == resource_info.get("identity-url", None):
+                    if content2.get("identity-url", None)\
+                            == resource_info.get("identity-url", None):
                         break
 
             return retcode
         return 1  # unknown cloud owner,region_id
 
-    def _discover_regions(self, cloud_owner="", cloud_region_id="", session=None, viminfo=None):
+    def _discover_regions(self, cloud_owner="", cloud_region_id="",
+                          session=None, viminfo=None):
         try:
             regions = []
             vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
@@ -200,14 +202,16 @@ class APIv1Registry(newton_registration.Registry):
             return regions
 
         except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
-            return
-        except Exception as e:
+            self._logger.error("HttpError: status:%s, response:%s"
+                               % (e.http_status, e.response.json()))
+            return []
+        except Exception:
             self._logger.error(traceback.format_exc())
-            return
+            return []
 
     def post(self, request, cloud_owner="", cloud_region_id=""):
-        self._logger.info("registration with : %s, %s" % (cloud_owner, cloud_region_id))
+        self._logger.info("registration with : %s, %s"
+                          % (cloud_owner, cloud_region_id))
 
         try:
             vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
@@ -216,27 +220,27 @@ class APIv1Registry(newton_registration.Registry):
             cloud_extra_info_str = viminfo['cloud_extra_info']
             cloud_extra_info = None
             try:
-                cloud_extra_info = json.loads(cloud_extra_info_str) if cloud_extra_info_str else None
+                cloud_extra_info = json.loads(cloud_extra_info_str)\
+                    if cloud_extra_info_str else None
             except Exception as ex:
                 logger.error("Can not convert cloud extra info %s %s" % (
                              str(ex), cloud_extra_info_str))
                 pass
 
-            region_specified = cloud_extra_info.get("openstack-region-id", None) if cloud_extra_info else None
-            multi_region_discovery = cloud_extra_info.get("multi-region-discovery", None) if cloud_extra_info else None
+            region_specified = cloud_extra_info.get(
+                "openstack-region-id", None) if cloud_extra_info else None
+            multi_region_discovery = cloud_extra_info.get(
+                "multi-region-discovery", None) if cloud_extra_info else None
 
             # set the default tenant since there is no tenant info in the VIM yet
             sess = VimDriverUtils.get_session(
                 viminfo, tenant_name=viminfo['tenant'])
 
-            # discover the regions
+            # discover the regions, expect it always returns a list (even empty list)
             region_ids = self._discover_regions(cloud_owner, cloud_region_id, sess, viminfo)
 
-            if (len(region_ids) == 0):
-                self._logger.error("_discover_regions, return regions:%s" % (region_ids))
-                return Response(
-                data={'error': "no region found for cloud region: %s,%s" % (cloud_owner, cloud_region_id)},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if len(region_ids) == 0:
+                self._logger.warn("failed to get region id")
 
 
             # compare the regions with region_specified and then cloud_region_id
@@ -246,32 +250,40 @@ class APIv1Registry(newton_registration.Registry):
                 region_specified = cloud_region_id
                 pass
             else:
-                # assume the first region be the primary region since we have no other way to determine it.
-                region_specified = region_ids.pop(0);
+                # assume the first region be the primary region
+                # since we have no other way to determine it.
+                region_specified = region_ids.pop(0)
 
             # update cloud region and discover/register resource
-            if (multi_region_discovery):
-                # no input for specified cloud region, so discover all cloud region?
+            if multi_region_discovery:
+                # no input for specified cloud region,
+                # so discover all cloud region
                 for regionid in region_ids:
                     # do not update the specified region here
                     if region_specified == regionid:
                         continue
 
-                    #create cloud region with composed AAI cloud_region_id except for the one onboarded externally (e.g. ESR)
+                    # create cloud region with composed AAI cloud_region_id
+                    # except for the one onboarded externally (e.g. ESR)
                     gen_cloud_region_id = cloud_region_id + "_" + regionid
-                    self._logger.info("create a cloud region: %s,%s,%s" % (cloud_owner,gen_cloud_region_id,regionid))
+                    self._logger.info("create a cloud region: %s,%s,%s"
+                                      % (cloud_owner, gen_cloud_region_id, regionid))
 
-                    self._update_cloud_region(cloud_owner, gen_cloud_region_id, regionid, viminfo)
-                    new_vimid = extsys.encode_vim_id(cloud_owner, gen_cloud_region_id)
+                    self._update_cloud_region(
+                        cloud_owner, gen_cloud_region_id, regionid, viminfo)
+                    new_vimid = extsys.encode_vim_id(
+                        cloud_owner, gen_cloud_region_id)
                     super(APIv1Registry, self).post(request, new_vimid)
 
 
             # update the specified region
-            self._update_cloud_region(cloud_owner, cloud_region_id, region_specified, viminfo)
+            self._update_cloud_region(cloud_owner, cloud_region_id,
+                                      region_specified, viminfo)
             return super(APIv1Registry, self).post(request, vimid)
 
         except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s"
+                               % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
             self._logger.error(traceback.format_exc())
@@ -282,7 +294,8 @@ class APIv1Registry(newton_registration.Registry):
 
 
     def delete(self, request, cloud_owner="", cloud_region_id=""):
-        self._logger.debug("unregister cloud region: %s, %s" % (cloud_owner, cloud_region_id))
+        self._logger.debug("unregister cloud region: %s, %s"
+                           % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(APIv1Registry, self).delete(request, vimid)
@@ -298,13 +311,15 @@ class APIv0Registry(APIv1Registry):
         # self._logger = logger
 
     def post(self, request, vimid=""):
-        self._logger.info("registration with :  %s" % (vimid))
+        self._logger.info("registration with :  %s" % vimid)
 
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        return super(APIv0Registry, self).post(request, cloud_owner, cloud_region_id)
+        return super(APIv0Registry, self).post(
+            request, cloud_owner, cloud_region_id)
 
     def delete(self, request, vimid=""):
-        self._logger.debug("unregister cloud region: %s" % (vimid))
+        self._logger.debug("unregister cloud region: %s" % vimid)
 
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
-        return super(APIv0Registry, self).delete(request, cloud_owner, cloud_region_id)
+        return super(APIv0Registry, self).delete(
+            request, cloud_owner, cloud_region_id)
