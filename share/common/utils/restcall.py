@@ -25,6 +25,8 @@ import uuid
 from rest_framework import status
 from django.conf import settings
 
+from common.utils import aai_cache
+
 rest_no_auth, rest_oneway_auth, rest_bothway_auth = 0, 1, 2
 HTTP_200_OK, HTTP_201_CREATED = '200', '201'
 HTTP_204_NO_CONTENT, HTTP_202_ACCEPTED = '204', '202'
@@ -124,7 +126,7 @@ def req_to_vim(base_url, resource, method, extra_headers='', content=''):
                     resource, method, extra_headers, content)
 
 
-def req_to_aai(resource, method, content='', appid=settings.MULTICLOUD_APP_ID):
+def req_to_aai(resource, method, content='', appid=settings.MULTICLOUD_APP_ID, nocache=False):
     tmp_trasaction_id = '9003' #str(uuid.uuid1())
     headers = {
         'X-FromAppId': appid,
@@ -133,8 +135,22 @@ def req_to_aai(resource, method, content='', appid=settings.MULTICLOUD_APP_ID):
         'accept': 'application/json'
     }
 
-    return _call_req(settings.AAI_BASE_URL, settings.AAI_USERNAME, settings.AAI_PASSWORD, rest_no_auth,
-                    resource, method, content=json.dumps(content), extra_headers=headers)
+    # hook to flush cache
+    if method.upper() in ["PUT", "POST", "PATCH", "DELETE"]:
+        aai_cache.flush_cache_by_url(resource)
+    elif method.upper in ["GET"] and not nocache:
+        content = aai_cache.get_cache_by_url(resource)
+        if content:
+            return content
+
+    ret, resp_body, resp_status = _call_req(
+        settings.AAI_BASE_URL, settings.AAI_USERNAME, settings.AAI_PASSWORD, rest_no_auth,
+        resource, method, content=json.dumps(content), extra_headers=headers)
+
+    if method.upper() in ["GET"] and ret == 0 and not nocache:
+        aai_cache.set_cache_by_url(resource, [ret, resp_body, resp_status])
+
+    return [ret, resp_body, resp_status]
 
 
 def _combine_url(base_url, resource):
