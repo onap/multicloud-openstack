@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-import traceback
 import json
 
 from rest_framework import status
@@ -28,6 +27,7 @@ from ocata.vesagent.event_domain.fault_vm import buildBacklog_fault_vm
 from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
+
 
 class VesAgentCtrl(APIView):
     '''
@@ -152,7 +152,6 @@ class VesAgentCtrl(APIView):
         self._logger = logger
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
 
-
     def get(self, request, vimid=""):
         '''
         get blob of vesagent-config
@@ -170,8 +169,8 @@ class VesAgentCtrl(APIView):
                 cloud_extra_info = json.loads(cloud_extra_info_str) if cloud_extra_info_str != '' else None
                 vesagent_config = cloud_extra_info.get("vesagent_config", None) if cloud_extra_info is not None else None
             except Exception as e:
-                #ignore this error
-                self._logger.warn("cloud extra info is provided with data in  bad format: %s" % cloud_extra_info_str)
+                # ignore this error
+                self._logger.warn("cloud extra info is provided with data in  bad format: %s" % str(e))
                 pass
 
             vesagent_backlogs = self.getBacklogsOneVIM(vimid)
@@ -182,10 +181,9 @@ class VesAgentCtrl(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         self._logger.info("return with %s" % status.HTTP_200_OK)
-        return Response(data={"vesagent_config":vesagent_config,
+        return Response(data={"vesagent_config": vesagent_config,
                               "vesagent_backlogs": vesagent_backlogs},
                         status=status.HTTP_200_OK)
-
 
     def post(self, request, vimid=""):
         '''
@@ -212,7 +210,7 @@ class VesAgentCtrl(APIView):
         try:
             vesagent_config = None
             if request.data is None or request.data.get("vesagent_config", None) is None:
-                #Try to load the vesagent_config out of cloud_region["cloud_extra_info"]
+                # Try to load the vesagent_config out of cloud_region["cloud_extra_info"]
                 viminfo = extsys.get_vim_by_id(vimid)
                 cloud_extra_info_str = viminfo.get('cloud_extra_info', None)
                 cloud_extra_info = json.loads(cloud_extra_info_str) if cloud_extra_info_str is not None else None
@@ -222,7 +220,7 @@ class VesAgentCtrl(APIView):
 
             if vesagent_config is None:
                 return Response(data={'vesagent_config is not provided'},
-                            status=status.HTTP_400_BAD_REQUEST)
+                                status=status.HTTP_400_BAD_REQUEST)
 
             vesagent_backlogs = self.buildBacklogsOneVIM(vimid, vesagent_config)
 
@@ -235,7 +233,7 @@ class VesAgentCtrl(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         self._logger.info("return with %s" % status.HTTP_201_CREATED)
-        return Response(data={"vesagent_config":vesagent_config,
+        return Response(data={"vesagent_config": vesagent_config,
                               "vesagent_backlogs": vesagent_backlogs},
                         status=status.HTTP_201_CREATED)
 
@@ -258,7 +256,6 @@ class VesAgentCtrl(APIView):
 
         self._logger.info("return with %s" % status.HTTP_200_OK)
         return Response(status=status.HTTP_200_OK)
-
 
     def getBacklogsOneVIM(self, vimid):
         '''
@@ -337,7 +334,7 @@ class VesAgentCtrl(APIView):
         self._logger.debug("return")
         return 0
 
-    def buildBacklogsOneVIM(self, vimid, vesagent_config = None):
+    def buildBacklogsOneVIM(self, vimid, vesagent_config=None):
         '''
         build and cache backlog for specific cloud region,spawn vesagent workers if needed
         :param vimid:
@@ -349,7 +346,7 @@ class VesAgentCtrl(APIView):
 
         VesAgentBacklogsConfig = None
         try:
-            if vesagent_config :
+            if vesagent_config:
                 # now rebuild the backlog
                 VesAgentBacklogsConfig = {
                     "vimid": vimid,
@@ -357,7 +354,6 @@ class VesAgentCtrl(APIView):
                     "subscription": vesagent_config.get("ves_subscription", None),
                     "backlogs": [self.buildBacklog(vimid, b) for b in vesagent_config.get("backlogs", [])]
                 }
-
 
                 # add/update the backlog into cache
                 VesAgentBacklogsConfigStr = json.dumps(VesAgentBacklogsConfig)
@@ -375,14 +371,14 @@ class VesAgentCtrl(APIView):
 
                 logger.debug("VesAgentBacklogs.vimlist is %s" % VesAgentBacklogsVimList)
 
-                #cache forever
+                # cache forever
                 cache.set("VesAgentBacklogs.vimlist", json.dumps(VesAgentBacklogsVimList), None)
 
                 # notify schduler
                 scheduleBacklogs.delay(vimid)
         except Exception as e:
             self._logger.error("exception:%s" % str(e))
-            VesAgentBacklogsConfig = {"error":"exception occurs during build backlogs"}
+            VesAgentBacklogsConfig = {"error": "exception occurs during build backlogs"}
 
         self._logger.debug("return")
         return VesAgentBacklogsConfig
@@ -413,7 +409,6 @@ class APIv1VesAgentCtrl(VesAgentCtrl):
         # self._logger = logger
         self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
 
-
     def get(self, request, cloud_owner="", cloud_region_id=""):
         '''
         :param request:
@@ -421,11 +416,10 @@ class APIv1VesAgentCtrl(VesAgentCtrl):
         :param cloud_region_id:
         :return:
         '''
-        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1VesAgentCtrl,self).get(request, vimid)
-
+        return super(APIv1VesAgentCtrl, self).get(request, vimid)
 
     def post(self, request, cloud_owner="", cloud_region_id=""):
         '''
@@ -435,11 +429,10 @@ class APIv1VesAgentCtrl(VesAgentCtrl):
         :param cloud_region_id:
         :return:
         '''
-        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1VesAgentCtrl,self).post(request, vimid)
-
+        return super(APIv1VesAgentCtrl, self).post(request, vimid)
 
     def delete(self, request, cloud_owner="", cloud_region_id=""):
         '''
@@ -449,8 +442,7 @@ class APIv1VesAgentCtrl(VesAgentCtrl):
         :param cloud_region_id:
         :return:
         '''
-        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner,cloud_region_id))
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1VesAgentCtrl,self).delete(request, vimid)
-
+        return super(APIv1VesAgentCtrl, self).delete(request, vimid)

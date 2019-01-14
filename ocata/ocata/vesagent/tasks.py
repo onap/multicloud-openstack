@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-### VES agent workers
+# VES agent workers
 from __future__ import absolute_import, unicode_literals
 from ocata.celery import app
-import os
 import logging
 import json
 import time
@@ -49,24 +48,23 @@ def processBacklogs():
     backlog_count = 0
     next_time_slot = 10
     try:
-        #get the whole list of backlog
+        # get the whole list of backlog
         VesAgentBacklogsVimListStr = cache.get("VesAgentBacklogs.vimlist")
         if VesAgentBacklogsVimListStr is None:
             logger.warn("VesAgentBacklogs.vimlist cannot be found in cache")
-            return 0,next_time_slot
+            return 0, next_time_slot
 
         logger.debug("VesAgentBacklogs.vimlist: %s" % (VesAgentBacklogsVimListStr))
 
         backlogsAllVims = json.loads(VesAgentBacklogsVimListStr)
         if backlogsAllVims is None:
             logger.warn("VesAgentBacklogs.vimlist is empty")
-            return 0,next_time_slot
+            return 0, next_time_slot
 
         for vimid in backlogsAllVims:
-            #iterate each backlogs
-            backlog_count_tmp,next_time_slot_tmp = processBacklogsOfOneVIM(vimid)
-            logger.debug("vimid:%s, backlog_count,next_time_slot:%s,%s"
-                         %( vimid,backlog_count_tmp,next_time_slot_tmp ))
+            # iterate each backlogs
+            backlog_count_tmp, next_time_slot_tmp = processBacklogsOfOneVIM(vimid)
+            logger.debug("vimid:%s, backlog_count,next_time_slot:%s,%s" % (vimid, backlog_count_tmp, next_time_slot_tmp))
             backlog_count += backlog_count_tmp
             next_time_slot = next_time_slot_tmp if next_time_slot > next_time_slot_tmp else next_time_slot
             pass
@@ -92,15 +90,14 @@ def processBacklogsOfOneVIM(vimid):
         vesAgentConfigStr = cache.get("VesAgentBacklogs.config.%s" % (vimid))
         if vesAgentConfigStr is None:
             logger.warn("VesAgentBacklogs.config.%s cannot be found in cache" % (vimid))
-            return 0,next_time_slot
+            return 0, next_time_slot
 
         logger.debug("VesAgentBacklogs.config.%s: %s" % (vimid, vesAgentConfigStr))
 
         vesAgentConfig = json.loads(vesAgentConfigStr)
         if vesAgentConfig is None:
             logger.warn("VesAgentBacklogs.config.%s corrupts" % (vimid))
-            return 0,next_time_slot
-
+            return 0, next_time_slot
 
         vesAgentStateStr = cache.get("VesAgentBacklogs.state.%s" % (vimid))
         vesAgentState = json.loads(vesAgentStateStr) if vesAgentStateStr is not None else {}
@@ -108,26 +105,28 @@ def processBacklogsOfOneVIM(vimid):
         ves_info = vesAgentConfig.get("subscription", None)
         if ves_info is None:
             logger.warn("VesAgentBacklogs.config.%s: ves subscription corrupts:%s" % (vimid, vesAgentConfigStr))
-            return 0,next_time_slot
+            return 0, next_time_slot
 
         poll_interval_default = vesAgentConfig.get("poll_interval_default", None)
         if poll_interval_default is None:
             logger.warn("VesAgentBacklogs.config.%s: poll_interval_default corrupts:%s" % (vimid, vesAgentConfigStr))
-            return 0,next_time_slot
+            return 0, next_time_slot
 
         if poll_interval_default == 0:
             # invalid interval value
             logger.warn("VesAgentBacklogs.config.%s: poll_interval_default invalid:%s" % (vimid, vesAgentConfigStr))
-            return 0,next_time_slot
+            return 0, next_time_slot
 
         backlogs_list = vesAgentConfig.get("backlogs", None)
         if backlogs_list is None:
             logger.warn("VesAgentBacklogs.config.%s: backlogs corrupts:%s" % (vimid, vesAgentConfigStr))
-            return 0,next_time_slot
+            return 0, next_time_slot
 
         for backlog in backlogs_list:
-            backlog_count_tmp, next_time_slot_tmp = processOneBacklog(
-                               vesAgentConfig, vesAgentState, poll_interval_default, backlog)
+            backlog_count_tmp, next_time_slot_tmp = processOneBacklog(vesAgentConfig,
+                                                                      vesAgentState,
+                                                                      poll_interval_default,
+                                                                      backlog)
             logger.debug("processOneBacklog return with %s,%s" % (backlog_count_tmp, next_time_slot_tmp))
             backlog_count += backlog_count_tmp
             next_time_slot = next_time_slot_tmp if next_time_slot > next_time_slot_tmp else next_time_slot
@@ -146,7 +145,7 @@ def processBacklogsOfOneVIM(vimid):
 
 def processOneBacklog(vesAgentConfig, vesAgentState, poll_interval_default, oneBacklog):
     logger.info("Process one backlog")
-    #logger.debug("vesAgentConfig:%s, vesAgentState:%s, poll_interval_default:%s, oneBacklog: %s"
+    # logger.debug("vesAgentConfig:%s, vesAgentState:%s, poll_interval_default:%s, oneBacklog: %s"
     #             % (vesAgentConfig, vesAgentState, poll_interval_default, oneBacklog))
 
     backlog_count = 1
@@ -167,8 +166,7 @@ def processOneBacklog(vesAgentConfig, vesAgentState, poll_interval_default, oneB
             vesAgentState["%s" % (backlog_uuid)] = initialBacklogState
             backlogState = initialBacklogState
 
-        time_expiration = backlogState["timestamp"] \
-                          + oneBacklog.get("poll_interval", poll_interval_default)
+        time_expiration = backlogState["timestamp"] + oneBacklog.get("poll_interval", poll_interval_default)
         # check if poll interval expires
         if timestamp_now < time_expiration:
             # not expired yet
@@ -193,4 +191,3 @@ def processOneBacklog(vesAgentConfig, vesAgentState, poll_interval_default, oneB
 
     logger.info("return")
     return backlog_count, next_time_slot
-
