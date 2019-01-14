@@ -43,6 +43,7 @@ MOCK_VIM_INFO = {
     'insecure': 'True',
 }
 
+
 class VesAgentCtrlTest(unittest.TestCase):
     def setUp(self):
         self.client = Client()
@@ -66,8 +67,8 @@ class VesAgentCtrlTest(unittest.TestCase):
         mock_get_vim_by_id.return_value = MOCK_VIM_INFO
         mock_buildBacklogsOneVIM.return_value = "mocked vesagent_backlogs"
         mock_request = mock.Mock()
-        mock_request.META = {"testkey":"testvalue"}
-        mock_request.data = {"testdatakey":"testdatavalue"}
+        mock_request.META = {"testkey": "testvalue"}
+        mock_request.data = {"testdatakey": "testdatavalue"}
 
         response = self.view.post(request=mock_request, vimid="windriver-hudson-dc_RegionOne")
         self.assertEquals(status.HTTP_201_CREATED, response.status_code)
@@ -89,7 +90,26 @@ class VesAgentCtrlTest(unittest.TestCase):
 
     @mock.patch.object(cache, 'get')
     def test_getBacklogsOneVIM(self, mock_get):
-        mock_vesagent_config = {"backlogs": [{"backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076", "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721", "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae", "api_method": "GET", "source": "onap-aaf", "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721", "domain": "fault", "type": "vm", "tenant": "VIM"}], "poll_interval_default": 10, "vimid": "onaplab_RegionOne", "subscription": {"username": "user", "password": "password", "endpoint": "http://127.0.0.1:9005/sample"}}
+        mock_vesagent_config = {
+            "backlogs": [
+                {
+                    "backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
+                    "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
+                    "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae",
+                    "api_method": "GET",
+                    "source": "onap-aaf",
+                    "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721",
+                    "domain": "fault", "type": "vm", "tenant": "VIM"
+                }
+            ],
+            "poll_interval_default": 10,
+            "vimid": "onaplab_RegionOne",
+            "subscription": {
+                "username": "user",
+                "password": "password",
+                "endpoint": "http://127.0.0.1:9005/sample"
+            }
+        }
         mock_get.return_value = json.dumps(mock_vesagent_config)
 
         vesAgentConfig = self.view.getBacklogsOneVIM(vimid="windriver-hudson-dc_RegionOne")
@@ -101,27 +121,35 @@ class VesAgentCtrlTest(unittest.TestCase):
     @mock.patch.object(cache, 'get')
     def test_clearBacklogsOneVIM(self, mock_get, mock_set):
         mock_VesAgentBacklogs_vimlist = ["windriver-hudson-dc_RegionOne"]
-        mock_vesagent_config = {"backlogs": [{"backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
-                                              "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
-                                              "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae", "api_method": "GET",
-                                              "source": "onap-aaf",
-                                              "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721",
-                                              "domain": "fault", "type": "vm", "tenant": "VIM"}],
-                                "poll_interval_default": 10, "vimid": "onaplab_RegionOne",
-                                "subscription": {"username": "user", "password": "password",
-                                                 "endpoint": "http://127.0.0.1:9005/sample"}}
+        mock_vesagent_config = {
+            "backlogs": [
+                {
+                    "backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
+                    "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
+                    "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae",
+                    "api_method": "GET",
+                    "source": "onap-aaf",
+                    "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721",
+                    "domain": "fault", "type": "vm", "tenant": "VIM"
+                }
+            ],
+            "poll_interval_default": 10, "vimid": "onaplab_RegionOne",
+            "subscription": {
+                "username": "user",
+                "password": "password",
+                "endpoint": "http://127.0.0.1:9005/sample"
+            }
+        }
 
-        mock_get.side_effect= [
-                    json.dumps(mock_VesAgentBacklogs_vimlist),
-                    json.dumps(mock_vesagent_config)
-                ]
-
+        mock_get.side_effect = [
+            json.dumps(mock_VesAgentBacklogs_vimlist),
+            json.dumps(mock_vesagent_config)
+        ]
 
         mock_set.return_value = "mocked cache set"
 
         result = self.view.clearBacklogsOneVIM(vimid="windriver-hudson-dc_RegionOne")
         self.assertEquals(0, result)
-
 
         pass
 
@@ -130,25 +158,36 @@ class VesAgentCtrlTest(unittest.TestCase):
     @mock.patch.object(cache, 'get')
     def test_buildBacklogsOneVIM(self, mock_get, mock_set, mock_scheduleBacklogs_delay):
         mock_VesAgentBacklogs_vimlist = ["windriver-hudson-dc_RegionOne"]
-        mock_vesagent_config = {"backlogs": [{"backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
-                                              "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
-                                              "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae", "api_method": "GET",
-                                              "source": "onap-aaf",
-                                              "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721",
-                                              "domain": "fault", "type": "vm", "tenant": "VIM"}],
-                                "poll_interval_default": 10, "vimid": "windriver-hudson-dc_RegionOne",
-                                "ves_subscription": {"username": "user", "password": "password",
-                                                 "endpoint": "http://127.0.0.1:9005/sample"}}
+        mock_vesagent_config = {
+            "backlogs": [
+                {
+                    "backlog_uuid": "ce2d7597-22e1-4239-890f-bc303bd67076",
+                    "server_id": "c4b575fa-ed85-4642-ab4b-335cb5744721",
+                    "tenant_id": "0e148b76ee8c42f78d37013bf6b7b1ae",
+                    "api_method": "GET",
+                    "source": "onap-aaf",
+                    "api_link": "/onaplab_RegionOne/compute/v2.1/0e148b76ee8c42f78d37013bf6b7b1ae/servers/c4b575fa-ed85-4642-ab4b-335cb5744721",
+                    "domain": "fault", "type": "vm", "tenant": "VIM"
+                }
+            ],
+            "poll_interval_default": 10,
+            "vimid": "windriver-hudson-dc_RegionOne",
+            "ves_subscription": {
+                "username": "user",
+                "password": "password",
+                "endpoint": "http://127.0.0.1:9005/sample"
+            }
+        }
 
-        mock_get.side_effect= [
-                    json.dumps(mock_VesAgentBacklogs_vimlist),
-                ]
+        mock_get.side_effect = [
+            json.dumps(mock_VesAgentBacklogs_vimlist),
+        ]
 
         mock_set.return_value = "mocked cache set"
         mock_scheduleBacklogs_delay.return_value = "mocked delay"
 
         VesAgentBacklogsConfig = self.view.buildBacklogsOneVIM(vimid="windriver-hudson-dc_RegionOne",
-                                                               vesagent_config = mock_vesagent_config)
+                                                               vesagent_config=mock_vesagent_config)
         self.assertIsNotNone(VesAgentBacklogsConfig)
 
         pass

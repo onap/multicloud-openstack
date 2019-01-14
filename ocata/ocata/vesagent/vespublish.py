@@ -21,14 +21,13 @@ import urllib2
 
 logger = logging.getLogger(__name__)
 
+
 def publishAnyEventToVES(ves_subscription, events):
     if not events or len(events) == 0:
         return
 
     logger.info("Start to send single event to VES collector.")
     endpoint = ves_subscription.get("endpoint", None)
-    username = ves_subscription.get("username", None)
-    password = ves_subscription.get("password", None)
 
     if endpoint:
         try:
@@ -44,7 +43,7 @@ def publishAnyEventToVES(ves_subscription, events):
             time.sleep(1)
             response = urllib2.urlopen(request)
             logger.info("VES response is: %s" % response.read())
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             logger.critical("Failed to publish to %s: %s" % (endpoint, e.reason))
         except Exception as e:
             logger.error("exception:%s" % str(e))
