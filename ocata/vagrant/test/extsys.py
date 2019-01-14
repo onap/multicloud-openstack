@@ -18,8 +18,7 @@ import re
 
 from rest_framework import status
 from common.exceptions import VimDriverNewtonException
-from common.utils.restcall import req_by_msb,req_to_aai
-
+from common.utils import restcall
 
 logger = logging.getLogger(__name__)
 
@@ -35,25 +34,25 @@ tisr4 = {
     "vendor": "OpenStack",
     "version": "ocata",
     "vimId": "openstack-hudson-dc_RegionOne",
-    'cloud_owner':'openstack-hudson-dc',
-    'cloud_region_id':'RegionOne',
-    'cloud_extra_info':'',
-    'insecure':'True',
+    'cloud_owner': 'openstack-hudson-dc',
+    'cloud_region_id': 'RegionOne',
+    'cloud_extra_info': '',
+    'insecure': 'True',
 }
 
-#    "vimId": "6e720f68-34b3-44f0-a6a4-755929b20393"
 
 def mock_get_vim_by_id(method):
     def wrapper(vimid):
         return tisr4
     return wrapper
 
+
 def mock_delete_vim_by_id(method):
     def wrapper(vimid):
         return status.HTTP_202_ACCEPTED
     return wrapper
 
-#def get_vims():
+# def get_vims():
 #    retcode, content, status_code = \
 #        req_by_msb("/api/aai-cloudInfrastructure/v1/cloud-infrastructure/cloud-regions", "GET")
 #    if retcode != 0:
@@ -61,37 +60,36 @@ def mock_delete_vim_by_id(method):
 #        raise VimDriverNewtonException("Failed to query VIMs from extsys.")
 #    return json.JSONDecoder().decode(content)
 
+
 @mock_get_vim_by_id
 def get_vim_by_id(vim_id):
 
-    cloud_owner,cloud_region_id = decode_vim_id(vim_id)
+    cloud_owner, cloud_region_id = decode_vim_id(vim_id)
 
     if cloud_owner and cloud_region_id:
         retcode, content, status_code = \
-            req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
-                       % (cloud_owner,cloud_region_id),"GET")
+            restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
+                                % (cloud_owner, cloud_region_id), "GET")
         if retcode != 0:
             logger.error("Status code is %s, detail is %s.", status_code, content)
             raise VimDriverNewtonException(
-                "Failed to query VIM with id (%s:%s,%s)." % (vim_id,cloud_owner,cloud_region_id),
+                "Failed to query VIM with id (%s:%s,%s)." % (vim_id, cloud_owner, cloud_region_id),
                 status_code, content)
         tmp_viminfo = json.JSONDecoder().decode(content)
 
-        #assume esr-system-info-id is composed by {cloud-owner} _ {cloud-region-id}
-        retcode2,content2,status_code2 = \
-            req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
-                       + "/esr-system-info-list/esr-system-info/%s_%s" \
-                       % (cloud_owner,cloud_region_id,cloud_owner,cloud_region_id),
-                       "GET")
+        # assume esr-system-info-id is composed by {cloud-owner} _ {cloud-region-id}
+        vimid = cloud_owner + "_" + cloud_region_id
+        base_url = "/cloud-infrastructure/cloud-regions/cloud-region"
+        esr_url = "/%s/%s/esr-system-info-list/esr-system-info/%s" % (cloud_owner, cloud_region_id, vimid)
+        retcode2, content2, status_code2 = restcall.req_to_aai(base_url + esr_url, "GET")
         if retcode2 != 0:
             logger.error("Status code is %s, detail is %s.", status_code, content)
             raise VimDriverNewtonException(
-                "Failed to query ESR system with id (%s:%s,%s)." % (vim_id,cloud_owner,cloud_region_id),
+                "Failed to query ESR system with id (%s:%s,%s)." % (vim_id, cloud_owner, cloud_region_id),
                 status_code, content)
         tmp_authinfo = json.JSONDecoder().decode(content2)
 
-        #convert vim information
-
+        # convert vim information
         if tmp_viminfo:
             viminfo = {}
             viminfo['vimId'] = vim_id
@@ -119,21 +117,23 @@ def get_vim_by_id(vim_id):
     else:
         return None
 
+
 @mock_delete_vim_by_id
 def delete_vim_by_id(vim_id):
     cloud_owner, cloud_region_id = decode_vim_id(vim_id)
     if cloud_owner and cloud_region_id:
-        retcode, content, status_code = \
-            req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
-                       % ( cloud_owner, cloud_region_id), "DELETE")
+        del_url = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
+        retcode, content, status_code = restcall.req_to_aai(del_url % (cloud_owner, cloud_region_id),
+                                                            "DELETE")
         if retcode != 0:
             logger.error("Status code is %s, detail is %s.", status_code, content)
             raise VimDriverNewtonException(
-                "Failed to delete VIM in AAI with id (%s:%s,%s)." % (vim_id,cloud_owner,cloud_region_id),
+                "Failed to delete VIM in AAI with id (%s:%s,%s)." % (vim_id, cloud_owner, cloud_region_id),
                 status_code, content)
         return 0
     # return non zero if failed to decode cloud owner and region id
     return 1
+
 
 def decode_vim_id(vim_id):
     m = re.search(r'^([0-9a-zA-Z-]+)_([0-9a-zA-Z_-]+)$', vim_id)
