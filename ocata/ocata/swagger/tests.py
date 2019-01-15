@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import unittest
-import json
 from django.test import Client
 from rest_framework import status
 

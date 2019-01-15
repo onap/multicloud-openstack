@@ -31,9 +31,9 @@ urlpatterns = [
     url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/exten',
         include('ocata.extensions.urls')),
     url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/',
-             include('ocata.proxy.urls')),
+        include('ocata.proxy.urls')),
     url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/tenants$',
-             tenants.Tenants.as_view()),
+        tenants.Tenants.as_view()),
     url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/'
         '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('ocata.requests.urls')),
     # CapacityCheck
@@ -67,5 +67,3 @@ urlpatterns = [
     url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/(?P<requri>[0-9a-zA-Z_-]*)/?$',
         infra_workload.APIv1InfraWorkload.as_view()),
 ]
-
-
