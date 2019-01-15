@@ -26,7 +26,6 @@ from common.msapi import extsys
 from common.msapi.helper import Helper as helper
 from common.utils import restcall
 from common.exceptions import VimDriverNewtonException
-from newton_base.util import VimDriverUtils
 
 logger = logging.getLogger(__name__)
 
@@ -67,15 +66,15 @@ class InfraWorkload(APIView):
                 # update parameters
                 template_data["parameters"] = parameters
 
-                #reset to make sure "files" are empty
+                # reset to make sure "files" are empty
                 template_data["file"] = {}
 
-                #authenticate
+                # authenticate
                 cloud_owner, regionid = extsys.decode_vim_id(vimid)
                 # should go via multicloud proxy so that the selflink is updated by multicloud
                 retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(
-                                                 settings.MULTICLOUD_API_V1_PREFIX,
-                                                 cloud_owner, regionid, "/v2.0/tokens")
+                    settings.MULTICLOUD_API_V1_PREFIX,
+                    cloud_owner, regionid, "/v2.0/tokens")
                 if retcode > 0 or not v2_token_resp_json:
                     logger.error("authenticate fails:%s,%s, %s" %
                                  (cloud_owner, regionid, v2_token_resp_json))
@@ -85,8 +84,12 @@ class InfraWorkload(APIView):
                 resource_uri = "/stacks"
                 self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
                 retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner,
-                                                         regionid, v2_token_resp_json, service_type,
-                                                         resource_uri, template_data, "POST")
+                                                                             regionid,
+                                                                             v2_token_resp_json,
+                                                                             service_type,
+                                                                             resource_uri,
+                                                                             template_data,
+                                                                             "POST")
                 stack1 = content.get('stack', None) if retcode == 0 and content else None
                 resp_template = {
                     "template_type": template_type,
@@ -100,11 +103,11 @@ class InfraWorkload(APIView):
             else:
                 msg = "The template type %s is not supported" % (template_type)
                 self._logger.warn(msg)
-                return Response(data={"error":msg}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(data={"error": msg}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
-                                  % (e.status_code, e.content))
+                               % (e.status_code, e.content))
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -113,7 +116,6 @@ class InfraWorkload(APIView):
             self._logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
     def get(self, request, vimid="", requri=""):
         self._logger.info("vimid, requri: %s, %s" % (vimid, requri))
@@ -128,7 +130,7 @@ class InfraWorkload(APIView):
             retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(
                 settings.MULTICLOUD_API_V1_PREFIX,
                 cloud_owner, regionid, "/v2.0/tokens")
-            if retcode > 0  or not v2_token_resp_json:
+            if retcode > 0 or not v2_token_resp_json:
                 logger.error("authenticate fails:%s, %s, %s" % (cloud_owner, regionid, v2_token_resp_json))
                 return
 
@@ -139,7 +141,7 @@ class InfraWorkload(APIView):
             retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
                                                                          service_type, resource_uri, None, "GET")
             stacks = content.get('stacks', []) if retcode == 0 and content else []
-            stack_status = stacks[0]["stack_status"] if len(stacks)>0 else ""
+            stack_status = stacks[0]["stack_status"] if len(stacks) > 0 else ""
 
             resp_template = {
                 "template_type": template_type,
@@ -157,7 +159,7 @@ class InfraWorkload(APIView):
             return Response(data=resp_template, status=status.HTTP_200_OK)
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
-                                  % (e.status_code, e.content))
+                               % (e.status_code, e.content))
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -180,7 +182,7 @@ class InfraWorkload(APIView):
         cloud_owner, regionid = extsys.decode_vim_id(vimid)
         # should go via multicloud proxy so that the selflink is updated by multicloud
         retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
-                                                             cloud_owner, regionid, "/v2.0/tokens")
+                                                                                 cloud_owner, regionid, "/v2.0/tokens")
         if retcode > 0:
             logger.error("authenticate fails:%s, %s, %s" % (cloud_owner, regionid, v2_token_resp_json))
             return None
@@ -189,16 +191,16 @@ class InfraWorkload(APIView):
 
         # common prefix
         aai_cloud_region = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
-                                  % (cloud_owner, regionid, tenant_id)
+                           % (cloud_owner, regionid, tenant_id)
 
         # get stack resource
         service_type = "orchestration"
-        resource_uri = "/stacks/%s/resources"%(stack_id)
+        resource_uri = "/stacks/%s/resources" % (stack_id)
         self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
         retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type, resource_uri, None, "GET")
         resources = content.get('resources', []) if retcode == 0 and content else []
 
-        #find and update resources
+        # find and update resources
         transactions = []
         for resource in resources:
             if resource.get('resource_status', None) != "CREATED_COMPLETE":
@@ -209,7 +211,7 @@ class InfraWorkload(APIView):
                 resource_uri = "/servers/%s" % (resource['physical_resource_id'])
                 self._logger.info("retrieve vserver detail, URI:%s" % resource_uri)
                 retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
-                                                       resource_uri, None, "GET")
+                                                                             resource_uri, None, "GET")
                 self._logger.debug(" resp data:%s" % content)
                 vserver_detail = content.get('server', None) if retcode == 0 and content else None
                 if vserver_detail:
@@ -232,8 +234,9 @@ class InfraWorkload(APIView):
                             "vserver-selflink": vserver_link,
                             "prov-status": vserver_detail['status']
                         },
-                        "uri": aai_cloud_region + "/vservers/vserver/%s"\
-                                                             % ( vserver_detail['id'])}
+                        "uri": aai_cloud_region + "/vservers/vserver/%s"
+                                                  % (vserver_detail['id'])
+                    }
 
                     try:
                         # then update the resource
@@ -244,12 +247,12 @@ class InfraWorkload(APIView):
                             content = json.JSONDecoder().decode(content)
                             self._logger.debug("AAI update %s response: %s" % (aai_resource['uri'], content))
                     except Exception as e:
-                        self._logger.error(traceback.format_exc())
+                        self._logger.error(traceback.format_exc(e))
                         pass
 
                     aai_resource_transactions = {"put": [aai_resource]}
                     transactions.append(aai_resource_transactions)
-                    #self._logger.debug("aai_resource :%s" % aai_resource_transactions)
+                    # self._logger.debug("aai_resource :%s" % aai_resource_transactions)
                     pass
 
         for resource in resources:
@@ -260,8 +263,13 @@ class InfraWorkload(APIView):
                 service_type = "network"
                 resource_uri = "/v2.0/ports/%s" % (resource['physical_resource_id'])
                 self._logger.info("retrieve vserver detail, URI:%s" % resource_uri)
-                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json, service_type,
-                                                       resource_uri, None, "GET")
+                retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner,
+                                                                             regionid,
+                                                                             v2_token_resp_json,
+                                                                             service_type,
+                                                                             resource_uri,
+                                                                             None,
+                                                                             "GET")
                 self._logger.debug(" resp data:%s" % content)
 
                 vport_detail = content.get('port', None) if retcode == 0 and content else None
@@ -275,7 +283,7 @@ class InfraWorkload(APIView):
                             "interface-id": vport_detail['id'],
                             "macaddr": vport_detail['mac_address']
                         },
-                        'uri': aai_cloud_region + "/vservers/vserver/%s/l-interfaces/l-interface/%s" \
+                        'uri': aai_cloud_region + "/vservers/vserver/%s/l-interfaces/l-interface/%s"
                                                   % (vport_detail['device_id'], vport_detail['name'])
                     }
                     try:
@@ -287,7 +295,7 @@ class InfraWorkload(APIView):
                             content = json.JSONDecoder().decode(content)
                             self._logger.debug("AAI update %s response: %s" % (aai_resource['uri'], content))
                     except Exception as e:
-                        self._logger.error(traceback.format_exc())
+                        self._logger.error(traceback.format_exc(e))
                         pass
 
                     aai_resource_transactions = {"put": [aai_resource]}
@@ -320,7 +328,7 @@ class InfraWorkload(APIView):
             retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(
                 settings.MULTICLOUD_API_V1_PREFIX,
                 cloud_owner, regionid, "/v2.0/tokens")
-            if retcode > 0  or not v2_token_resp_json:
+            if retcode > 0 or not v2_token_resp_json:
                 logger.error("authenticate fails:%s, %s, %s" % (cloud_owner, regionid, v2_token_resp_json))
                 return
             # tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
@@ -361,7 +369,7 @@ class InfraWorkload(APIView):
             return Response(status=os_status)
         except VimDriverNewtonException as e:
             self._logger.error("Plugin exception> status:%s,error:%s"
-                                  % (e.status_code, e.content))
+                               % (e.status_code, e.content))
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -391,22 +399,22 @@ class APIv1InfraWorkload(InfraWorkload):
         # self._logger = logger
 
     def post(self, request, cloud_owner="", cloud_region_id="", requri=""):
-        #self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
-        #self._logger.debug("META: %s" % request.META)
+        # self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
+        # self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(APIv1InfraWorkload, self).post(request, vimid, requri)
 
     def get(self, request, cloud_owner="", cloud_region_id="", requri=""):
-        #self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
-        #self._logger.debug("META: %s" % request.META)
+        # self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
+        # self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(APIv1InfraWorkload, self).get(request, vimid, requri)
 
     def delete(self, request, cloud_owner="", cloud_region_id="", requri=""):
-        #self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
-        #self._logger.debug("META: %s" % request.META)
+        # self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" % (cloud_owner, cloud_region_id, request.data))
+        # self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return super(APIv1InfraWorkload, self).delete(request, vimid, requri)

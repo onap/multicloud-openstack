@@ -13,12 +13,8 @@
 # limitations under the License.
 
 import logging
-import json
 import traceback
 
-from rest_framework import status
-
-from django.conf import settings
 from common.exceptions import VimDriverNewtonException
 from newton_base.util import VimDriverUtils
 
@@ -41,9 +37,7 @@ class EventsCheck(APIView):
         self._logger.info("vimid, data> %s, %s" % (vimid, request.data))
         self._logger.debug("META> %s" % request.META)
 
-        try :
-            resource_demand = request.data
-
+        try:
             tenant_name = None
             vim = VimDriverUtils.get_vim_info(vimid)
             sess = VimDriverUtils.get_session(vim, tenant_name)
@@ -51,12 +45,13 @@ class EventsCheck(APIView):
             # get token:
             cloud_owner, regionid = extsys.decode_vim_id(vimid)
             interface = 'public'
-            service = {'service_type': 'compute',
-                       'interface': interface,
-                       'region_name': vim['openstack_region_id']
-                           if vim.get('openstack_region_id')
-                           else vim['cloud_region_id']}
-
+            service = {
+                'service_type': 'compute',
+                'interface': interface,
+                'region_name': vim['openstack_region_id']
+                if vim.get('openstack_region_id')
+                else vim['cloud_region_id']
+            }
 
             # get servers detail info
             req_resouce = "/servers/detail"
@@ -67,19 +62,19 @@ class EventsCheck(APIView):
             self._logger.debug("check servers detail> resp data:%s" % content)
 
             # extract server status info
-            if len(content['servers']): 
+            if len(content['servers']):
                 servers = content['servers']
                 resp_vmstate = []
                 for num in range(0, len(servers)):
                     vmstate = {
-                        'name' : servers[num]['name'],
-                        'state' : servers[num]['OS-EXT-STS:vm_state'],
-                        'power_state' : servers[num]['OS-EXT-STS:power_state'],
-                        'launched_at' : servers[num]['OS-SRV-USG:launched_at'],
-                        'id' : servers[num]['id'],
-                        'host' : servers[num]['OS-EXT-SRV-ATTR:host'],
-                        'availability_zone' : servers[num]['OS-EXT-AZ:availability_zone'],
-                        'tenant_id' : servers[num]['tenant_id']
+                        'name': servers[num]['name'],
+                        'state': servers[num]['OS-EXT-STS:vm_state'],
+                        'power_state': servers[num]['OS-EXT-STS:power_state'],
+                        'launched_at': servers[num]['OS-SRV-USG:launched_at'],
+                        'id': servers[num]['id'],
+                        'host': servers[num]['OS-EXT-SRV-ATTR:host'],
+                        'availability_zone': servers[num]['OS-EXT-AZ:availability_zone'],
+                        'tenant_id': servers[num]['tenant_id']
                     }
 
                     resp_vmstate.append(vmstate)
@@ -88,9 +83,9 @@ class EventsCheck(APIView):
             return Response(data={'result': resp_vmstate}, status=status.HTTP_200_OK)
 
         except VimDriverNewtonException as e:
-            self._logger.error("Plugin exception> status:%s,error:%s"
-                                  % (e.status_code, e.content))
-            return Response(data={'result': resp_vmstate,'error': e.content}, status=e.status_code)
+            self._logger.error("Plugin exception> status:%s,error:%s" %
+                               (e.status_code, e.content))
+            return Response(data={'result': resp_vmstate, 'error': e.content}, status=e.status_code)
 
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -102,4 +97,3 @@ class EventsCheck(APIView):
             self._logger.error(traceback.format_exc())
             return Response(data={'result': resp_vmstate, 'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
