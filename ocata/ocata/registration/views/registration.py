@@ -13,20 +13,15 @@
 # limitations under the License.
 
 import logging
-import json
-import uuid
-import traceback
 
 from django.conf import settings
-
 from newton_base.registration import registration as newton_registration
-from common.exceptions import VimDriverNewtonException
 from common.msapi import extsys
-from keystoneauth1.exceptions import HttpError
 
 logger = logging.getLogger(__name__)
 
 # DEBUG=True
+
 
 class Registry(newton_registration.Registry):
 
@@ -34,6 +29,7 @@ class Registry(newton_registration.Registry):
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
         self._logger = logger
+
 
 class RegistryV1(Registry):
     def __init__(self):

@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2018 Wind River Systems, Inc.
+# Copyright (c) 2018 Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ from newton_base.tests import mock_info
 from newton_base.tests import test_base
 from newton_base.util import VimDriverUtils
 
-OCATA_MOCK_VIM_INFO = {
+PIKE_MOCK_VIM_INFO = {
     "createTime": "2017-04-01 02:22:27",
     "domain": "Default",
     "name": "TiS_R4",
@@ -35,20 +35,19 @@ OCATA_MOCK_VIM_INFO = {
     "vimId": "windriver-hudson-dc_RegionOne",
     'cloud_owner': 'windriver-hudson-dc',
     'cloud_region_id': 'RegionOne',
-    'cloud_extra_info':
-        {
-        "ovsDpdk":{
-          "version": "v1",
-          "arch": "Intel64",
-          "libname":"dataProcessingAccelerationLibrary",
-          "libversion":"v12.1",
-          }
-        },
+    'cloud_extra_info': {
+        "ovsDpdk": {
+            "version": "v1",
+            "arch": "Intel64",
+            "libname": "dataProcessingAccelerationLibrary",
+            "libversion": "v12.1",
+        }
+    },
     'insecure': 'True'
 }
 
 MOCK_GET_TENANT_RESPONSE = {
-    "projects":[
+    "projects": [
         {"id": "1", "name": "project"},
         {"id": "2", "name": "project2"},
     ]
@@ -60,8 +59,8 @@ MOCK_GET_FLAVOR_RESPONSE = {
             "id": "1", "name": "micro", "vcpus": 1, "ram": "1MB",
             "disk": "1G", "OS-FLV-EXT-DATA:ephemeral": False,
             "swap": True, "os-flavor-access:is_public": True,
-            "OS-FLV-DISABLED:disabled": True, "link": [{"href":1}]
-         },
+            "OS-FLV-DISABLED:disabled": True, "link": [{"href": 1}]
+        },
         {
             "id": "2", "name": "mini", "vcpus": 2, "ram": "2",
             "disk": "2G", "OS-FLV-EXT-DATA:ephemeral": True,
@@ -95,7 +94,7 @@ MOCK_GET_AZ_RESPONSE = {
         {
             "zoneName": "production",
             "zoneState": {"available": True},
-            "hosts": { "hypervisor": "kvm" }
+            "hosts": {"hypervisor": "kvm"}
         },
         {
             "zoneName": "testing",
@@ -114,9 +113,13 @@ MOCK_GET_SNAPSHOT_RESPONSE = {
         {
             "id": 1, "name": "test", "metadata":
             {
-            "architecture": "x86", "os-distro": "clearlinux",
-            "os-version": "276", "vendor": "intel", "version": 3,
-            "selflink": "test", "prev-snapshot-id": "test-id"
+                "architecture": "x86",
+                "os-distro": "clearlinux",
+                "os-version": "276",
+                "vendor": "intel",
+                "version": 3,
+                "selflink": "test",
+                "prev-snapshot-id": "test-id"
             }
         },
         {"id": 2, "name": "test2"}
@@ -145,7 +148,7 @@ TEST_REGISTER_ENDPOINT_REQUEST = {
 
 
 # HPA UT1: CPU-PINNING
-MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE= {
+MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE = {
     "flavors": [
         {
             "id": "1", "name": "micro", "vcpus": 1, "ram": "1024",
@@ -187,11 +190,11 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS4_RESPONSE = {
     "extra_specs": {
         "aggregate_instance_extra_specs:storage": "local_image",
         "capabilities:cpu_info:model": "Haswell",
-            "hw:numa_nodes": "2",
-            "hw:numa_cpus.0": "0,1",
-            "hw:numa_cpus.1": "2,3,4,5",
-            "hw:numa_mem.0": "2048",
-            "hw:numa_mem.1": "2048"
+        "hw:numa_nodes": "2",
+        "hw:numa_cpus.0": "0,1",
+        "hw:numa_cpus.1": "2,3,4,5",
+        "hw:numa_mem.0": "2048",
+        "hw:numa_mem.1": "2048"
     }
 }
 
@@ -200,7 +203,7 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS5_RESPONSE = {
     "extra_specs": {
         "aggregate_instance_extra_specs:storage": "local_image",
         "capabilities:cpu_info:model": "Haswell",
-            "hw:capabilities:cpu_info:features": "avx,acpi"
+        "hw:capabilities:cpu_info:features": "avx,acpi"
     }
 }
 
@@ -209,7 +212,7 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS6_RESPONSE = {
     "extra_specs": {
         "aggregate_instance_extra_specs:storage": "local_image",
         "capabilities:cpu_info:model": "Haswell",
-            "pci_passthrough:alias": "sriov-vf-intel-8086-15b3:4"
+        "pci_passthrough:alias": "sriov-vf-intel-8086-15b3:4"
     }
 }
 
@@ -245,7 +248,7 @@ class TestRegistration(test_base.TestRequest):
             self, mock_get_vim_info, mock_get_session):
         restcall.req_to_aai = mock.Mock()
         restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
-        mock_get_vim_info.return_value = OCATA_MOCK_VIM_INFO
+        mock_get_vim_info.return_value = PIKE_MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
                 "side_effect": [
@@ -321,8 +324,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
-                      response.status_code)
+        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -351,8 +353,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
-                      response.status_code)
+        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -381,8 +382,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
-                      response.status_code)
+        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -411,8 +411,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
-                      response.status_code)
+        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -441,8 +440,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
-                      response.status_code)
+        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -471,6 +469,4 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
-                      response.status_code)
-
+        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
