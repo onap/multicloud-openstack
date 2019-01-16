@@ -42,6 +42,7 @@
         <module>ocata</module>
         <module>windriver</module>
         <module>pike</module>
+        <module>starlingx</module>
     </modules>
 
     <build>
