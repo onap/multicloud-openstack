@@ -22,6 +22,30 @@
       "revId": "9d69be60a1e8a8922aaa3e9697e81aaaa24df840",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9adffdf1_342371a8",
+        "filename": "windriver/test-requirements.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 947
+      },
+      "writtenOn": "2019-01-22T18:31:20Z",
+      "side": 1,
+      "message": "The GPLv2 allows to copy and distribute verbatim copies\nof software, but changing it is not allowed. But with the Apache license you can do what you like with the software, as long as you include the required notices.\n\nTherefore, in this case we can copy and use pylint as long as we don\u0027t try to modify it.",
+      "parentUuid": "9adffdf1_91eb54db",
+      "range": {
+        "startLine": 1,
+        "startChar": 9,
+        "endLine": 1,
+        "endChar": 14
+      },
+      "revId": "9d69be60a1e8a8922aaa3e9697e81aaaa24df840",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
