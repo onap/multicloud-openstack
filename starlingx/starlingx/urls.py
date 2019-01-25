@@ -15,6 +15,9 @@
 from django.conf.urls import include, url
 from starlingx.registration.views import registration
 from newton_base.openoapi import tenants
+from starlingx.resource.views import capacity
+from starlingx.resource.views import infra_workload
+
 
 urlpatterns = [
     url(r'^', include('starlingx.swagger.urls')),
@@ -31,6 +34,8 @@ urlpatterns = [
         tenants.Tenants.as_view()),
     url(r'^api/multicloud-starlingx/v0/(?P<vimid>[0-9a-zA-Z_-]+)/'
         '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('starlingx.requests.urls')),
+    url(r'^api/multicloud-starlingx/v0/(?P<vimid>[0-9a-zA-Z_-]+)/capacity_check/?$',
+        capacity.CapacityCheck.as_view()),
 
     # API v1, depreciated due to MULTICLOUD-335
     url(r'^api/multicloud-starlingx/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry/?$',
@@ -43,4 +48,8 @@ urlpatterns = [
         tenants.APIv1Tenants.as_view()),
     url(r'^api/multicloud-starlingx/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/'
         '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('starlingx.requests.urlsV1')),
+    url(r'^api/multicloud-starlingx/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
+        capacity.APIv1CapacityCheck.as_view()),
+    url(r'^api/multicloud-starlingx/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
+        infra_workload.APIv1InfraWorkload.as_view()),
 ]
