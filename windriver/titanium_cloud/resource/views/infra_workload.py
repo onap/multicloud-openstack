@@ -155,8 +155,8 @@ class InfraWorkload(APIView):
                 # return error messsages
                 resp_template['workload_response'] = content
 
-            if ('CREATE_COMPLETE' == stack_status):
-                self.heatbridge_update(request, vimid, stack_id)
+            # if ('CREATE_COMPLETE' == stack_status):
+            #    self.heatbridge_update(request, vimid, stack_id)
 
             self._logger.info("RESP with data> result:%s" % resp_template)
             return Response(data=resp_template, status=os_status)
@@ -213,10 +213,10 @@ class InfraWorkload(APIView):
                 self._logger.info("delete stack, URI:%s" % resource_uri)
                 retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner, regionid, v2_token_resp_json,
                                                                              service_type, resource_uri, None, "DELETE")
-                if retcode == 0:
-                    stack_status = "DELETE_IN_PROCESS"
-                    # and update AAI inventory by heatbridge-delete
-                    self.heatbridge_delete(request, vimid, stack1['id'])
+                # if retcode == 0:
+                #    stack_status = "DELETE_IN_PROCESS"
+                #    # and update AAI inventory by heatbridge-delete
+                #    self.heatbridge_delete(request, vimid, stack1['id'])
 
             # stub response
             resp_template = {
