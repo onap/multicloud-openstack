@@ -20,7 +20,6 @@ import traceback
 from django.conf import settings
 
 from newton_base.registration import registration as newton_registration
-# from common.exceptions import VimDriverNewtonException
 from rest_framework import status
 from rest_framework.response import Response
 from common.msapi import extsys

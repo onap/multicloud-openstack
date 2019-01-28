@@ -13,12 +13,8 @@
 # limitations under the License.
 
 import logging
-# import json
 import traceback
 
-# from rest_framework import status
-
-# from django.conf import settings
 from common.exceptions import VimDriverNewtonException
 from newton_base.util import VimDriverUtils
 

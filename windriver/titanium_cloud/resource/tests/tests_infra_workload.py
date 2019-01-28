@@ -15,13 +15,11 @@
 import mock
 
 import unittest
-# import json
 from rest_framework import status
 
-# from common.utils import restcall
 from common.msapi.helper import Helper as helper
-from titanium_cloud.resource.views.infra_workload import InfraWorkload
-from titanium_cloud.resource.views.infra_workload import APIv1InfraWorkload
+from newton_base.resource.infra_workload import InfraWorkload
+from newton_base.resource.infra_workload import APIv1InfraWorkload
 
 MOCK_TOKEN_RESPONSE = {
     "access":

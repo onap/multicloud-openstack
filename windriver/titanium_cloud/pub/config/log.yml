@@ -14,6 +14,10 @@ loggers:
       handlers: [titanium_cloud_handler]
       level: "DEBUG"
       propagate: False
+    starlingxn_base:
+      handlers: [titanium_cloud_handler]
+      level: "DEBUG"
+      propagate: False
 handlers:
     titanium_cloud_handler:
         level: "DEBUG"
