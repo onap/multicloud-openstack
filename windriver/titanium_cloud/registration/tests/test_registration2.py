@@ -18,17 +18,8 @@ import unittest
 # import json
 from django.test import Client
 from rest_framework import status
-
-# from django.core.cache import cache
-# from common.msapi import extsys
-
 from common.utils import restcall
-# from newton_base.tests import mock_info
-# from newton_base.tests import test_base
-# from newton_base.util import VimDriverUtils
-
-# from newton_base.registration import registration as newton_registration
-from titanium_cloud.registration.views import registration
+from starlingx_base.registration import registration
 from newton_base.tests import test_base
 
 MOCK_VIM_INFO = {

@@ -14,11 +14,11 @@
 
 from django.conf.urls import include, url
 
-from titanium_cloud.registration.views import registration
+from starlingx_base.registration import registration
 from newton_base.openoapi import tenants
-from titanium_cloud.resource.views import capacity
+from newton_base.resource import capacity
 from titanium_cloud.vesagent import vesagent_ctrl
-from titanium_cloud.resource.views import infra_workload
+from newton_base.resource import infra_workload
 
 urlpatterns = [
     url(r'^', include('titanium_cloud.swagger.urls')),
