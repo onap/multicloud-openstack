@@ -173,8 +173,8 @@ class InfraWorkload(APIView):
                 # return error messsages
                 resp_template['workload_response'] = content
 
-            if ('CREATE_COMPLETE' == stack_status):
-                self.heatbridge_update(request, vimid, stack_id)
+            # if ('CREATE_COMPLETE' == stack_status):
+            #    self.heatbridge_update(request, vimid, stack_id)
 
             self._logger.info("RESP with data> result:%s" % resp_template)
             return Response(data=resp_template, status=os_status)
