@@ -203,7 +203,7 @@ class InfraWorkload(APIView):
         # find and update resources
         transactions = []
         for resource in resources:
-            if resource.get('resource_status', None) != "CREATED_COMPLETE":
+            if resource.get('resource_status', None) != "CREATE_COMPLETE":
                 continue
             if resource.get('resource_type', None) == 'OS::Nova::Server':
                 # retrieve vserver details
