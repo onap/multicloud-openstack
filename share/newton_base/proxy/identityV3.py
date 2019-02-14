@@ -205,8 +205,8 @@ class TokensV2(Tokens):
                         elif v3_endpoint['interface'] == 'internal':
                             v2_catalog1_endpoints['internalURL'] = v3_endpoint['url']
 
-                    if v2_catalog1_endpoints:
-                        v2_catalog1['endpoints'].append(v2_catalog1_endpoints)
+                        if v2_catalog1_endpoints:
+                            v2_catalog1['endpoints'].append(v2_catalog1_endpoints)
 
                     v2_catalog.append(v2_catalog1)
 
