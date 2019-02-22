@@ -31,6 +31,7 @@ ENV AAI_PASSWORD "AAI"
 
 EXPOSE 9009
 
+RUN groupadd -r onap && useradd -r -g onap onap
 WORKDIR /opt/starlingx
 RUN apt-get update && apt-get install -y memcached unzip
 RUN wget -O /opt/multicloud-openstack-starlingx.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-starlingx&e=zip&v=1.3.0-SNAPSHOT" && \
@@ -38,6 +39,9 @@ RUN wget -O /opt/multicloud-openstack-starlingx.zip "https://nexus.onap.org/serv
     rm -f /opt/multicloud-openstack-starlingx.zip
 RUN mkdir -p /var/log/onap/multicloud/openstack/starlingx/
 #COPY ./ .
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt &&
+RUN chown onap:onap /opt/stalingx -R
+
+USER onap
 
 CMD "/opt/starlingx/run.sh"
