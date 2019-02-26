@@ -31,6 +31,8 @@ ENV AAI_PASSWORD "AAI"
 
 EXPOSE 9006
 
+RUN groupadd -r onap && useradd -r -g onap onap
+
 WORKDIR /opt/ocata
 RUN apt-get update && apt-get install -y memcached unzip rabbitmq-server
 RUN wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=1.3.0-SNAPSHOT" && \
@@ -39,5 +41,8 @@ RUN wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/
 RUN mkdir -p /var/log/onap/multicloud/openstack/ocata/
 #COPY ./ .
 RUN pip install -r requirements.txt
+RUN chown onap:onap /opt/ocata -R
+
+USER onap
 
 CMD "/opt/ocata/run.sh"
