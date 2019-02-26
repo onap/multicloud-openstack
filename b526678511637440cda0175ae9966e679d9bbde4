@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04d86b6e_5c495da3",
+        "filename": "ocata/docker/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2019-02-26T05:52:24Z",
+      "side": 1,
+      "message": "this is not needed",
+      "range": {
+        "startLine": 37,
+        "startChar": 57,
+        "endLine": 37,
+        "endChar": 72
+      },
+      "revId": "b526678511637440cda0175ae9966e679d9bbde4",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
