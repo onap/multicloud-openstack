@@ -31,6 +31,7 @@ ENV AAI_PASSWORD "AAI"
 
 EXPOSE 9007
 
+RUN groupadd -r onap && useradd -r -g onap onap
 WORKDIR /opt/pike
 RUN apt-get update && apt-get install -y memcached unzip
 RUN wget -O /opt/multicloud-openstack-pike.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-pike&e=zip&v=1.3.0-SNAPSHOT" && \
@@ -39,5 +40,8 @@ RUN wget -O /opt/multicloud-openstack-pike.zip "https://nexus.onap.org/service/l
 RUN mkdir -p /var/log/onap/multicloud/openstack/pike/
 #COPY ./ .
 RUN pip install -r requirements.txt
+RUN chown onap:onap /opt/pike -R
+
+USER onap
 
 CMD "/opt/pike/run.sh"
