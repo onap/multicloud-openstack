@@ -39,8 +39,8 @@ RUN wget -O /opt/multicloud-openstack-starlingx.zip "https://nexus.onap.org/serv
     rm -f /opt/multicloud-openstack-starlingx.zip
 RUN mkdir -p /var/log/onap/multicloud/openstack/starlingx/
 #COPY ./ .
-RUN pip install -r requirements.txt &&
-RUN chown onap:onap /opt/stalingx -R
+RUN pip install -r requirements.txt
+RUN chown onap:onap /opt/starlingx -R
 
 USER onap
 
