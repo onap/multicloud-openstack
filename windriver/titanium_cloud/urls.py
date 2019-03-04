@@ -17,7 +17,6 @@ from django.conf.urls import include, url
 from starlingx_base.registration import registration
 from newton_base.openoapi import tenants
 from newton_base.resource import capacity
-from titanium_cloud.vesagent import vesagent_ctrl
 from newton_base.resource import infra_workload
 
 urlpatterns = [
@@ -40,8 +39,6 @@ urlpatterns = [
     # CapacityCheck
     url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.CapacityCheck.as_view()),
-    url(r'^api/multicloud-titanium_cloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/vesagent/?$',
-        vesagent_ctrl.VesAgentCtrl.as_view()),
 
     # API v1, depreciated due to MULTICLOUD-335
     url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry/?$',
@@ -59,8 +56,6 @@ urlpatterns = [
     # CapacityCheck
     url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.APIv1CapacityCheck.as_view()),
-    url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/vesagent/?$',
-        vesagent_ctrl.APIv1VesAgentCtrl.as_view()),
     url(r'^api/multicloud-titanium_cloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
         infra_workload.APIv1InfraWorkload.as_view()),
 
@@ -84,8 +79,6 @@ urlpatterns = [
     # CapacityCheck
     url(r'^api/multicloud-titaniumcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.CapacityCheck.as_view()),
-    url(r'^api/multicloud-titaniumcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/vesagent/?$',
-        vesagent_ctrl.VesAgentCtrl.as_view()),
 
     # API v1, new namespace due to MULTICLOUD-335
     url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry/?$',
@@ -101,8 +94,6 @@ urlpatterns = [
     # CapacityCheck
     url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.APIv1CapacityCheck.as_view()),
-    url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/vesagent/?$',
-        vesagent_ctrl.APIv1VesAgentCtrl.as_view()),
     url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
         infra_workload.APIv1InfraWorkload.as_view()),
     url(r'^api/multicloud-titaniumcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/(?P<requri>[0-9a-zA-Z_-]*)/?$',
