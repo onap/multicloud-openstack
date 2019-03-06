@@ -33,15 +33,16 @@ EXPOSE 9010
 
 RUN groupadd -r onap && useradd -r -g onap onap
 
-RUN apt-get update && apt-get install -y memcached unzip gcc && \
+RUN apt-get update && apt-get install -y memcached wget unzip gcc && \
     cd /opt/ && \
-	wget -O multicloud-openstack-thinkcloud.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-thinkcloud&e=zip&v=1.3.0-SNAPSHOT" && \
+    wget -O multicloud-openstack-thinkcloud.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-lenovo&e=zip&v=1.3.0-SNAPSHOT" && \
     unzip -q -o -B multicloud-openstack-thinkcloud.zip && \
-	chmod +x /opt/thinkcloud/*.sh &&\
+    chmod +x /opt/thinkcloud/*.sh &&\
     rm -f multicloud-openstack-thinkcloud.zip &&\
-	pip install -r /opt/thinkcloud/requirements.txt &&\
-	apt-get remove -y unzip gcc && \
-	chown onap:onap /opt/thinkcloud -R
+    pip install -r /opt/thinkcloud/requirements.txt &&\
+    apt-get --purge remove -y wget unzip gcc && \
+    apt-get -y autoremove && \
+    chown onap:onap /opt/thinkcloud -R
 
 USER onap
 
