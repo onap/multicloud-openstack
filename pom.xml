@@ -43,6 +43,7 @@
         <module>windriver</module>
         <module>pike</module>
         <module>starlingx</module>
+        <module>lenovo</module>
     </modules>
 
     <build>
