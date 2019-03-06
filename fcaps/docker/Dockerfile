@@ -1,4 +1,4 @@
-FROM python:2
+FROM python:2-slim
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
@@ -20,7 +20,7 @@ RUN groupadd -r onap && useradd -r -g onap onap
 # COPY ./ /opt/fcaps/
 
 RUN apt-get update && \
-    apt-get install -y memcached && \
+    apt-get install -y memcached wget unzip gcc && \
     apt-get install -y unzip && \
     cd /opt/ && \
     wget -O multicloud-openstack-fcaps.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-fcaps&e=zip&v=1.3.0-SNAPSHOT" && \
@@ -28,6 +28,8 @@ RUN apt-get update && \
     chmod +x /opt/fcaps/*.sh && \
     rm -f multicloud-openstack-fcaps.zip && \
     pip install -r /opt/fcaps/requirements.txt && \
+    apt-get --purge remove -y wget unzip gcc && \
+    apt-get -y autoremove && \
     chown onap:onap /opt/fcaps -R
 
 USER onap
