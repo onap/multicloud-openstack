@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:2.7
+FROM python:2-slim
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
@@ -32,16 +32,20 @@ ENV AAI_PASSWORD "AAI"
 EXPOSE 9009
 
 RUN groupadd -r onap && useradd -r -g onap onap
-WORKDIR /opt/starlingx
-RUN apt-get update && apt-get install -y memcached unzip
-RUN wget -O /opt/multicloud-openstack-starlingx.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-starlingx&e=zip&v=1.3.0-SNAPSHOT" && \
+
+RUN apt-get update && \ 
+    apt-get install -y memcached wget unzip gcc && \
+    cd /opt/ && \
+    wget -O /opt/multicloud-openstack-starlingx.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-starlingx&e=zip&v=1.3.0-SNAPSHOT" && \
     unzip -q -o -B /opt/multicloud-openstack-starlingx.zip -d /opt/ && \
-    rm -f /opt/multicloud-openstack-starlingx.zip
+    rm -f /opt/multicloud-openstack-starlingx.zip && \
+    pip install -r /opt/starlingx/requirements.txt && \
+    apt-get --purge remove -y wget unzip gcc && \
+    apt-get -y autoremove && \
+    chown onap:onap /opt/starlingx -R
+    
 RUN mkdir -p /var/log/onap/multicloud/openstack/starlingx/
-#COPY ./ .
-RUN pip install -r requirements.txt
-RUN chown onap:onap /opt/starlingx -R
 
 USER onap
-
-CMD "/opt/starlingx/run.sh"
+WORKDIR /opt/starlingx
+CMD /bin/sh -c "/opt/starlingx/run.sh"
