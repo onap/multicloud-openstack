@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:2.7
+FROM python:2-slim
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
@@ -33,16 +33,19 @@ EXPOSE 9006
 
 RUN groupadd -r onap && useradd -r -g onap onap
 
-WORKDIR /opt/ocata
-RUN apt-get update && apt-get install -y memcached unzip
-RUN wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=1.3.0-SNAPSHOT" && \
+RUN apt-get update && \
+    apt-get install -y memcached wget unzip gcc && \
+    cd /opt/ && \
+    wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=1.3.0-SNAPSHOT" && \
     unzip -q -o -B /opt/multicloud-openstack-ocata.zip -d /opt/ && \
-    rm -f /opt/multicloud-openstack-ocata.zip
+    rm -f /opt/multicloud-openstack-ocata.zip && \
+    pip install -r /opt/ocata/requirements.txt && \
+    apt-get --purge remove -y wget unzip gcc && \
+    apt-get -y autoremove && \
+    chown onap:onap /opt/ocata -R
+
 RUN mkdir -p /var/log/onap/multicloud/openstack/ocata/
-#COPY ./ .
-RUN pip install -r requirements.txt
-RUN chown onap:onap /opt/ocata -R
 
 USER onap
-
-CMD "/opt/ocata/run.sh"
+WORKDIR /opt/ocata
+CMD /bin/sh -c "/opt/ocata/run.sh"
