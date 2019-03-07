@@ -18,7 +18,6 @@ from ocata.registration.views import registration
 from newton_base.openoapi import tenants
 from ocata.resource.views import capacity
 from ocata.resource.views import events
-from ocata.vesagent import vesagent_ctrl
 from ocata.resource.views import infra_workload
 
 urlpatterns = [
@@ -46,8 +45,6 @@ urlpatterns = [
     # events
     url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/events_check/?$',
         events.EventsCheck.as_view()),
-    url(r'^api/multicloud-ocata/v0/(?P<vimid>[0-9a-zA-Z_-]+)/vesagent/?$',
-        vesagent_ctrl.VesAgentCtrl.as_view()),
 
     # API upgrading
     url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry$',
@@ -62,8 +59,6 @@ urlpatterns = [
         '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('ocata.requests.urlsV1')),
     url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.APIv1CapacityCheck.as_view()),
-    url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/vesagent/?$',
-        vesagent_ctrl.APIv1VesAgentCtrl.as_view()),
     url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
         infra_workload.APIv1InfraWorkload.as_view()),
     url(r'^api/multicloud-ocata/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/(?P<requri>[0-9a-zA-Z_-]*)/?$',
