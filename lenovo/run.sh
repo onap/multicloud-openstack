@@ -16,7 +16,8 @@
 memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
 export PYTHONPATH=lib/share
 
-uwsgi --http :9010 --module thinkcloud.wsgi --master --processes 4
+#nohup python manage.py runserver 0.0.0.0:9010 2>&1 &
+nohup uwsgi --http :9010 --module thinkcloud.wsgi --master --processes 4 &
 
 logDir="/var/log/onap/multicloud/openstack/lenovo"
 if [ ! -x  $logDir  ]; then

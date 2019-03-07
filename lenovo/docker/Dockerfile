@@ -32,19 +32,21 @@ ENV AAI_PASSWORD "AAI"
 EXPOSE 9010
 
 RUN groupadd -r onap && useradd -r -g onap onap
+# COPY ./ /opt/lenovo/
 
-RUN apt-get update && apt-get install -y memcached wget unzip gcc && \
+RUN apt-get update && \
+    apt-get install -y memcached wget unzip gcc && \
     cd /opt/ && \
-    wget -O multicloud-openstack-thinkcloud.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-lenovo&e=zip&v=1.3.0-SNAPSHOT" && \
-    unzip -q -o -B multicloud-openstack-thinkcloud.zip && \
-    chmod +x /opt/thinkcloud/*.sh &&\
-    rm -f multicloud-openstack-thinkcloud.zip &&\
-    pip install -r /opt/thinkcloud/requirements.txt &&\
+    wget -O multicloud-openstack-lenovo.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-lenovo&e=zip&v=1.3.0-SNAPSHOT" && \
+    unzip -q -o -B multicloud-openstack-lenovo.zip && \
+    chmod +x /opt/lenovo/*.sh &&\
+    rm -f multicloud-openstack-lenovo.zip &&\
+    pip install -r /opt/lenovo/requirements.txt &&\
     apt-get --purge remove -y wget unzip gcc && \
     apt-get -y autoremove && \
-    chown onap:onap /opt/thinkcloud -R
+    chown onap:onap /opt/lenovo -R
 
 USER onap
 
-WORKDIR /opt/thinkcloud
-CMD /bin/sh -c /opt/thinkcloud/run.sh
+WORKDIR /opt/lenovo
+CMD /bin/sh -c /opt/lenovo/run.sh

@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Micro service of MultiCloud plugin for thinkcloud.
+# Micro service of MultiCloud plugin for Lenovo thinkcloud.
