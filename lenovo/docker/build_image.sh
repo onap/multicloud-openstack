@@ -19,10 +19,13 @@ echo "DOCKER_BUILD_DIR=${DOCKER_BUILD_DIR}"
 cd ${DOCKER_BUILD_DIR}
 
 BUILD_ARGS="--no-cache"
+ORG="onap"
 VERSION="1.3.0-SNAPSHOT"
 STAGING="1.3.0-STAGING"
-OS_VERSION="thinkcloud"
-IMAGE_NAME="nexus3.onap.org:10003/onap/multicloud/openstack-${OS_VERSION}"
+PROJECT="multicloud"
+IMAGE="openstack-lenovo"
+DOCKER_REPOSITORY="nexus3.onap.org:10003"
+IMAGE_NAME="${DOCKER_REPOSITORY}/${ORG}/${PROJECT}/${IMAGE}"
 
 if [ $HTTP_PROXY ]; then
     BUILD_ARGS+=" --build-arg HTTP_PROXY=${HTTP_PROXY}"
