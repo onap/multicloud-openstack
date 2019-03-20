@@ -23,6 +23,7 @@ import time
 from django.core.cache import cache
 
 from fcaps.vesagent.event_domain.fault_vm import processBacklog_fault_vm
+from fcaps.vesagent.event_domain.fault_vm import processBacklog_pm_vm
 
 logger = logging.getLogger(__name__)
 
@@ -182,6 +183,8 @@ def processOneBacklog(vesAgentConfig, vesAgentState, poll_interval_default, oneB
         # collect data in case of expiration
         if oneBacklog["domain"] == "fault" and oneBacklog["type"] == "vm":
             processBacklog_fault_vm(vesAgentConfig, vesAgentState, oneBacklog)
+        elif oneBacklog["domain"] == "pm" and oneBacklog["type"] == "vm":
+            processBacklog_pm_vm(vesAgentConfig, vesAgentState, oneBacklog)
         else:
             logger.warn("Dispatching backlog fails due to unsupported backlog domain %s,type:%s"
                         % (oneBacklog["domain"], oneBacklog["type"]))
