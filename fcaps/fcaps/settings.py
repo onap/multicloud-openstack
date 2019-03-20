@@ -97,10 +97,10 @@ MSB_SERVICE_ADDR = os.environ.get('MSB_ADDR', DEFAULT_MSB_ADDR)
 MSB_SERVICE_PORT = os.environ.get('MSB_PORT', "80")
 
 # [Multicloud]
-MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-fcaps/v0" % (
+MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud/v0" % (
     MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
-MULTICLOUD_API_V1_PREFIX = "http://%s:%s/api/multicloud-fcaps/v1" % (
+MULTICLOUD_API_V1_PREFIX = "http://%s:%s/api/multicloud/v1" % (
     MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
 # [A&AI]
