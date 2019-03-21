@@ -136,3 +136,93 @@ class PmVMTest(unittest.TestCase):
     def test_get_epoch_now_usecond(self):
         epoch = pm_vm.get_epoch_now_usecond()
         self.assertGreater(epoch, 1)
+
+    @mock.patch.object(restcall, '_call_req')
+    def test_buildBacklog_pm_vm(self, mock_call_req):
+        mock_call_req.side_effect = [
+            (0, json.dumps(MOCK_TOKEN_RESPONSE), "MOCKED response body"),
+            (0, json.dumps(MOCK_SERVERS_GET_RESPONSE), "MOCKED response body")
+        ]
+        backlog = pm_vm.buildBacklog_pm_vm(
+            vimid="fcaps-hudson-dc_RegionOne",
+            backlog_input=MOCK_BACKLOG_INPUT)
+
+        self.assertIsNotNone(backlog)
+
+    @mock.patch.object(restcall, '_call_req')
+    def test_buildBacklog_pm_vm_wo_tenant_id(self, mock_call_req):
+        mock_call_req.side_effect = [
+            (0, json.dumps(MOCK_TOKEN_RESPONSE), "MOCKED response body"),
+            (0, json.dumps(MOCK_SERVERS_GET_RESPONSE), "MOCKED response body")
+        ]
+        backlog = pm_vm.buildBacklog_pm_vm(
+            vimid="fcaps-hudson-dc_RegionOne",
+            backlog_input=MOCK_BACKLOG_INPUT_wo_tenant_id)
+        self.assertIsNotNone(backlog)
+
+    @mock.patch.object(restcall, '_call_req')
+    def test_buildBacklog_pm_vm_wo_tenant(self, mock_call_req):
+        mock_call_req.side_effect = [
+            (1, json.dumps(MOCK_TOKEN_RESPONSE), "MOCKED response body: failed"),
+            (0, json.dumps(MOCK_SERVERS_GET_RESPONSE), "MOCKED response body")
+        ]
+        backlog = pm_vm.buildBacklog_pm_vm(
+            vimid="fcaps-hudson-dc_RegionOne",
+            backlog_input=MOCK_BACKLOG_INPUT_wo_tenant)
+        self.assertIsNone(backlog)
+
+    @mock.patch.object(restcall, '_call_req')
+    def test_buildBacklog_pm_vm_wo_server_id(self, mock_call_req):
+        mock_call_req.side_effect = [
+            (0, json.dumps(MOCK_TOKEN_RESPONSE), "MOCKED response body"),
+            (0, json.dumps(MOCK_SERVERS_GET_RESPONSE), "MOCKED response body")
+        ]
+        backlog = pm_vm.buildBacklog_pm_vm(
+            vimid="fcaps-hudson-dc_RegionOne",
+            backlog_input=MOCK_BACKLOG_INPUT_wo_server_id)
+        self.assertIsNotNone(backlog)
+
+    @mock.patch.object(restcall, '_call_req')
+    def test_buildBacklog_pm_vm_wo_server(self, mock_call_req):
+        mock_call_req.side_effect = [
+            (0, json.dumps(MOCK_TOKEN_RESPONSE), "MOCKED response body"),
+            (0, json.dumps(MOCK_SERVERS_GET_RESPONSE), "MOCKED response body")
+        ]
+        backlog = pm_vm.buildBacklog_pm_vm(
+            vimid="fcaps-hudson-dc_RegionOne",
+            backlog_input=MOCK_BACKLOG_INPUT_wo_server)
+        self.assertIsNotNone(backlog)
+
+    @mock.patch.object(vespublish, 'publishAnyEventToVES')
+    @mock.patch.object(restcall, '_call_req')
+    def test_processBacklog_pm_vm(
+            self, mock_call_req, mock_publishAnyEventToVES):
+        mock_call_req.side_effect = [
+            (0, json.dumps(MOCK_TOKEN_RESPONSE), "MOCKED response body"),
+            (0, json.dumps(MOCK_SERVER_GET_RESPONSE), "MOCKED response body")
+        ]
+        mock_publishAnyEventToVES.return_value = "mocked return value"
+
+        result = pm_vm.processBacklog_pm_vm(
+            vesAgentConfig=MOCK_vesAgentConfig,
+            vesAgentState=MOCK_vesAgentState,
+            oneBacklog=MOCK_oneBacklog)
+        self.assertIsNone(result)
+        pass
+
+    @mock.patch.object(vespublish, 'publishAnyEventToVES')
+    @mock.patch.object(restcall, '_call_req')
+    def test_processBacklog_pm_vm_wo_server(
+            self, mock_call_req, mock_publishAnyEventToVES):
+        mock_call_req.side_effect = [
+            (0, json.dumps(MOCK_TOKEN_RESPONSE), "MOCKED response body"),
+            (0, json.dumps(MOCK_SERVER_GET_RESPONSE_empty), "MOCKED response body")
+        ]
+        mock_publishAnyEventToVES.return_value = "mocked return value"
+
+        result = pm_vm.processBacklog_pm_vm(
+            vesAgentConfig=MOCK_vesAgentConfig,
+            vesAgentState=MOCK_vesAgentState,
+            oneBacklog=MOCK_oneBacklog)
+
+        self.assertIsNone(result)
