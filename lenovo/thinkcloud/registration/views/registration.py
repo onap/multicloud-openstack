@@ -29,6 +29,7 @@ class Registry(newton_registration.Registry):
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
         self._logger = logger
+        super(Registry, self).__init__()
 
 
 class RegistryV1(Registry):
@@ -36,6 +37,7 @@ class RegistryV1(Registry):
         self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
         self._logger = logger
+        super(RegistryV1, self).__init__()
 
     def post(self, request, cloud_owner="", cloud_region_id=""):
         self._logger.info("registration with : %s, %s" % (cloud_owner, cloud_region_id))
