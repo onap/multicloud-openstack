@@ -92,7 +92,7 @@ class TestRegistration2(unittest.TestCase):
             }
         )
 
-        resp = self.view._discover_flavors(vimid="windriver-hudson-dc_RegionOne",
+        resp = self.view.register_helper._discover_flavors(vimid="windriver-hudson-dc_RegionOne",
                                            session=mock_session, viminfo=MOCK_VIM_INFO)
 
         self.assertIsNone(resp)
@@ -110,7 +110,7 @@ class TestRegistration2(unittest.TestCase):
             }
         ),
 
-        resp = self.view._discover_flavors(vimid="windriver-hudson-dc_RegionOne",
+        resp = self.view.register_helper._discover_flavors(vimid="windriver-hudson-dc_RegionOne",
                                            session=mock_session, viminfo=MOCK_VIM_INFO)
 
         self.assertIsNone(resp)

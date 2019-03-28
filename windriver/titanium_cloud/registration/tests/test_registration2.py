@@ -87,7 +87,7 @@ class TestRegistration2(unittest.TestCase):
             ["get"], {"get": {
                 "content": MOCK_GET_FLAVOR_RESPONSE}}),
 
-        resp = self.view._discover_flavors(vimid="windriver-hudson-dc_RegionOne",
+        resp = self.view.register_helper._discover_flavors(vimid="windriver-hudson-dc_RegionOne",
                                            session=mock_session, viminfo=MOCK_VIM_INFO)
 
         self.assertIsNone(resp)
@@ -102,7 +102,7 @@ class TestRegistration2(unittest.TestCase):
                     "content": MOCK_GET_FLAVOR_EXTRASPECS_RESPONSE_w_hpa_numa}
             ]}),
 
-        resp = self.view._discover_flavors(vimid="windriver-hudson-dc_RegionOne",
+        resp = self.view.register_helper._discover_flavors(vimid="windriver-hudson-dc_RegionOne",
                                            session=mock_session, viminfo=MOCK_VIM_INFO)
 
         self.assertIsNone(resp)
