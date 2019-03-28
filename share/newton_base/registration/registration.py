@@ -16,6 +16,7 @@ import logging
 import json
 import uuid
 import traceback
+import threading
 
 from keystoneauth1.exceptions import HttpError
 from rest_framework import status
@@ -33,9 +34,288 @@ logger = logging.getLogger(__name__)
 class Registry(APIView):
 
     def __init__(self):
-        self.proxy_prefix = "multicloud"
-        self.aai_base_url = "127.0.0.1"
+        if not hasattr(self, "_logger"):
+            self._logger = logger
+
+        if not hasattr(self, "register_helper") or not self.register_helper:
+            if not hasattr(self, "proxy_prefix"):
+                self.proxy_prefix = "multicloud"
+            if not hasattr(self, "AAI_BASE_URL"):
+                self.AAI_BASE_URL = "127.0.0.1"
+            self.register_helper = RegistryHelper(self.proxy_prefix or "multicloud", self.AAI_BASE_URL or "127.0.0.1")
+
+    def post(self, request, vimid=""):
+        self._logger.info("registration with vimid: %s" % vimid)
+        self._logger.debug("with data: %s" % request.data)
+
+        try:
+
+            thread1 = RegisterHelperThread(self.register_helper.registry)
+            thread1.addv0(vimid)
+            if 0 == thread1.state():
+                thread1.start()
+
+            return Response(status=status.HTTP_202_ACCEPTED)
+
+        except VimDriverNewtonException as e:
+            return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return Response(
+                data={'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def delete(self, request, vimid=""):
+        self._logger.debug("Registration--delete::data> %s" % request.data)
+        self._logger.debug("Registration--delete::vimid > %s"% vimid)
+        try:
+
+            retcode = RegistryHelper.unregistry(vimid)
+
+            #ret_code = VimDriverUtils.delete_vim_info(vimid)
+            return Response(status=status.HTTP_204_NO_CONTENT if retcode==0 else status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except VimDriverNewtonException as e:
+            return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
+        except Exception as e:
+            self._logger.error(traceback.format_exc())
+            return Response(data={'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class RegistryHelper(object):
+    '''
+    Helper code to discover and register a cloud region's resource
+    '''
+
+    def __init__(self, multicloud_prefix, aai_base_url):
+        self.proxy_prefix = multicloud_prefix
+        self.aai_base_url = aai_base_url
         self._logger = logger
+
+    def registry(self, vimid=""):
+        # populate proxy identity url
+        self._update_proxy_identity_endpoint(vimid)
+
+        # prepare request resource to vim instance
+        # get token:
+        viminfo = VimDriverUtils.get_vim_info(vimid)
+        if not viminfo:
+            raise VimDriverNewtonException(
+                "There is no cloud-region with {cloud-owner}_{cloud-region-id}=%s in AAI" % vimid)
+
+        # set the default tenant since there is no tenant info in the VIM yet
+        sess = VimDriverUtils.get_session(
+            viminfo, tenant_name=viminfo['tenant'])
+
+        # step 1. discover all projects and populate into AAI
+        self._discover_tenants(vimid, sess, viminfo)
+
+        # discover all flavors
+        self._discover_flavors(vimid, sess, viminfo)
+
+        # discover all images
+        self._discover_images(vimid, sess, viminfo)
+
+        # discover all az
+        self._discover_availability_zones(vimid, sess, viminfo)
+
+        # discover all vg
+        #self._discover_volumegroups(vimid, sess, viminfo)
+
+        # discover all snapshots
+        #self._discover_snapshots(vimid, sess, viminfo)
+
+        # discover all server groups
+        #self.discover_servergroups(request, vimid, sess, viminfo)
+
+        # discover all pservers
+        #self._discover_pservers(vimid, sess, viminfo)
+
+        return 0
+
+
+    def unregistry(self, vimid=""):
+
+        # prepare request resource to vim instance
+        # get token:
+        viminfo = VimDriverUtils.get_vim_info(vimid)
+        if not viminfo:
+            raise VimDriverNewtonException(
+                "There is no cloud-region with {cloud-owner}_{cloud-region-id}=%s in AAI" % vimid)
+
+        cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+
+        # get the resource first
+        resource_url = ("/cloud-infrastructure/cloud-regions/"
+                        "cloud-region/%(cloud_owner)s/%(cloud_region_id)s?depth=all"
+                        % {
+                            "cloud_owner": cloud_owner,
+                            "cloud_region_id": cloud_region_id,
+                        })
+
+        # get cloud-region
+        retcode, content, status_code = \
+            restcall.req_to_aai(resource_url, "GET")
+
+        # add resource-version
+        if retcode == 0 and content:
+            cloudregiondata = json.JSONDecoder().decode(content)
+
+        # step 1. remove all tenants
+        tenants = cloudregiondata.get("tenants", None)
+        for tenant in tenants.get("tenant", []) if tenants else []:
+            # common prefix
+            aai_cloud_region = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
+                               % (cloud_owner, cloud_region_id, tenant['tenant-id'])
+
+            # remove all vservers
+            try:
+                # get list of vservers
+                vservers = tenant.get('vservers', {}).get('vserver', [])
+                for vserver in vservers:
+                    try:
+                        # iterate vport, except will be raised if no l-interface exist
+                        for vport in vserver['l-interfaces']['l-interface']:
+                            # delete vport
+                            vport_delete_url = aai_cloud_region + "/vservers/vserver/%s/l-interfaces/l-interface/%s?resource-version=%s" \
+                                                                  % (vserver['vserver-id'], vport['interface-name'],
+                                                                     vport['resource-version'])
+                            restcall.req_to_aai(vport_delete_url, "DELETE")
+                    except Exception as e:
+                        pass
+
+                    try:
+                        # delete vserver
+                        vserver_delete_url = aai_cloud_region + "/vservers/vserver/%s?resource-version=%s" \
+                                                                % (
+                                                                    vserver['vserver-id'], vserver['resource-version'])
+                        restcall.req_to_aai(vserver_delete_url, "DELETE")
+                    except Exception as e:
+                        continue
+
+            except Exception:
+                self._logger.error(traceback.format_exc())
+                pass
+
+            resource_url = ("/cloud-infrastructure/cloud-regions/"
+                            "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                            "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                            "?resource-version=%(resource-version)s"
+                            % {
+                                "cloud_owner": cloud_owner,
+                                "cloud_region_id": cloud_region_id,
+                                "resource_type": "tenant",
+                                "resoure_id": tenant["tenant-id"],
+                                "resource-version": tenant["resource-version"]
+                            })
+            # remove tenant
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "DELETE")
+
+        # remove all flavors
+        flavors = cloudregiondata.get("flavors", None)
+        for flavor in flavors.get("flavor", []) if flavors else []:
+            # iterate hpa-capabilities
+            hpa_capabilities = flavor.get("hpa-capabilities", None)
+            for hpa_capability in hpa_capabilities.get("hpa-capability", []) if hpa_capabilities else []:
+                resource_url = ("/cloud-infrastructure/cloud-regions/"
+                                "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                                "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                                "hpa-capabilities/hpa-capability/%(hpa-capability-id)s/"
+                                "?resource-version=%(resource-version)s"
+                                % {
+                                    "cloud_owner": cloud_owner,
+                                    "cloud_region_id": cloud_region_id,
+                                    "resource_type": "flavor",
+                                    "resoure_id": flavor["flavor-id"],
+                                    "hpa-capability-id": hpa_capability["hpa-capability-id"],
+                                    "resource-version": hpa_capability["resource-version"]
+                                })
+                # remove hpa-capability
+                retcode, content, status_code = \
+                    restcall.req_to_aai(resource_url, "DELETE")
+
+            # remove flavor
+            resource_url = ("/cloud-infrastructure/cloud-regions/"
+                            "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                            "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                            "?resource-version=%(resource-version)s"
+                            % {
+                                "cloud_owner": cloud_owner,
+                                "cloud_region_id": cloud_region_id,
+                                "resource_type": "flavor",
+                                "resoure_id": flavor["flavor-id"],
+                                "resource-version": flavor["resource-version"]
+                            })
+
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "DELETE")
+
+        # remove all images
+        images = cloudregiondata.get("images", None)
+        for image in images.get("image", []) if images else []:
+            resource_url = ("/cloud-infrastructure/cloud-regions/"
+                            "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                            "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                            "?resource-version=%(resource-version)s"
+                            % {
+                                "cloud_owner": cloud_owner,
+                                "cloud_region_id": cloud_region_id,
+                                "resource_type": "image",
+                                "resoure_id": image["image-id"],
+                                "resource-version": image["resource-version"]
+                            })
+            # remove image
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "DELETE")
+
+        # remove all az
+
+        # remove all vg
+
+        # remove all snapshots
+        snapshots = cloudregiondata.get("snapshots", None)
+        for snapshot in snapshots.get("snapshot", []) if snapshots else []:
+            resource_url = ("/cloud-infrastructure/cloud-regions/"
+                            "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                            "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                            "?resource-version=%(resource-version)s"
+                            % {
+                                "cloud_owner": cloud_owner,
+                                "cloud_region_id": cloud_region_id,
+                                "resource_type": "snapshot",
+                                "resoure_id": snapshot["snapshot-id"],
+                                "resource-version": snapshot["resource-version"]
+                            })
+            # remove snapshot
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url, "DELETE")
+
+        # remove all server groups
+
+        # remove all pservers
+
+        # remove cloud region itself
+        resource_url = ("/cloud-infrastructure/cloud-regions/"
+                        "cloud-region/%(cloud_owner)s/%(cloud_region_id)s"
+                        "?resource-version=%(resource-version)s"
+                        % {
+                            "cloud_owner": cloud_owner,
+                            "cloud_region_id": cloud_region_id,
+                            "resource-version": cloudregiondata["resource-version"]
+                        })
+        # remove cloud region
+        retcode, content, status_code = \
+            restcall.req_to_aai(resource_url, "DELETE")
+
+        return retcode, content, status_code
+
 
     def _get_list_resources(
             self, resource_url, service_type, session, viminfo,
@@ -972,247 +1252,82 @@ class Registry(APIView):
             self._logger.error(traceback.format_exc())
             return
 
-    def post(self, request, vimid=""):
-        self._logger.info("registration with vimid: %s" % vimid)
-        self._logger.debug("with data: %s" % request.data)
 
-        try:
-            # populate proxy identity url
-            self._update_proxy_identity_endpoint(vimid)
+class RegisterHelperThread(threading.Thread):
+    '''
+    thread to register infrastructure resource into AAI
+    '''
 
-            # prepare request resource to vim instance
-            # get token:
-            viminfo = VimDriverUtils.get_vim_info(vimid)
-            if not viminfo:
-                raise VimDriverNewtonException(
-                    "There is no cloud-region with {cloud-owner}_{cloud-region-id}=%s in AAI" % vimid)
+    def __init__(self, registry_helper):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.duration = 0
+        self.helper = registry_helper
 
-            # set the default tenant since there is no tenant info in the VIM yet
-            sess = VimDriverUtils.get_session(
-                viminfo, tenant_name=viminfo['tenant'])
+        # The queue of IDs of cloud regions, format:
+        # v0: "owner1_regionid1"
+        self.queuev0 = []
 
-            # step 1. discover all projects and populate into AAI
-            self._discover_tenants(vimid, sess, viminfo)
+        # v1: {"cloud-owner": "owner1", "cloud-region-id": "regionid1"},
+        self.queuev1 = []
+        self.lock = threading.Lock()
 
-            # discover all flavors
-            self._discover_flavors(vimid, sess, viminfo)
+        self.state_ = 0  # 0: stopped, 1: started
 
-            # discover all images
-            self._discover_images(vimid, sess, viminfo)
+    def addv0(self, vimid):
+        self.lock.acquire()
+        self.queuev0.append(vimid)
+        self.lock.release()
+        return len(self.queuev0)
 
-            # discover all az
-            self._discover_availability_zones(vimid, sess, viminfo)
+    def removev0(self, vimid):
+        '''
+        remove cloud region from list
+        '''
+        self.queuev0 = [x for x in self.queuev0 if x != vimid]
 
-            # discover all vg
-            #self._discover_volumegroups(vimid, sess, viminfo)
+    def resetv0(self):
+        self.queuev0 = []
 
-            # discover all snapshots
-            #self._discover_snapshots(vimid, sess, viminfo)
+    def countv0(self):
+        return len(self.queuev0)
 
-            # discover all server groups
-            #self.discover_servergroups(request, vimid, sess, viminfo)
+    def addv1(self, cloud_owner, cloud_region_id):
+        self.lock.acquire()
+        self.queuev1.append({"cloud-owner": cloud_owner, "cloud-region-id": cloud_region_id})
+        self.lock.release()
+        return len(self.queuev1)
 
-            # discover all pservers
-            #self._discover_pservers(vimid, sess, viminfo)
+    def removev1(self, cloud_owner, cloud_region_id):
+        '''
+        remove cloud region from list
+        '''
+        self.queuev1 = [x for x in self.queuev1 if x["cloud-owner"] != cloud_owner or x["cloud-region-id"] != cloud_region_id]
 
-            return Response(status=status.HTTP_202_ACCEPTED)
+    def resetv1(self):
+        self.queuev1 = []
 
-        except VimDriverNewtonException as e:
-            return Response(data={'error': e.content}, status=e.status_code)
-        except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
-            return Response(data=e.response.json(), status=e.http_status)
-        except Exception as e:
-            self._logger.error(traceback.format_exc())
-            return Response(
-                data={'error': str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def countv1(self):
+        return len(self.queuev1)
 
-    def delete(self, request, vimid=""):
-        self._logger.debug("Registration--delete::data> %s" % request.data)
-        self._logger.debug("Registration--delete::vimid > %s"% vimid)
-        try:
+    def state(self):
+        return self.state_
 
-            # prepare request resource to vim instance
-            # get token:
-            viminfo = VimDriverUtils.get_vim_info(vimid)
-            if not viminfo:
-                raise VimDriverNewtonException(
-                    "There is no cloud-region with {cloud-owner}_{cloud-region-id}=%s in AAI" % vimid)
+    def run(self):
+        logger.debug("Starting registration thread")
+        self.state_ = 1
+        while self.helper and len(self.queuev0) > 0 and len(self.queuev1) > 0:
+            self.lock.acquire()
+            vimidv1 = self.queuev1.pop()
+            self.lock.release()
+            vimid = extsys.encode_vim_id(vimidv1["cloud-owner"], vimidv1["cloud-region-id"])
+            self.helper(vimid)
 
-            cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            self.lock.acquire()
+            vimidv0 = self.queuev0.pop()
+            self.lock.release()
+            self.helper(vimidv0)
 
-            #get the resource first
-            resource_url = ("/cloud-infrastructure/cloud-regions/"
-                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s?depth=all"
-                     % {
-                         "cloud_owner": cloud_owner,
-                         "cloud_region_id": cloud_region_id,
-                     })
+        self.state_ = 0
+        # end of processing
 
-            # get cloud-region
-            retcode, content, status_code = \
-                restcall.req_to_aai(resource_url, "GET")
-
-            # add resource-version
-            if retcode == 0 and content:
-                cloudregiondata = json.JSONDecoder().decode(content)
-
-            # step 1. remove all tenants
-            tenants = cloudregiondata.get("tenants", None)
-            for tenant in tenants.get("tenant", []) if tenants else []:
-                # common prefix
-                aai_cloud_region = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
-                                   % (cloud_owner, cloud_region_id, tenant['tenant-id'])
-
-                # remove all vservers
-                try:
-                    # get list of vservers
-                    vservers = tenant.get('vservers', {}).get('vserver', [])
-                    for vserver in vservers:
-                        try:
-                            # iterate vport, except will be raised if no l-interface exist
-                            for vport in vserver['l-interfaces']['l-interface']:
-                                # delete vport
-                                vport_delete_url = aai_cloud_region + "/vservers/vserver/%s/l-interfaces/l-interface/%s?resource-version=%s" \
-                                                                      % (vserver['vserver-id'], vport['interface-name'],
-                                                                         vport['resource-version'])
-                                restcall.req_to_aai(vport_delete_url, "DELETE")
-                        except Exception as e:
-                            pass
-
-                        try:
-                            # delete vserver
-                            vserver_delete_url = aai_cloud_region + "/vservers/vserver/%s?resource-version=%s" \
-                                                                    % (
-                                                                    vserver['vserver-id'], vserver['resource-version'])
-                            restcall.req_to_aai(vserver_delete_url, "DELETE")
-                        except Exception as e:
-                            continue
-
-                except Exception:
-                    self._logger.error(traceback.format_exc())
-                    pass
-
-                resource_url = ("/cloud-infrastructure/cloud-regions/"
-                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                     "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
-                     "?resource-version=%(resource-version)s"
-                     % {
-                         "cloud_owner": cloud_owner,
-                         "cloud_region_id": cloud_region_id,
-                         "resource_type": "tenant",
-                         "resoure_id": tenant["tenant-id"],
-                         "resource-version": tenant["resource-version"]
-                     })
-                # remove tenant
-                retcode, content, status_code = \
-                    restcall.req_to_aai(resource_url, "DELETE")
-
-            # remove all flavors
-            flavors = cloudregiondata.get("flavors", None)
-            for flavor in flavors.get("flavor", []) if flavors else []:
-                # iterate hpa-capabilities
-                hpa_capabilities = flavor.get("hpa-capabilities", None)
-                for hpa_capability in hpa_capabilities.get("hpa-capability", []) if hpa_capabilities else []:
-                    resource_url = ("/cloud-infrastructure/cloud-regions/"
-                                    "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                                    "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
-                                    "hpa-capabilities/hpa-capability/%(hpa-capability-id)s/"
-                                    "?resource-version=%(resource-version)s"
-                                    % {
-                                        "cloud_owner": cloud_owner,
-                                        "cloud_region_id": cloud_region_id,
-                                        "resource_type": "flavor",
-                                        "resoure_id": flavor["flavor-id"],
-                                        "hpa-capability-id": hpa_capability["hpa-capability-id"],
-                                        "resource-version": hpa_capability["resource-version"]
-                                    })
-                    # remove hpa-capability
-                    retcode, content, status_code = \
-                        restcall.req_to_aai(resource_url, "DELETE")
-
-                # remove flavor
-                resource_url = ("/cloud-infrastructure/cloud-regions/"
-                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                     "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
-                     "?resource-version=%(resource-version)s"
-                     % {
-                         "cloud_owner": cloud_owner,
-                         "cloud_region_id": cloud_region_id,
-                         "resource_type": "flavor",
-                         "resoure_id": flavor["flavor-id"],
-                         "resource-version": flavor["resource-version"]
-                     })
-
-                retcode, content, status_code = \
-                    restcall.req_to_aai(resource_url, "DELETE")
-
-            # remove all images
-            images = cloudregiondata.get("images", None)
-            for image in images.get("image", []) if images else []:
-                resource_url = ("/cloud-infrastructure/cloud-regions/"
-                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                     "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
-                     "?resource-version=%(resource-version)s"
-                     % {
-                         "cloud_owner": cloud_owner,
-                         "cloud_region_id": cloud_region_id,
-                         "resource_type": "image",
-                         "resoure_id": image["image-id"],
-                         "resource-version": image["resource-version"]
-                     })
-                # remove image
-                retcode, content, status_code = \
-                    restcall.req_to_aai(resource_url, "DELETE")
-
-            # remove all az
-
-            # remove all vg
-
-            # remove all snapshots
-            snapshots = cloudregiondata.get("snapshots", None)
-            for snapshot in snapshots.get("snapshot", []) if snapshots else []:
-                resource_url = ("/cloud-infrastructure/cloud-regions/"
-                     "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                     "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
-                     "?resource-version=%(resource-version)s"
-                     % {
-                         "cloud_owner": cloud_owner,
-                         "cloud_region_id": cloud_region_id,
-                         "resource_type": "snapshot",
-                         "resoure_id": snapshot["snapshot-id"],
-                         "resource-version": snapshot["resource-version"]
-                     })
-                # remove snapshot
-                retcode, content, status_code = \
-                    restcall.req_to_aai(resource_url, "DELETE")
-
-            # remove all server groups
-
-            # remove all pservers
-
-            # remove cloud region itself
-            resource_url = ("/cloud-infrastructure/cloud-regions/"
-                 "cloud-region/%(cloud_owner)s/%(cloud_region_id)s"
-                 "?resource-version=%(resource-version)s"
-                 % {
-                     "cloud_owner": cloud_owner,
-                     "cloud_region_id": cloud_region_id,
-                     "resource-version": cloudregiondata["resource-version"]
-                 })
-            # remove cloud region
-            retcode, content, status_code = \
-                restcall.req_to_aai(resource_url, "DELETE")
-
-            #ret_code = VimDriverUtils.delete_vim_info(vimid)
-            return Response(status=status.HTTP_204_NO_CONTENT if retcode==0 else status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except VimDriverNewtonException as e:
-            return Response(data={'error': e.content}, status=e.status_code)
-        except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
-            return Response(data=e.response.json(), status=e.http_status)
-        except Exception as e:
-            self._logger.error(traceback.format_exc())
-            return Response(data={'error': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
