@@ -941,6 +941,7 @@ class RegistryHelper(object):
     def _discover_availability_zones(self, vimid="", session=None,
                                      viminfo=None):
         try:
+            az_pserver_info = {}
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
             for az in self._get_list_resources(
                     "/os-availability-zone/detail", "compute", session,
@@ -952,29 +953,44 @@ class RegistryHelper(object):
                     if az.get('zoneState') else '',
                     'hypervisor-type': '',
                 }
-                if az.get('hosts'):
-                    for (k, v) in az['hosts'].items():
-                        req_resource = "/os-hypervisors/detail?hypervisor_hostname_pattern=%s" % k
-                        service = {'service_type': "compute",
-                                   'interface': 'public',
-                                   'region_name': viminfo['openstack_region_id']
-                                   if viminfo.get('openstack_region_id')
-                                   else viminfo['cloud_region_id']
-                                   }
+                # filter out the default az: "internal" and "nova"
+                azName = az.get('zoneName', None)
+                # comment it for test the registration process only
+                #  if azName == 'nova':
+                #    continue;
+                if azName == 'internal':
+                    continue;
 
-                        self._logger.info("making request with URI:%s" % req_resource)
-                        resp = session.get(req_resource, endpoint_filter=service)
-                        self._logger.info("request returns with status %s" % resp.status_code)
-                        if resp.status_code == status.HTTP_200_OK:
-                            self._logger.debug("with content:%s" % resp.json())
-                            pass
-                        content = resp.json()
-                        if resp.status_code != status.HTTP_200_OK and not content[0]:
-                            continue
-                        az_info['hypervisor-type'] = content['hypervisors'][0]['hypervisor_type']\
-                            if len(content.get('hypervisors')) else ''
+                # get list of host names
+                pservers_info = [k for (k, v) in az['hosts'].items()]
+                # set the association between az and pservers
+                az_pserver_info[azName] = pservers_info
 
-                        break
+                az_info['hypervisor-type'] = 'QEMU' # default for OpenStack
+
+                # if az.get('hosts'):
+                #    for (k, v) in az['hosts'].items():
+                #         req_resource = "/os-hypervisors/detail?hypervisor_hostname_pattern=%s" % k
+                #         service = {'service_type': "compute",
+                #                    'interface': 'public',
+                #                    'region_name': viminfo['openstack_region_id']
+                #                    if viminfo.get('openstack_region_id')
+                #                    else viminfo['cloud_region_id']
+                #                    }
+                #
+                #         self._logger.info("making request with URI:%s" % req_resource)
+                #         resp = session.get(req_resource, endpoint_filter=service)
+                #         self._logger.info("request returns with status %s" % resp.status_code)
+                #         if resp.status_code == status.HTTP_200_OK:
+                #             self._logger.debug("with content:%s" % resp.json())
+                #             pass
+                #         content = resp.json()
+                #         if resp.status_code != status.HTTP_200_OK and not content[0]:
+                #             continue
+                #         az_info['hypervisor-type'] = content['hypervisors'][0]['hypervisor_type']\
+                #             if len(content.get('hypervisors')) else ''
+                #
+                #         break
                 ret = self._update_resoure(
                     cloud_owner, cloud_region_id, az['zoneName'], az_info,
                     "availability-zone")
@@ -982,16 +998,42 @@ class RegistryHelper(object):
                     # failed to update image
                     self._logger.debug("failed to populate az info into AAI: %s, az name: %s, ret:%s"
                                        % (vimid, az_info['availability-zone-name'], ret))
+                    return None
+
+                # populate pservers:
+                for hostname in pservers_info:
+                    if hostname == "":
+                        continue
+
+                    pservername = vimid+"_"+hostname
+                    selflink = ""
+                    # if self.proxy_prefix[3:] == "/v1":
+                    #     selflink = "%s/%s/%s/compute/os-hypervisors/detail?hypervisor_hostname_pattern=%s"%\
+                    #            (self.proxy_prefix, cloud_owner, cloud_region_id , hostname)
+                    # else:
+                    #     selflink = "%s/%s/compute/os-hypervisors/detail?hypervisor_hostname_pattern=%s" % \
+                    #                (self.proxy_prefix, vimid, hostname)
+
+                    pinfo = {
+                        "hostname": hostname,
+                        "server-selflink": selflink,
+                        "pserver-id": hostname
+                    }
+                    self._update_pserver(cloud_owner, cloud_region_id, pinfo)
+                    self._update_pserver_relation_az(cloud_owner, cloud_region_id, pinfo, azName)
+                    self._update_pserver_relation_cloudregion(cloud_owner, cloud_region_id, pinfo)
+
+                return az_pserver_info
 
         except VimDriverNewtonException as e:
             self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
-            return
+            return None
         except HttpError as e:
             self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
-            return
+            return None
         except Exception as e:
             self._logger.error(traceback.format_exc())
-            return
+            return None
 
     # def _discover_volumegroups(self, vimid="", session=None, viminfo=None):
     #     cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
@@ -1058,6 +1100,101 @@ class RegistryHelper(object):
     #             viminfo, vimid,
     #             "security groups"):
 
+    def _update_pserver_relation_az(self, cloud_owner, cloud_region_id, pserverinfo, azName):
+        related_link = ("%s/cloud-infrastructure/cloud-regions/"
+                        "cloud-region/%s/%s"
+                        "availability-zones/availability-zone/%s"% (
+                            self.aai_base_url, cloud_owner,
+                            cloud_region_id, azName))
+
+        relationship_data = \
+            {
+                'related-to': 'availability-zone',
+                'related-link': related_link,
+                'relationship-data': [
+                    # {
+                    #     'relationship-key': 'cloud-region.cloud-owner',
+                    #     'relationship-value': cloud_owner
+                    # },
+                    # {
+                    #     'relationship-key': 'cloud-region.cloud-region-id',
+                    #     'relationship-value': cloud_region_id
+                    # },
+                    {
+                        'relationship-key': 'availability-zone.availability-zone-name',
+                        'relationship-value': azName
+                    }
+                ],
+                "related-to-property": [
+                    # {
+                    #     "property-key": "cloud-region.cloud-owner"
+                    # },
+                    # {
+                    #     "property-key": "cloud-region.cloud-region-id"
+                    # },
+                    {
+                        "property-key": "availability-zone.availability-zone-name"
+                    }
+                ]
+            }
+
+        retcode, content, status_code = \
+            restcall.req_to_aai("/cloud-infrastructure/pservers/pserver/%s_%s_%s"
+                                "/relationship-list/relationship"
+                                % (cloud_owner, cloud_region_id,
+                                   pserverinfo['hostname']), "PUT",
+                                content=relationship_data)
+
+        self._logger.debug("update_pserver_az_relation,vimid:%s_%s, "
+                           "az:%s req_to_aai: %s_%s_%s, return %s, %s, %s"
+                           % (cloud_owner, cloud_region_id, azName,
+                              cloud_owner, cloud_region_id,
+                              pserverinfo['hostname'], retcode, content,
+                              status_code))
+
+
+    def _update_pserver_relation_cloudregion(self, cloud_owner, cloud_region_id, pserverinfo):
+        related_link = ("%s/cloud-infrastructure/cloud-regions/"
+                        "cloud-region/%s/%s"% (
+                            self.aai_base_url, cloud_owner,
+                            cloud_region_id))
+
+        relationship_data = \
+            {
+                'related-to': 'availability-zone',
+                'related-link': related_link,
+                'relationship-data': [
+                    {
+                        'relationship-key': 'cloud-region.cloud-owner',
+                        'relationship-value': cloud_owner
+                    },
+                    {
+                        'relationship-key': 'cloud-region.cloud-region-id',
+                        'relationship-value': cloud_region_id
+                    }
+                ],
+                "related-to-property": [
+                    {
+                        "property-key": "cloud-region.cloud-owner"
+                    },
+                    {
+                        "property-key": "cloud-region.cloud-region-id"
+                    }
+                ]
+            }
+
+        retcode, content, status_code = \
+            restcall.req_to_aai("/cloud-infrastructure/pservers/pserver"
+                                "/%s_%s_%s/relationship-list/relationship"
+                                % (cloud_owner, cloud_region_id, pserverinfo['hostname']), "PUT",
+                                content=relationship_data)
+
+        self._logger.debug("update_pserver_cloudregion_relation,vimid:%s_%s"
+                           " req_to_aai: %s_%s_%s, return %s, %s, %s"
+                           % (cloud_owner, cloud_region_id, cloud_owner, cloud_region_id,
+                              pserverinfo['hostname'], retcode, content,
+                              status_code))
+
     def _update_pserver(self, cloud_owner, cloud_region_id, pserverinfo):
         '''
         populate pserver into AAI
@@ -1096,8 +1233,8 @@ class RegistryHelper(object):
         '''
 
         if cloud_owner and cloud_region_id:
-            resource_url = "/cloud-infrastructure/pservers/pserver/%s" \
-                           % (pserverinfo['hostname'])
+            resource_url = "/cloud-infrastructure/pservers/pserver/%s_%s_%s" \
+                           % (cloud_owner,cloud_region_id, pserverinfo['hostname'])
 
             # get cloud-region
             retcode, content, status_code = \
@@ -1116,46 +1253,6 @@ class RegistryHelper(object):
 
             self._logger.debug("update_snapshot,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
                                % (cloud_owner,cloud_region_id, pserverinfo['hostname'], retcode, content, status_code))
-
-            if retcode == 0:
-                # relationship to cloud-region
-
-                related_link = ("%s/cloud-infrastructure/cloud-regions/"
-                                "cloud-region/%s/%s" % (
-                                    self.aai_base_url, cloud_owner,
-                                    cloud_region_id))
-
-                relationship_data = \
-                    {
-                        'related-to': 'cloud-region',
-                        'related-link': related_link,
-                        'relationship-data': [
-                            {
-                                'relationship-key': 'cloud-region.cloud-owner',
-                                'relationship-value': cloud_owner
-                            },
-                            {
-                                'relationship-key': 'cloud-region.cloud-region-id',
-                                'relationship-value': cloud_region_id
-                            }
-                        ],
-                        "related-to-property": [
-                            {
-                                "property-key": "cloud-region.cloud-owner"
-                            },
-                            {
-                                "property-key": "cloud-region.cloud-region-id"
-                            }
-                        ]
-                    }
-
-                retcode, content, status_code = \
-                    restcall.req_to_aai("/cloud-infrastructure/pservers/pserver/%s/relationship-list/relationship"
-                               % (pserverinfo['hostname']), "PUT", content=relationship_data)
-
-                self._logger.debug("update_pserver,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
-                                   % (cloud_owner, cloud_region_id, pserverinfo['hostname'], retcode, content,
-                                      status_code))
 
             return retcode
         return 1  # unknown cloud owner,region_id
