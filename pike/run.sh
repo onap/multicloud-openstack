@@ -15,4 +15,22 @@
 
 memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
 export PYTHONPATH=lib/share
-uwsgi --http :9007 --module pike.wsgi --master --processes 4
+
+#nohup python manage.py runserver 0.0.0.0:9007 2>&1 &
+
+if [ ${SSL_ENABLED} = "true" ]; then
+    nohup uwsgi --https :9007,pike/pub/ssl/cert/cert.crt,pike/pub/ssl/cert/cert.key --module pike.wsgi --master --processes 4 &
+
+else
+    nohup uwsgi --http :9007 --module pike.wsgi --master --processes 4 &
+fi
+
+logDir="/var/log/onap/multicloud/openstack/pike"
+if [ ! -x  $logDir  ]; then
+       mkdir -p $logDir
+fi
+while [ ! -f $logDir/pike.log ]; do
+    sleep 1
+done
+
+tail -F $logDir/pike.log
