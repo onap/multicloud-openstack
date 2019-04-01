@@ -373,7 +373,8 @@ class InfraResourceAuditor(newton_registration.RegistryHelper):
                     continue
                 hypervisors_dict[h["hypervisor_hostname"]] = h
 
-            az_pserver_info = {}
+            vimAzCacheKey = "cap_azlist_" + vimid
+            vimAzList = []
             # cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
             for az in self._get_list_resources(
                     "/os-availability-zone/detail", "compute", session,
@@ -392,6 +393,8 @@ class InfraResourceAuditor(newton_registration.RegistryHelper):
                 #    continue
                 if azName == 'internal':
                     continue
+
+                vimAzList.append(azName)
 
                 # get list of host names
                 pservers_info = [k for (k, v) in az['hosts'].items()]
@@ -456,6 +459,7 @@ class InfraResourceAuditor(newton_registration.RegistryHelper):
 
                 # update the cache
                 cache.set(azCapCacheKey, json.dumps(azCapInfoCache), 3600 * 24)
+                cache.set(vimAzCacheKey, vimAzList, 3600 * 24)
         except Exception as e:
             self._logger.error("azcap_audit raise exception: %s" % e)
             pass
