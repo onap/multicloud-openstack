@@ -16,6 +16,8 @@ import logging
 import json
 import uuid
 import traceback
+import threading
+import time
 
 from django.conf import settings
 
@@ -42,10 +44,15 @@ class APIv0Registry(newton_registration.Registry):
     def post(self, request, vimid=""):
         self._logger.info("registration with :  %s" % vimid)
 
+        # vim registration will trigger the start the audit of AZ capacity
+        gAZCapAuditThread.addv0(vimid)
+        if 0 == gAZCapAuditThread.state():
+            gAZCapAuditThread.start()
         return super(APIv0Registry, self).post(request, vimid)
 
     def delete(self, request, vimid=""):
         self._logger.debug("unregister cloud region: %s" % vimid)
+        gAZCapAuditThread.removev0(vimid)
         return super(APIv0Registry, self).delete(request, vimid)
 
 
@@ -66,6 +73,12 @@ class APIv1Registry(newton_registration.Registry):
 
         try:
             vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+
+            # vim registration will trigger the start the audit of AZ capacity
+            gAZCapAuditThread.addv0(vimid)
+            if 0 == gAZCapAuditThread.state():
+                gAZCapAuditThread.start()
+
             return super(APIv1Registry, self).post(request, vimid)
 
         except HttpError as e:
@@ -83,6 +96,7 @@ class APIv1Registry(newton_registration.Registry):
                            % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        gAZCapAuditThread.removev0(vimid)
         return super(APIv1Registry, self).delete(request, vimid)
 
 
@@ -320,3 +334,80 @@ class RegistryHelper(newton_registration.RegistryHelper):
         except Exception:
             self._logger.error(traceback.format_exc())
             return []
+
+
+class InfraResourceAuditor(object):
+
+    def __init__(self, multicloud_prefix, aai_base_url):
+        self.proxy_prefix = multicloud_prefix
+        self.aai_base_url = aai_base_url
+        self._logger = logger
+        # super(InfraResourceAuditor, self).__init__();
+
+    def azcap_audit(self, vimid=""):
+        # now retrieve the latest AZ cap info
+        # TBD
+
+        # store the cap info into cache
+        # TBD
+        pass
+
+
+class AuditorHelperThread(threading.Thread):
+    '''
+    thread to register infrastructure resource into AAI
+    '''
+
+    def __init__(self, audit_helper):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.duration = 0
+        self.helper = audit_helper
+
+        # The set of IDs of cloud regions, format:
+        # v0: "owner1_regionid1"
+        self.queuev0 = set()
+        self.lock = threading.Lock()
+        self.state_ = 0  # 0: stopped, 1: started
+
+    def addv0(self, vimid=""):
+        self.lock.acquire()
+        self.queuev0.add(vimid)
+        self.lock.release()
+        return len(self.queuev0)
+
+    def removev0(self, vimid):
+        '''
+        discard cloud region from list without raise any exception
+        '''
+        self.queuev0.discard(vimid)
+
+    def resetv0(self):
+        self.queuev0.clear()
+
+    def countv0(self):
+        return len(self.queuev0)
+
+    def state(self):
+        return self.state_
+
+    def run(self):
+        logger.debug("Start the Audition thread")
+        self.state_ = 1
+        while self.helper and self.countv0() > 0:
+            for vimidv0 in self.queuev0:
+                self.helper(vimidv0)
+            # sleep for a while in seconds
+            time.sleep(5)
+
+        self.state_ = 0
+        logger.debug("Stop the Audition thread")
+        # end of processing
+
+# global Audition thread
+gAZCapAuditThread = AuditorHelperThread(
+    InfraResourceAuditor(
+        settings.MULTICLOUD_API_V1_PREFIX,
+        settings.AAI_BASE_URL).azcap_audit
+)
+
