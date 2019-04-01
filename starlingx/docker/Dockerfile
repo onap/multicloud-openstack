@@ -34,7 +34,7 @@ EXPOSE 9009
 RUN groupadd -r onap && useradd -r -g onap onap
 
 RUN apt-get update && \ 
-    apt-get install -y memcached wget unzip gcc && \
+    apt-get install -y memcached wget unzip gcc libssl-dev && \
     cd /opt/ && \
     wget -O /opt/multicloud-openstack-starlingx.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-starlingx&e=zip&v=1.3.0-SNAPSHOT" && \
     unzip -q -o -B /opt/multicloud-openstack-starlingx.zip -d /opt/ && \
@@ -42,6 +42,8 @@ RUN apt-get update && \
     pip install -r /opt/starlingx/requirements.txt && \
     apt-get --purge remove -y wget unzip gcc && \
     apt-get -y autoremove && \
+    mkdir -p /var/log/onap/multicloud/openstack/starlingx && \
+    chown onap:onap /var/log/onap -R && \
     chown onap:onap /opt/starlingx -R
     
 RUN mkdir -p /var/log/onap/multicloud/openstack/starlingx/
