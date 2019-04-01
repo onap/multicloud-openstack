@@ -16,4 +16,22 @@
 memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid
 export PYTHONPATH=lib/share
 
-uwsgi --http :9006 --module ocata.wsgi --master --processes 4
+
+#nohup python manage.py runserver 0.0.0.0:9006 2>&1 &
+
+if [ ${SSL_ENABLED} = "true" ]; then
+    nohup uwsgi --https :9006,ocata/pub/ssl/cert/cert.crt,ocata/pub/ssl/cert/cert.key --module ocata.wsgi --master --processes 4 &
+
+else
+    nohup uwsgi --http :9006 --module ocata.wsgi --master --processes 4 &
+fi
+
+logDir="/var/log/onap/multicloud/openstack/ocata"
+if [ ! -x  $logDir  ]; then
+       mkdir -p $logDir
+fi
+while [ ! -f $logDir/ocata.log ]; do
+    sleep 1
+done
+
+tail -F $logDir/ocata.log

@@ -34,14 +34,16 @@ EXPOSE 9006
 RUN groupadd -r onap && useradd -r -g onap onap
 
 RUN apt-get update && \
-    apt-get install -y memcached wget unzip gcc && \
+    apt-get install -y memcached wget unzip gcc libssl-dev && \
     cd /opt/ && \
     wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=1.3.0-SNAPSHOT" && \
     unzip -q -o -B /opt/multicloud-openstack-ocata.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-ocata.zip && \
     pip install -r /opt/ocata/requirements.txt && \
-    apt-get --purge remove -y wget unzip gcc && \
+    apt-get --purge remove -y wget unzip gcc libssl-dev && \
     apt-get -y autoremove && \
+    mkdir -p /var/log/onap/multicloud/openstack/ocata && \
+    chown onap:onap /var/log/onap -R && \
     chown onap:onap /opt/ocata -R
 
 RUN mkdir -p /var/log/onap/multicloud/openstack/ocata/
