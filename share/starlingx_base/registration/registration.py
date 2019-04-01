@@ -28,11 +28,10 @@ from common.msapi import extsys
 from keystoneauth1.exceptions import HttpError
 from newton_base.util import VimDriverUtils
 from common.utils import restcall
-from threading import Thread
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 # DEBUG=True
-
 
 # APIv0 handler upgrading: leverage APIv1 handler
 class APIv0Registry(newton_registration.Registry):
@@ -336,7 +335,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
             return []
 
 
-class InfraResourceAuditor(object):
+class InfraResourceAuditor(newton_registration.RegistryHelper):
 
     def __init__(self, multicloud_prefix, aai_base_url):
         self.proxy_prefix = multicloud_prefix
@@ -345,12 +344,121 @@ class InfraResourceAuditor(object):
         # super(InfraResourceAuditor, self).__init__();
 
     def azcap_audit(self, vimid=""):
-        # now retrieve the latest AZ cap info
-        # TBD
+        viminfo = VimDriverUtils.get_vim_info(vimid)
+        if not viminfo:
+            self._logger.warn("azcap_audit no valid vimid: %s" % vimid)
+            return
 
-        # store the cap info into cache
-        # TBD
-        pass
+        session = VimDriverUtils.get_session(
+            viminfo,
+            tenant_name=viminfo['tenant']
+        )
+
+        # now retrieve the latest AZ cap info
+        try:
+            # get all hypervisor detail ?
+            hypervisors = self._get_list_resources(
+                "/os-hypervisors/detail", "compute", session,
+                viminfo, vimid, "hypervisors")
+
+            hypervisors_dict = {}
+            # for h in hypervisors:
+            #     if not h.get("service", None):
+            #         continue
+            #     if not h.get("host", None):
+            #         continue
+            #     hypervisors_dict[h["service"]["host"]] = h
+            for h in hypervisors:
+                if not h.get("hypervisor_hostname", None):
+                    continue
+                hypervisors_dict[h["hypervisor_hostname"]] = h
+
+            az_pserver_info = {}
+            # cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
+            for az in self._get_list_resources(
+                    "/os-availability-zone/detail", "compute", session,
+                    viminfo, vimid,
+                    "availabilityZoneInfo"):
+                az_info = {
+                    'availability-zone-name': az['zoneName'],
+                    'operational-status': az['zoneState']['available']
+                    if az.get('zoneState') else '',
+                    'hypervisor-type': '',
+                }
+                # filter out the default az: "internal" and "nova"
+                azName = az.get('zoneName', None)
+                # comment it for test the registration process only
+                #  if azName == 'nova':
+                #    continue
+                if azName == 'internal':
+                    continue
+
+                # get list of host names
+                pservers_info = [k for (k, v) in az['hosts'].items()]
+                # set the association between az and pservers
+                #az_pserver_info[azName] = az['hosts']
+
+                # Get current cap info of azName
+                azCapCacheKey = "cap_" + vimid + "_" + azName
+                azCapInfoCacheStr = cache.get(azCapCacheKey)
+                azCapInfoCache = json.loads(azCapInfoCacheStr) if azCapInfoCacheStr else None
+
+                for psname in pservers_info:
+                    psinfo = hypervisors_dict.get(psname, None)
+                    if not psinfo:
+                        # warning: the pserver info not found
+                        continue
+                    # get current pserver cap info
+                    psCapInfoCacheKey = "cap_" + vimid + "_" + psname
+                    psCapInfoCacheStr = cache.get(psCapInfoCacheKey)
+                    psCapInfoCache = json.loads(psCapInfoCacheStr) if psCapInfoCacheStr else None
+
+                    # compare latest info with cached one
+                    vcpu_delta = 0
+                    vcpu_used_delta = 0
+                    mem_delta = 0
+                    mem_free_delta = 0
+                    localstorage_delta = 0
+                    localstorage_free_delta = 0
+                    if psinfo.get("vcpus", 0) != psCapInfoCache.get("vcpus", 0):
+                        vcpu_delta += psinfo.get("vcpus", 0) \
+                                      - psCapInfoCache.get("vcpus", 0)
+                        psCapInfoCache["vcpus"] = psinfo.get("vcpus", 0)
+                    if psinfo.get("memory_mb", 0) != psCapInfoCache.get("memory_mb", 0):
+                        mem_delta += psinfo.get("memory_mb", 0) \
+                                     - psCapInfoCache.get("memory_mb", 0)
+                        psCapInfoCache["memory_mb"] = psinfo.get("memory_mb", 0)
+                    if psinfo.get("local_gb", 0) != psCapInfoCache.get("local_gb", 0):
+                        localstorage_delta += psinfo.get("local_gb", 0) \
+                                              - psCapInfoCache.get("local_gb", 0)
+                        psCapInfoCache["local_gb"] = psinfo.get("local_gb", 0)
+                    if psinfo.get("vcpus_used", 0) != psCapInfoCache.get("vcpus_used", 0):
+                        vcpu_used_delta += psinfo.get("vcpus_used", 0)\
+                                     - psCapInfoCache.get("vcpus_used", 0)
+                        psCapInfoCache["vcpus_used"] = psinfo.get("vcpus_used", 0)
+                    if psinfo.get("free_ram_mb", 0) != psCapInfoCache.get("free_ram_mb", 0):
+                        mem_free_delta += psinfo.get("free_ram_mb", 0)\
+                                     - psCapInfoCache.get("free_ram_mb", 0)
+                        psCapInfoCache["free_ram_mb"] = psinfo.get("free_ram_mb", 0)
+                    if psinfo.get("free_disk_gb", 0) != psCapInfoCache.get("free_disk_gb", 0):
+                        localstorage_free_delta += psinfo.get("free_disk_gb", 0)\
+                                     - psCapInfoCache.get("free_disk_gb", 0)
+                        psCapInfoCache["free_disk_gb"] = psinfo.get("free_disk_gb", 0)
+                    pass
+
+                # now apply the delta to azCapInfo
+                azCapInfoCache["vcpus"] = azCapInfoCache.get("vcpus", 0) + vcpu_delta
+                azCapInfoCache["memory_mb"] = azCapInfoCache.get("memory_mb", 0) + mem_delta
+                azCapInfoCache["local_gb"] = azCapInfoCache.get("local_gb", 0) + localstorage_delta
+                azCapInfoCache["vcpus_used"] = azCapInfoCache.get("vcpus_used", 0) + vcpu_used_delta
+                azCapInfoCache["free_ram_mb"] = azCapInfoCache.get("free_ram_mb", 0) + mem_free_delta
+                azCapInfoCache["free_disk_gb"] = azCapInfoCache.get("free_disk_gb", 0) + localstorage_free_delta
+
+                # update the cache
+                cache.set(azCapCacheKey, json.dumps(azCapInfoCache), 3600 * 24)
+        except Exception as e:
+            self._logger.error("azcap_audit raise exception: %s" % e)
+            pass
 
 
 class AuditorHelperThread(threading.Thread):

@@ -957,9 +957,9 @@ class RegistryHelper(object):
                 azName = az.get('zoneName', None)
                 # comment it for test the registration process only
                 #  if azName == 'nova':
-                #    continue;
+                #    continue
                 if azName == 'internal':
-                    continue;
+                    continue
 
                 # get list of host names
                 pservers_info = [k for (k, v) in az['hosts'].items()]
