@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f24b01af_3be0f045",
+        "filename": "starlingx/docker/Dockerfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2019-04-01T01:48:46Z",
+      "side": 1,
+      "message": "please remove this trail space",
+      "range": {
+        "startLine": 36,
+        "startChar": 22,
+        "endLine": 36,
+        "endChar": 24
+      },
+      "revId": "d0279ca9a4634cc9469626bd0cb36631d811c9ad",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ab16e2b_3d551a77",
+        "filename": "starlingx/docker/Dockerfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2019-04-01T01:48:46Z",
+      "side": 1,
+      "message": "trailing space",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 4
+      },
+      "revId": "d0279ca9a4634cc9469626bd0cb36631d811c9ad",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
