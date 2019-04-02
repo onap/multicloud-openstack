@@ -18,8 +18,8 @@ import unittest
 from rest_framework import status
 
 from common.msapi.helper import Helper as helper
-from ocata.resource.views.infra_workload import InfraWorkload
-from ocata.resource.views.infra_workload import APIv1InfraWorkload
+from newton_base.resource.infra_workload import InfraWorkload
+from newton_base.resource.infra_workload import APIv1InfraWorkload
 
 MOCK_TOKEN_RESPONSE = {
     "access": {
