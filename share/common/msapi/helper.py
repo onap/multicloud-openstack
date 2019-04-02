@@ -180,6 +180,7 @@ class MultiCloudThreadHelper(object):
         #   "payload": opaque object to pass to the worker for processing
         #   "repeat": interval in micro-seconds for repeating this worker, 0 for one time worker
         #   "timestamp": time stamp of last invocation of this worker, 0 for initial state
+        #   "status": opaque object to represent the progress of the backlog processing
         # }
         # format of backlog:
         # {"<id value of backlog item>": <backlog item>, ...}
@@ -266,11 +267,12 @@ class MultiCloudThreadHelper(object):
                         item["status"] = worker(payload) or 0
                     except Exception as e:
                         item["status"] = e.message
-                    item["timestamp"] = now
                     if item.get("repeat", 0) == 0:
                         self.owner.remove(backlog_id)
-                        self.owner.expired_backlog[backlog_id] = item
-                    pass
+                        # keep only the id and status
+                        self.owner.expired_backlog[backlog_id] = {"status": item["status"]}
+                    else:
+                        item["timestamp"] = now
                 pass
             # end of loop
             logger.debug("stop processing backlogs")
