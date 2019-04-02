@@ -92,12 +92,12 @@ class TestRegistration2(unittest.TestCase):
             }
         )
 
-        resp = self.view.register_helper._discover_flavors(
+        retcode, content = self.view.register_helper._discover_flavors(
             vimid="lenovo-hudson-dc_RegionOne",
             session=mock_session, viminfo=MOCK_VIM_INFO
         )
 
-        self.assertIsNone(resp)
+        self.assertEquals(retcode, 0)
 
     def test_discover_flavors_w_hpa_numa(self):
         restcall.req_to_aai = mock.Mock()
@@ -112,9 +112,9 @@ class TestRegistration2(unittest.TestCase):
             }
         ),
 
-        resp = self.view.register_helper._discover_flavors(
+        retcode, content = self.view.register_helper._discover_flavors(
             vimid="lenovo-hudson-dc_RegionOne",
             session=mock_session, viminfo=MOCK_VIM_INFO
         )
 
-        self.assertIsNone(resp)
+        self.assertEquals(retcode, 11)

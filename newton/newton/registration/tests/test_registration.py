@@ -291,7 +291,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR,
+        self.assertEquals(status.HTTP_204_NO_CONTENT,
                           response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')

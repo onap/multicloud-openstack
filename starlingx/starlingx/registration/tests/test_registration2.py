@@ -86,12 +86,12 @@ class TestRegistration2(unittest.TestCase):
             ["get"], {"get": {
                 "content": MOCK_GET_FLAVOR_RESPONSE}}),
 
-        resp = self.view.register_helper._discover_flavors(
+        retcode, content = self.view.register_helper._discover_flavors(
             vimid="starlingx_RegionOne",
             session=mock_session, viminfo=MOCK_VIM_INFO
         )
 
-        self.assertIsNone(resp)
+        self.assertEquals(retcode, 11)
 
     def test_discover_flavors_w_hpa_numa(self):
         restcall.req_to_aai = mock.Mock()
@@ -103,9 +103,9 @@ class TestRegistration2(unittest.TestCase):
                     "content": MOCK_GET_FLAVOR_EXTRASPECS_RESPONSE_w_hpa_numa}
             ]}),
 
-        resp = self.view.register_helper._discover_flavors(
+        retcode, content = self.view.register_helper._discover_flavors(
             vimid="starlingx_RegionOne",
             session=mock_session, viminfo=MOCK_VIM_INFO
         )
 
-        self.assertIsNone(resp)
+        self.assertEquals(retcode, 11)
