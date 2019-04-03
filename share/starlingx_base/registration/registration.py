@@ -16,8 +16,6 @@ import logging
 import json
 import uuid
 import traceback
-import threading
-import time
 
 from django.conf import settings
 

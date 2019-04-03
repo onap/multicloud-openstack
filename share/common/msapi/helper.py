@@ -187,7 +187,7 @@ class MultiCloudThreadHelper(object):
         self.backlog = {}
         # expired backlog items
         self.expired_backlog = {}
-        # self.lock = threading.Lock()
+        self.lock = threading.Lock()
         self.state_ = 0  # 0: stopped, 1: started
         self.thread = None
 
@@ -195,12 +195,14 @@ class MultiCloudThreadHelper(object):
         return self.state_
 
     def start(self):
+        self.lock.acquire()
         if 0 == self.state_:
             self.state_ = 1
             self.thread = MultiCloudThreadHelper.HelperThread(self)
             self.thread.start()
         else:
             pass
+        self.lock.release()
 
     def stop(self):
         self.state_ = 0
@@ -215,12 +217,21 @@ class MultiCloudThreadHelper(object):
         backlog_item["timestamp"] = 0
 
         # self.lock.acquire()
+        # make sure there is no identical backlog in expired backlog
+        self.expired_backlog.pop(backlog_item["id"], None)
         self.backlog.update(backlog_item["id"], backlog_item)
         # self.lock.release()
         return len(self.backlog)
 
     def get(self, backlog_id):
         self.backlog.get(backlog_id, None) or self.expired_backlog.get(backlog_id, None)
+
+    # check if the backlog item is in expired backlog
+    def expired(self, backlog_id):
+        if not self.backlog.get(backlog_id, None):
+            if self.expired_backlog.get(backlog_id, None):
+                return True
+        return False
 
     def remove(self, backlog_id):
         # self.lock.acquire()
@@ -246,18 +257,25 @@ class MultiCloudThreadHelper(object):
 
         def run(self):
             logger.debug("Start processing backlogs")
+            nexttimer = 0
             while self.owner.state_ == 1 and self.owner.count() > 0:
+                if nexttimer > 1000000:
+                    # sleep in case of interval > 1 second
+                    time.sleep(nexttimer // 1000000)
+                nexttimer = 30*1000000  # initial interval in us to be updated:30 seconds
                 for backlog_id, item in self.owner.backlog:
                     # check interval for repeatable backlog item
                     now = MultiCloudThreadHelper.get_epoch_now_usecond()
                     repeat_interval = item.get("repeat", 0)
                     if repeat_interval > 0:
                         timestamp = item.get("timestamp", 0)
+                        timeleft = (now - timestamp
+                                              if now > timestamp
+                                              else repeat_interval)
+                        nexttimer = timeleft if nexttimer > timeleft else nexttimer
                         # compare interval with elapsed time.
                         # workaround the case of timestamp turnaround
-                        if repeat_interval > (now - timestamp
-                                              if now > timestamp
-                                              else repeat_interval):
+                        if repeat_interval > timeleft:
                             # not time to run this backlog item yet
                             continue
 
