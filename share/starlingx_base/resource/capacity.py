@@ -66,11 +66,15 @@ class CapacityCheck(newton_capacity.CapacityCheck):
             vimAzCacheKey = "cap_azlist_" + vimid
             vimAzListCacheStr = cache.get(vimAzCacheKey)
             vimAzListCache = json.loads(vimAzListCacheStr) if vimAzListCacheStr else []
+            azCapInfoList = []
             for azName in vimAzListCache:
                 azCapCacheKey = "cap_" + vimid + "_" + azName
                 azCapInfoCacheStr = cache.get(azCapCacheKey)
+                if not azCapInfoCacheStr:
+                    continue
                 azCapInfoCache = json.loads(azCapInfoCacheStr) if azCapInfoCacheStr else None
 
+                azCapInfo = {}
                 azCapInfo["availability-zone-name"] = azName
                 azCapInfo["vCPUAvail"] = azCapInfoCache.get("vcpus", 0) + azCapInfoCache.get("vcpus_used", 0)
                 azCapInfo["vCPUTotal"] = azCapInfoCache.get("vcpus", 0)
@@ -78,8 +82,9 @@ class CapacityCheck(newton_capacity.CapacityCheck):
                 azCapInfo["MemoryTotal"] = azCapInfoCache.get("vcpus", 0)
                 azCapInfo["StorageAvail"] = azCapInfoCache.get("vcpus", 0)
                 azCapInfo["StorageTotal"] = azCapInfoCache.get("vcpus", 0)
+                azCapInfoList.append(azCapInfo)
 
-            return azCapInfo
+            return azCapInfoList
         except Exception as e:
             return azCapInfo
             pass
