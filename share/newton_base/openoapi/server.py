@@ -555,6 +555,86 @@ class ServerAction(APIView):
                              endpoint_filter=self.service,
                              headers={"Content-Type": "application/json",
                                       "Accept": "application/json"})
+            resp_body = resp.json()
+
+            return Response(data=resp_body, status=resp.status_code)
+        except VimDriverKiloException as e:
+            return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class APIv1ServerAction(ServerAction):
+    def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1ServerAction, self).post(request, vimid, tenantid, serverid)
+
+
+class ServerOsInterface(APIView):
+    service = {'service_type': 'compute',
+               'interface': 'public'}
+    def post(self, request, vimid="", tenantid="", serverid=""):
+        logger.debug("ServerOsInterface--post::> %s" % request.data)
+        logger.debug("vimid=%s, tenantid=%s, serverid=%s", vimid, tenantid, serverid)
+        try:
+            # prepare request resource to vim instance
+            vim = VimDriverUtils.get_vim_info(vimid)
+            sess = VimDriverUtils.get_session(vim, tenantid)
+
+            # operate server now
+            req_resouce = "servers/{server_id}/os-interface".format(server_id=serverid)
+            req_body = json.JSONEncoder().encode(request.data)
+            resp = sess.post(req_resouce, data=req_body,
+                             endpoint_filter=self.service,
+                             headers={"Content-Type": "application/json",
+                                      "Accept": "application/json"})
+            resp_body = resp.json()
+
+            return Response(data=resp_body, status=resp.status_code)
+        except VimDriverKiloException as e:
+            return Response(data={'error': e.content}, status=e.status_code)
+        except HttpError as e:
+            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            return Response(data=e.response.json(), status=e.http_status)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return Response(data={'error': str(e)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class APIv1ServerOsInterface(ServerOsInterface):
+    def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1ServerOsInterface, self).post(request, vimid, tenantid, serverid)
+
+
+class ServerOsInterfacePort(APIView):
+    service = {'service_type': 'compute',
+               'interface': 'public'}
+    def delete(self, request, vimid="", tenantid="", serverid="", portid=""):
+        logger.debug("ServerOsInterfacePort--delete::portid=%s", portid)
+        logger.debug("vimid=%s, tenantid=%s, serverid=%s", vimid, tenantid, serverid)
+        try:
+            # prepare request resource to vim instance
+            vim = VimDriverUtils.get_vim_info(vimid)
+            sess = VimDriverUtils.get_session(vim, tenantid)
+
+            # operate server now
+            req_resfmt = "servers/{server_id}/os-interface/{port_id}"
+            req_resouce = req_resfmt.format(server_id=serverid, port_id=portid)
+            resp = sess.delete(req_resouce,
+                             endpoint_filter=self.service,
+                             headers={"Content-Type": "application/json",
+                                      "Accept": "application/json"})
             resp_body = {}
 
             return Response(data=resp_body, status=resp.status_code)
@@ -568,9 +648,10 @@ class ServerAction(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class APIv1ServerAction(ServerAction):
-    def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
+
+class APIv1ServerOsInterfacePort(ServerOsInterfacePort):
+    def delete(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid="", portid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1ServerAction, self).post(request, vimid, tenantid, serverid)
+        return super(APIv1ServerOsInterfacePort, self).post(request, vimid, tenantid, serverid, portid)
