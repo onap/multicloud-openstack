@@ -32,13 +32,14 @@ from django.core.cache import cache
 logger = logging.getLogger(__name__)
 
 # global var: Audition thread
-gAZCapAuditThread = helper.MultiCloudThreadHelper()
+gAZCapAuditThread = helper.MultiCloudThreadHelper("azcap")
 
 # DEBUG=True
 
 # APIv0 handler upgrading: leverage APIv1 handler
 class APIv0Registry(newton_registration.Registry):
     def __init__(self):
+        # logger.error(traceback.format_exc())
         self.register_helper = RegistryHelper(settings.MULTICLOUD_PREFIX, settings.AAI_BASE_URL)
         super(APIv0Registry, self).__init__()
         # self._logger = logger
@@ -52,10 +53,10 @@ class APIv0Registry(newton_registration.Registry):
             settings.AAI_BASE_URL
         )
         backlog_item = {
-        "id": vimid,
-        "worker": worker_self.azcap_audit,
-        "payload": (worker_self, vimid),
-        "repeat": 5*1000000, # repeat every 5 seconds
+            "id": vimid,
+            "worker": worker_self.azcap_audit,
+            "payload": (worker_self, vimid),
+            "repeat": 10*1000000,  # repeat every 10 seconds
         }
         gAZCapAuditThread.add(backlog_item)
         if 0 == gAZCapAuditThread.state():
@@ -127,6 +128,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
     Helper code to discover and register a cloud region's resource
     '''
     def __init__(self, multicloud_prefix, aai_base_url):
+        # logger.error(traceback.format_exc())
         super(RegistryHelper, self).__init__(multicloud_prefix, aai_base_url)
         # self._logger = logger
 

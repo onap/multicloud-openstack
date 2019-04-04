@@ -24,7 +24,8 @@ from rest_framework.views import APIView
 
 from common.exceptions import VimDriverNewtonException
 from common.msapi import extsys
-from common.msapi import helper
+from common.msapi.helper import MultiCloudThreadHelper
+from common.msapi.helper import MultiCloudAAIHelper
 from common.utils import restcall
 from newton_base.util import VimDriverUtils
 
@@ -34,12 +35,13 @@ logger = logging.getLogger(__name__)
 class Registry(APIView):
 
     def __init__(self):
+        # logger.debug("Registry __init__: %s" % traceback.format_exc())
         if not hasattr(self, "_logger"):
             self._logger = logger
 
         if not hasattr(self, "register_thread"):
             # dedicate thread to offload vim registration process
-            self.register_thread = helper.MultiCloudThreadHelper()
+            self.register_thread = MultiCloudThreadHelper()
 
         if not hasattr(self, "register_helper") or not self.register_helper:
             if not hasattr(self, "proxy_prefix"):
@@ -131,12 +133,13 @@ class Registry(APIView):
 
 
 
-class RegistryHelper(helper.MultiCloudAAIHelper):
+class RegistryHelper(MultiCloudAAIHelper):
     '''
     Helper code to discover and register a cloud region's resource
     '''
 
     def __init__(self, multicloud_prefix, aai_base_url):
+        # logger.debug("RegistryHelper __init__: %s" % traceback.format_exc())
         self.proxy_prefix = multicloud_prefix
         self.aai_base_url = aai_base_url
         self._logger = logger
