@@ -19,10 +19,10 @@ export PYTHONPATH=lib/share
 #nohup python manage.py runserver 0.0.0.0:9005 2>&1 &
 
 if [ ${SSL_ENABLED} = "true" ]; then
-    nohup uwsgi --https :9005,titanium_cloud/pub/ssl/cert/cert.crt,titanium_cloud/pub/ssl/cert/cert.key,HIGH --module titanium_cloud.wsgi --master --processes 4 &
+    nohup uwsgi --https :9005,titanium_cloud/pub/ssl/cert/cert.crt,titanium_cloud/pub/ssl/cert/cert.key,HIGH --module titanium_cloud.wsgi --master --enable-threads --processes 4 &
 
 else
-    nohup uwsgi --http :9005 --module titanium_cloud.wsgi --master --processes 4 &
+    nohup uwsgi --http :9005 --module titanium_cloud.wsgi --master --enable-threads --processes 4 &
 fi
 
 logDir="/var/log/onap/multicloud/openstack/windriver"

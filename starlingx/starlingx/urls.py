@@ -16,7 +16,7 @@ from django.conf.urls import include, url
 from starlingx_base.registration import registration
 from newton_base.openoapi import tenants
 from newton_base.resource import capacity
-from newton_base.resource import infra_workload
+from starlingx_base.resource import infra_workload
 
 urlpatterns = [
     url(r'^', include('starlingx.swagger.urls')),

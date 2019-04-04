@@ -19,9 +19,9 @@ export PYTHONPATH=lib/share
 #nohup python manage.py runserver 0.0.0.0:9010 2>&1 &
 #nohup uwsgi --http :9010 --module thinkcloud.wsgi --master --processes 4 &
 if [ ${SSL_ENABLED} = "true" ]; then
-    nohup uwsgi --https :9010,thinkcloud/pub/ssl/cert/cert.crt,thinkcloud/pub/ssl/cert/cert.key,HIGH -t 120 --module thinkcloud.wsgi --master --processes 4 &
+    nohup uwsgi --https :9010,thinkcloud/pub/ssl/cert/cert.crt,thinkcloud/pub/ssl/cert/cert.key,HIGH -t 120 --module thinkcloud.wsgi --master --enable-threads --processes 4 &
 else
-    nohup uwsgi --http :9010 -t 120 --module thinkcloud.wsgi --master --processes 4 &
+    nohup uwsgi --http :9010 -t 120 --module thinkcloud.wsgi --master --enable-threads --processes 4 &
 fi
 
 logDir="/var/log/onap/multicloud/openstack/lenovo"

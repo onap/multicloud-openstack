@@ -21,7 +21,7 @@ export PYTHONPATH=lib/share
 nohup celery -A fcaps worker --concurrency=1 --loglevel=info &
 
 #nohup python manage.py runserver 0.0.0.0:9011 2>&1 &
-nohup uwsgi --http :9011 --module fcaps.wsgi --master --processes 4 &
+nohup uwsgi --http :9011 --module fcaps.wsgi --master --enable-threads --processes 4 &
 
 logDir="/var/log/onap/multicloud/openstack/fcaps"
 if [ ! -x  $logDir  ]; then

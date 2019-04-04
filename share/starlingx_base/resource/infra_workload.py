@@ -20,6 +20,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from common.msapi import extsys
 from common.msapi.helper import Helper as helper
+from common.msapi.helper import MultiCloudThreadHelper
 
 from newton_base.resource import infra_workload as newton_infra_workload
 from newton_base.resource import infra_workload_helper as infra_workload_helper
@@ -29,7 +30,7 @@ logger = logging.getLogger(__name__)
 # global var: Audition thread
 # the id is the workloadid, which implies post to workloadid1 followed by delete workloadid1
 # will replace the previous backlog item
-gInfraWorkloadThread = helper.MultiCloudThreadHelper()
+gInfraWorkloadThread = MultiCloudThreadHelper("infw")
 
 class InfraWorkload(newton_infra_workload.InfraWorkload):
     def __init__(self):
@@ -46,6 +47,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
             "workload_status": "WORKLOAD_CREATE_FAIL",
             "workload_status_reason": "Exception occurs"
         }
+        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
         try:
             worker_self = InfraWorkloadHelper(
@@ -104,15 +106,20 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                                                 (13, "WORKLOAD_DELETE_FAIL",
                                                  "Unexpected:status not found in backlog item")
                                                 )
-                    progress_code = progress[0]
-                    progress_status = progress[1]
-                    progress_msg = progress[2]
-                    resp_template["workload_status"] = progress_status
-                    resp_template["workload_status_reason"] = progress_msg
-                    return Response(data=resp_template,
-                                    status=status.HTTP_200_ACCEPTED
-                                    if progress_code == 0 else progress_code
-                                    )
+
+                    try:
+                        progress_code = progress[0]
+                        progress_status = progress[1]
+                        progress_msg = progress[2]
+                        resp_template["workload_status"] = progress_status
+                        resp_template["workload_status_reason"] = progress_msg
+
+                        status_code = status.HTTP_200_ACCEPTED\
+                            if progress_code == 0 else progress_code
+                    except Exception as e:
+                        resp_template["workload_status_reason"] = progress
+
+                    return Response(data=resp_template, status=status_code)
         except Exception as e:
             errmsg = e.message
             self._logger.error(errmsg)
@@ -130,6 +137,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
             "workload_status": "WORKLOAD_GET_FAIL",
             "workload_status_reason": "Exception occurs"
         }
+        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         try:
 
             if workloadid == "":
@@ -140,7 +148,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 )
 
             # now query the progress
-            status_code = status.HTTP_200_OK
+
             backlog_item = gInfraWorkloadThread.get(workloadid)
             if not backlog_item:
                 # backlog item not found, so check the stack status
@@ -160,19 +168,20 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                                             (13, "WORKLOAD_DELETE_FAIL",
                                              "Unexpected:status not found in backlog item")
                                             )
-                progress_code = progress[0]
-                progress_status = progress[1]
-                progress_msg = progress[2]
-                # if gInfraWorkloadThread.expired(workloadid):
-                #     gInfraWorkloadThread.remove(workloadid)
-                resp_template["workload_status"] = progress_status
-                resp_template["workload_status_reason"] = progress_msg
-                status_code = status.HTTP_200_OK\
-                    if progress_code == 0 else progress_code
+                try:
+                    progress_code = progress[0]
+                    progress_status = progress[1]
+                    progress_msg = progress[2]
+                    # if gInfraWorkloadThread.expired(workloadid):
+                    #     gInfraWorkloadThread.remove(workloadid)
+                    resp_template["workload_status"] = progress_status
+                    resp_template["workload_status_reason"] = progress_msg
+                    status_code = status.HTTP_200_OK\
+                        if progress_code == 0 else progress_code
+                except Exception as e:
+                    resp_template["workload_status_reason"] = progress
 
-            return Response(data=resp_template,
-                            status=status_code
-                            )
+            return Response(data=resp_template, status=status_code)
 
         except Exception as e:
             self._logger.error(e.message)
@@ -190,6 +199,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
             "workload_status": "WORKLOAD_DELETE_FAIL",
             "workload_status_reason": "Exception occurs"
         }
+        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         try:
 
             if workloadid == "":
@@ -240,18 +250,20 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                                             (13, "WORKLOAD_DELETE_FAIL",
                                              "Unexpected:status not found in backlog item")
                                             )
-                progress_code = progress[0]
-                progress_status = progress[1]
-                progress_msg = progress[2]
-                # if gInfraWorkloadThread.expired(workloadid):
-                #     gInfraWorkloadThread.remove(workloadid)
+                try:
+                    progress_code = progress[0]
+                    progress_status = progress[1]
+                    progress_msg = progress[2]
+                    # if gInfraWorkloadThread.expired(workloadid):
+                    #     gInfraWorkloadThread.remove(workloadid)
 
-                resp_template["workload_status"] = progress_status
-                resp_template["workload_status_reason"] = progress_msg
-                return Response(data=resp_template,
-                                status=status.HTTP_204_NO_CONTENT
-                                if progress_code == 0 else progress_code
-                                )
+                    resp_template["workload_status"] = progress_status
+                    resp_template["workload_status_reason"] = progress_msg
+                    status_code = status.HTTP_200_ACCEPTED \
+                        if progress_code == 0 else progress_code
+                except Exception as e:
+                    resp_template["workload_status_reason"] = progress
+                return Response(data=resp_template, status=status_code)
         except Exception as e:
             self._logger.error(e.message)
             resp_template["workload_status_reason"] = e.message
@@ -296,9 +308,27 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
         self._logger = logger
 
     def param_update_user_directives(self, parameters, oof_directives):
+        for attr in oof_directives.get("attributes", []):
+            aname = attr.get("attribute_name", None)
+            avalue = attr.get("attribute_value", None)
+            if aname in parameters:
+                parameters[aname] = avalue
+            else:
+                self._logger.warn(
+                    "There is no parameter exist: %s" % aname)
+
         return parameters
 
     def param_update_sdnc_directives(self, parameters, sdnc_directives):
+        for attr in sdnc_directives.get("attributes", []):
+            aname = attr.get("attribute_name", None)
+            avalue = attr.get("attribute_value", None)
+            if aname in parameters:
+                parameters[aname] = avalue
+            else:
+                self._logger.warn(
+                    "There is no parameter exist: %s" % aname)
+
         return parameters
 
     def param_update_oof_directives(self, parameters, oof_directives):

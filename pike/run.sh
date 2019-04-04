@@ -19,10 +19,10 @@ export PYTHONPATH=lib/share
 #nohup python manage.py runserver 0.0.0.0:9007 2>&1 &
 
 if [ ${SSL_ENABLED} = "true" ]; then
-    nohup uwsgi --https :9007,pike/pub/ssl/cert/cert.crt,pike/pub/ssl/cert/cert.key --module pike.wsgi --master --processes 4 &
+    nohup uwsgi --https :9007,pike/pub/ssl/cert/cert.crt,pike/pub/ssl/cert/cert.key --module pike.wsgi --master --enable-threads --processes 4 &
 
 else
-    nohup uwsgi --http :9007 --module pike.wsgi --master --processes 4 &
+    nohup uwsgi --http :9007 --module pike.wsgi --master --enable-threads --processes 4 &
 fi
 
 logDir="/var/log/onap/multicloud/openstack/pike"

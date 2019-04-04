@@ -1,5 +1,6 @@
 # rest framework
-Django==1.9.6
+# Django==1.9.6
+Django >= 1.11
 djangorestframework==3.3.3
 
 # for call rest api
