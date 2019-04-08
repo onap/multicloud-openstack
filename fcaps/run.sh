@@ -21,7 +21,11 @@ export PYTHONPATH=lib/share
 nohup celery -A fcaps worker --concurrency=1 --loglevel=info &
 
 #nohup python manage.py runserver 0.0.0.0:9011 2>&1 &
-nohup uwsgi --http :9011 --module fcaps.wsgi --master --enable-threads --processes 4 &
+if [ ${SSL_ENABLED} = "true" ]; then
+    nohup uwsgi --https :9001,fcaps/pub/ssl/cert/cert.crt,fcaps/pub/ssl/cert/cert.key,HIGH --module fcaps.wsgi --master --enable-threads --processes 4 &
+else
+    nohup uwsgi --http :9011 --module fcaps.wsgi --master --enable-threads --processes 4 &
+fi
 
 logDir="/var/log/onap/multicloud/openstack/fcaps"
 if [ ! -x  $logDir  ]; then

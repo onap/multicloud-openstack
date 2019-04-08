@@ -20,7 +20,7 @@ RUN groupadd -r onap && useradd -r -g onap onap
 # COPY ./ /opt/fcaps/
 
 RUN apt-get update && \
-    apt-get install -y memcached wget unzip gcc && \
+    apt-get install -y memcached wget unzip gcc libssl-dev && \
     apt-get install -y unzip && \
     cd /opt/ && \
     wget -O multicloud-openstack-fcaps.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-fcaps&e=zip&v=1.3.0-SNAPSHOT" && \
@@ -28,8 +28,10 @@ RUN apt-get update && \
     chmod +x /opt/fcaps/*.sh && \
     rm -f multicloud-openstack-fcaps.zip && \
     pip install -r /opt/fcaps/requirements.txt && \
-    apt-get --purge remove -y wget unzip gcc && \
+    apt-get --purge remove -y wget unzip gcc libssl-dev && \
     apt-get -y autoremove && \
+    mkdir -p /var/log/onap/multicloud/fcaps && \
+    chown onap:onap /var/log/onap -R && \
     chown onap:onap /opt/fcaps -R
 
 USER onap
