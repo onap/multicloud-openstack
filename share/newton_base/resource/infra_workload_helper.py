@@ -33,11 +33,12 @@ class InfraWorkloadHelper(object):
         self._logger = logger
         super(InfraWorkloadHelper, self).__init__()
 
-    def workload_create(self, vimid, workload_data):
+    def workload_create(self, vimid, workload_data, project_idorname=None):
         '''
         Instantiate a stack over target cloud region (OpenStack instance)
         :param vimid:
         :param workload_data:
+        :param project_idorname
         :return: result code, status enum, status reason
             result code: 0-ok, otherwise error
             status enum: "CREATE_IN_PROGRESS", "CREATE_FAILED"
@@ -84,7 +85,8 @@ class InfraWorkloadHelper(object):
         retcode, v2_token_resp_json, os_status = \
             helper.MultiCloudIdentityHelper(
                 settings.MULTICLOUD_API_V1_PREFIX,
-                cloud_owner, regionid, "/v2.0/tokens"
+                cloud_owner, regionid, "/v2.0/tokens",
+                {"Project": project_idorname}
             )
         if retcode > 0 or not v2_token_resp_json:
             errmsg = "authenticate fails:%s,%s, %s" %\
@@ -112,7 +114,7 @@ class InfraWorkloadHelper(object):
             self._logger.info("RESP with data> result:%s" % content)
             return retcode, "CREATE_FAILED", content
 
-    def workload_update(self, vimid, stack_id, otherinfo=None):
+    def workload_update(self, vimid, stack_id, otherinfo=None, project_idorname=None):
         '''
         update heat resource to AAI for the specified cloud region and tenant
         The resources includes: vserver, vserver/l-interface,
@@ -129,8 +131,10 @@ class InfraWorkloadHelper(object):
         cloud_owner, regionid = extsys.decode_vim_id(vimid)
         # should go via multicloud proxy so that the selflink is updated by multicloud
         retcode, v2_token_resp_json, os_status = \
-            helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
-                                            cloud_owner, regionid, "/v2.0/tokens")
+            helper.MultiCloudIdentityHelper(
+                settings.MULTICLOUD_API_V1_PREFIX,
+                cloud_owner, regionid, "/v2.0/tokens",
+                {"Project": project_idorname})
         if retcode > 0:
             errmsg = "authenticate fails:%s, %s, %s" %\
                      (cloud_owner, regionid, v2_token_resp_json)
@@ -291,7 +295,7 @@ class InfraWorkloadHelper(object):
         # self._logger.debug("aai_transactions :%s" % aai_transactions)
         return 0, "UPDATE_COMPLETE", "succeed"
 
-    def workload_delete(self, vimid, stack_id, otherinfo=None):
+    def workload_delete(self, vimid, stack_id, otherinfo=None, project_idorname=None):
         '''
         remove heat resource from AAI for the specified cloud region and tenant
         The resources includes: vserver, vserver/l-interface,
@@ -308,8 +312,10 @@ class InfraWorkloadHelper(object):
         cloud_owner, regionid = extsys.decode_vim_id(vimid)
         # should go via multicloud proxy so that the selflink is updated by multicloud
         retcode, v2_token_resp_json, os_status = \
-            helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
-                                            cloud_owner, regionid, "/v2.0/tokens")
+            helper.MultiCloudIdentityHelper(
+                settings.MULTICLOUD_API_V1_PREFIX,
+                cloud_owner, regionid, "/v2.0/tokens",
+                {"Project": project_idorname})
         if retcode > 0:
             errmsg = "authenticate fails:%s, %s, %s" %\
                      (cloud_owner, regionid, v2_token_resp_json)
@@ -387,7 +393,7 @@ class InfraWorkloadHelper(object):
             return 12, "DELETE_FAILED", e.message
         pass
 
-    def workload_status(self, vimid, stack_id=None, stack_name=None, otherinfo=None):
+    def workload_status(self, vimid, stack_id=None, stack_name=None, otherinfo=None, project_idorname=None):
         '''
         get workload status by either stack id or name
         :param vimid:
@@ -403,7 +409,8 @@ class InfraWorkloadHelper(object):
             retcode, v2_token_resp_json, os_status = \
                 helper.MultiCloudIdentityHelper(
                     settings.MULTICLOUD_API_V1_PREFIX,
-                    cloud_owner, regionid, "/v2.0/tokens")
+                    cloud_owner, regionid, "/v2.0/tokens",
+                {"Project": project_idorname})
 
             if retcode > 0 or not v2_token_resp_json:
                 errmsg = "authenticate fails:%s, %s, %s" % \

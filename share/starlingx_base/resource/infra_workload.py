@@ -43,6 +43,9 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
         self._logger.info("data: %s" % request.data)
         self._logger.debug("META: %s" % request.META)
 
+        # Get the specified tenant id
+        specified_project_idorname = request.META.get("Project", None)
+
         resp_template = {
             "template_type": "HEAT",
             "workload_id": workloadid,
@@ -61,7 +64,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 # post to create a new stack,
                 # stack id available only after creating a stack is done
                 progress_code, progress_status, progress_msg =\
-                    worker_self.workload_create(vimid, request.data)
+                    worker_self.workload_create(vimid, request.data, specified_project_idorname)
                 resp_template["workload_status"] = progress_status
                 resp_template["workload_status_reason"] = progress_msg
 
@@ -82,7 +85,8 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 backlog_item = {
                     "id": workloadid,
                     "worker": worker_self.workload_update,
-                    "payload": (worker_self, vimid, workloadid, request.data),
+                    "payload": (worker_self, vimid, workloadid,
+                                request.data, specified_project_idorname),
                     "repeat": 0,  # one time job
                     # format of status: retcode:0 is ok, otherwise error code from http status, Status ENUM, Message
                     "status": (
@@ -136,6 +140,9 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
         self._logger.info("vimid, workload id: %s, %s" % (vimid, workloadid))
         self._logger.debug("META: %s" % request.META)
 
+        # Get the specified tenant id
+        specified_project_idorname = request.META.get("Project", None)
+
         resp_template = {
             "template_type": "HEAT",
             "workload_id": workloadid,
@@ -172,12 +179,16 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                         # by name
                         progress_code, progress_status, progress_msg =\
                             worker_self.workload_status(
-                                vimid, stack_name=workload_name)
+                                vimid, stack_name=workload_name,
+                                project_idorname=specified_project_idorname
+                            )
                     else:
                         # by id
                         progress_code, progress_status, progress_msg =\
                             worker_self.workload_status(
-                                vimid, stack_id=workloadid)
+                                vimid, stack_id=workloadid,
+                                project_idorname=specified_project_idorname
+                            )
 
                     resp_template["workload_status"] = progress_status
                     resp_template["workload_status_reason"] = progress_msg
@@ -196,7 +207,8 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 )
                 progress_code, progress_status, progress_msg =\
                     worker_self.workload_status(
-                        vimid, stack_id=workloadid)
+                        vimid, stack_id=workloadid,
+                        project_idorname=specified_project_idorname)
 
                 resp_template["workload_status"] = progress_status
                 resp_template["workload_status_reason"] = progress_msg
@@ -234,6 +246,9 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
         self._logger.info("vimid, workload id: %s, %s" % (vimid, workloadid))
         self._logger.debug("META: %s" % request.META)
 
+        # Get the specified tenant id
+        specified_project_idorname = request.META.get("Project", None)
+
         resp_template = {
             "template_type": "HEAT",
             "workload_id": workloadid,
@@ -262,7 +277,8 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
             backlog_item = {
                 "id": workloadid,
                 "worker": worker_self.workload_delete,
-                "payload": (worker_self, vimid, workloadid, request.data),
+                "payload": (worker_self, vimid, workloadid, request.data,
+                            specified_project_idorname),
                 "repeat": 0,  # one time job
                 # format of status: retcode:0 is ok, otherwise error code from http status, Status ENUM, Message
                 "status": (
@@ -446,7 +462,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
         # try 2: reuse the input: template_data
         return template_data
 
-    def workload_create(self, vimid, workload_data):
+    def workload_create(self, vimid, workload_data, project_idorname=None):
         '''
         Instantiate a stack over target cloud region (OpenStack instance)
         The template for workload will be fetched from sdc client
@@ -497,7 +513,8 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
         retcode, v2_token_resp_json, os_status = \
             helper.MultiCloudIdentityHelper(
                 settings.MULTICLOUD_API_V1_PREFIX,
-                cloud_owner, regionid, "/v2.0/tokens"
+                cloud_owner, regionid, "/v2.0/tokens",
+                {"Project": project_idorname}
             )
         if retcode > 0 or not v2_token_resp_json:
             errmsg = "authenticate fails:%s,%s, %s" %\

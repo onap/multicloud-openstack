@@ -33,7 +33,8 @@ logger = logging.getLogger(__name__)
 class Helper(object):
 
     @staticmethod
-    def MultiCloudIdentityHelper(multicloud_api_prefix, cloud_owner, cloud_region_id, uri, data={}, header=''):
+    def MultiCloudIdentityHelper(multicloud_api_prefix, cloud_owner,
+                                 cloud_region_id, uri, data={}, header=''):
         auth_api_url_format = "/{f_cloudowner}/{f_cloudregionid}/identity{f_uri}"
         auth_api_url = auth_api_url_format.format(f_cloudowner=cloud_owner,
                                                   f_cloudregionid=cloud_region_id,
@@ -48,7 +49,9 @@ class Helper(object):
     # The consumer of this api must be attaching to the same management network of multicloud,
     # The constraints comes from the returned catalog endpoint url e.g. "http://10.0.14.1:80/api/multicloud-titaniumcloud/v0/pod25_RegionOne/identity/v3"
     @staticmethod
-    def MultiCloudServiceHelper(cloud_owner, cloud_region_id, v2_token_resp_json, service_type, uri, data=None, method="GET",):
+    def MultiCloudServiceHelper(
+            cloud_owner, cloud_region_id, v2_token_resp_json, service_type,
+            uri, data=None, method="GET"):
         # get endpoint from token response
         token = v2_token_resp_json["access"]["token"]["id"]
         catalogs = v2_token_resp_json["access"]["serviceCatalog"]
