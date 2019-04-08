@@ -15,7 +15,7 @@
 import os
 import logging
 from django.conf import settings
-
+from django.http import QueryDict
 from rest_framework import status
 from rest_framework.response import Response
 from common.msapi import extsys
@@ -24,6 +24,8 @@ from common.msapi.helper import MultiCloudThreadHelper
 
 from newton_base.resource import infra_workload as newton_infra_workload
 from newton_base.resource import infra_workload_helper as infra_workload_helper
+
+from newton_base.util import VimDriverUtils
 
 logger = logging.getLogger(__name__)
 
@@ -56,8 +58,10 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
             )
             if workloadid == "":
                 resp_template["workload_status"] = "CREATE_FAILED"
-                # post to create a new stack, stack id available only after creating a stack is done
-                progress_code, progress_status, progress_msg = worker_self.workload_create(vimid, request.data)
+                # post to create a new stack,
+                # stack id available only after creating a stack is done
+                progress_code, progress_status, progress_msg =\
+                    worker_self.workload_create(vimid, request.data)
                 resp_template["workload_status"] = progress_status
                 resp_template["workload_status_reason"] = progress_msg
 
@@ -102,10 +106,11 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR
                     )
                 else:
-                    progress = backlog_item.get("status",
-                                                (13, "DELETE_FAILED",
-                                                 "Unexpected:status not found in backlog item")
-                                                )
+                    progress = backlog_item.get(
+                        "status",
+                        (13, "DELETE_FAILED",
+                         "Unexpected:status not found in backlog item")
+                    )
 
                     try:
                         progress_code = progress[0]
@@ -141,14 +146,47 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
         try:
 
             if workloadid == "":
-                resp_template["workload_status_reason"] = "workload id is not found in API url"
-                return Response(
-                    data=resp_template,
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                # now check the query params in case of query existing of workload
+                querystr = request.META.get("QUERY_STRING", None)
+                qd = QueryDict(querystr).dict() if querystr else None
+                workload_name = qd.get("name", None) if qd else None
+                workload_id = qd.get("id", None) if qd else None
+
+                if not workload_name and not workload_id:
+                    resp_template["workload_status_reason"] =\
+                        "workload id is not found in API url"
+                    return Response(
+                        data=resp_template,
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                else:
+                    worker_self = InfraWorkloadHelper(
+                        settings.MULTICLOUD_API_V1_PREFIX,
+                        settings.AAI_BASE_URL
+                    )
+
+                    # now query the status of workload by name or id, id as 1st priority
+                    progress_code, progress_status, progress_msg =\
+                        0, "GET_FAILED", ""
+                    if not workload_id:
+                        # by name
+                        progress_code, progress_status, progress_msg =\
+                            worker_self.workload_status(
+                                vimid, stack_name=workload_name)
+                    else:
+                        # by id
+                        progress_code, progress_status, progress_msg =\
+                            worker_self.workload_status(
+                                vimid, stack_id=workloadid)
+
+                    resp_template["workload_status"] = progress_status
+                    resp_template["workload_status_reason"] = progress_msg
+                    status_code = status.HTTP_200_OK \
+                        if progress_code == 0 else progress_code
+
+                    pass
 
             # now query the progress
-
             backlog_item = gInfraWorkloadThread.get(workloadid)
             if not backlog_item:
                 # backlog item not found, so check the stack status
@@ -156,7 +194,9 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                     settings.MULTICLOUD_API_V1_PREFIX,
                     settings.AAI_BASE_URL
                 )
-                progress_code, progress_status, progress_msg = worker_self.workload_status(vimid, workloadid, None)
+                progress_code, progress_status, progress_msg =\
+                    worker_self.workload_status(
+                        vimid, stack_id=workloadid)
 
                 resp_template["workload_status"] = progress_status
                 resp_template["workload_status_reason"] = progress_msg
@@ -164,10 +204,11 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                     if progress_code == 0 else progress_code
 
             else:
-                progress = backlog_item.get("status",
-                                            (13, "GET_FAILED",
-                                             "Unexpected:status not found in backlog item")
-                                            )
+                progress = backlog_item.get(
+                    "status",
+                    (13, "GET_FAILED",
+                     "Unexpected:status not found in backlog item")
+                )
                 try:
                     progress_code = progress[0]
                     progress_status = progress[1]
@@ -203,7 +244,8 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
         try:
 
             if workloadid == "":
-                resp_template["workload_status_reason"] = "workload id is not found in API url"
+                resp_template["workload_status_reason"] =\
+                    "workload id is not found in API url"
                 return Response(
                     data=resp_template,
                     status=status.HTTP_400_BAD_REQUEST
@@ -246,10 +288,11 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             else:
-                progress = backlog_item.get("status",
-                                            (13, "DELETE_FAILED",
-                                             "Unexpected:status not found in backlog item")
-                                            )
+                progress = backlog_item.get(
+                    "status",
+                    (13, "DELETE_FAILED",
+                     "Unexpected:status not found in backlog item")
+                )
                 try:
                     progress_code = progress[0]
                     progress_status = progress[1]

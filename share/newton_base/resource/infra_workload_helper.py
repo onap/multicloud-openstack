@@ -112,12 +112,13 @@ class InfraWorkloadHelper(object):
             self._logger.info("RESP with data> result:%s" % content)
             return retcode, "CREATE_FAILED", content
 
-    def workload_update(self, vimid, stack_id, otherinfo):
+    def workload_update(self, vimid, stack_id, otherinfo=None):
         '''
         update heat resource to AAI for the specified cloud region and tenant
         The resources includes: vserver, vserver/l-interface,
         :param vimid:
         :param stack_id: id of the created stack in OpenStack instance
+        :param stack_name: name of stack
         :param otherinfo:
         :return: result code, status enum, status reason
             result code: 0-ok, otherwise error
@@ -290,7 +291,7 @@ class InfraWorkloadHelper(object):
         # self._logger.debug("aai_transactions :%s" % aai_transactions)
         return 0, "UPDATE_COMPLETE", "succeed"
 
-    def workload_delete(self, vimid, stack_id, otherinfo):
+    def workload_delete(self, vimid, stack_id, otherinfo=None):
         '''
         remove heat resource from AAI for the specified cloud region and tenant
         The resources includes: vserver, vserver/l-interface,
@@ -386,7 +387,15 @@ class InfraWorkloadHelper(object):
             return 12, "DELETE_FAILED", e.message
         pass
 
-    def workload_status(self, vimid, stack_id, otherinfo):
+    def workload_status(self, vimid, stack_id=None, stack_name=None, otherinfo=None):
+        '''
+        get workload status by either stack id or name
+        :param vimid:
+        :param stack_id:
+        :param stack_name:
+        :param otherinfo:
+        :return:
+        '''
         try:
             # assume the workload_type is heat
             cloud_owner, regionid = extsys.decode_vim_id(vimid)
@@ -405,6 +414,9 @@ class InfraWorkloadHelper(object):
             # get stack status
             service_type = "orchestration"
             resource_uri = "/stacks?id=%s" % stack_id if stack_id else "/stacks"
+            if stack_name:
+                resource_uri = "/stacks?name=%s" % stack_id if not stack_id else resource_uri
+
             self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
             retcode, content, os_status = \
                 helper.MultiCloudServiceHelper(cloud_owner, regionid,
@@ -412,10 +424,15 @@ class InfraWorkloadHelper(object):
                                                service_type, resource_uri,
                                                None, "GET")
 
-            stacks = content.get('stacks', []) if retcode == 0 and content else []
-            stack_status = stacks[0]["stack_status"] if len(stacks) > 0 else ""
+            if retcode > 0 or not content:
+                errmsg = "Stack query %s response: %s" % (resource_uri, content)
+                self._logger.debug(errmsg)
+                return retcode, "GET_FAILED", errmsg
 
-            return retcode, stack_status, stacks
+            stacks = content.get('stacks', [])  # if retcode == 0 and content else []
+            stack_status = stacks[0].get("stack_status", "GET_FAILED") if len(stacks) > 0 else "GET_FAILED"
+
+            return retcode, stack_status, content
         except Exception as e:
             self._logger.error(e.message)
             return 12, "GET_FAILED", e.message
