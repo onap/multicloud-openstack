@@ -90,11 +90,35 @@ class Tokens(APIView):
                 else:
                     tenant_id = request.data["auth"]["scope"]["project"].get("id")
 
-
+            # Get the specified tenant id
+            specified_project_idorname = request.META.get("Project", None)
 
             # prepare request resource to vim instance
             vim = VimDriverUtils.get_vim_info(vimid)
-            sess = VimDriverUtils.get_session(vim, tenant_name = tenant_name, tenant_id=tenant_id)
+            sess = None
+            if specified_project_idorname:
+                try:
+                    # check if specified with tenant id
+                    sess = VimDriverUtils.get_session(
+                        vim, tenant_name=None,
+                        tenant_id=specified_project_idorname
+                    )
+                except Exception as e:
+                    pass
+
+                if not sess:
+                    try:
+                        # check if specified with tenant name
+                        sess = VimDriverUtils.get_session(
+                            vim, tenant_name=specified_project_idorname,
+                            tenant_id=None
+                        )
+                    except Exception as e:
+                        pass
+
+            if not sess:
+                sess = VimDriverUtils.get_session(
+                    vim, tenant_name=tenant_name, tenant_id=tenant_id)
 
             #tmp_auth_state = VimDriverUtils.get_auth_state(vim, sess)
             tmp_auth_state = VimDriverUtils.get_auth_state(sess)

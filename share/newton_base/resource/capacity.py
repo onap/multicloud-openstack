@@ -36,7 +36,10 @@ class CapacityCheck(APIView):
         self._logger.debug("META> %s" % request.META)
 
         try:
-            hasEnoughResource = self.get_tenant_cap_info(vimid, request.data)
+            # Get the specified tenant id
+            specified_project_idorname = request.META.get("Project", None)
+
+            hasEnoughResource = self.get_tenant_cap_info(vimid, request.data, specified_project_idorname)
             self._logger.info("RESP with data> result:%s" % hasEnoughResource)
             return Response(data={'result': hasEnoughResource}, status=status.HTTP_200_OK)
         except VimDriverNewtonException as e:
@@ -54,11 +57,34 @@ class CapacityCheck(APIView):
             return Response(data={'result': False, 'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_tenant_cap_info(self, vimid, resource_demand):
+    def get_tenant_cap_info(self, vimid, resource_demand, project_idorname=None):
         hasEnoughResource = False
         tenant_name = None
         vim = VimDriverUtils.get_vim_info(vimid)
-        sess = VimDriverUtils.get_session(vim, tenant_name)
+        sess = None
+        if project_idorname:
+            try:
+                # check if specified with tenant id
+                sess = VimDriverUtils.get_session(
+                    vim, tenant_name=None,
+                    tenant_id=project_idorname
+                )
+            except Exception as e:
+                pass
+
+            if not sess:
+                try:
+                    # check if specified with tenant name
+                    sess = VimDriverUtils.get_session(
+                        vim, tenant_name=project_idorname,
+                        tenant_id=None
+                    )
+                except Exception as e:
+                    pass
+
+        if not sess:
+            sess = VimDriverUtils.get_session(
+                vim, tenant_name=tenant_name, tenant_id=None)
 
         # get token:
         # cloud_owner, regionid = extsys.decode_vim_id(vimid)

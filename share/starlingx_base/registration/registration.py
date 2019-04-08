@@ -47,6 +47,9 @@ class APIv0Registry(newton_registration.Registry):
     def post(self, request, vimid=""):
         self._logger.info("registration with :  %s" % vimid)
 
+        # Get the specified tenant id
+        specified_project_idorname = request.META.get("Project", None)
+
         # vim registration will trigger the start the audit of AZ capacity
         worker_self = InfraResourceAuditor(
             settings.MULTICLOUD_API_V1_PREFIX,
@@ -55,7 +58,7 @@ class APIv0Registry(newton_registration.Registry):
         backlog_item = {
             "id": vimid,
             "worker": worker_self.azcap_audit,
-            "payload": (worker_self, vimid),
+            "payload": (worker_self, vimid, specified_project_idorname),
             "repeat": 10*1000000,  # repeat every 10 seconds
         }
         gAZCapAuditThread.add(backlog_item)
@@ -132,11 +135,18 @@ class RegistryHelper(newton_registration.RegistryHelper):
         super(RegistryHelper, self).__init__(multicloud_prefix, aai_base_url)
         # self._logger = logger
 
-    def registryV0(self, vimid=""):
+    def registryV0(self, vimid="", project_idorname=None):
         '''
         extend base method
         '''
         viminfo = VimDriverUtils.get_vim_info(vimid)
+
+        if not viminfo:
+            return (
+                10,
+                "Cloud Region not found in AAI: %s" % vimid
+            )
+
         cloud_extra_info_str = viminfo['cloud_extra_info']
         cloud_extra_info = None
         try:
@@ -152,9 +162,30 @@ class RegistryHelper(newton_registration.RegistryHelper):
         multi_region_discovery = cloud_extra_info.get(
             "multi-region-discovery", None) if cloud_extra_info else None
 
-        # set the default tenant since there is no tenant info in the VIM yet
-        sess = VimDriverUtils.get_session(
-            viminfo, tenant_name=viminfo['tenant'])
+        if project_idorname:
+            try:
+                # check if specified with tenant id
+                sess = VimDriverUtils.get_session(
+                    viminfo, tenant_name=None,
+                    tenant_id=project_idorname
+                )
+            except Exception as e:
+                pass
+
+            if not sess:
+                try:
+                    # check if specified with tenant name
+                    sess = VimDriverUtils.get_session(
+                        viminfo, tenant_name=project_idorname,
+                        tenant_id=None
+                    )
+                except Exception as e:
+                    pass
+
+        if not sess:
+            # set the default tenant since there is no tenant info in the VIM yet
+            sess = VimDriverUtils.get_session(
+                viminfo, tenant_name=viminfo.get('tenant', None))
 
         # discover the regions, expect it always returns a list (even empty list)
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
@@ -204,7 +235,6 @@ class RegistryHelper(newton_registration.RegistryHelper):
         self.super(RegistryHelper, self).registry(vimid)
 
         return 0
-
 
     def unregistry(self, vimid=""):
         '''extend base method'''
@@ -367,16 +397,37 @@ class InfraResourceAuditor(newton_registration.RegistryHelper):
         self._logger = logger
         # super(InfraResourceAuditor, self).__init__();
 
-    def azcap_audit(self, vimid):
+    def azcap_audit(self, vimid, project_idorname=None):
         viminfo = VimDriverUtils.get_vim_info(vimid)
         if not viminfo:
             self._logger.warn("azcap_audit no valid vimid: %s" % vimid)
             return
 
-        session = VimDriverUtils.get_session(
-            viminfo,
-            tenant_name=viminfo['tenant']
-        )
+        if project_idorname:
+            try:
+                # check if specified with tenant id
+                sess = VimDriverUtils.get_session(
+                    viminfo, tenant_name=None,
+                    tenant_id=project_idorname
+                )
+            except Exception as e:
+                pass
+
+            if not sess:
+                try:
+                    # check if specified with tenant name
+                    sess = VimDriverUtils.get_session(
+                        viminfo, tenant_name=project_idorname,
+                        tenant_id=None
+                    )
+                except Exception as e:
+                    pass
+
+        if not sess:
+            session = VimDriverUtils.get_session(
+                viminfo,
+                tenant_name=viminfo['tenant']
+            )
 
         # now retrieve the latest AZ cap info
         try:

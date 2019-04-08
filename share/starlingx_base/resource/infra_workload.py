@@ -468,6 +468,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
         The template for workload will be fetched from sdc client
         :param vimid:
         :param workload_data:
+        :param project_idorname: tenant id or name
         :return: result code, status enum, status reason
             result code: 0-ok, otherwise error
             status enum: "CREATE_IN_PROGRESS", "CREATE_FAILED"

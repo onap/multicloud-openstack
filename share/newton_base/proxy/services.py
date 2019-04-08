@@ -268,9 +268,34 @@ class GetTenants(Services):
             return Response(headers={'X-Subject-Token': tmp_auth_token}, data={'tenants': content['projects'],'tenants_links':[]},
                             status=resp.status_code)
         else:
+            # Get the specified tenant id
+            specified_project_idorname = request.META.get("Project", None)
+
             viminfo = VimDriverUtils.get_vim_info(vimid)
-            session = VimDriverUtils.get_session(
-                viminfo, tenant_name=viminfo['tenant'])
+            session = None
+            if specified_project_idorname:
+                try:
+                    # check if specified with tenant id
+                    session = VimDriverUtils.get_session(
+                        viminfo, tenant_name=None,
+                        tenant_id=specified_project_idorname
+                    )
+                except Exception as e:
+                    pass
+
+                if not sess:
+                    try:
+                        # check if specified with tenant name
+                        session = VimDriverUtils.get_session(
+                            viminfo, tenant_name=specified_project_idorname,
+                            tenant_id=None
+                        )
+                    except Exception as e:
+                        pass
+
+            if not session:
+                session = VimDriverUtils.get_session(
+                    viminfo, tenant_name=viminfo['tenant'])
             tmp_auth_state = VimDriverUtils.get_auth_state(session)
             tmp_auth_info = json.loads(tmp_auth_state)
             tmp_auth_data = tmp_auth_info['body']

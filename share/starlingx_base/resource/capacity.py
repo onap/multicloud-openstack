@@ -41,7 +41,10 @@ class CapacityCheck(newton_capacity.CapacityCheck):
         self._logger.debug("META> %s" % request.META)
 
         try:
-            hasEnoughResource = self.get_tenant_cap_info(vimid, request.data)
+
+            # Get the specified tenant id
+            specified_project_idorname = request.META.get("Project", None)
+            hasEnoughResource = self.get_tenant_cap_info(vimid, request.data, specified_project_idorname)
             azCapInfo = self.get_az_cap_info(vimid)
             self._logger.info("RESP with data> result:%s" % hasEnoughResource)
             return Response(data={'result': hasEnoughResource, 'AZs': azCapInfo}, status=status.HTTP_200_OK)
@@ -52,15 +55,14 @@ class CapacityCheck(newton_capacity.CapacityCheck):
 
     def get_az_cap_info(self, vimid):
         azCapInfo = []
-        viminfo = VimDriverUtils.get_vim_info(vimid)
-        if not viminfo:
-            self._logger.warn("azcap_audit no valid vimid: %s" % vimid)
-            return
-
-        session = VimDriverUtils.get_session(
-            viminfo,
-            tenant_name=viminfo['tenant']
-        )
+        # viminfo = VimDriverUtils.get_vim_info(vimid)
+        # if not viminfo:
+        #     self._logger.warn("azcap_audit no valid vimid: %s" % vimid)
+        #     return
+        # session = VimDriverUtils.get_session(
+        #     viminfo,
+        #     tenant_name=viminfo.get('tenant', None)
+        # )
         try:
             # get list of AZ
             vimAzCacheKey = "cap_azlist_" + vimid
@@ -87,7 +89,7 @@ class CapacityCheck(newton_capacity.CapacityCheck):
             return azCapInfoList
         except Exception as e:
             return azCapInfo
-            pass
+
 
 class APIv1CapacityCheck(CapacityCheck):
     def __init__(self):

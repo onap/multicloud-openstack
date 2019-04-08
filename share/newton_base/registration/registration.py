@@ -48,20 +48,28 @@ class Registry(APIView):
                 self.proxy_prefix = "multicloud"
             if not hasattr(self, "AAI_BASE_URL"):
                 self.AAI_BASE_URL = "127.0.0.1"
-            self.register_helper = RegistryHelper(self.proxy_prefix or "multicloud", self.AAI_BASE_URL or "127.0.0.1")
+            self.register_helper = RegistryHelper(
+                self.proxy_prefix or "multicloud",
+                self.AAI_BASE_URL or "127.0.0.1")
 
     def post(self, request, vimid=""):
         self._logger.info("registration with vimid: %s" % vimid)
         self._logger.debug("with data: %s" % request.data)
 
         try:
+            # Get the specified tenant id
+            specified_project_idorname = request.META.get("Project", None)
+
             # compose the one time backlog item
             backlog_item = {
                 "id": vimid,
                 "worker": self.register_helper.registryV0,
-                "payload": (self.register_helper, vimid),
+                "payload": (self.register_helper,
+                            vimid, specified_project_idorname),
                 "repeat": 0,
-                "status": (1, "The registration process waits to be scheduled to run")
+                "status": (1,
+                           "The registration process waits to"
+                           " be scheduled to run")
             }
             self.register_thread.add(backlog_item)
             if 0 == self.register_thread.state():
@@ -72,7 +80,8 @@ class Registry(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s"
+                               % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
             self._logger.error(traceback.format_exc())
@@ -85,7 +94,8 @@ class Registry(APIView):
             backlog_item = self.register_thread.get(vimid)
             if backlog_item:
                 return Response(
-                    data={'status': backlog_item.get("status", "Status not available, vimid: %s" % vimid)},
+                    data={'status': backlog_item.get(
+                        "status", "Status not available, vimid: %s" % vimid)},
                     status=status.HTTP_200_OK)
             else:
                 return Response(
@@ -112,7 +122,8 @@ class Registry(APIView):
                 "worker": self.register_helper.unregistryV0,
                 "payload": (self.register_helper, vimid),
                 "repeat": 0,
-                "status": (1, "The registration process waits to be scheduled to run")
+                "status": (1, "The registration process waits"
+                              " to be scheduled to run")
             }
             self.register_thread.add(backlog_item)
             if 0 == self.register_thread.state():
@@ -124,7 +135,8 @@ class Registry(APIView):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s"
+                               % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
             self._logger.error(traceback.format_exc())
@@ -151,22 +163,43 @@ class RegistryHelper(MultiCloudAAIHelper):
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
         return self.registryV0(vimid)
 
-    def registryV0(self, vimid):
+    def registryV0(self, vimid, project_idorname=None):
         # populate proxy identity url
         self._update_proxy_identity_endpoint(vimid)
 
         # prepare request resource to vim instance
         # get token:
         viminfo = VimDriverUtils.get_vim_info(vimid)
+        sess = None
         if not viminfo:
             return (
                 10,
                 "Cloud Region not found in AAI: %s" % vimid
             )
+        if project_idorname:
+            try:
+                # check if specified with tenant id
+                sess = VimDriverUtils.get_session(
+                    viminfo, tenant_name=None,
+                    tenant_id=project_idorname
+                )
+            except Exception as e:
+                pass
 
-        # set the default tenant since there is no tenant info in the VIM yet
-        sess = VimDriverUtils.get_session(
-            viminfo, tenant_name=viminfo['tenant'])
+            if not sess:
+                try:
+                    # check if specified with tenant name
+                    sess = VimDriverUtils.get_session(
+                        viminfo, tenant_name=project_idorname,
+                        tenant_id=None
+                    )
+                except Exception as e:
+                    pass
+
+        if not sess:
+            # set the default tenant since there is no tenant info in the VIM yet
+            sess = VimDriverUtils.get_session(
+                viminfo, tenant_name=viminfo.get('tenant', None))
 
         # step 1. discover all projects and populate into AAI
         retcode, status = self._discover_tenants(vimid, sess, viminfo)
@@ -267,8 +300,9 @@ class RegistryHelper(MultiCloudAAIHelper):
         tenants = cloudregiondata.get("tenants", None)
         for tenant in tenants.get("tenant", []) if tenants else []:
             # common prefix
-            aai_cloud_region = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
-                               % (cloud_owner, cloud_region_id, tenant['tenant-id'])
+            aai_cloud_region = \
+                "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
+                % (cloud_owner, cloud_region_id, tenant['tenant-id'])
 
             # remove all vservers
             try:
@@ -279,18 +313,22 @@ class RegistryHelper(MultiCloudAAIHelper):
                         # iterate vport, except will be raised if no l-interface exist
                         for vport in vserver['l-interfaces']['l-interface']:
                             # delete vport
-                            vport_delete_url = aai_cloud_region + "/vservers/vserver/%s/l-interfaces/l-interface/%s?resource-version=%s" \
-                                                                  % (vserver['vserver-id'], vport['interface-name'],
-                                                                     vport['resource-version'])
+                            vport_delete_url =\
+                                aai_cloud_region + \
+                                "/vservers/vserver/%s/l-interfaces/l-interface/%s?resource-version=%s" \
+                                % (vserver['vserver-id'], vport['interface-name'],
+                                   vport['resource-version'])
                             restcall.req_to_aai(vport_delete_url, "DELETE")
                     except Exception as e:
                         pass
 
                     try:
                         # delete vserver
-                        vserver_delete_url = aai_cloud_region + "/vservers/vserver/%s?resource-version=%s" \
-                                                                % (
-                                                                    vserver['vserver-id'], vserver['resource-version'])
+                        vserver_delete_url =\
+                            aai_cloud_region +\
+                            "/vservers/vserver/%s?resource-version=%s" \
+                            % (vserver['vserver-id'],
+                               vserver['resource-version'])
                         restcall.req_to_aai(vserver_delete_url, "DELETE")
                     except Exception as e:
                         continue
@@ -319,7 +357,8 @@ class RegistryHelper(MultiCloudAAIHelper):
         for flavor in flavors.get("flavor", []) if flavors else []:
             # iterate hpa-capabilities
             hpa_capabilities = flavor.get("hpa-capabilities", None)
-            for hpa_capability in hpa_capabilities.get("hpa-capability", []) if hpa_capabilities else []:
+            for hpa_capability in hpa_capabilities.get("hpa-capability", [])\
+                    if hpa_capabilities else []:
                 resource_url = ("/cloud-infrastructure/cloud-regions/"
                                 "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
                                 "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
@@ -428,7 +467,9 @@ class RegistryHelper(MultiCloudAAIHelper):
                     tenant_info, "tenant")
             return (0, "succeed")
         except VimDriverNewtonException as e:
-            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            self._logger.error(
+                "VimDriverNewtonException: status:%s, response:%s"
+                % (e.http_status, e.content))
             return (
                 e.http_status, e.content
             )
@@ -457,7 +498,9 @@ class RegistryHelper(MultiCloudAAIHelper):
                         ex.message
                     )
             else:
-                self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+                self._logger.error(
+                    "HttpError: status:%s, response:%s"
+                    % (e.http_status, e.response.json()))
                 return (
                     e.http_status, e.response.json()
                 )
@@ -487,17 +530,22 @@ class RegistryHelper(MultiCloudAAIHelper):
                 }
 
                 if flavor.get('links') and len(flavor['links']) > 0:
-                    flavor_info['flavor-selflink'] = flavor['links'][0]['href'] or 'http://0.0.0.0'
+                    flavor_info['flavor-selflink'] =\
+                        flavor['links'][0]['href'] or 'http://0.0.0.0'
                 else:
                     flavor_info['flavor-selflink'] = 'http://0.0.0.0'
 
                 # add hpa capabilities
                 if (flavor['name'].find('onap.') == 0):
                     req_resouce = "/flavors/%s/os-extra_specs" % flavor['id']
-                    extraResp = self._get_list_resources(req_resouce, "compute", session, viminfo, vimid, "extra_specs")
+                    extraResp = self._get_list_resources(
+                        req_resouce, "compute", session,
+                        viminfo, vimid, "extra_specs")
 
-                    hpa_capabilities = self._get_hpa_capabilities(flavor, extraResp, viminfo)
-                    flavor_info['hpa-capabilities'] = {'hpa-capability': hpa_capabilities}
+                    hpa_capabilities =\
+                        self._get_hpa_capabilities(flavor, extraResp, viminfo)
+                    flavor_info['hpa-capabilities'] = \
+                        {'hpa-capability': hpa_capabilities}
 
                 retcode, content = self._update_resoure(
                     cloud_owner, cloud_region_id, flavor['id'],
@@ -505,12 +553,15 @@ class RegistryHelper(MultiCloudAAIHelper):
 
             return (0, "succeed")
         except VimDriverNewtonException as e:
-            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            self._logger.error(
+                "VimDriverNewtonException: status:%s, response:%s" %
+                (e.http_status, e.content))
             return (
                 e.http_status, e.content
             )
         except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" %
+                               (e.http_status, e.response.json()))
             return (
                 e.http_status, e.response.json()
             )
@@ -597,14 +648,16 @@ class RegistryHelper(MultiCloudAAIHelper):
             basic_capability['hpa-version'] = 'v1'
 
             basic_capability['hpa-feature-attributes'] = []
-            basic_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'numVirtualCpu',
-                                                   'hpa-attribute-value':
-                                                       '{{\"value\":\"{0}\"}}'.format(flavor['vcpus'])
-                                                               })
-            basic_capability['hpa-feature-attributes'].append({'hpa-attribute-key':'virtualMemSize',
-                                                   'hpa-attribute-value':
-                                                       '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(flavor['ram'],"MB")
-                                                               })
+            basic_capability['hpa-feature-attributes'].append(
+                {'hpa-attribute-key': 'numVirtualCpu',
+                 'hpa-attribute-value':
+                     '{{\"value\":\"{0}\"}}'.format(flavor['vcpus'])
+                 })
+            basic_capability['hpa-feature-attributes'].append(
+                {'hpa-attribute-key':'virtualMemSize',
+                 'hpa-attribute-value':
+                     '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(flavor['ram'],"MB")
+                 })
         except Exception as e:
             self._logger.error(traceback.format_exc())
             return (
@@ -618,7 +671,8 @@ class RegistryHelper(MultiCloudAAIHelper):
         feature_uuid = uuid.uuid4()
 
         try:
-            if extra_specs.has_key('hw:cpu_policy') or extra_specs.has_key('hw:cpu_thread_policy'):
+            if extra_specs.has_key('hw:cpu_policy')\
+                    or extra_specs.has_key('hw:cpu_thread_policy'):
                 cpupining_capability['hpa-capability-id'] = str(feature_uuid)
                 cpupining_capability['hpa-feature'] = 'cpuPinning'
                 cpupining_capability['architecture'] = 'generic'
@@ -626,15 +680,19 @@ class RegistryHelper(MultiCloudAAIHelper):
 
                 cpupining_capability['hpa-feature-attributes'] = []
                 if extra_specs.has_key('hw:cpu_thread_policy'):
-                    cpupining_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'logicalCpuThreadPinningPolicy',
-                                                               'hpa-attribute-value':
-                                                                   '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:cpu_thread_policy'])
-                                                                           })
+                    cpupining_capability['hpa-feature-attributes'].append(
+                        {'hpa-attribute-key': 'logicalCpuThreadPinningPolicy',
+                         'hpa-attribute-value':
+                             '{{\"value\":\"{0}\"}}'.format(
+                                 extra_specs['hw:cpu_thread_policy'])
+                         })
                 if extra_specs.has_key('hw:cpu_policy'):
-                    cpupining_capability['hpa-feature-attributes'].append({'hpa-attribute-key':'logicalCpuPinningPolicy',
-                                                               'hpa-attribute-value':
-                                                                   '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:cpu_policy'])
-                                                                           })
+                    cpupining_capability['hpa-feature-attributes'].append(
+                        {'hpa-attribute-key':'logicalCpuPinningPolicy',
+                         'hpa-attribute-value':
+                             '{{\"value\":\"{0}\"}}'.format(
+                                 extra_specs['hw:cpu_policy'])
+                         })
         except Exception:
             self._logger.error(traceback.format_exc())
 
@@ -645,7 +703,9 @@ class RegistryHelper(MultiCloudAAIHelper):
         feature_uuid = uuid.uuid4()
 
         try:
-            if extra_specs.has_key('hw:cpu_sockets') or extra_specs.has_key('hw:cpu_cores') or extra_specs.has_key('hw:cpu_threads'):
+            if extra_specs.has_key('hw:cpu_sockets')\
+                    or extra_specs.has_key('hw:cpu_cores')\
+                    or extra_specs.has_key('hw:cpu_threads'):
                 cputopology_capability['hpa-capability-id'] = str(feature_uuid)
                 cputopology_capability['hpa-feature'] = 'cpuTopology'
                 cputopology_capability['architecture'] = 'generic'
@@ -653,20 +713,23 @@ class RegistryHelper(MultiCloudAAIHelper):
 
                 cputopology_capability['hpa-feature-attributes'] = []
                 if extra_specs.has_key('hw:cpu_sockets'):
-                    cputopology_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'numCpuSockets',
-                                                                 'hpa-attribute-value':
-                                                                   '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:cpu_sockets'])
-                                                                             })
+                    cputopology_capability['hpa-feature-attributes'].append(
+                        {'hpa-attribute-key': 'numCpuSockets',
+                         'hpa-attribute-value':
+                             '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:cpu_sockets'])
+                         })
                 if extra_specs.has_key('hw:cpu_cores'):
-                    cputopology_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'numCpuCores',
-                                                                 'hpa-attribute-value':
-                                                                   '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:cpu_cores'])
-                                                                             })
+                    cputopology_capability['hpa-feature-attributes'].append(
+                        {'hpa-attribute-key': 'numCpuCores',
+                         'hpa-attribute-value':
+                             '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:cpu_cores'])
+                         })
                 if extra_specs.has_key('hw:cpu_threads'):
-                    cputopology_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'numCpuThreads',
-                                                                 'hpa-attribute-value':
-                                                                   '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:cpu_threads'])
-                                                                             })
+                    cputopology_capability['hpa-feature-attributes'].append(
+                        {'hpa-attribute-key': 'numCpuThreads',
+                         'hpa-attribute-value':
+                             '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:cpu_threads'])
+                         })
         except Exception:
             self._logger.error(traceback.format_exc())
 
@@ -685,22 +748,25 @@ class RegistryHelper(MultiCloudAAIHelper):
 
                 hugepages_capability['hpa-feature-attributes'] = []
                 if extra_specs['hw:mem_page_size'] == 'large':
-                    hugepages_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'memoryPageSize',
-                                                               'hpa-attribute-value':
-                                                       '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(2,"MB")
-                                                                           })
+                    hugepages_capability['hpa-feature-attributes'].append(
+                        {'hpa-attribute-key': 'memoryPageSize',
+                         'hpa-attribute-value':
+                             '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(2,"MB")
+                         })
                 elif extra_specs['hw:mem_page_size'] == 'small':
-                    hugepages_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'memoryPageSize',
-                                                               'hpa-attribute-value':
-                                                       '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(4,"KB")
-                                                                           })
+                    hugepages_capability['hpa-feature-attributes'].append(
+                        {'hpa-attribute-key': 'memoryPageSize',
+                         'hpa-attribute-value':
+                             '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(4,"KB")
+                         })
                 elif extra_specs['hw:mem_page_size'] == 'any':
                     self._logger.info("Currently HPA feature memoryPageSize did not support 'any' page!!")
                 else :
-                    hugepages_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'memoryPageSize',
-                                                               'hpa-attribute-value':
-                                                       '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(extra_specs['hw:mem_page_size'],"KB")
-                                                                           })
+                    hugepages_capability['hpa-feature-attributes'].append(
+                        {'hpa-attribute-key': 'memoryPageSize',
+                         'hpa-attribute-value':
+                             '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(extra_specs['hw:mem_page_size'],"KB")
+                         })
         except Exception:
             self._logger.error(traceback.format_exc())
 
@@ -718,10 +784,11 @@ class RegistryHelper(MultiCloudAAIHelper):
                 numa_capability['hpa-version'] = 'v1'
 
                 numa_capability['hpa-feature-attributes'] = []
-                numa_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'numaNodes',
-                                                      'hpa-attribute-value':
-                                                          '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:numa_nodes'] or 0)
-                                                                  })
+                numa_capability['hpa-feature-attributes'].append(
+                    {'hpa-attribute-key': 'numaNodes',
+                     'hpa-attribute-value':
+                         '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:numa_nodes'] or 0)
+                     })
 
                 for num in range(0, int(extra_specs['hw:numa_nodes'])):
                     numa_cpu_node = "hw:numa_cpus.%s" % num
@@ -730,14 +797,16 @@ class RegistryHelper(MultiCloudAAIHelper):
                     numamem_key = "numaMem-%s" % num
 
                     if extra_specs.has_key(numa_cpu_node) and extra_specs.has_key(numa_mem_node):
-                        numa_capability['hpa-feature-attributes'].append({'hpa-attribute-key': numacpu_key,
-                                                              'hpa-attribute-value':
-                                                                   '{{\"value\":\"{0}\"}}'.format(extra_specs[numa_cpu_node])
-                                                                          })
-                        numa_capability['hpa-feature-attributes'].append({'hpa-attribute-key': numamem_key,
-                                                              'hpa-attribute-value':
-                                                       '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(extra_specs[numa_mem_node],"MB")
-                                                                          })
+                        numa_capability['hpa-feature-attributes'].append(
+                            {'hpa-attribute-key': numacpu_key,
+                             'hpa-attribute-value':
+                                 '{{\"value\":\"{0}\"}}'.format(extra_specs[numa_cpu_node])
+                             })
+                        numa_capability['hpa-feature-attributes'].append(
+                            {'hpa-attribute-key': numamem_key,
+                             'hpa-attribute-value':
+                                 '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(extra_specs[numa_mem_node],"MB")
+                             })
         except Exception:
             self._logger.error(traceback.format_exc())
 
@@ -754,18 +823,24 @@ class RegistryHelper(MultiCloudAAIHelper):
             storage_capability['hpa-version'] = 'v1'
 
             storage_capability['hpa-feature-attributes'] = []
-            storage_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'diskSize',
-                                                           'hpa-attribute-value':
-                                                       '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(flavor['disk'] or 0,"GB")
-                                                                 })
-            storage_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'swapMemSize',
-                                                           'hpa-attribute-value':
-                                                       '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(flavor['swap'] or 0,"MB")
-                                                                 })
-            storage_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'ephemeralDiskSize',
-                                                           'hpa-attribute-value':
-                                                       '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(flavor['OS-FLV-EXT-DATA:ephemeral'] or 0,"GB")
-                                                                 })
+            storage_capability['hpa-feature-attributes'].append(
+                {'hpa-attribute-key': 'diskSize',
+                 'hpa-attribute-value':
+                     '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(
+                         flavor['disk'] or 0, "GB")
+                 })
+            storage_capability['hpa-feature-attributes'].append(
+                {'hpa-attribute-key': 'swapMemSize',
+                 'hpa-attribute-value':
+                     '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(
+                         flavor['swap'] or 0, "MB")
+                 })
+            storage_capability['hpa-feature-attributes'].append(
+                {'hpa-attribute-key': 'ephemeralDiskSize',
+                 'hpa-attribute-value':
+                     '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(
+                         flavor['OS-FLV-EXT-DATA:ephemeral'] or 0, "GB")
+                 })
         except Exception:
             self._logger.error(traceback.format_exc())
 
@@ -782,10 +857,12 @@ class RegistryHelper(MultiCloudAAIHelper):
                 instruction_capability['hpa-version'] = 'v1'
 
                 instruction_capability['hpa-feature-attributes'] = []
-                instruction_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'instructionSetExtensions',
-                                                           'hpa-attribute-value':
-                                                          '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:capabilities:cpu_info:features'])
-                                                                         })
+                instruction_capability['hpa-feature-attributes'].append(
+                    {'hpa-attribute-key': 'instructionSetExtensions',
+                     'hpa-attribute-value':
+                         '{{\"value\":\"{0}\"}}'.format(
+                             extra_specs['hw:capabilities:cpu_info:features'])
+                     })
         except Exception:
             self._logger.error(traceback.format_exc())
 
@@ -808,17 +885,20 @@ class RegistryHelper(MultiCloudAAIHelper):
 
 
                 pci_passthrough_capability['hpa-feature-attributes'] = []
-                pci_passthrough_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciCount',
-                                                           'hpa-attribute-value':
-                                                          '{{\"value\":\"{0}\"}}'.format(value1[1])
-                                                                         })
-                pci_passthrough_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciVendorId',
-                                                           'hpa-attribute-value':
-                                                          '{{\"value\":\"{0}\"}}'.format(value2[3])
-                                                                         })
-                pci_passthrough_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciDeviceId',
-                                                           'hpa-attribute-value':
-                                                          '{{\"value\":\"{0}\"}}'.format(value2[4])
+                pci_passthrough_capability['hpa-feature-attributes'].append(
+                    {'hpa-attribute-key': 'pciCount',
+                     'hpa-attribute-value':
+                         '{{\"value\":\"{0}\"}}'.format(value1[1])
+                     })
+                pci_passthrough_capability['hpa-feature-attributes'].append(
+                    {'hpa-attribute-key': 'pciVendorId',
+                     'hpa-attribute-value':
+                         '{{\"value\":\"{0}\"}}'.format(value2[3])
+                     })
+                pci_passthrough_capability['hpa-feature-attributes'].append(
+                    {'hpa-attribute-key': 'pciDeviceId',
+                     'hpa-attribute-value':
+                         '{{\"value\":\"{0}\"}}'.format(value2[4])
                                                                          })
         except Exception:
             self._logger.error(traceback.format_exc())
@@ -840,18 +920,22 @@ class RegistryHelper(MultiCloudAAIHelper):
                 sriov_capability['hpa-version'] = 'v1'
 
                 sriov_capability['hpa-feature-attributes'] = []
-                sriov_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciCount',
-                                              'hpa-attribute-value':
-                                              '{{\"value\":\"{0}\"}}'.format(value1[1]) })
-                sriov_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciVendorId',
-                                              'hpa-attribute-value':
-                                              '{{\"value\":\"{0}\"}}'.format(value2[3]) })
-                sriov_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'pciDeviceId',
-                                              'hpa-attribute-value':
-                                              '{{\"value\":\"{0}\"}}'.format(value2[4]) })
-                sriov_capability['hpa-feature-attributes'].append({'hpa-attribute-key': 'physicalNetwork',
-                                              'hpa-attribute-value':
-                                              '{{\"value\":\"{0}\"}}'.format(value2[5]) })
+                sriov_capability['hpa-feature-attributes'].append(
+                    {'hpa-attribute-key': 'pciCount',
+                     'hpa-attribute-value':
+                         '{{\"value\":\"{0}\"}}'.format(value1[1])})
+                sriov_capability['hpa-feature-attributes'].append(
+                    {'hpa-attribute-key': 'pciVendorId',
+                     'hpa-attribute-value':
+                         '{{\"value\":\"{0}\"}}'.format(value2[3])})
+                sriov_capability['hpa-feature-attributes'].append(
+                    {'hpa-attribute-key': 'pciDeviceId',
+                     'hpa-attribute-value':
+                         '{{\"value\":\"{0}\"}}'.format(value2[4])})
+                sriov_capability['hpa-feature-attributes'].append(
+                    {'hpa-attribute-key': 'physicalNetwork',
+                     'hpa-attribute-value':
+                         '{{\"value\":\"{0}\"}}'.format(value2[5])})
         except Exception:
             self._logger.error(traceback.format_exc())
 
@@ -881,7 +965,8 @@ class RegistryHelper(MultiCloudAAIHelper):
                     ovsdpdk_capability['hpa-feature-attributes'] = [
                         {
                             'hpa-attribute-key': str(cloud_dpdk_info.get("libname")),
-                            'hpa-attribute-value': '{{\"value\":\"{0}\"}}'.format(cloud_dpdk_info.get("libversion"))
+                            'hpa-attribute-value': '{{\"value\":\"{0}\"}}'.format(
+                                cloud_dpdk_info.get("libversion"))
                         },]
         except Exception:
             self._logger.error(traceback.format_exc())
@@ -938,8 +1023,10 @@ class RegistryHelper(MultiCloudAAIHelper):
                     "image")
                 if ret != 0:
                     # failed to update image
-                    self._logger.debug("failed to populate image info into AAI: %s, image id: %s, ret:%s"
-                                       % (vimid, image_info['image-id'], ret))
+                    self._logger.debug(
+                        "failed to populate image info into AAI: %s,"
+                        " image id: %s, ret:%s"
+                        % (vimid, image_info['image-id'], ret))
                     continue
 
                 schema = image['schema']
@@ -952,11 +1039,14 @@ class RegistryHelper(MultiCloudAAIHelper):
                                else viminfo['cloud_region_id']
                                }
 
-                    self._logger.info("making request with URI:%s" % req_resource)
+                    self._logger.info("making request with URI:%s" %
+                                      req_resource)
                     resp = session.get(req_resource, endpoint_filter=service)
-                    self._logger.info("request returns with status %s" % resp.status_code)
+                    self._logger.info("request returns with status %s" %
+                                      resp.status_code)
                     if resp.status_code == status.HTTP_200_OK:
-                        self._logger.debug("with content:%s" % resp.json())
+                        self._logger.debug("with content:%s" %
+                                           resp.json())
                         pass
                     content = resp.json()
 
@@ -966,12 +1056,15 @@ class RegistryHelper(MultiCloudAAIHelper):
                         #metadata_info = {}
             return (0, "succeed")
         except VimDriverNewtonException as e:
-            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            self._logger.error("VimDriverNewtonException:"
+                               " status:%s, response:%s" %
+                               (e.http_status, e.content))
             return (
                 e.http_status, e.content
             )
         except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error("HttpError: status:%s, response:%s" %
+                               (e.http_status, e.response.json()))
             return (
                 e.http_status, e.response.json()
             )
@@ -1016,8 +1109,10 @@ class RegistryHelper(MultiCloudAAIHelper):
                     "availability-zone")
                 if ret != 0:
                     # failed to update image
-                    self._logger.debug("failed to populate az info into AAI: %s, az name: %s, ret:%s"
-                                       % (vimid, az_info['availability-zone-name'], ret))
+                    self._logger.debug(
+                        "failed to populate az info into AAI: "
+                        "%s, az name: %s, ret:%s"
+                        % (vimid, az_info['availability-zone-name'], ret))
                     # return (
                     #     ret,
                     #     "fail to popluate az info into AAI:%s" % content
@@ -1049,12 +1144,16 @@ class RegistryHelper(MultiCloudAAIHelper):
 
             return (0, az_pserver_info)
         except VimDriverNewtonException as e:
-            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            self._logger.error(
+                "VimDriverNewtonException: status:%s,"
+                " response:%s" % (e.http_status, e.content))
             return (
                 e.http_status, e.content
             )
         except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error(
+                "HttpError: status:%s, response:%s" %
+                (e.http_status, e.response.json()))
             return (
                 e.http_status, e.response.json()
             )
