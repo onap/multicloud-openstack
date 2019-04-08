@@ -40,7 +40,7 @@ class InfraWorkloadHelper(object):
         :param workload_data:
         :return: result code, status enum, status reason
             result code: 0-ok, otherwise error
-            status enum: "WORKLOAD_CREATE_IN_PROGRESS", "WORKLOAD_CREATE_FAIL"
+            status enum: "CREATE_IN_PROGRESS", "CREATE_FAILED"
             status reason: message to explain the status enum
         '''
         data = workload_data
@@ -49,7 +49,7 @@ class InfraWorkloadHelper(object):
         template_data = data.get("template_data", {})
         # resp_template = None
         if not template_type or "heat" != template_type.lower():
-            return 14, "WORKLOAD_CREATE_FAIL", \
+            return 14, "CREATE_FAILED", \
                    "Bad parameters: template type %s is not heat" %\
                    template_type or ""
 
@@ -91,7 +91,7 @@ class InfraWorkloadHelper(object):
                      (cloud_owner, regionid, v2_token_resp_json)
             logger.error(errmsg)
             return (
-                retcode, "WORKLOAD_CREATE_FAIL", errmsg
+                retcode, "CREATE_FAILED", errmsg
             )
 
         # tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
@@ -107,10 +107,10 @@ class InfraWorkloadHelper(object):
         if retcode == 0:
             stack1 = content.get('stack', None)
             # stackid = stack1["id"] if stack1 else ""
-            return 0, "WORKLOAD_CREATE_IN_PROGRESS", stack1
+            return 0, "CREATE_IN_PROGRESS", stack1
         else:
             self._logger.info("RESP with data> result:%s" % content)
-            return retcode, "WORKLOAD_CREATE_FAIL", content
+            return retcode, "CREATE_FAILED", content
 
     def workload_update(self, vimid, stack_id, otherinfo):
         '''
@@ -121,7 +121,7 @@ class InfraWorkloadHelper(object):
         :param otherinfo:
         :return: result code, status enum, status reason
             result code: 0-ok, otherwise error
-            status enum: "WORKLOAD_UPDATE_IN_PROGRESS", "WORKLOAD_UPDATE_FAIL"
+            status enum: "UPDATE_IN_PROGRESS", "UPDATE_FAILED"
             status reason: message to explain the status enum
         '''
 
@@ -134,7 +134,7 @@ class InfraWorkloadHelper(object):
             errmsg = "authenticate fails:%s, %s, %s" %\
                      (cloud_owner, regionid, v2_token_resp_json)
             logger.error(errmsg)
-            return retcode, "WORKLOAD_UPDATE_FAIL", errmsg
+            return retcode, "UPDATE_FAILED", errmsg
 
         tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
         # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
@@ -159,7 +159,7 @@ class InfraWorkloadHelper(object):
             errmsg = "stack:%s, query fails: %s" %\
                      (resource_uri, content)
             logger.error(errmsg)
-            return retcode, "WORKLOAD_UPDATE_FAIL", errmsg
+            return retcode, "UPDATE_FAILED", errmsg
 
         # find and update resources
         # transactions = []
@@ -169,7 +169,7 @@ class InfraWorkloadHelper(object):
                 errmsg = "stack: %s, resource not ready :%s" % \
                          (resource_uri, resource)
                 logger.info(errmsg)
-                return retcode, "WORKLOAD_UPDATE_FAIL", errmsg
+                return retcode, "UPDATE_FAILED", errmsg
                 # continue
             if resource.get('resource_type', None) == 'OS::Nova::Server':
                 # retrieve vserver details
@@ -187,7 +187,7 @@ class InfraWorkloadHelper(object):
                     errmsg = "stack resource:%s, query fails: %s" % \
                              (resource_uri, content)
                     logger.error(errmsg)
-                    return retcode, "WORKLOAD_UPDATE_FAIL", errmsg
+                    return retcode, "UPDATE_FAILED", errmsg
                 vserver_detail = content.get('server', None) if retcode == 0 and content else None
                 if vserver_detail:
                     # compose inventory entry for vserver
@@ -224,7 +224,7 @@ class InfraWorkloadHelper(object):
                                                (aai_resource['uri'], content))
                     except Exception as e:
                         self._logger.error(e.message)
-                        return retcode, "WORKLOAD_UPDATE_FAIL", e.message
+                        return retcode, "UPDATE_FAILED", e.message
 
                     # aai_resource_transactions = {"put": [aai_resource]}
                     # transactions.append(aai_resource_transactions)
@@ -249,7 +249,7 @@ class InfraWorkloadHelper(object):
                     errmsg = "stack resource:%s, query fails: %s" % \
                              (resource_uri, content)
                     logger.error(errmsg)
-                    return retcode, "WORKLOAD_UPDATE_FAIL", errmsg
+                    return retcode, "UPDATE_FAILED", errmsg
 
                 vport_detail = content.get('port', None) if retcode == 0 and content else None
                 if vport_detail:
@@ -280,7 +280,7 @@ class InfraWorkloadHelper(object):
                                                (aai_resource['uri'], content))
                     except Exception as e:
                         self._logger.error(e.message)
-                        return retcode, "WORKLOAD_UPDATE_FAIL", e.message
+                        return retcode, "UPDATE_FAILED", e.message
 
                     # aai_resource_transactions = {"put": [aai_resource]}
                     # transactions.append(aai_resource_transactions)
@@ -288,7 +288,7 @@ class InfraWorkloadHelper(object):
 
         # aai_transactions = {"transactions": transactions}
         # self._logger.debug("aai_transactions :%s" % aai_transactions)
-        return 0, "WORKLOAD_UPDATE_COMPLETE", "succeed"
+        return 0, "UPDATE_COMPLETE", "succeed"
 
     def workload_delete(self, vimid, stack_id, otherinfo):
         '''
@@ -299,7 +299,7 @@ class InfraWorkloadHelper(object):
         :param otherinfo:
         :return: result code, status enum, status reason
             result code: 0-ok, otherwise error
-            status enum: "WORKLOAD_DELETE_IN_PROGRESS", "WORKLOAD_DELETE_FAIL"
+            status enum: "DELETE_IN_PROGRESS", "DELETE_FAILED"
             status reason: message to explain the status enum
         '''
 
@@ -313,7 +313,7 @@ class InfraWorkloadHelper(object):
             errmsg = "authenticate fails:%s, %s, %s" %\
                      (cloud_owner, regionid, v2_token_resp_json)
             logger.error(errmsg)
-            return retcode, "WORKLOAD_DELETE_FAIL", errmsg
+            return retcode, "DELETE_FAILED", errmsg
 
         tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
         # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
@@ -345,7 +345,7 @@ class InfraWorkloadHelper(object):
                 restcall.req_to_aai(vserver_list_url, "GET")
             if retcode > 0 or not content:
                 self._logger.debug("AAI get %s response: %s" % (vserver_list_url, content))
-                return (retcode, "WORKLOAD_DELETE_FAIL", "authenticate fails:%s, %s, %s" %
+                return (retcode, "DELETE_FAILED", "authenticate fails:%s, %s, %s" %
                         (cloud_owner, regionid, v2_token_resp_json))
 
             content = json.JSONDecoder().decode(content)
@@ -366,7 +366,7 @@ class InfraWorkloadHelper(object):
 
                         restcall.req_to_aai(vport_delete_url, "DELETE")
                 except Exception as e:
-                    # return 12, "WORKLOAD_DELETE_FAIL", e.message
+                    # return 12, "DELETE_FAILED", e.message
                     pass
 
                 try:
@@ -380,10 +380,10 @@ class InfraWorkloadHelper(object):
                 except Exception:
                     continue
 
-            return 0, "WORKLOAD_DELETE_COMPLETE", "succeed"
+            return 0, "DELETE_COMPLETE", "succeed"
         except Exception as e:
             self._logger.error(e.message)
-            return 12, "WORKLOAD_DELETE_FAIL", e.message
+            return 12, "DELETE_FAILED", e.message
         pass
 
     def workload_status(self, vimid, stack_id, otherinfo):
@@ -400,7 +400,7 @@ class InfraWorkloadHelper(object):
                 errmsg = "authenticate fails:%s, %s, %s" % \
                          (cloud_owner, regionid, v2_token_resp_json)
                 logger.error(errmsg)
-                return retcode, "WORKLOAD_STATUS_UNKNOWN", errmsg
+                return retcode, "GET_FAILED", errmsg
 
             # get stack status
             service_type = "orchestration"
@@ -418,4 +418,4 @@ class InfraWorkloadHelper(object):
             return retcode, stack_status, stacks
         except Exception as e:
             self._logger.error(e.message)
-            return 12, "WORKLOAD_STATUS_UNKNOWN", e.message
+            return 12, "GET_FAILED", e.message

@@ -44,7 +44,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
         resp_template = {
             "template_type": "HEAT",
             "workload_id": workloadid,
-            "workload_status": "WORKLOAD_CREATE_FAIL",
+            "workload_status": "CREATE_FAILED",
             "workload_status_reason": "Exception occurs"
         }
         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -55,7 +55,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 settings.AAI_BASE_URL
             )
             if workloadid == "":
-                resp_template["workload_status"] = "WORKLOAD_CREATE_FAIL"
+                resp_template["workload_status"] = "CREATE_FAILED"
                 # post to create a new stack, stack id available only after creating a stack is done
                 progress_code, progress_status, progress_msg = worker_self.workload_create(vimid, request.data)
                 resp_template["workload_status"] = progress_status
@@ -73,7 +73,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 return Response(data=resp_template, status=status_code)
                 # return super(InfraWorkload, self).post(request, vimid)
             else:
-                resp_template["workload_status"] = "WORKLOAD_UPDATE_FAIL"
+                resp_template["workload_status"] = "UPDATE_FAILED"
                 # a post to heatbridge
                 backlog_item = {
                     "id": workloadid,
@@ -82,7 +82,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                     "repeat": 0,  # one time job
                     # format of status: retcode:0 is ok, otherwise error code from http status, Status ENUM, Message
                     "status": (
-                        0, "WORKLOAD_UPDATE_IN_PROGRESS",
+                        0, "UPDATE_IN_PROGRESS",
                         "backlog to update workload %s pends to schedule" % workloadid
                     )
                 }
@@ -103,7 +103,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                     )
                 else:
                     progress = backlog_item.get("status",
-                                                (13, "WORKLOAD_DELETE_FAIL",
+                                                (13, "DELETE_FAILED",
                                                  "Unexpected:status not found in backlog item")
                                                 )
 
@@ -134,7 +134,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
         resp_template = {
             "template_type": "HEAT",
             "workload_id": workloadid,
-            "workload_status": "WORKLOAD_GET_FAIL",
+            "workload_status": "GET_FAILED",
             "workload_status_reason": "Exception occurs"
         }
         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -165,7 +165,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
 
             else:
                 progress = backlog_item.get("status",
-                                            (13, "WORKLOAD_DELETE_FAIL",
+                                            (13, "GET_FAILED",
                                              "Unexpected:status not found in backlog item")
                                             )
                 try:
@@ -196,7 +196,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
         resp_template = {
             "template_type": "HEAT",
             "workload_id": workloadid,
-            "workload_status": "WORKLOAD_DELETE_FAIL",
+            "workload_status": "DELETE_FAILED",
             "workload_status_reason": "Exception occurs"
         }
         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -224,7 +224,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 "repeat": 0,  # one time job
                 # format of status: retcode:0 is ok, otherwise error code from http status, Status ENUM, Message
                 "status": (
-                    0, "WORKLOAD_DELETE_IN_PROGRESS",
+                    0, "DELETE_IN_PROGRESS",
                     "backlog for delete the workload %s "
                     "pends to schedule" % workloadid
                 )
@@ -247,7 +247,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 )
             else:
                 progress = backlog_item.get("status",
-                                            (13, "WORKLOAD_DELETE_FAIL",
+                                            (13, "DELETE_FAILED",
                                              "Unexpected:status not found in backlog item")
                                             )
                 try:
@@ -395,7 +395,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
                         else:
                             pass
                 else:
-                    self._logger.info("artifacts not available for vfmodule %s" % vfmodule_uuid)
+                    self._logger.info("artifacts not available for vfmodule %s" % vf_module_model_customization_id)
                     pass
         except Exception as e:
             self._logger.error("template_update fails: %s" % e.message)
@@ -411,7 +411,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
         :param workload_data:
         :return: result code, status enum, status reason
             result code: 0-ok, otherwise error
-            status enum: "WORKLOAD_CREATE_IN_PROGRESS", "WORKLOAD_CREATE_FAIL"
+            status enum: "CREATE_IN_PROGRESS", "CREATE_FAILED"
             status reason: message to explain the status enum
         '''
 
@@ -426,7 +426,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
         template_data = data.get("template_data", {})
         # resp_template = None
         if not template_type or "heat" != template_type.lower():
-            return 14, "WORKLOAD_CREATE_FAIL", \
+            return 14, "CREATE_FAILED", \
                    "Bad parameters: template type %s is not heat" %\
                    template_type or ""
 
@@ -461,7 +461,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
                      (cloud_owner, regionid, v2_token_resp_json)
             logger.error(errmsg)
             return (
-                retcode, "WORKLOAD_CREATE_FAIL", errmsg
+                retcode, "CREATE_FAILED", errmsg
             )
 
         # tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
@@ -477,7 +477,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
         if retcode == 0:
             stack1 = content.get('stack', None)
             # stackid = stack1["id"] if stack1 else ""
-            return 0, "WORKLOAD_CREATE_IN_PROGRESS", stack1
+            return 0, "CREATE_IN_PROGRESS", stack1
         else:
             self._logger.info("RESP with data> result:%s" % content)
-            return retcode, "WORKLOAD_CREATE_FAIL", content
+            return retcode, "CREATE_FAILED", content
