@@ -145,18 +145,18 @@ class MultiCloudAAIHelper(object):
             retcode, content, status_code = \
                 restcall.req_to_aai(resource_url, "PUT", content=resource_info)
 
-            self._logger.debug(
-                ("_update_resoure,vimid:%(cloud_owner)s"
-                 "_%(cloud_region_id)s req_to_aai: %(resoure_id)s, "
-                 "return %(retcode)s, %(content)s, %(status_code)s")
-                % {
-                    "cloud_owner": cloud_owner,
-                    "cloud_region_id": cloud_region_id,
-                    "resoure_id": resoure_id,
-                    "retcode": retcode,
-                    "content": content,
-                    "status_code": status_code,
-                })
+            # self._logger.debug(
+            #     ("_update_resoure,vimid:%(cloud_owner)s"
+            #      "_%(cloud_region_id)s req_to_aai: %(resoure_id)s, "
+            #      "return %(retcode)s, %(content)s, %(status_code)s")
+            #     % {
+            #         "cloud_owner": cloud_owner,
+            #         "cloud_region_id": cloud_region_id,
+            #         "resoure_id": resoure_id,
+            #         "retcode": retcode,
+            #         "content": content,
+            #         "status_code": status_code,
+            #     })
             return retcode, content
         # unknown cloud owner,region_id
         return (
@@ -197,17 +197,17 @@ class MultiCloudThreadHelper(object):
         # }
         # format of backlog:
         # {"<id value of backlog item>": <backlog item>, ...}
+        self.name = name or "default"
         self.backlog = {}
         # expired backlog items
         self.expired_backlog = {}
         self.lock = threading.Lock()
         self.state_ = 0  # 0: stopped, 1: started
         self.cache_prefix = "bi_"+name+"_"
-        self.cache_expired_prefix = "biex_"+name+"_"
+        self.cache_expired_prefix = "biex_"+self.name+"_"
 
         self.thread = MultiCloudThreadHelper.HelperThread(self)
-        self.thread.start()
-
+        # self.thread.start()
 
     def state(self):
         return self.state_
@@ -217,7 +217,7 @@ class MultiCloudThreadHelper(object):
         if 0 == self.state_:
             self.state_ = 1
             # self.thread = MultiCloudThreadHelper.HelperThread(self)
-            # self.thread.start()
+            self.thread.start()
         else:
             pass
         self.lock.release()
@@ -227,9 +227,10 @@ class MultiCloudThreadHelper(object):
 
     def add(self, backlog_item):
         cache_for_query = None
-        if not hasattr(backlog_item, "worker"):
+        if not backlog_item.get("worker", None):
+            logger.warn("Fail to add backlog item: %s" % backlog_item)
             return None
-        if not hasattr(backlog_item, "id"):
+        if not backlog_item.get("id", None):
             backlog_item["id"] = str(uuid.uuid1())
         else:
             cache_for_query = {
@@ -237,7 +238,7 @@ class MultiCloudThreadHelper(object):
                 "status": backlog_item.get("status", None)
             }
 
-        if not hasattr(backlog_item, "repeat"):
+        if not backlog_item.get("repeat", None):
             backlog_item["repeat"] = 0
         backlog_item["timestamp"] = 0
 
@@ -248,8 +249,9 @@ class MultiCloudThreadHelper(object):
                       json.dumps(cache_for_query), 3600 * 24)
 
         self.expired_backlog.pop(backlog_item["id"], None)
-        self.backlog.update(backlog_item["id"], backlog_item)
+        self.backlog[backlog_item["id"]] = backlog_item
         # self.lock.release()
+        logger.debug("Add backlog item: %s" % backlog_item)
         return len(self.backlog)
 
     def get(self, backlog_id):
@@ -305,17 +307,19 @@ class MultiCloudThreadHelper(object):
             self.duration = 0
             self.owner = owner
             # debug: dump the callstack to determine the callstack, hence the lcm
-            logger.debug("HelperThread __init__ : %s" % traceback.format_exc())
+            # logger.debug("HelperThread __init__ : %s" % traceback.format_exc())
 
         def run(self):
-            logger.debug("Start processing backlogs")
+            logger.debug("Thread %s starts processing backlogs" % self.owner.name)
             nexttimer = 0
             while self.owner.state_ == 1:  # and self.owner.count() > 0:
                 if nexttimer > 1000000:
                     # sleep in case of interval > 1 second
                     time.sleep(nexttimer // 1000000)
                 nexttimer = 30*1000000  # initial interval in us to be updated:30 seconds
-                for backlog_id, item in self.owner.backlog:
+                # logger.debug("self.owner.backlog len: %s" % len(self.owner.backlog))
+                for backlog_id, item in self.owner.backlog.items():
+                    # logger.debug("evaluate backlog item: %s" % item)
                     # check interval for repeatable backlog item
                     now = MultiCloudThreadHelper.get_epoch_now_usecond()
                     repeat_interval = item.get("repeat", 0)
@@ -331,10 +335,11 @@ class MultiCloudThreadHelper(object):
                             # not time to run this backlog item yet
                             continue
 
+                    # logger.debug("process backlog item: %s" % backlog_id)
                     worker = item.get("worker", None)
                     payload = item.get("payload", None)
                     try:
-                        item["status"] = worker(payload) or 0
+                        item["status"] = worker(*payload) or 0
                     except Exception as e:
                         item["status"] = e.message
                     cache_item_for_query = {
@@ -364,6 +369,6 @@ class MultiCloudThreadHelper(object):
             # while True:
             #     logger.debug("thread sleep for 5 seconds")
             #     time.sleep(5)  # wait forever, testonly
-            logger.debug("stop processing backlogs")
+            logger.debug("Thread %s stops processing backlogs" % self.owner.name)
             self.owner.state_ = 0
             # end of processing

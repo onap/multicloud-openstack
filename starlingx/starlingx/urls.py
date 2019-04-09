@@ -38,7 +38,7 @@ urlpatterns = [
         r'infra_workload/?$',
         infra_workload.InfraWorkload.as_view()),
     url(r'^api/multicloud-starlingx/v0/(?P<vimid>[0-9a-zA-Z_-]+)/'
-        r'infra_workload/(?P<workloadid>[0-9a-zA-Z_-]*)/?$',
+        r'infra_workload/(?P<workloadid>[0-9a-zA-Z_-]+)/?$',
         infra_workload.InfraWorkload.as_view()),
     url(r'^api/multicloud-starlingx/v0/(?P<vimid>[0-9a-zA-Z_-]+)/',
         include('starlingx.proxy.urls')),
@@ -67,7 +67,7 @@ urlpatterns = [
         infra_workload.APIv1InfraWorkload.as_view()),
     url(r'^api/multicloud-starlingx/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
         r'(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/'
-        r'(?P<workloadid>[0-9a-zA-Z_-]*)/?$',
+        r'(?P<workloadid>[0-9a-zA-Z_-]+)/?$',
         infra_workload.APIv1InfraWorkload.as_view()),
     url(r'^api/multicloud-starlingx/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
         r'(?P<cloud_region_id>[0-9a-zA-Z_-]+)/',

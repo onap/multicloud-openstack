@@ -420,9 +420,9 @@ class InfraWorkloadHelper(object):
 
             # get stack status
             service_type = "orchestration"
-            resource_uri = "/stacks?id=%s" % stack_id if stack_id else "/stacks"
+            resource_uri = "/stacks/id=%s" % stack_id if stack_id else "/stacks"
             if stack_name:
-                resource_uri = "/stacks?name=%s" % stack_id if not stack_id else resource_uri
+                resource_uri = "/stacks?name=%s" % stack_name if not stack_id else resource_uri
 
             self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
             retcode, content, os_status = \
@@ -438,6 +438,58 @@ class InfraWorkloadHelper(object):
 
             stacks = content.get('stacks', [])  # if retcode == 0 and content else []
             stack_status = stacks[0].get("stack_status", "GET_FAILED") if len(stacks) > 0 else "GET_FAILED"
+
+            return retcode, stack_status, content
+        except Exception as e:
+            self._logger.error(e.message)
+            return 12, "GET_FAILED", e.message
+
+
+    def workload_detail(self, vimid, stack_id, nexturi=None, otherinfo=None, project_idorname=None):
+        '''
+        get workload status by either stack id or name
+        :param vimid:
+        :param stack_id:
+        :param nexturi: stacks/<stack id>/<nexturi>
+        :param otherinfo:
+        :return:
+        '''
+        try:
+            # assume the workload_type is heat
+            cloud_owner, regionid = extsys.decode_vim_id(vimid)
+            # should go via multicloud proxy so that the selflink is updated by multicloud
+            retcode, v2_token_resp_json, os_status = \
+                helper.MultiCloudIdentityHelper(
+                    settings.MULTICLOUD_API_V1_PREFIX,
+                    cloud_owner, regionid, "/v2.0/tokens",
+                {"Project": project_idorname})
+
+            if retcode > 0 or not v2_token_resp_json:
+                errmsg = "authenticate fails:%s, %s, %s" % \
+                         (cloud_owner, regionid, v2_token_resp_json)
+                logger.error(errmsg)
+                return retcode, "GET_FAILED", errmsg
+
+            # get stack status
+            service_type = "orchestration"
+            resource_uri = "/stacks/%s" % stack_id
+            if nexturi:
+                resource_uri += "/" + nexturi
+
+            self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
+            retcode, content, os_status = \
+                helper.MultiCloudServiceHelper(cloud_owner, regionid,
+                                               v2_token_resp_json,
+                                               service_type, resource_uri,
+                                               None, "GET")
+
+            if retcode > 0 or not content:
+                errmsg = "Stack query %s response: %s" % (resource_uri, content)
+                self._logger.debug(errmsg)
+                return retcode, "GET_FAILED", errmsg
+
+            stack = content.get('stack', {})  # if retcode == 0 and content else []
+            stack_status = stack.get("stack_status", "GET_FAILED")
 
             return retcode, stack_status, content
         except Exception as e:

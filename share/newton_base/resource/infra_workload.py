@@ -36,7 +36,7 @@ class InfraWorkload(APIView):
     def __init__(self):
         self._logger = logger
 
-    def post(self, request, vimid=""):
+    def post(self, request, vimid="", requri=""):
         self._logger.info("vimid: %s" % (vimid))
         self._logger.info("data: %s" % (request.data))
         self._logger.debug("META: %s" % request.META)
@@ -529,13 +529,13 @@ class APIv1InfraWorkload(InfraWorkload):
         super(APIv1InfraWorkload, self).__init__()
         # self._logger = logger
 
-    def post(self, request, cloud_owner="", cloud_region_id=""):
+    def post(self, request, cloud_owner="", cloud_region_id="", requri=""):
         # self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" %
         #  (cloud_owner, cloud_region_id, request.data))
         # self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1InfraWorkload, self).post(request, vimid)
+        return super(APIv1InfraWorkload, self).post(request, vimid, requri)
 
     def get(self, request, cloud_owner="", cloud_region_id="", requri=""):
         # self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" %

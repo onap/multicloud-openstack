@@ -58,7 +58,7 @@ class APIv0Registry(newton_registration.Registry):
         backlog_item = {
             "id": vimid,
             "worker": worker_self.azcap_audit,
-            "payload": (worker_self, vimid, specified_project_idorname),
+            "payload": (vimid, specified_project_idorname),
             "repeat": 10*1000000,  # repeat every 10 seconds
         }
         gAZCapAuditThread.add(backlog_item)
@@ -88,6 +88,9 @@ class APIv1Registry(newton_registration.Registry):
                           % (cloud_owner, cloud_region_id))
 
         try:
+            # Get the specified tenant id
+            specified_project_idorname = request.META.get("Project", None)
+
             vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
 
             # vim registration will trigger the start the audit of AZ capacity
@@ -98,7 +101,7 @@ class APIv1Registry(newton_registration.Registry):
             backlog_item = {
                 "id": vimid,
                 "worker": worker_self.azcap_audit,
-                "payload": (worker_self, vimid),
+                "payload": (vimid, specified_project_idorname),
                 "repeat": 5 * 1000000,  # repeat every 5 seconds
             }
             gAZCapAuditThread.add(backlog_item)

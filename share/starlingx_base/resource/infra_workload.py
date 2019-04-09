@@ -85,7 +85,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 backlog_item = {
                     "id": workloadid,
                     "worker": worker_self.workload_update,
-                    "payload": (worker_self, vimid, workloadid,
+                    "payload": (vimid, workloadid,
                                 request.data, specified_project_idorname),
                     "repeat": 0,  # one time job
                     # format of status: retcode:0 is ok, otherwise error code from http status, Status ENUM, Message
@@ -97,7 +97,9 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 gInfraWorkloadThread.add(backlog_item)
                 if 0 == gInfraWorkloadThread.state():
                     gInfraWorkloadThread.start()
-
+                # progress = worker_self.workload_update(
+                #     vimid, workloadid,
+                #     request.data, specified_project_idorname)
                 # now query the progress
                 backlog_item = gInfraWorkloadThread.get(workloadid)
                 if not backlog_item:
@@ -206,7 +208,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                     settings.AAI_BASE_URL
                 )
                 progress_code, progress_status, progress_msg =\
-                    worker_self.workload_status(
+                    worker_self.workload_detail(
                         vimid, stack_id=workloadid,
                         project_idorname=specified_project_idorname)
 
@@ -277,7 +279,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
             backlog_item = {
                 "id": workloadid,
                 "worker": worker_self.workload_delete,
-                "payload": (worker_self, vimid, workloadid, request.data,
+                "payload": (vimid, workloadid, request.data,
                             specified_project_idorname),
                 "repeat": 0,  # one time job
                 # format of status: retcode:0 is ok, otherwise error code from http status, Status ENUM, Message
@@ -335,29 +337,29 @@ class APIv1InfraWorkload(InfraWorkload):
         super(APIv1InfraWorkload, self).__init__()
         # self._logger = logger
 
-    def post(self, request, cloud_owner="", cloud_region_id=""):
+    def post(self, request, cloud_owner="", cloud_region_id="", workloadid=""):
         # self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" %
         #  (cloud_owner, cloud_region_id, request.data))
         # self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1InfraWorkload, self).post(request, vimid)
+        return super(APIv1InfraWorkload, self).post(request, vimid, workloadid)
 
-    def get(self, request, cloud_owner="", cloud_region_id="", requri=""):
+    def get(self, request, cloud_owner="", cloud_region_id="", workloadid=""):
         # self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" %
         #  (cloud_owner, cloud_region_id, request.data))
         # self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1InfraWorkload, self).get(request, vimid, requri)
+        return super(APIv1InfraWorkload, self).get(request, vimid, workloadid)
 
-    def delete(self, request, cloud_owner="", cloud_region_id="", requri=""):
+    def delete(self, request, cloud_owner="", cloud_region_id="", workloadid=""):
         # self._logger.info("cloud owner, cloud region id, data: %s,%s, %s" %
         #  (cloud_owner, cloud_region_id, request.data))
         # self._logger.debug("META: %s" % request.META)
 
         vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-        return super(APIv1InfraWorkload, self).delete(request, vimid, requri)
+        return super(APIv1InfraWorkload, self).delete(request, vimid, workloadid)
 
 
 class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
@@ -503,9 +505,8 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
         # reset to make sure "files" are empty
         template_data["files"] = {}
 
-        template_data["stack_name"] = vf_module_id \
-            if not hasattr(template_data, "stack_name")\
-            else template_data["stack_name"]
+        template_data["stack_name"] =\
+            template_data.get("stack_name", vf_module_id)
 
         # authenticate
         cloud_owner, regionid = extsys.decode_vim_id(vimid)

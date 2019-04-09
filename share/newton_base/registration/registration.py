@@ -64,8 +64,7 @@ class Registry(APIView):
             backlog_item = {
                 "id": vimid,
                 "worker": self.register_helper.registryV0,
-                "payload": (self.register_helper,
-                            vimid, specified_project_idorname),
+                "payload": (vimid, specified_project_idorname),
                 "repeat": 0,
                 "status": (1,
                            "The registration process waits to"
@@ -120,7 +119,7 @@ class Registry(APIView):
             backlog_item = {
                 "id": vimid,
                 "worker": self.register_helper.unregistryV0,
-                "payload": (self.register_helper, vimid),
+                "payload": (vimid),
                 "repeat": 0,
                 "status": (1, "The registration process waits"
                               " to be scheduled to run")
