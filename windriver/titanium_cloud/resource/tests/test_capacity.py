@@ -144,7 +144,7 @@ class TestCapacity(test_base.TestRequest):
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual({"result": True}, response.data)
+        self.assertEqual({'AZs': [],"result": True}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -165,7 +165,7 @@ class TestCapacity(test_base.TestRequest):
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual({"result": False}, response.data)
+        self.assertEqual({'AZs': [],"result": False}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -187,7 +187,7 @@ class TestCapacity(test_base.TestRequest):
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual({"result": False}, response.data)
+        self.assertEqual({'AZs': [],"result": False}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -209,7 +209,7 @@ class TestCapacity(test_base.TestRequest):
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual({"result": False}, response.data)
+        self.assertEqual({'AZs': [],"result": False}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -231,7 +231,7 @@ class TestCapacity(test_base.TestRequest):
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual({"result": False}, response.data)
+        self.assertEqual({'AZs': [],"result": False}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -253,7 +253,7 @@ class TestCapacity(test_base.TestRequest):
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual({"result": False}, response.data)
+        self.assertEqual({'AZs': [], "result": False}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -275,4 +275,4 @@ class TestCapacity(test_base.TestRequest):
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEqual({"result": False}, response.data)
+        self.assertEqual({'AZs': [], "result": False}, response.data)

@@ -13,12 +13,10 @@ import json
 import logging
 # import re
 import uuid
-
 import threading
 import datetime
 import time
-
-import traceback
+#import traceback
 
 # from common.exceptions import VimDriverNewtonException
 from common.utils import restcall
@@ -75,7 +73,7 @@ class MultiCloudAAIHelper(object):
     '''
 
     def __init__(self, multicloud_prefix, aai_base_url):
-        logger.debug("MultiCloudAAIHelper __init__ traceback: %s" % traceback.format_exc())
+        # logger.debug("MultiCloudAAIHelper __init__ traceback: %s" % traceback.format_exc())
         self.proxy_prefix = multicloud_prefix
         self.aai_base_url = aai_base_url
         self._logger = logger
@@ -203,7 +201,7 @@ class MultiCloudThreadHelper(object):
         self.expired_backlog = {}
         self.lock = threading.Lock()
         self.state_ = 0  # 0: stopped, 1: started
-        self.cache_prefix = "bi_"+name+"_"
+        self.cache_prefix = "bi_"+self.name+"_"
         self.cache_expired_prefix = "biex_"+self.name+"_"
 
         self.thread = MultiCloudThreadHelper.HelperThread(self)
@@ -317,7 +315,7 @@ class MultiCloudThreadHelper(object):
                     # sleep in case of interval > 1 second
                     time.sleep(nexttimer // 1000000)
                 nexttimer = 30*1000000  # initial interval in us to be updated:30 seconds
-                # logger.debug("self.owner.backlog len: %s" % len(self.owner.backlog))
+                # logger.debug("self.owner.backlog: %s, len: %s" % (self.owner.name, len(self.owner.backlog)))
                 for backlog_id, item in self.owner.backlog.items():
                     # logger.debug("evaluate backlog item: %s" % item)
                     # check interval for repeatable backlog item

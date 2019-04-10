@@ -65,9 +65,10 @@ def _call_req(base_url, user, passwd, auth_type,
             headers['Authorization'] = 'Basic ' + \
                 base64.b64encode(tmpauthsource).decode('utf-8')
 
-        logger.info("Making rest call with uri,method, header = %s, %s, %s" % (full_url, method.upper(), headers))
+        logger.info("Making rest call with method, uri, header = %s, %s, %s" %
+                    (method.upper(), full_url, headers))
         if content:
-            logger.debug("with content = %s" % (content))
+            logger.debug("with content = %s" % content)
 
         ca_certs = None
         for retry_times in range(MAX_RETRY_TIME):
@@ -138,8 +139,9 @@ def req_to_aai(resource, method, content='', appid=settings.MULTICLOUD_APP_ID, n
     # hook to flush cache
     if method.upper() in ["PUT", "POST", "PATCH", "DELETE"]:
         aai_cache.flush_cache_by_url(resource)
-    elif method.upper in ["GET"] and not nocache:
+    elif method.upper() in ["GET"] and not nocache:
         content = aai_cache.get_cache_by_url(resource)
+        # logger.debug("cached resource: %s, %s" % (resource, content))
         if content:
             return content
 
@@ -148,7 +150,8 @@ def req_to_aai(resource, method, content='', appid=settings.MULTICLOUD_APP_ID, n
         resource, method, content=json.dumps(content), extra_headers=headers)
 
     if method.upper() in ["GET"] and ret == 0 and not nocache:
-        aai_cache.set_cache_by_url(resource, [ret, resp_body, resp_status])
+        # aai_cache.set_cache_by_url(resource, [ret, resp_body, resp_status])
+        aai_cache.set_cache_by_url(resource, (ret, resp_body, resp_status))
 
     return [ret, resp_body, resp_status]
 
