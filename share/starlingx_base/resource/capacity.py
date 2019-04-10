@@ -67,27 +67,34 @@ class CapacityCheck(newton_capacity.CapacityCheck):
             # get list of AZ
             vimAzCacheKey = "cap_azlist_" + vimid
             vimAzListCacheStr = cache.get(vimAzCacheKey)
+            self._logger.debug("Found AZ list: %s" % vimAzListCacheStr)
             vimAzListCache = json.loads(vimAzListCacheStr) if vimAzListCacheStr else []
             azCapInfoList = []
             for azName in vimAzListCache:
                 azCapCacheKey = "cap_" + vimid + "_" + azName
                 azCapInfoCacheStr = cache.get(azCapCacheKey)
+                self._logger.debug("Found AZ info: %s, %s" % (azCapCacheKey, azCapInfoCacheStr))
                 if not azCapInfoCacheStr:
                     continue
                 azCapInfoCache = json.loads(azCapInfoCacheStr) if azCapInfoCacheStr else None
 
                 azCapInfo = {}
                 azCapInfo["availability-zone-name"] = azName
-                azCapInfo["vCPUAvail"] = azCapInfoCache.get("vcpus", 0) + azCapInfoCache.get("vcpus_used", 0)
-                azCapInfo["vCPUTotal"] = azCapInfoCache.get("vcpus", 0)
-                azCapInfo["MemoryAvail"] = azCapInfoCache.get("vcpus", 0)
-                azCapInfo["MemoryTotal"] = azCapInfoCache.get("vcpus", 0)
-                azCapInfo["StorageAvail"] = azCapInfoCache.get("vcpus", 0)
-                azCapInfo["StorageTotal"] = azCapInfoCache.get("vcpus", 0)
+                # vcpu ratio: cpu_allocation_ratio=16 by default
+                azCapInfo["vCPUAvail"] = \
+                    (azCapInfoCache.get("vcpus", 0)
+                     - azCapInfoCache.get("vcpus_used", 0)) * 16
+                azCapInfo["vCPUTotal"] = azCapInfoCache.get("vcpus", 0) * 16
+                # mem size in MB
+                azCapInfo["MemoryAvail"] = azCapInfoCache.get("free_ram_mb", 0) / 1024.0
+                azCapInfo["MemoryTotal"] = azCapInfoCache.get("memory_mb", 0) / 1024.0
+                azCapInfo["StorageAvail"] = azCapInfoCache.get("free_disk_gb", 0)
+                azCapInfo["StorageTotal"] = azCapInfoCache.get("local_gb", 0)
                 azCapInfoList.append(azCapInfo)
 
             return azCapInfoList
         except Exception as e:
+            self._logger.error(traceback.format_exc())
             return azCapInfo
 
 

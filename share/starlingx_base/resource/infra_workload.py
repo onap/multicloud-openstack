@@ -91,7 +91,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                     # format of status: retcode:0 is ok, otherwise error code from http status, Status ENUM, Message
                     "status": (
                         0, "UPDATE_IN_PROGRESS",
-                        "backlog to update workload %s pends to schedule" % workloadid
+                        "backlog to update workload %s is on progress" % workloadid
                     )
                 }
                 gInfraWorkloadThread.add(backlog_item)
@@ -158,10 +158,10 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 # now check the query params in case of query existing of workload
                 querystr = request.META.get("QUERY_STRING", None)
                 qd = QueryDict(querystr).dict() if querystr else None
-                workload_name = qd.get("name", None) if qd else None
-                workload_id = qd.get("id", None) if qd else None
+                workload_query_name = qd.get("name", None) if qd else None
+                workload_query_id = qd.get("id", None) if qd else None
 
-                if not workload_name and not workload_id:
+                if not workload_query_name and not workload_query_id:
                     resp_template["workload_status_reason"] =\
                         "workload id is not found in API url"
                     return Response(
@@ -177,64 +177,65 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                     # now query the status of workload by name or id, id as 1st priority
                     progress_code, progress_status, progress_msg =\
                         0, "GET_FAILED", ""
-                    if not workload_id:
-                        # by name
-                        progress_code, progress_status, progress_msg =\
-                            worker_self.workload_status(
-                                vimid, stack_name=workload_name,
-                                project_idorname=specified_project_idorname
-                            )
-                    else:
+                    if workload_query_id:
                         # by id
                         progress_code, progress_status, progress_msg =\
                             worker_self.workload_status(
-                                vimid, stack_id=workloadid,
+                                vimid, stack_id=workload_query_id,
+                                project_idorname=specified_project_idorname
+                            )
+                    else:
+                        # by name or get all stacks
+                        progress_code, progress_status, progress_msg =\
+                            worker_self.workload_status(
+                                vimid, stack_name=workload_query_name,
                                 project_idorname=specified_project_idorname
                             )
 
                     resp_template["workload_status"] = progress_status
                     resp_template["workload_status_reason"] = progress_msg
                     status_code = status.HTTP_200_OK \
-                        if progress_code == 0 else progress_code
+                        if progress_code == 0 else status.HTTP_500_INTERNAL_SERVER_ERROR  # progress_code
 
                     pass
 
-            # now query the progress
-            backlog_item = gInfraWorkloadThread.get(workloadid)
-            if not backlog_item:
-                # backlog item not found, so check the stack status
-                worker_self = InfraWorkloadHelper(
-                    settings.MULTICLOUD_API_V1_PREFIX,
-                    settings.AAI_BASE_URL
-                )
-                progress_code, progress_status, progress_msg =\
-                    worker_self.workload_detail(
-                        vimid, stack_id=workloadid,
-                        project_idorname=specified_project_idorname)
-
-                resp_template["workload_status"] = progress_status
-                resp_template["workload_status_reason"] = progress_msg
-                status_code = status.HTTP_200_OK\
-                    if progress_code == 0 else progress_code
-
             else:
-                progress = backlog_item.get(
-                    "status",
-                    (13, "GET_FAILED",
-                     "Unexpected:status not found in backlog item")
-                )
-                try:
-                    progress_code = progress[0]
-                    progress_status = progress[1]
-                    progress_msg = progress[2]
-                    # if gInfraWorkloadThread.expired(workloadid):
-                    #     gInfraWorkloadThread.remove(workloadid)
+                # now query the progress
+                backlog_item = gInfraWorkloadThread.get(workloadid)
+                if not backlog_item:
+                    # backlog item not found, so check the stack status
+                    worker_self = InfraWorkloadHelper(
+                        settings.MULTICLOUD_API_V1_PREFIX,
+                        settings.AAI_BASE_URL
+                    )
+                    progress_code, progress_status, progress_msg =\
+                        worker_self.workload_detail(
+                            vimid, stack_id=workloadid,
+                            project_idorname=specified_project_idorname)
+
                     resp_template["workload_status"] = progress_status
                     resp_template["workload_status_reason"] = progress_msg
                     status_code = status.HTTP_200_OK\
                         if progress_code == 0 else progress_code
-                except Exception as e:
-                    resp_template["workload_status_reason"] = progress
+
+                else:
+                    progress = backlog_item.get(
+                        "status",
+                        (13, "GET_FAILED",
+                         "Unexpected:status not found in backlog item")
+                    )
+                    try:
+                        progress_code = progress[0]
+                        progress_status = progress[1]
+                        progress_msg = progress[2]
+                        # if gInfraWorkloadThread.expired(workloadid):
+                        #     gInfraWorkloadThread.remove(workloadid)
+                        resp_template["workload_status"] = progress_status
+                        resp_template["workload_status_reason"] = progress_msg
+                        status_code = status.HTTP_200_OK\
+                            if progress_code == 0 else progress_code
+                    except Exception as e:
+                        resp_template["workload_status_reason"] = progress
 
             return Response(data=resp_template, status=status_code)
 
@@ -286,7 +287,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 "status": (
                     0, "DELETE_IN_PROGRESS",
                     "backlog for delete the workload %s "
-                    "pends to schedule" % workloadid
+                    "is on progress" % workloadid
                 )
             }
             gInfraWorkloadThread.add(backlog_item)
@@ -488,7 +489,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
         template_data = data.get("template_data", {})
         # resp_template = None
         if not template_type or "heat" != template_type.lower():
-            return 14, "CREATE_FAILED", \
+            return status.HTTP_400_BAD_REQUEST, "CREATE_FAILED", \
                    "Bad parameters: template type %s is not heat" %\
                    template_type or ""
 
@@ -523,7 +524,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
                      (cloud_owner, regionid, v2_token_resp_json)
             logger.error(errmsg)
             return (
-                retcode, "CREATE_FAILED", errmsg
+                os_status, "CREATE_FAILED", errmsg
             )
 
         # tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
@@ -541,5 +542,5 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
             # stackid = stack1["id"] if stack1 else ""
             return 0, "CREATE_IN_PROGRESS", stack1
         else:
-            self._logger.info("RESP with data> result:%s" % content)
-            return retcode, "CREATE_FAILED", content
+            self._logger.info("workload_create fails: %s" % content)
+            return os_status, "CREATE_FAILED", content
