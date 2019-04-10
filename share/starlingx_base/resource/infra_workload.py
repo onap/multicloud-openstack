@@ -91,7 +91,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                     # format of status: retcode:0 is ok, otherwise error code from http status, Status ENUM, Message
                     "status": (
                         0, "UPDATE_IN_PROGRESS",
-                        "backlog to update workload %s pends to schedule" % workloadid
+                        "backlog to update workload %s is on progress" % workloadid
                     )
                 }
                 gInfraWorkloadThread.add(backlog_item)
@@ -286,7 +286,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 "status": (
                     0, "DELETE_IN_PROGRESS",
                     "backlog for delete the workload %s "
-                    "pends to schedule" % workloadid
+                    "is on progress" % workloadid
                 )
             }
             gInfraWorkloadThread.add(backlog_item)

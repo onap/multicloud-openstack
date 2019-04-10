@@ -165,6 +165,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
         multi_region_discovery = cloud_extra_info.get(
             "multi-region-discovery", None) if cloud_extra_info else None
 
+        sess = None
         if project_idorname:
             try:
                 # check if specified with tenant id
@@ -406,6 +407,7 @@ class InfraResourceAuditor(newton_registration.RegistryHelper):
             self._logger.warn("azcap_audit no valid vimid: %s" % vimid)
             return
 
+        sess = None
         if project_idorname:
             try:
                 # check if specified with tenant id
@@ -459,9 +461,8 @@ class InfraResourceAuditor(newton_registration.RegistryHelper):
                     viminfo, vimid,
                     "availabilityZoneInfo"):
                 az_info = {
-                    'availability-zone-name': az['zoneName'],
-                    'operational-status': az['zoneState']['available']
-                    if az.get('zoneState') else '',
+                    'availability-zone-name': az.get('zoneName', ""),
+                    'operational-status': az.get('zoneState', {}).get('available', ""),
                     'hypervisor-type': '',
                 }
                 # filter out the default az: "internal" and "nova"
@@ -480,7 +481,7 @@ class InfraResourceAuditor(newton_registration.RegistryHelper):
                 # Get current cap info of azName
                 azCapCacheKey = "cap_" + vimid + "_" + azName
                 azCapInfoCacheStr = cache.get(azCapCacheKey)
-                azCapInfoCache = json.loads(azCapInfoCacheStr) if azCapInfoCacheStr else None
+                azCapInfoCache = json.loads(azCapInfoCacheStr) if azCapInfoCacheStr else {}
 
                 for psname in pservers_info:
                     psinfo = hypervisors_dict.get(psname, None)
@@ -490,7 +491,7 @@ class InfraResourceAuditor(newton_registration.RegistryHelper):
                     # get current pserver cap info
                     psCapInfoCacheKey = "cap_" + vimid + "_" + psname
                     psCapInfoCacheStr = cache.get(psCapInfoCacheKey)
-                    psCapInfoCache = json.loads(psCapInfoCacheStr) if psCapInfoCacheStr else None
+                    psCapInfoCache = json.loads(psCapInfoCacheStr) if psCapInfoCacheStr else {}
 
                     # compare latest info with cached one
                     vcpu_delta = 0
@@ -523,19 +524,21 @@ class InfraResourceAuditor(newton_registration.RegistryHelper):
                         localstorage_free_delta += psinfo.get("free_disk_gb", 0)\
                                      - psCapInfoCache.get("free_disk_gb", 0)
                         psCapInfoCache["free_disk_gb"] = psinfo.get("free_disk_gb", 0)
-                    pass
 
-                # now apply the delta to azCapInfo
-                azCapInfoCache["vcpus"] = azCapInfoCache.get("vcpus", 0) + vcpu_delta
-                azCapInfoCache["memory_mb"] = azCapInfoCache.get("memory_mb", 0) + mem_delta
-                azCapInfoCache["local_gb"] = azCapInfoCache.get("local_gb", 0) + localstorage_delta
-                azCapInfoCache["vcpus_used"] = azCapInfoCache.get("vcpus_used", 0) + vcpu_used_delta
-                azCapInfoCache["free_ram_mb"] = azCapInfoCache.get("free_ram_mb", 0) + mem_free_delta
-                azCapInfoCache["free_disk_gb"] = azCapInfoCache.get("free_disk_gb", 0) + localstorage_free_delta
+                    cache.set(psCapInfoCacheKey, json.dumps(psCapInfoCache), 3600 * 24)
+
+                    # now apply the delta to azCapInfo
+                    azCapInfoCache["vcpus"] = azCapInfoCache.get("vcpus", 0) + vcpu_delta
+                    azCapInfoCache["memory_mb"] = azCapInfoCache.get("memory_mb", 0) + mem_delta
+                    azCapInfoCache["local_gb"] = azCapInfoCache.get("local_gb", 0) + localstorage_delta
+                    azCapInfoCache["vcpus_used"] = azCapInfoCache.get("vcpus_used", 0) + vcpu_used_delta
+                    azCapInfoCache["free_ram_mb"] = azCapInfoCache.get("free_ram_mb", 0) + mem_free_delta
+                    azCapInfoCache["free_disk_gb"] = azCapInfoCache.get("free_disk_gb", 0) + localstorage_free_delta
+                    pass
 
                 # update the cache
                 cache.set(azCapCacheKey, json.dumps(azCapInfoCache), 3600 * 24)
-                cache.set(vimAzCacheKey, vimAzList, 3600 * 24)
+                cache.set(vimAzCacheKey, json.dumps(vimAzList), 3600 * 24)
         except Exception as e:
             self._logger.error("azcap_audit raise exception: %s" % e)
             pass
