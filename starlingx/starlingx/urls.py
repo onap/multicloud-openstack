@@ -15,7 +15,7 @@
 from django.conf.urls import include, url
 from starlingx_base.registration import registration
 from newton_base.openoapi import tenants
-from newton_base.resource import capacity
+from starlingx_base.resource import capacity
 from starlingx_base.resource import infra_workload
 
 urlpatterns = [

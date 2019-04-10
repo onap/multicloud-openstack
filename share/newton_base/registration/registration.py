@@ -41,7 +41,7 @@ class Registry(APIView):
 
         if not hasattr(self, "register_thread"):
             # dedicate thread to offload vim registration process
-            self.register_thread = MultiCloudThreadHelper()
+            self.register_thread = MultiCloudThreadHelper("vimupdater")
 
         if not hasattr(self, "register_helper") or not self.register_helper:
             if not hasattr(self, "proxy_prefix"):
@@ -67,8 +67,7 @@ class Registry(APIView):
                 "payload": (vimid, specified_project_idorname),
                 "repeat": 0,
                 "status": (1,
-                           "The registration process waits to"
-                           " be scheduled to run")
+                           "The registration is on progress")
             }
             self.register_thread.add(backlog_item)
             if 0 == self.register_thread.state():
@@ -121,8 +120,7 @@ class Registry(APIView):
                 "worker": self.register_helper.unregistryV0,
                 "payload": (vimid),
                 "repeat": 0,
-                "status": (1, "The registration process waits"
-                              " to be scheduled to run")
+                "status": (1, "The de-registration is on process")
             }
             self.register_thread.add(backlog_item)
             if 0 == self.register_thread.state():
