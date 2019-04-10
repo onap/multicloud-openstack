@@ -26,12 +26,14 @@ def flush_cache_by_url(resource_url):
 
 def get_cache_by_url(resource_url):
     try:
-        if (filter_cache_by_url(resource_url)):
+        if filter_cache_by_url(resource_url):
             value = cache.get("AAI_" + resource_url)
+            # logger.debug("Find cache the resource: %s, %s" %( resource_url, value))
             return json.loads(value) if value else None
         else:
             return None
-    except:
+    except Exception as e:
+        logger.error("get_cache_by_url exception: %s" % e.message)
         return None
 
 
@@ -40,9 +42,10 @@ def set_cache_by_url(resource_url, resource_in_json):
         # filter out unmanaged AAI resource
         if filter_cache_by_url(resource_url):
             # cache the resource for 24 hours
-            logger.debug("Cache the resource: "+ resource_url)
+            # logger.debug("Cache the resource: "+ resource_url)
             cache.set("AAI_" + resource_url, json.dumps(resource_in_json), 3600 * 24)
-    except:
+    except Exception as e:
+        logger.error("get_cache_by_url exception: %s" % e.message)
         pass
 
 def filter_cache_by_url(resource_url):

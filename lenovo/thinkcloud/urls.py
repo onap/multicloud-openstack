@@ -17,7 +17,6 @@ from django.conf.urls import include, url
 from thinkcloud.registration.views import registration
 from newton_base.openoapi import tenants
 from thinkcloud.resource.views import capacity
-from thinkcloud.resource.views import events
 from thinkcloud.resource.views import infra_workload
 
 urlpatterns = [
@@ -42,9 +41,6 @@ urlpatterns = [
     # CapacityCheck
     url(r'^api/multicloud-thinkcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.CapacityCheck.as_view()),
-    # events
-    url(r'^api/multicloud-thinkcloud/v0/(?P<vimid>[0-9a-zA-Z_-]+)/events_check/?$',
-        events.EventsCheck.as_view()),
 
     # API upgrading
     url(r'^api/multicloud-thinkcloud/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry$',
