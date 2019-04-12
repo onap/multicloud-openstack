@@ -28,6 +28,7 @@ from common.msapi.helper import MultiCloudThreadHelper
 from common.msapi.helper import MultiCloudAAIHelper
 from common.utils import restcall
 from newton_base.util import VimDriverUtils
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -1131,7 +1132,7 @@ class RegistryHelper(MultiCloudAAIHelper):
                     #                (self.proxy_prefix, vimid, hostname)
 
                     pinfo = {
-                        "hostname": hostname,
+                        "hostname": pservername,
                         "server-selflink": selflink,
                         "pserver-id": hostname
                     }
@@ -1236,37 +1237,24 @@ class RegistryHelper(MultiCloudAAIHelper):
     #             "security groups"):
 
     def _update_pserver_relation_az(self, cloud_owner, cloud_region_id, pserverinfo, azName):
-        related_link = ("%s/cloud-infrastructure/cloud-regions/"
-                        "cloud-region/%s/%s"
-                        "availability-zones/availability-zone/%s"% (
-                            self.aai_base_url, cloud_owner,
-                            cloud_region_id, azName))
+        related_link = \
+            "/aai/%s/cloud-infrastructure/cloud-regions/"\
+            "cloud-region/%s/%s/"\
+            "availability-zones/availability-zone/%s" % (
+                settings.AAI_SCHEMA_VERSION, cloud_owner,
+                cloud_region_id, azName)
 
         relationship_data = \
             {
                 'related-to': 'availability-zone',
                 'related-link': related_link,
                 'relationship-data': [
-                    # {
-                    #     'relationship-key': 'cloud-region.cloud-owner',
-                    #     'relationship-value': cloud_owner
-                    # },
-                    # {
-                    #     'relationship-key': 'cloud-region.cloud-region-id',
-                    #     'relationship-value': cloud_region_id
-                    # },
                     {
                         'relationship-key': 'availability-zone.availability-zone-name',
                         'relationship-value': azName
                     }
                 ],
                 "related-to-property": [
-                    # {
-                    #     "property-key": "cloud-region.cloud-owner"
-                    # },
-                    # {
-                    #     "property-key": "cloud-region.cloud-region-id"
-                    # },
                     {
                         "property-key": "availability-zone.availability-zone-name"
                     }
@@ -1274,16 +1262,14 @@ class RegistryHelper(MultiCloudAAIHelper):
             }
 
         retcode, content, status_code = \
-            restcall.req_to_aai("/cloud-infrastructure/pservers/pserver/%s_%s_%s"
+            restcall.req_to_aai("/cloud-infrastructure/pservers/pserver/%s"
                                 "/relationship-list/relationship"
-                                % (cloud_owner, cloud_region_id,
-                                   pserverinfo['hostname']), "PUT",
+                                % (pserverinfo['hostname']), "PUT",
                                 content=relationship_data)
 
         self._logger.debug("update_pserver_az_relation,vimid:%s_%s, "
-                           "az:%s req_to_aai: %s_%s_%s, return %s, %s, %s"
+                           "az:%s req_to_aai: %s, return %s, %s, %s"
                            % (cloud_owner, cloud_region_id, azName,
-                              cloud_owner, cloud_region_id,
                               pserverinfo['hostname'], retcode, content,
                               status_code))
         return (
@@ -1297,14 +1283,15 @@ class RegistryHelper(MultiCloudAAIHelper):
             cloud_region_id,
             pserverinfo
     ):
-        related_link = ("%s/cloud-infrastructure/cloud-regions/"
-                        "cloud-region/%s/%s"% (
-                            self.aai_base_url, cloud_owner,
-                            cloud_region_id))
+        related_link = \
+            "/aai/%s/cloud-infrastructure/cloud-regions/"\
+            "cloud-region/%s/%s" % (
+                settings.AAI_SCHEMA_VERSION, cloud_owner,
+                cloud_region_id)
 
         relationship_data = \
             {
-                'related-to': 'availability-zone',
+                'related-to': 'cloud-region',
                 'related-link': related_link,
                 'relationship-data': [
                     {
@@ -1328,13 +1315,13 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         retcode, content, status_code = \
             restcall.req_to_aai("/cloud-infrastructure/pservers/pserver"
-                                "/%s_%s_%s/relationship-list/relationship"
-                                % (cloud_owner, cloud_region_id, pserverinfo['hostname']), "PUT",
+                                "/%s/relationship-list/relationship"
+                                % (pserverinfo['hostname']), "PUT",
                                 content=relationship_data)
 
         self._logger.debug("update_pserver_cloudregion_relation,vimid:%s_%s"
-                           " req_to_aai: %s_%s_%s, return %s, %s, %s"
-                           % (cloud_owner, cloud_region_id, cloud_owner, cloud_region_id,
+                           " req_to_aai: %s, return %s, %s, %s"
+                           % (cloud_owner, cloud_region_id,
                               pserverinfo['hostname'], retcode, content,
                               status_code))
         return (
@@ -1380,8 +1367,8 @@ class RegistryHelper(MultiCloudAAIHelper):
         '''
 
         if cloud_owner and cloud_region_id:
-            resource_url = "/cloud-infrastructure/pservers/pserver/%s_%s_%s" \
-                           % (cloud_owner,cloud_region_id, pserverinfo['hostname'])
+            resource_url = "/cloud-infrastructure/pservers/pserver/%s" \
+                           % (pserverinfo['hostname'])
 
             # get cloud-region
             retcode, content, status_code = \
@@ -1394,19 +1381,23 @@ class RegistryHelper(MultiCloudAAIHelper):
                 content.update(pserverinfo)
                 pserverinfo = content
 
-
             retcode, content, status_code = \
                 restcall.req_to_aai(resource_url, "PUT", content=pserverinfo)
 
-            self._logger.debug("update_snapshot,vimid:%s_%s req_to_aai: %s, return %s, %s, %s"
-                               % (cloud_owner,cloud_region_id, pserverinfo['hostname'], retcode, content, status_code))
+            self._logger.debug(
+                "update_snapshot,vimid:%s_%s req_to_aai: %s,"
+                " return %s, %s, %s" % (
+                    cloud_owner, cloud_region_id,
+                    pserverinfo['hostname'],
+                    retcode, content, status_code))
 
             return retcode, content
         else:
             # unknown cloud owner,region_id
             return (
                 10,
-                "Cloud Region not found: %s,%s" % (cloud_owner, cloud_region_id)
+                "Cloud Region not found: %s,%s"
+                % (cloud_owner, cloud_region_id)
             )
 
     def _discover_pservers(self, vimid="", session=None, viminfo=None):
@@ -1428,10 +1419,6 @@ class RegistryHelper(MultiCloudAAIHelper):
                     'ipv4-oam-address': hypervisor.get('host_ip'),
                 }
 
-    #            if hypervisor.get('cpu_info') and hypervisor['cpu_info'].get('topology'):
-    #                cputopo = hypervisor['cpu_info'].get('topology')
-    #                n_cpus = cputopo['cores'] * cputopo['threads'] * cputopo['sockets']
-    #                hypervisor_info['number-of-cpus'] = n_cpus
                 if hypervisor.get('cpu_info'):
                     cpu_info = json.loads(hypervisor['cpu_info'])
                     if cpu_info.get('topology'):
@@ -1443,18 +1430,24 @@ class RegistryHelper(MultiCloudAAIHelper):
                                           hypervisor_info)
                 if ret != 0:
                     # failed to update image
-                    self._logger.debug("failed to populate pserver info into AAI: %s, hostname: %s, ret:%s"
-                                       % (vimid, hypervisor_info['hostname'], ret))
+                    self._logger.debug(
+                        "failed to populate pserver info into AAI:"
+                        " %s, hostname: %s, ret:%s"
+                        % (vimid, hypervisor_info['hostname'], ret))
                     return ret, "fail to update pserver to AAI:%s" % content
 
             return 0, "succeed"
         except VimDriverNewtonException as e:
-            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            self._logger.error(
+                "VimDriverNewtonException: status:%s, response:%s"
+                % (e.http_status, e.content))
             return (
                 e.http_status, e.content
             )
         except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error(
+                "HttpError: status:%s, response:%s"
+                % (e.http_status, e.response.json()))
             return (
                 e.http_status, e.response.json()
             )
@@ -1475,8 +1468,10 @@ class RegistryHelper(MultiCloudAAIHelper):
         try:
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
             if cloud_owner and cloud_region_id:
-                resource_url = "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s" \
-                               % (cloud_owner, cloud_region_id)
+                resource_url = \
+                    "/cloud-infrastructure/cloud-regions" \
+                    "/cloud-region/%s/%s" \
+                    % (cloud_owner, cloud_region_id)
 
                 # get cloud-region
                 retcode, content, status_code = \
@@ -1485,20 +1480,31 @@ class RegistryHelper(MultiCloudAAIHelper):
                 # add resource-version to url
                 if retcode == 0 and content:
                     viminfo = json.JSONDecoder().decode(content)
-                    viminfo['identity-url'] = self.proxy_prefix + "/%s/identity/v2.0" % vimid \
-                        if self.proxy_prefix[-3:] == "/v0" else \
-                        self.proxy_prefix + "/%s/%s/identity/v2.0" % extsys.decode_vim_id(vimid)
+                    viminfo['identity-url'] =\
+                        self.proxy_prefix + "/%s/identity/v2.0" % vimid \
+                            if self.proxy_prefix[-3:] == "/v0" \
+                            else self.proxy_prefix +\
+                                 "/%s/%s/identity/v2.0"\
+                                 % extsys.decode_vim_id(vimid)
 
                     retcode, content, status_code = \
-                        restcall.req_to_aai("/cloud-infrastructure/cloud-regions/cloud-region/%s/%s"
-                                   % (cloud_owner, cloud_region_id), "PUT", content=viminfo)
+                        restcall.req_to_aai(
+                            "/cloud-infrastructure/cloud-regions"
+                            "/cloud-region/%s/%s"
+                            % (cloud_owner, cloud_region_id), "PUT",
+                            content=viminfo)
 
-                    self._logger.debug("update_proxy_identity_endpoint,vimid:%s req_to_aai: %s, return %s, %s, %s"
-                                       % (vimid, viminfo['identity-url'], retcode, content, status_code))
+                    self._logger.debug(
+                        "update_proxy_identity_endpoint,vimid:"
+                        "%s req_to_aai: %s, return %s, %s, %s"
+                        % (vimid, viminfo['identity-url'],
+                           retcode, content, status_code))
                     return 0, "succeed"
                 else:
-                    self._logger.debug("failure: update_proxy_identity_endpoint,vimid:%s req_to_aai: return %s, %s, %s"
-                                       % (vimid, retcode, content, status_code))
+                    self._logger.debug(
+                        "failure: update_proxy_identity_endpoint,vimid:"
+                        "%s req_to_aai: return %s, %s, %s"
+                        % (vimid, retcode, content, status_code))
                     return retcode, content
             else:
                 return (
@@ -1507,12 +1513,16 @@ class RegistryHelper(MultiCloudAAIHelper):
                 )
 
         except VimDriverNewtonException as e:
-            self._logger.error("VimDriverNewtonException: status:%s, response:%s" % (e.http_status, e.content))
+            self._logger.error(
+                "VimDriverNewtonException: status:%s, response:%s"
+                % (e.http_status, e.content))
             return (
                 e.http_status, e.content
             )
         except HttpError as e:
-            self._logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            self._logger.error(
+                "HttpError: status:%s, response:%s"
+                % (e.http_status, e.response.json()))
             return (
                 e.http_status, e.response.json()
             )

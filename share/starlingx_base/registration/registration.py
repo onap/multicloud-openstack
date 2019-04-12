@@ -225,18 +225,30 @@ class RegistryHelper(newton_registration.RegistryHelper):
                 self._logger.info("create a cloud region: %s,%s,%s"
                                   % (cloud_owner, gen_cloud_region_id, regionid))
 
-                self._update_cloud_region(
-                    cloud_owner, gen_cloud_region_id, regionid, viminfo)
-                new_vimid = extsys.encode_vim_id(
-                    cloud_owner, gen_cloud_region_id)
-                # super(APIv1Registry, self).post(request, new_vimid)
-                super(RegistryHelper, self)(new_vimid)
+                try:
+                    self._update_cloud_region(
+                        cloud_owner, gen_cloud_region_id, regionid, viminfo)
+                except Exception as e:
+                    self._logger.debug("update cloud region fails %s" % e.message)
+
+                try:
+                    new_vimid = extsys.encode_vim_id(
+                        cloud_owner, gen_cloud_region_id)
+                    super(RegistryHelper, self).registryV0(new_vimid, project_idorname)
+                except Exception as e:
+                    self._logger.debug("registryV0 fails %s" % e.message)
 
         # update the specified region
-        self._update_cloud_region(cloud_owner, cloud_region_id,
-                                  region_specified, viminfo)
+        try:
+            self._update_cloud_region(cloud_owner, cloud_region_id,
+                                      region_specified, viminfo)
+        except Exception as e:
+            self._logger.debug("update cloud region fails %s" % e.message)
 
-        self.super(RegistryHelper, self).registry(vimid)
+        try:
+            super(RegistryHelper, self).registryV0(vimid, project_idorname)
+        except Exception as e:
+            self._logger.debug("registryV0 fails %s" % e.message)
 
         return 0
 
