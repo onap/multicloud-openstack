@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ export PYTHONPATH=lib/share
 
 #nohup python manage.py runserver 0.0.0.0:9005 2>&1 &
 
-if [ ${SSL_ENABLED} = "true" ]; then
+if [ "${SSL_ENABLED}" = "true" ]; then
     nohup uwsgi --https :9005,titanium_cloud/pub/ssl/cert/cert.crt,titanium_cloud/pub/ssl/cert/cert.key,HIGH --module titanium_cloud.wsgi --master --enable-threads --processes 4 &
 
 else
