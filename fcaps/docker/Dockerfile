@@ -1,4 +1,4 @@
-FROM python:2-slim
+FROM python:2-alpine
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
@@ -16,20 +16,18 @@ ENV AAI_PASSWORD "AAI"
 
 EXPOSE 9011
 
-RUN groupadd -r onap && useradd -r -g onap onap
+RUN addgroup -S onap && adduser -S -G onap onap
 # COPY ./ /opt/fcaps/
 
-RUN apt-get update && \
-    apt-get install -y memcached wget unzip gcc libssl-dev && \
-    apt-get install -y unzip && \
+RUN apk update && \
+    apk add uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
     wget -O multicloud-openstack-fcaps.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-fcaps&e=zip&v=1.3.0-SNAPSHOT" && \
     unzip -q -o -B multicloud-openstack-fcaps.zip && \
     chmod +x /opt/fcaps/*.sh && \
     rm -f multicloud-openstack-fcaps.zip && \
     pip install -r /opt/fcaps/requirements.txt && \
-    apt-get --purge remove -y wget unzip gcc libssl-dev && \
-    apt-get -y autoremove && \
+    apk del -y wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     mkdir -p /var/log/onap/multicloud/fcaps && \
     chown onap:onap /var/log/onap -R && \
     chown onap:onap /opt/fcaps -R
