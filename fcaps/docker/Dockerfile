@@ -27,7 +27,7 @@ RUN apk update && \
     chmod +x /opt/fcaps/*.sh && \
     rm -f multicloud-openstack-fcaps.zip && \
     pip install -r /opt/fcaps/requirements.txt && \
-    apk del -y wget unzip gcc make libc-dev libffi-dev openssl-dev && \
+    apk del wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     mkdir -p /var/log/onap/multicloud/fcaps && \
     chown onap:onap /var/log/onap -R && \
     chown onap:onap /opt/fcaps -R
