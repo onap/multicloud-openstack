@@ -16,4 +16,5 @@ from django.conf.urls import url
 from fcaps.samples import views
 
 urlpatterns = [
-    url(r'^samples/?$', views.SampleList.as_view()), ]
+    url(r'^samples/?$', views.SampleList.as_view()),
+    url(r'^api/multicloud-fcaps/healthcheck/?$', views.SampleList.as_view()), ]
