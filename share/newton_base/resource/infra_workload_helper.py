@@ -422,7 +422,7 @@ class InfraWorkloadHelper(object):
             service_type = "orchestration"
             resource_uri = "/stacks"
             if stack_id:
-                resource_uri = "/stacks/id=%s" % stack_id
+                resource_uri = "/stacks?id=%s" % stack_id
             elif stack_name:
                 resource_uri = "/stacks?name=%s" % stack_name
 
