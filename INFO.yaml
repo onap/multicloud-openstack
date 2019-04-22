@@ -72,8 +72,12 @@ committers:
         company: 'Amdocs'
         id: 'SudhakarReddy'
         timezone: ''
+    - name: 'Xiaohua Zhang'
+        email: 'Xiaohua.Zhang@windriver.com'
+        company: 'Wind River'
+        id: 'Xiaohua626'
+        timezone: ''
 tsc:
-    approval: 'https://lists.onap.org/pipermail/onap-tsc'
     changes:
         - type: 'Addition'
           name: 'yun huang'
@@ -86,3 +90,6 @@ tsc:
           name: 'yun huang'
           name: 'Ke Liang'
           name: 'Andrew Philip'
+        - type: 'Addition'
+          name: 'Xiaohua Zhang'
+          link: 'https://lists.onap.org/g/onap-tsc/message/4772'
