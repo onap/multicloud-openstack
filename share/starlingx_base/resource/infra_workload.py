@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import os
+import json
+
 import logging
 from django.conf import settings
 from django.http import QueryDict
@@ -27,7 +29,16 @@ from newton_base.resource import infra_workload_helper as infra_workload_helper
 
 from newton_base.util import VimDriverUtils
 
+import yaml
+NoDatesSafeLoader = yaml.SafeLoader
+NoDatesSafeLoader.yaml_implicit_resolvers = {
+    k: [r for r in v if r[0] != 'tag:yaml.org,2002:timestamp'] for
+        k, v in NoDatesSafeLoader.yaml_implicit_resolvers.items()
+}
+
 logger = logging.getLogger(__name__)
+
+
 
 # global var: Audition thread
 # the id is the workloadid, which implies post to workloadid1 followed by delete workloadid1
@@ -416,20 +427,29 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
         # assumption: mount point: /opt/artifacts/<vfmodule_uuid>
         try:
             vfmodule_path_base = r"/opt/artifacts/%s" % vf_module_model_customization_id
+            self._logger.debug("vfmodule_path_base: %s" % vfmodule_path_base)
             vfmodule_metadata_path = r"%s/vfmodule-meta.json" % vfmodule_path_base
             service_metadata_path = r"%s/service-meta.json" % vfmodule_path_base
             with open(vfmodule_metadata_path,
-                      'r', encoding='UTF-8') as vf:
-                vfmodule_metadata = vf.read()  # assume the metadata file size is small
+                      'r') as vf:
+                vfmodule_metadata_str = vf.read()  # assume the metadata file size is small
+                vfmodule_metadata = json.loads(vfmodule_metadata_str)
+                vfmodule_metadata = [e for e in vfmodule_metadata
+                                     if e.get("vfModuleModelCustomizationUUID", None)
+                                     == vf_module_model_customization_id]
+                self._logger.debug("vfmodule_metadata: %s" % vfmodule_metadata)
                 if vfmodule_metadata and len(vfmodule_metadata) > 0:
                     # load service-metadata
                     with open(service_metadata_path,
-                              'r', encoding='UTF-8') as sf:
-                        service_metadata = sf.read()  # assume the metadata file size is small
+                              'r') as sf:
+                        service_metadata_str = sf.read()  # assume the metadata file size is small
+                        service_metadata = json.loads(service_metadata_str)
+                        self._logger.debug("service_metadata: %s" % service_metadata)
                         if service_metadata and len(service_metadata) > 0:
                             # get the artifacts uuid
-                            artifacts_uuids = vfmodule_metadata.get("artifacts", None)
-                            templatedata1 = {}.update(template_data)
+                            artifacts_uuids = vfmodule_metadata[0].get("artifacts", None)
+                            self._logger.debug("artifacts_uuids: %s" % artifacts_uuids)
+                            templatedata1 = template_data.copy()
                             for a in service_metadata["artifacts"]:
                                 artifactUUID = a.get("artifactUUID", "")
                                 if artifactUUID not in artifacts_uuids:
@@ -437,20 +457,25 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
                                 artifact_type = a.get("artifactType", "")
                                 artifact_name = a.get("artifactName", "")
                                 artifact_path = r"%s/%s" % (vfmodule_path_base, artifact_name)
+                                self._logger.debug("artifact_path: %s" % artifact_path)
 
                                 # now check the type
                                 if artifact_type.lower() == "heat":
                                     # heat template file
                                     with open(artifact_path,
-                                              'r', encoding='UTF-8') as af:
-                                        templatedata1["template"] = af.read()  # assume the template file size is small
+                                              'r') as af:
+                                        # assume the template file size is small
+                                        templatedata1["template"] = \
+                                            yaml.safe_load(af.read(), Loader=NoDatesSafeLoader)
                                     # pass
 
                                 elif artifact_type.lower() == "heat_env":
                                     # heat env file
                                     with open(artifact_path,
-                                              'r', encoding='UTF-8') as af:
-                                        templatedata1["parameters"] = af.read()  # assume the env file size is small
+                                              'r') as af:
+                                        # assume the env file size is small
+                                        templatedata1.update(yaml.safe_load(
+                                            af.read(), Loader=NoDatesSafeLoader))
                                     # pass
                                 # pass
                             return templatedata1

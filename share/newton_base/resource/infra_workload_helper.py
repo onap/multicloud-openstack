@@ -164,7 +164,7 @@ class InfraWorkloadHelper(object):
             errmsg = "stack:%s, query fails: %s" %\
                      (resource_uri, content)
             logger.error(errmsg)
-            return os_status, "UPDATE_FAILED", errmsg
+            return os_status, "UPDATE_FAILED", content
 
         # find and update resources
         # transactions = []
@@ -192,7 +192,7 @@ class InfraWorkloadHelper(object):
                     errmsg = "stack resource:%s, query fails: %s" % \
                              (resource_uri, content)
                     logger.error(errmsg)
-                    return os_status, "UPDATE_FAILED", errmsg
+                    return os_status, "UPDATE_FAILED", content
                 vserver_detail = content.get('server', None) if retcode == 0 and content else None
                 if vserver_detail:
                     # compose inventory entry for vserver
@@ -254,7 +254,7 @@ class InfraWorkloadHelper(object):
                     errmsg = "stack resource:%s, query fails: %s" % \
                              (resource_uri, content)
                     logger.error(errmsg)
-                    return os_status, "UPDATE_FAILED", errmsg
+                    return os_status, "UPDATE_FAILED", content
 
                 vport_detail = content.get('port', None) if retcode == 0 and content else None
                 if vport_detail:
@@ -436,7 +436,7 @@ class InfraWorkloadHelper(object):
             if retcode > 0 or not content:
                 errmsg = "Stack query %s response: %s" % (resource_uri, content)
                 self._logger.debug(errmsg)
-                return os_status, "GET_FAILED", errmsg
+                return os_status, "GET_FAILED", content
 
             stacks = content.get('stacks', [])  # if retcode == 0 and content else []
             # stack_status = stacks[0].get("stack_status", "GET_FAILED") if len(stacks) > 0 else "GET_FAILED"
@@ -489,11 +489,11 @@ class InfraWorkloadHelper(object):
             if retcode > 0 or not content:
                 errmsg = "Stack query %s response: %s" % (resource_uri, content)
                 self._logger.debug(errmsg)
-                return os_status, "GET_FAILED", errmsg
+                return os_status, "GET_FAILED", content
 
             stack = content.get('stack', {})  # if retcode == 0 and content else []
-            # stack_status = stack.get("stack_status", "GET_FAILED")
-            workload_status = "GET_COMPLETE"
+            workload_status = stack.get("stack_status", "GET_FAILED")
+            # workload_status = "GET_COMPLETE"
 
             return 0, workload_status, content
         except Exception as e:
