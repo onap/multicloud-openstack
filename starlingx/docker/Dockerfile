@@ -36,7 +36,7 @@ RUN addgroup -S onap && adduser -S -G onap onap
 RUN apk update && \
     apk add bash uwsgi curl memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
-    wget -O /opt/multicloud-openstack-starlingx.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-starlingx&e=zip&v=1.3.1-SNAPSHOT" && \
+    wget -O /opt/multicloud-openstack-starlingx.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-starlingx&e=zip&v=1.3.2-SNAPSHOT" && \
     unzip -q -o -B /opt/multicloud-openstack-starlingx.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-starlingx.zip && \
     pip install -r /opt/starlingx/requirements.txt && \

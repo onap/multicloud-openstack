@@ -22,7 +22,7 @@ RUN addgroup -S onap && adduser -S -G onap onap
 RUN apk update && \
     apk add uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
-    wget -O multicloud-openstack-windriver.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-windriver&e=zip&v=1.3.1-SNAPSHOT" && \
+    wget -O multicloud-openstack-windriver.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-windriver&e=zip&v=1.3.2-SNAPSHOT" && \
     unzip -q -o -B multicloud-openstack-windriver.zip && \
     chmod +x /opt/windriver/*.sh && \
     rm -f multicloud-openstack-windriver.zip && \
