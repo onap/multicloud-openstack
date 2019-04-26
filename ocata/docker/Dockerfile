@@ -36,7 +36,7 @@ RUN groupadd -r onap && useradd -r -g onap onap
 RUN apt-get update && \
     apt-get install -y memcached wget unzip gcc libssl-dev && \
     cd /opt/ && \
-    wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=1.3.0-SNAPSHOT" && \
+    wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=1.3.1-SNAPSHOT" && \
     unzip -q -o -B /opt/multicloud-openstack-ocata.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-ocata.zip && \
     pip install -r /opt/ocata/requirements.txt && \
