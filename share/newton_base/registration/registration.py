@@ -463,7 +463,7 @@ class RegistryHelper(MultiCloudAAIHelper):
                 self._update_resoure(
                     cloud_owner, cloud_region_id, tenant['id'],
                     tenant_info, "tenant")
-            return (0, "succeed")
+            return 0, "succeed"
         except VimDriverNewtonException as e:
             self._logger.error(
                 "VimDriverNewtonException: status:%s, response:%s"
@@ -488,6 +488,8 @@ class RegistryHelper(MultiCloudAAIHelper):
                     self._update_resoure(
                         cloud_owner, cloud_region_id, tenant['id'],
                         tenant_info, "tenant")
+
+                    return 0, "succeed"
 
                 except Exception as ex:
                     self._logger.error(traceback.format_exc())
