@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Bin Yang <bin.yang@windriver.com>
+Code-Review+2: Xiaohua Zhang <xiaohua.zhang@windriver.com>
+Submitted-by: Xiaohua Zhang <xiaohua.zhang@windriver.com>
+Submitted-at: Tue, 30 Apr 2019 07:33:48 +0000
+Reviewed-on: https://gerrit.onap.org/r/86350
+Project: multicloud/openstack
+Branch: refs/heads/master
