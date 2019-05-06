@@ -281,6 +281,15 @@ class MultiCloudThreadHelper(object):
 
         return False
 
+    def expire(self, backlog_id):
+        # important: the order of operation should make sure
+        # there is at least 1 copy of backlog item in either backlog or expired backlog
+        # self.lock.acquire()
+        backlogitem = self.backlog.get(backlog_id, None)
+        self.owner.expired_backlog[backlog_id] = backlogitem
+        self.backlog.pop(backlog_id, None)
+        # self.lock.release()
+
     def remove(self, backlog_id):
         # self.lock.acquire()
         self.backlog.pop(backlog_id, None)
@@ -345,7 +354,7 @@ class MultiCloudThreadHelper(object):
                         "status": item["status"]
                     }
                     if item.get("repeat", 0) == 0:
-                        self.owner.remove(backlog_id)
+                        self.owner.expire(backlog_id)
                         # keep only the id and status
                         self.owner.expired_backlog[backlog_id] = {"status": item["status"]}
 
