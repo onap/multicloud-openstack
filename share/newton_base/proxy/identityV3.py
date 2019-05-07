@@ -62,6 +62,12 @@ class Tokens(APIView):
         self._logger.debug("data> %s" % request.data)
 
         self._logger.info("RESP with status> %s" % status.HTTP_200_OK)
+
+        # compose the links
+        v3_version_detail["links"] = [{
+                "href": request.META.get("REQUEST_URI", ""),
+                "rel": "self"
+            }]
         return Response(data=v3_version_detail, status=status.HTTP_200_OK)
 
     def post(self, request, vimid=""):
@@ -189,6 +195,11 @@ class TokensV2(Tokens):
         self._logger.debug("TokensV2--get::META> %s" % request.META)
 
         self._logger.info("RESP with status> %s" % status.HTTP_200_OK)
+        # compose the links
+        v2_version_detail["links"] = [{
+                "href": request.META.get("REQUEST_URI", ""),
+                "rel": "self"
+            }]
         return Response(data=v2_version_detail, status=status.HTTP_200_OK)
 
     def post(self, request, vimid=""):
