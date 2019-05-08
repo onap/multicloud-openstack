@@ -125,7 +125,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                 else:
                     progress = backlog_item.get(
                         "status",
-                        (13, "DELETE_FAILED",
+                        (13, "UPDATE_FAILED",
                          "Unexpected:status not found in backlog item")
                     )
 
@@ -136,9 +136,10 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                         resp_template["workload_status"] = progress_status
                         resp_template["workload_status_reason"] = progress_msg
 
-                        status_code = status.HTTP_200_ACCEPTED\
+                        status_code = status.HTTP_202_ACCEPTED\
                             if progress_code == 0 else progress_code
                     except Exception as e:
+                        self._logger.warn("Exception: %s" % e.message)
                         resp_template["workload_status_reason"] = progress
 
                     return Response(data=resp_template, status=status_code)
@@ -332,7 +333,7 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
 
                     resp_template["workload_status"] = progress_status
                     resp_template["workload_status_reason"] = progress_msg
-                    status_code = status.HTTP_200_ACCEPTED \
+                    status_code = status.HTTP_202_ACCEPTED \
                         if progress_code == 0 else progress_code
                 except Exception as e:
                     resp_template["workload_status_reason"] = progress
