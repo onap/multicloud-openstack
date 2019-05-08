@@ -64,7 +64,7 @@ class Tokens(APIView):
         self._logger.info("RESP with status> %s" % status.HTTP_200_OK)
 
         # compose the links
-        v3_version_detail["links"] = [{
+        v3_version_detail["version"]["links"] = [{
                 "href": request.META.get("REQUEST_URI", ""),
                 "rel": "self"
             }]
@@ -167,8 +167,8 @@ class Tokens(APIView):
 
 v2_version_detail = {
     "version": {
-        "status": "stable",
-        "updated": "2014-04-17T00:00:00Z",
+        "status": "deprecated",
+        "updated": "2016-08-04T00:00:00Z",
         "media-types": [
             {
                 "base": "application/json",
@@ -177,7 +177,10 @@ v2_version_detail = {
         ],
         "id": "v2.0",
         "links": [
-        ]
+        ],
+        "type": "text/html",
+        "rel": "describedby"
+
     }
 }
 
@@ -196,7 +199,7 @@ class TokensV2(Tokens):
 
         self._logger.info("RESP with status> %s" % status.HTTP_200_OK)
         # compose the links
-        v2_version_detail["links"] = [{
+        v2_version_detail["version"]["links"] = [{
                 "href": request.META.get("REQUEST_URI", ""),
                 "rel": "self"
             }]
