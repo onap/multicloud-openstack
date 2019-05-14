@@ -36,7 +36,7 @@ RUN groupadd -r onap && useradd -r -g onap onap
 RUN apt-get update && \
     apt-get install -y memcached wget unzip gcc libssl-dev && \
     cd /opt/ && \
-    wget -O /opt/multicloud-openstack-pike.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-pike&e=zip&v=1.3.2-SNAPSHOT" && \
+    wget -O /opt/multicloud-openstack-pike.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-pike&e=zip&v=1.3.3-SNAPSHOT" && \
     unzip -q -o -B /opt/multicloud-openstack-pike.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-pike.zip && \
     pip install -r /opt/pike/requirements.txt && \
