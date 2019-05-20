@@ -22,7 +22,7 @@ from django.conf import settings
 from fcaps.vesagent.vespublish import publishAnyEventToVES
 from common.utils import restcall
 from common.msapi.helper import Helper as helper
-
+from common.msapi import extsys
 
 import datetime
 import time
@@ -139,6 +139,7 @@ def processBacklog_pm_vm(vesAgentConfig, vesAgentState, oneBacklog):
 
         # get token
         # resolve tenant_name to tenant_id
+        vimid = vesAgentConfig["vimid"]
         cloud_owner, regionid = extsys.decode_vim_id(vimid)
         # should go via multicloud proxy so that the selflink is updated by multicloud
         retcode, v2_token_resp_json, os_status = helper.MultiCloudIdentityHelper(
@@ -152,7 +153,7 @@ def processBacklog_pm_vm(vesAgentConfig, vesAgentState, oneBacklog):
         service_type = "metering"
         resource_uri = oneBacklog["api_link"]
         template_data = ''
-        self._logger.info("retrieve metering resources, URI:%s" % resource_uri)
+        logger.info("retrieve metering resources, URI:%s" % resource_uri)
         retcode, content, os_status = helper.MultiCloudServiceHelper(cloud_owner,
                                                                      regionid,
                                                                      v2_token_resp_json,
@@ -161,7 +162,7 @@ def processBacklog_pm_vm(vesAgentConfig, vesAgentState, oneBacklog):
                                                                      template_data,
                                                                      "GET")
         meters = content if retcode == 0 and content else []
-
+        all_events = []
         for meter in meters:
             encodeData = data2event_pm_vm(meter)
             encodeData['event']['commonEventHeader']['eventType'] = 'guestOS'
@@ -201,7 +202,10 @@ def data2event_pm_vm(vm_data):
     sequence = 1
     startEpochMicrosec = int(time.mktime(time.strptime(vm_data['recorded_at'], '%Y-%m-%dT%H:%M:%S')))
     lastEpochMicrosec = startEpochMicrosec
-        # now populate the event structure
+    additionalMeasurements = []
+    arrayOfFields = []
+    arrayOfFields.append({'name': vm_data['meter'], 'value': str(vm_data['volume'])})
+    additionalMeasurements.append({'name': sourceId, 'arrayOfFields': arrayOfFields})
     this_event = {
         'event': {
             'commonEventHeader': {
@@ -222,7 +226,7 @@ def data2event_pm_vm(vm_data):
             'measurementsForVfScalingFields': {
                 'measurementsForVfScalingVersion': VES_EVENT_pm_VERSION,
                 'measurementInterval': 0,
-                'additionalMeasurements': vm_data['additionalMeasurements']
+                'additionalMeasurements': additionalMeasurements
             }
         }
     }
