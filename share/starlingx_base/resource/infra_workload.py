@@ -467,7 +467,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
                                               'r') as af:
                                         # assume the template file size is small
                                         templatedata1["template"] = \
-                                            yaml.safe_load(af.read(), Loader=NoDatesSafeLoader)
+                                            yaml.load(af, Loader=NoDatesSafeLoader)
                                     # pass
 
                                 elif artifact_type.lower() == "heat_env":
@@ -475,8 +475,8 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
                                     with open(artifact_path,
                                               'r') as af:
                                         # assume the env file size is small
-                                        templatedata1.update(yaml.safe_load(
-                                            af.read(), Loader=NoDatesSafeLoader))
+                                        templatedata1.update(yaml.load(
+                                            af, Loader=NoDatesSafeLoader))
                                     # pass
                                 # pass
                             return templatedata1
