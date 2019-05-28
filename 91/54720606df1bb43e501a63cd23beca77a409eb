@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Xiaohua Zhang <xiaohua.zhang@windriver.com>
+Code-Review+2: Huang Haibin <haibin.huang@intel.com>
+Submitted-by: Huang Haibin <haibin.huang@intel.com>
+Submitted-at: Tue, 28 May 2019 05:08:43 +0000
+Reviewed-on: https://gerrit.onap.org/r/c/multicloud/openstack/+/88590
+Project: multicloud/openstack
+Branch: refs/heads/master
