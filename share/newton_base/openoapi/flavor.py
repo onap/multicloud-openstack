@@ -39,9 +39,13 @@ class Flavors(APIView):
         ("extra_specs", "extraSpecs"),
     ]
 
+    def __init__(self):
+        super(Flavors, self).__init__()
+        self._logger = logger
+
     def _convert_extra_specs(self, extra_specs_vfc, extra_specs_openstack, reverse=False):
        if reverse == False:
-          #from extraSpecs to extra_specs
+          # from extraSpecs to extra_specs
           for spec in extra_specs_vfc:
               extra_specs_openstack[spec['keyName']] = spec['value']
        else:
@@ -86,7 +90,7 @@ class Flavors(APIView):
 
             else:
                 wanted = None
-                #check if query contains name="flavorname"
+                # check if query contains name="flavorname"
                 if query:
                     for queryone in query.split('&'):
                         k,v = queryone.split('=')
@@ -101,7 +105,7 @@ class Flavors(APIView):
                        if wanted == flavor["name"]:
                            content["flavors"].append(flavor)
 
-                #iterate each flavor to get extra_specs
+                # iterate each flavor to get extra_specs
                 for flavor in content["flavors"]:
                     extraResp = self._get_flavor_extra_specs(sess, flavor["id"])
                     extraContent = extraResp.json()
@@ -112,7 +116,7 @@ class Flavors(APIView):
                     VimDriverUtils.replace_key_by_mapping(flavor,
                                                    self.keys_mapping)
 
-            #add extra keys
+            # add extra keys
             vim_dict = {
                 "vimName": vim["name"],
                 "vimId": vim["vimId"],
@@ -418,8 +422,11 @@ class Flavors(APIView):
         return resp
 
 
-
 class APIv1Flavors(Flavors):
+
+    def __init__(self):
+        super(APIv1Flavors, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", flavorid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))

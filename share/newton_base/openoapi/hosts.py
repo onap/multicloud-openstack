@@ -38,6 +38,10 @@ class Hosts(APIView):
         ("host", "name"),
     ]
 
+    def __init__(self):
+        super(Hosts, self).__init__()
+        self._logger = logger
+
     def get(self, request, vimid="", tenantid="", hostname=""):
         logger.info("vimid, tenantid, hostname = %s,%s,%s" % (vimid, tenantid, hostname))
         if request.data:
@@ -78,7 +82,7 @@ class Hosts(APIView):
                     VimDriverUtils.replace_key_by_mapping(host,
                                                           self.hosts_keys_mapping)
             else:
-                #restructure host data model
+                # restructure host data model
                 old_host = content["host"]
                 content["host"] = []
                 # convert the key naming in resources
@@ -104,6 +108,10 @@ class Hosts(APIView):
 
 
 class APIv1Hosts(Hosts):
+
+    def __init__(self):
+        super(APIv1Hosts, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", hostname=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))

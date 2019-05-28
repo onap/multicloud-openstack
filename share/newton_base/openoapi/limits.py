@@ -37,13 +37,17 @@ class Limits(APIView):
     service_volume = {'service_type': 'volumev2',
                'interface': 'public'}
 
+    def __init__(self):
+        super(Limits, self).__init__()
+        self._logger = logger
+
     def get(self, request, vimid="", tenantid=""):
         logger.info("vimid, tenantid = %s,%s" % (vimid, tenantid))
         if request.data:
             logger.debug("With data = %s" % request.data)
             pass
         try:
-            #get limits first
+            # get limits first
             # prepare request resource to vim instance
             req_resouce = "/limits"
             vim = VimDriverUtils.get_vim_info(vimid)
@@ -68,7 +72,7 @@ class Limits(APIView):
             }
             content_all.update(vim_dict)
 
-            #now get quota
+            # now get quota
             # prepare request resource to vim instance
             req_resouce = "/v2.0/quotas/%s" % tenantid
 
@@ -82,7 +86,7 @@ class Limits(APIView):
             content = resp.json()
             content_all.update(content['quota'])
 
-            #now get volume limits
+            # now get volume limits
             # prepare request resource to vim instance
             req_resouce = "/limits"
 
@@ -111,6 +115,10 @@ class Limits(APIView):
 
 
 class APIv1Limits(Limits):
+
+    def __init__(self):
+        super(APIv1Limits, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id="", tenantid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))

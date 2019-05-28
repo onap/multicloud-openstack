@@ -37,6 +37,10 @@ class Alarms(APIView):
         ("container_format", "containerFormat")
     ]
 
+    def __init__(self):
+        super(Alarms, self).__init__()
+        self._logger = logger
+
     def get(self, request, vimid="", tenantid="", alarmid=""):
         logger.debug("alarms--get::> %s" % request.data)
         try:

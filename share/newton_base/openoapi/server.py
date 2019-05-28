@@ -28,15 +28,15 @@ from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
-
 running_threads = {}
 running_thread_lock = threading.Lock()
 
 
-#assume volume is attached on server creation
+# assume volume is attached on server creation
 class ServerVolumeAttachThread (threading.Thread):
     service = {'service_type': 'compute',
                'interface': 'public'}
+
     def __init__(self, vimid, tenantid, serverid, is_attach, *volumeids):
         threading.Thread.__init__(self)
         self.vimid = vimid
@@ -47,7 +47,7 @@ class ServerVolumeAttachThread (threading.Thread):
 
     def run(self):
         logger.debug("start server thread %s, %s, %s" % (self.vimid, self.tenantid, self.serverid))
-        if (self.is_attach):
+        if self.is_attach:
             self.attach_volume(self.vimid, self.tenantid, self.serverid, *self.volumeids)
         else:
             self.detach_volume(self.vimid, self.tenantid, self.serverid, *self.volumeids)
@@ -67,7 +67,7 @@ class ServerVolumeAttachThread (threading.Thread):
                 if vim.get('openstack_region_id') \
                 else vim['cloud_region_id']
 
-            #check if server is ready to attach
+            # check if server is ready to attach
             logger.debug("Servers--attach_volume, wait for server to be ACTIVE::>%s" % serverid)
             req_resouce = "servers/%s" % serverid
             while True:
@@ -79,7 +79,7 @@ class ServerVolumeAttachThread (threading.Thread):
 
                 content = resp.json()
                 if content and content["server"] and content["server"]["status"] == "ACTIVE":
-                    break;
+                    break
 
             for volumeid in volumeids:
                 req_resouce = "servers/%s/os-volume_attachments" % serverid
@@ -117,7 +117,7 @@ class ServerVolumeAttachThread (threading.Thread):
                 if vim.get('openstack_region_id') \
                 else vim['cloud_region_id']
 
-            #wait server to be ready to detach volume
+            # wait server to be ready to detach volume
 
             # assume attachment id is the same as volume id
             for volumeid in volumeids:
@@ -153,8 +153,12 @@ class Servers(APIView):
         ("os-extended-volumes:volumes_attached", "volumeArray"),
     ]
 
-    def _attachVolume(self, vimid, tenantid, serverId, *volumeIds):
-        #has to be async mode to wait server is ready to attach volume
+    def __init__(self):
+        super(Servers, self).__init__()
+        self._logger = logger
+
+    def _attach_volume(self, vimid, tenantid, serverId, *volumeIds):
+        # has to be async mode to wait server is ready to attach volume
         logger.debug("launch thread to attach volume: %s" % serverId)
         tmp_thread = ServerVolumeAttachThread(vimid, tenantid, serverId, True, *volumeIds)
         running_thread_lock.acquire()
@@ -173,7 +177,7 @@ class Servers(APIView):
 
         for volumeid in volumeIds:
             req_resouce = "servers/%s/os-volume_attachments/%s" % (serverId, volumeid)
-            logger.debug("Servers--dettachVolume::>%s" % (req_resouce))
+            logger.debug("Servers--dettachVolume::>%s" % req_resouce)
             logger.info("making request with URI:%s" % req_resouce)
             resp = sess.delete(req_resouce,
                                endpoint_filter=self.service,
@@ -182,7 +186,7 @@ class Servers(APIView):
             logger.info("request returns with status %s" % resp.status_code)
             logger.debug("Servers--dettachVolume resp status::>%s" % resp.status_code)
 
-    #def _convert_metadata(self, metadata_vfc, metadata_openstack, reverse=True):
+    # def _convert_metadata(self, metadata_vfc, metadata_openstack, reverse=True):
     #    if not reverse:
     #        # from vfc format to openstack format
     #        for spec in metadata_vfc:
@@ -195,7 +199,7 @@ class Servers(APIView):
     #            metadata_vfc.append(spec)
 
     def _convert_resp(self, server):
-        #convert volumeArray
+        # convert volumeArray
         volumeArray = server.pop("volumeArray", None)
         tmpVolumeArray = []
         if volumeArray and len(volumeArray) > 0:
@@ -203,21 +207,25 @@ class Servers(APIView):
                 tmpVolumeArray.append({"volumeId": vol["id"]})
         server["volumeArray"] = tmpVolumeArray if len(tmpVolumeArray) > 0 else None
 
-        #convert flavor
+        # convert flavor
         flavor = server.pop("flavor", None)
         server["flavorId"] = flavor["id"] if flavor else None
 
-        #convert nicArray
+        # convert nicArray
 
-        #convert boot
+        # convert boot
         imageObj = server.pop("image", None)
         imageId = imageObj.pop("id", None) if imageObj else None
         if imageId:
             server["boot"] = {"type":2, "imageId": imageId}
         else:
-            server["boot"] = {"type":1, "volumeId":tmpVolumeArray.pop(0)["volumeId"] if len(tmpVolumeArray) > 0 else None}
+            server["boot"] = {
+                "type": 1,
+                "volumeId": tmpVolumeArray.pop(0)["volumeId"]
+                if len(tmpVolumeArray) > 0 else None
+            }
 
-        #convert OS-EXT-AZ:availability_zone
+        # convert OS-EXT-AZ:availability_zone
         server["availabilityZone"] = server.pop("OS-EXT-AZ:availability_zone", None)
 
     def get(self, request, vimid="", tenantid="", serverid=""):
@@ -234,7 +242,8 @@ class Servers(APIView):
             logger.error("response with status = %s" % e.status_code)
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            logger.error("HttpError: status:%s, response:%s"
+                         % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -258,12 +267,13 @@ class Servers(APIView):
             logger.debug("with content:%s" % resp.json())
             pass
         ports = resp.json()
-        if ports and ports["interfaceAttachments"] and len(ports["interfaceAttachments"]) > 0:
-            return [{"portId":port["port_id"]} for port in ports["interfaceAttachments"]]
+        if ports and ports["interfaceAttachments"] \
+                and len(ports["interfaceAttachments"]) > 0:
+            return [{"portId":port["port_id"]}
+                    for port in ports["interfaceAttachments"]]
         return None
 
     def _get_servers(self, query="", vimid="", tenantid="", serverid=None):
-
         # prepare request resource to vim instance
         req_resouce = "servers"
         if serverid:
@@ -299,8 +309,8 @@ class Servers(APIView):
         if not serverid:
             # convert the key naming in servers
             for server in content["servers"]:
-                #metadata_openstack = server.pop("metadata", None)
-                #if metadata_openstack:
+                # metadata_openstack = server.pop("metadata", None)
+                # if metadata_openstack:
                 #    metadata_vfc = []
                 #    self._convert_metadata(metadata_vfc, metadata_openstack, True)
                 #    server["metadata"] = metadata_vfc
@@ -312,8 +322,8 @@ class Servers(APIView):
         else:
             # convert the key naming in the server specified by id
             server = content.pop("server", None)
-            #metadata_openstack = server.pop("metadata", None)
-            #if metadata_openstack:
+            # metadata_openstack = server.pop("metadata", None)
+            # if metadata_openstack:
             #    metadata_vfc = []
             #    self._convert_metadata(metadata_vfc, metadata_openstack, True)
             #    server["metadata"] = metadata_vfc
@@ -379,8 +389,8 @@ class Servers(APIView):
             if len(networks) > 0:
                 server["networks"] = networks
 
-            #metadata_vfc = server.pop("metadata", None)
-            #if metadata_vfc:
+            # metadata_vfc = server.pop("metadata", None)
+            # if metadata_vfc:
             #    metadata_openstack = {}
             #    self._convert_metadata(metadata_vfc, metadata_openstack, True)
             #    server["metadata"] = metadata_openstack
@@ -414,8 +424,9 @@ class Servers(APIView):
                         server["personality"] = personalities
                     logger.info("Personalities %s" % personalities)
                 else:
-                    logger.error("contextarray %s format is not right.", contextarray)
-                    return Response(data={'error': str(e)},
+                    errmsg = "contextarray %s format is not right." % contextarray
+                    logger.error(errmsg)
+                    return Response(data={'error': errmsg},
                                     status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             VimDriverUtils.replace_key_by_mapping(server,
@@ -441,10 +452,10 @@ class Servers(APIView):
                 if volumearray and len(volumearray) > 0:
                     # server is created, now attach volumes
                     volumeIds = [extraVolume["volumeId"] for extraVolume in volumearray]
-                    self._attachVolume(vimid, tenantid, resp_body["id"], *volumeIds)
+                    self._attach_volume(vimid, tenantid, resp_body["id"], *volumeIds)
 
-            #metadata_openstack = resp_body.pop("metadata", None)
-            #if metadata_openstack:
+            # metadata_openstack = resp_body.pop("metadata", None)
+            # if metadata_openstack:
             #    metadata_vfc = []
             #    self._convert_metadata(metadata_vfc, metadata_openstack, True)
             #    resp_body["metadata"] = metadata_vfc
@@ -490,14 +501,14 @@ class Servers(APIView):
                 if vim.get('openstack_region_id') \
                 else vim['cloud_region_id']
 
-            #check and dettach them if volumes attached to server
+            # check and dettach them if volumes attached to server
             server, status_code = self._get_servers("", vimid, tenantid, serverid)
             volumearray = server.pop("volumeArray", None)
             if volumearray and len(volumearray) > 0:
                 volumeIds = [extraVolume["volumeId"] for extraVolume in volumearray]
                 self._dettach_volume(vimid, tenantid, serverid, *volumeIds)
 
-            #delete server now
+            # delete server now
             req_resouce = "servers"
             if serverid:
                 req_resouce += "/%s" % serverid
@@ -517,6 +528,10 @@ class Servers(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class APIv1Servers(Servers):
+
+    def __init__(self):
+        super(APIv1Servers, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
@@ -540,6 +555,11 @@ class APIv1Servers(Servers):
 class ServerAction(APIView):
     service = {'service_type': 'compute',
                'interface': 'public'}
+
+    def __init__(self):
+        super(ServerAction, self).__init__()
+        self._logger = logger
+
     def post(self, request, vimid="", tenantid="", serverid=""):
         logger.debug("ServerAction--post::> %s" % request.data)
         logger.debug("vimid=%s, tenantid=%s, serverid=%s", vimid, tenantid, serverid)
@@ -558,7 +578,7 @@ class ServerAction(APIView):
             resp_body = resp.json()
 
             return Response(data=resp_body, status=resp.status_code)
-        except VimDriverKiloException as e:
+        except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -570,6 +590,11 @@ class ServerAction(APIView):
 
 
 class APIv1ServerAction(ServerAction):
+
+    def __init__(self):
+        super(APIv1ServerAction, self).__init__()
+        self._logger = logger
+
     def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
 
@@ -580,6 +605,12 @@ class APIv1ServerAction(ServerAction):
 class ServerOsInterface(APIView):
     service = {'service_type': 'compute',
                'interface': 'public'}
+
+
+    def __init__(self):
+        super(ServerOsInterface, self).__init__()
+        self._logger = logger
+
     def post(self, request, vimid="", tenantid="", serverid=""):
         logger.debug("ServerOsInterface--post::> %s" % request.data)
         logger.debug("vimid=%s, tenantid=%s, serverid=%s", vimid, tenantid, serverid)
@@ -598,7 +629,7 @@ class ServerOsInterface(APIView):
             resp_body = resp.json()
 
             return Response(data=resp_body, status=resp.status_code)
-        except VimDriverKiloException as e:
+        except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -610,6 +641,11 @@ class ServerOsInterface(APIView):
 
 
 class APIv1ServerOsInterface(ServerOsInterface):
+
+    def __init__(self):
+        super(APIv1ServerOsInterface, self).__init__()
+        self._logger = logger
+
     def post(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
 
@@ -620,6 +656,11 @@ class APIv1ServerOsInterface(ServerOsInterface):
 class ServerOsInterfacePort(APIView):
     service = {'service_type': 'compute',
                'interface': 'public'}
+
+    def __init__(self):
+        super(ServerOsInterfacePort, self).__init__()
+        self._logger = logger
+
     def delete(self, request, vimid="", tenantid="", serverid="", portid=""):
         logger.debug("ServerOsInterfacePort--delete::portid=%s", portid)
         logger.debug("vimid=%s, tenantid=%s, serverid=%s", vimid, tenantid, serverid)
@@ -638,7 +679,7 @@ class ServerOsInterfacePort(APIView):
             resp_body = {}
 
             return Response(data=resp_body, status=resp.status_code)
-        except VimDriverKiloException as e:
+        except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
             logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
@@ -650,6 +691,11 @@ class ServerOsInterfacePort(APIView):
 
 
 class APIv1ServerOsInterfacePort(ServerOsInterfacePort):
+
+    def __init__(self):
+        super(APIv1ServerOsInterfacePort, self).__init__()
+        self._logger = logger
+
     def delete(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid="", portid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
 

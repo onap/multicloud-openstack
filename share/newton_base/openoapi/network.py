@@ -39,6 +39,10 @@ class Networks(APIView):
         ("project_id", "tenantId"),
     ]
 
+    def __init__(self):
+        super(Networks, self).__init__()
+        self._logger = logger
+
     def get(self, request, vimid="", tenantid="", networkid=""):
         logger.info("vimid, tenantid, networkid = %s,%s,%s" % (vimid, tenantid, networkid))
         if request.data:
@@ -212,8 +216,11 @@ class Networks(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class APIv1Networks(Networks):
+
+    def __init__(self):
+        super(APIv1Networks, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", networkid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))

@@ -37,10 +37,14 @@ class Tenants(APIView):
         ("projects", "tenants"),
     ]
 
+    def __init__(self):
+        super(Tenants, self).__init__()
+        self._logger = logger
+
     def get(self, request, vimid=""):
-        logger.info("vimid = %s" % vimid)
+        self._logger.info("vimid = %s" % vimid)
         if request.data:
-            logger.debug("With data = %s" % request.data)
+            self._logger.debug("With data = %s" % request.data)
             pass
         try:
             #prepare request resource to vim instance
@@ -57,11 +61,11 @@ class Tenants(APIView):
                 if vim.get('openstack_region_id') \
                 else vim['cloud_region_id']
 
-            logger.info("making request with URI:%s" % req_resouce)
+            self._logger.info("making request with URI:%s" % req_resouce)
             resp = sess.get(req_resouce, endpoint_filter=self.service)
-            logger.info("request returns with status %s" % resp.status_code)
+            self._logger.info("request returns with status %s" % resp.status_code)
             if resp.status_code == status.HTTP_200_OK:
-                logger.debug("with content:%s" % resp.json())
+                self._logger.debug("with content:%s" % resp.json())
                 pass
 
             content = resp.json()
@@ -85,26 +89,29 @@ class Tenants(APIView):
                    for tenant in tmp:
                        if tenantname == tenant['name']:
                            content["tenants"].append(tenant)
-            logger.info("response with status = %s" % resp.status_code)
+            self._logger.info("response with status = %s" % resp.status_code)
             return Response(data=content, status=resp.status_code)
         except VimDriverNewtonException as e:
-            logger.error("response with status = %s" % e.status_code)
+            self._logger.error("response with status = %s" % e.status_code)
             return Response(
                 data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (
+            self._logger.error("HttpError: status:%s, response:%s" % (
                 e.http_status, e.response.json()))
             return Response(data=e.response.json(),
                             status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            self._logger.error(traceback.format_exc())
             return Response(
                 data={'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 class APIv1Tenants(Tenants):
+
+    def __init__(self):
+        super(APIv1Tenants, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id=""):
         self._logger.info("registration with : %s, %s" % (cloud_owner, cloud_region_id))

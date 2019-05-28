@@ -41,6 +41,10 @@ class Volumes(APIView):
         ("attachment_id", "attachmentId"),
     ]
 
+    def __init__(self):
+        super(Volumes, self).__init__()
+        self._logger = logger
+
     def get(self, request, vimid="", tenantid="", volumeid=""):
         logger.info("vimid, tenantid, volumeid = %s,%s,%s" % (vimid, tenantid, volumeid))
         if request.data:
@@ -210,6 +214,10 @@ class Volumes(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class APIv1Volumes(Volumes):
+
+    def __init__(self):
+        super(APIv1Volumes, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", volumeid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))

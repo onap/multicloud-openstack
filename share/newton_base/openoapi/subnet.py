@@ -41,6 +41,10 @@ class Subnets(APIView):
         ("allocation_pools", "allocationPools"),
     ]
 
+    def __init__(self):
+        super(Subnets, self).__init__()
+        self._logger = logger
+
     def get(self, request, vimid="", tenantid="", subnetid=""):
         logger.info("vimid, tenantid, subnetid = %s,%s,%s" % (vimid, tenantid, subnetid))
         if request.data:
@@ -220,6 +224,10 @@ class Subnets(APIView):
 
 
 class APIv1Subnets(Subnets):
+
+    def __init__(self):
+        super(APIv1Subnets, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", subnetid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))

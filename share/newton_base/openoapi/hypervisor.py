@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 running_threads = {}
 running_thread_lock = threading.Lock()
 
+
 class Hypervisors(APIView):
     service = {'service_type': 'compute',
                'interface': 'public'}
@@ -38,6 +39,9 @@ class Hypervisors(APIView):
         ("container_format", "containerFormat")
     ]
 
+    def __init__(self):
+        super(Hypervisors, self).__init__()
+        self._logger = logger
 
     def get(self, request, vimid="", tenantid="", hypervisorid=""):
         logger.info("vimid, tenantid, hypervisorid = %s,%s,%s" % (vimid, tenantid, hypervisorid))
@@ -62,7 +66,6 @@ class Hypervisors(APIView):
             logger.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
     def get_hypervisors(self, query="", vimid="", tenantid="", hypervisorid=""):
 
@@ -91,6 +94,10 @@ class Hypervisors(APIView):
 
 
 class APIv1Hypervisors(Hypervisors):
+
+    def __init__(self):
+        super(APIv1Hypervisors, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", hypervisorid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))

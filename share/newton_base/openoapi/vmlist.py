@@ -21,6 +21,7 @@ from rest_framework.views import APIView
 
 from common.exceptions import VimDriverNewtonException
 from newton_base.util import VimDriverUtils
+from common.msapi import extsys
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,10 @@ class VMlist(APIView):
         ("disk_format", "serverType"),
         ("container_format", "containerFormat")
     ]
+
+    def __init__(self):
+        super(VMlist, self).__init__()
+        self._logger = logger
 
     def get(self, request, vimid="", tenantid="", serverid=""):
         logger.info("vimid, tenantid, flavorid = %s,%s,%s" % (vimid, tenantid, flavorid))
@@ -82,3 +87,14 @@ class VMlist(APIView):
         return content, resp.status_code
 
 
+class APIv1VMlist(VMlist):
+
+    def __init__(self):
+        super(APIv1VMlist, self).__init__()
+        self._logger = logger
+
+    def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", serverid=""):
+        self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1VMlist, self).get(request, vimid, tenantid, serverid)

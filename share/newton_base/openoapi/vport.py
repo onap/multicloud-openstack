@@ -40,6 +40,10 @@ class Vports(APIView):
         ("ip_address", "ip"),
     ]
 
+    def __init__(self):
+        super(Vports, self).__init__()
+        self._logger = logger
+
     def get(self, request, vimid="", tenantid="", portid=""):
         logger.info("vimid, tenantid, portid = %s,%s,%s" % (vimid, tenantid, portid))
         if request.data:
@@ -247,6 +251,10 @@ class Vports(APIView):
 
 
 class APIv1Vports(Vports):
+
+    def __init__(self):
+        super(APIv1Vports, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", portid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))

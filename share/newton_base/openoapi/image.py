@@ -31,9 +31,11 @@ logger = logging.getLogger(__name__)
 running_threads = {}
 running_thread_lock = threading.Lock()
 
-class imageThread (threading.Thread):
+
+class ImageThread (threading.Thread):
     service = {'service_type': 'image',
                'interface': 'public'}
+
     def __init__(self, vimid, tenantid, imageid, imagefd):
         threading.Thread.__init__(self)
         self.vimid = vimid
@@ -42,9 +44,9 @@ class imageThread (threading.Thread):
         self.imagefd = imagefd
 
     def run(self):
-        logger.debug("start imagethread %s, %s, %s" % (self.vimid, self.tenantid, self.imageid))
+        logger.debug("start ImageThread %s, %s, %s" % (self.vimid, self.tenantid, self.imageid))
         self.transfer_image(self.vimid, self.tenantid, self.imageid, self.imagefd)
-        logger.debug("stop imagethread %s, %s, %s" % (self.vimid, self.tenantid, self.imageid))
+        logger.debug("stop ImageThread %s, %s, %s" % (self.vimid, self.tenantid, self.imageid))
         running_thread_lock.acquire()
         running_threads.pop(self.imageid)
         running_thread_lock.release()
@@ -62,7 +64,7 @@ class imageThread (threading.Thread):
                            if vim.get('openstack_region_id')\
                            else vim['cloud_region_id']
 
-            #open imageurl
+            # open imageurl
             logger.info("making image put request with URI:%s" % req_resouce)
             resp = sess.put(req_resouce, endpoint_filter=self.service, data=imagefd.read(),
                     headers={"Content-Type": "application/octet-stream",
@@ -86,6 +88,10 @@ class Images(APIView):
         ("disk_format", "imageType"),
         ("container_format", "containerFormat")
     ]
+
+    def __init__(self):
+        super(Images, self).__init__()
+        self._logger = logger
 
     def get(self, request, vimid="", tenantid="", imageid=""):
         logger.info("vimid, tenantid, imageid = %s,%s,%s" % (vimid, tenantid, imageid))
@@ -143,10 +149,10 @@ class Images(APIView):
                                                       self.keys_mapping)
         else:
             # convert the key naming in the image specified by id
-            #image = content.pop("image", None)
+            # image = content.pop("image", None)
             VimDriverUtils.replace_key_by_mapping(content,
                                                   self.keys_mapping)
-            #content.update(image)
+            # content.update(image)
 
         return content, resp.status_code
 
@@ -156,7 +162,7 @@ class Images(APIView):
             logger.debug("With data = %s" % request.data)
             pass
         try:
-            #check if created already: check name
+            # check if created already: check name
             query = "name=%s" % request.data["name"]
             content, status_code = self._get_images(query, vimid, tenantid)
             existed = False
@@ -177,7 +183,7 @@ class Images(APIView):
             if not imageurl:
                 return Response(data={'error': 'imagePath is not specified'}, status=500)
 
-            #valid image url
+            # valid image url
             imagefd = urllib.request.urlopen(imageurl)
             if not imagefd:
                 logger.debug("image is not available at %s" % imageurl)
@@ -191,7 +197,7 @@ class Images(APIView):
             image = request.data
             VimDriverUtils.replace_key_by_mapping(image,
                                                   self.keys_mapping, True)
-            #req_body = json.JSONEncoder().encode({"image": image})
+            # req_body = json.JSONEncoder().encode({"image": image})
             req_body = json.JSONEncoder().encode(image)
 
             self.service['region_name'] = vim['openstack_region_id'] \
@@ -202,7 +208,7 @@ class Images(APIView):
             logger.debug("with data:%s" % req_body)
             resp = sess.post(req_resouce, data=req_body,
                              endpoint_filter=self.service)
-            #resp_body = resp.json()["image"]
+            # resp_body = resp.json()["image"]
             resp_body = resp.json()
             VimDriverUtils.replace_key_by_mapping(resp_body, self.keys_mapping)
             vim_dict = {
@@ -213,11 +219,11 @@ class Images(APIView):
             }
             resp_body.update(vim_dict)
 
-            #launch a thread to download image and upload to VIM
+            # launch a thread to download image and upload to VIM
             if resp.status_code == 201:
                 imageid = resp_body["id"]
                 logger.debug("launch thread to upload image: %s" % imageid)
-                tmp_thread = imageThread(vimid, tenantid,imageid,imagefd)
+                tmp_thread = ImageThread(vimid, tenantid,imageid,imagefd)
                 running_thread_lock.acquire()
                 running_threads[imageid] = tmp_thread
                 running_thread_lock.release()
@@ -272,6 +278,10 @@ class Images(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class APIv1Images(Images):
+
+    def __init__(self):
+        super(APIv1Images, self).__init__()
+        self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id="", tenantid="", imageid=""):
         self._logger.info("%s, %s" % (cloud_owner, cloud_region_id))
