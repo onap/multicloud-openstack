@@ -22,7 +22,7 @@ from rest_framework import status
 from newton_base.tests import mock_info
 from newton_base.tests import test_base
 from newton_base.tests.test_base import AbstractTestResource
-from newton_base.openoapi.image import imageThread
+from newton_base.openoapi.image import ImageThread
 from newton_base.util import VimDriverUtils
 
 
@@ -70,7 +70,7 @@ class TestImageNewton(unittest.TestCase, AbstractTestResource):
 
         self.HTTP_not_found = status.HTTP_404_NOT_FOUND
 
-    @mock.patch.object(imageThread, 'run')
+    @mock.patch.object(ImageThread, 'run')
     @mock.patch.object(urllib, 'request')
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')

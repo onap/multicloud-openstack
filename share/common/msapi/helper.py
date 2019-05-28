@@ -286,7 +286,8 @@ class MultiCloudThreadHelper(object):
         # there is at least 1 copy of backlog item in either backlog or expired backlog
         # self.lock.acquire()
         backlogitem = self.backlog.get(backlog_id, None)
-        self.owner.expired_backlog[backlog_id] = backlogitem
+        # self.owner.expired_backlog[backlog_id] = backlogitem
+        self.expired_backlog[backlog_id] = backlogitem
         self.backlog.pop(backlog_id, None)
         # self.lock.release()
 
