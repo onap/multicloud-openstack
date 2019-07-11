@@ -49,11 +49,12 @@ run_tox_test()
   CURDIR=$(pwd)
   TOXINIS=$(find . -name "tox.ini")
   cd ..
+  yum install python34-devel -y
   for TOXINI in "${TOXINIS[@]}"; do
     DIR=$(echo "$TOXINI" | rev | cut -f2- -d'/' | rev)
     cd "${CURDIR}/${DIR}"
     rm -rf ./venv-tox ./.tox
-    virtualenv ./venv-tox
+    virtualenv ./venv-tox --python=python3.6
     source ./venv-tox/bin/activate
     pip install --upgrade pip
     pip install --upgrade tox argparse
