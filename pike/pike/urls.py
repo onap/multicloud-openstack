@@ -1,3 +1,6 @@
+'''
+The entry of urls
+'''
 # Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +31,8 @@ urlpatterns = [
         include('pike.extensions.urls')),
     url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/infra_workload/?$',
         infra_workload.InfraWorkload.as_view()),
-    url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/infra_workload/(?P<requri>[0-9a-zA-Z_-]*)/?$',
+    url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/infra_workload/'
+        '(?P<requri>[0-9a-zA-Z_-]*)/?$',
         infra_workload.InfraWorkload.as_view()),
     url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/',
         include('pike.proxy.urls')),
@@ -40,25 +44,35 @@ urlpatterns = [
         capacity.CapacityCheck.as_view()),
     url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/infra_workload/?$',
         infra_workload.InfraWorkload.as_view()),
-    url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/infra_workload/(?P<requri>[0-9a-zA-Z_-]*)/?$',
+    url(r'^api/multicloud-pike/v0/(?P<vimid>[0-9a-zA-Z_-]+)/infra_workload/'
+        '(?P<requri>[0-9a-zA-Z_-]*)/?$',
         infra_workload.InfraWorkload.as_view()),
     # API upgrading
-    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry$',
+    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
+        '(?P<cloud_region_id>[0-9a-zA-Z_-]+)/registry$',
         registration.RegistryV1.as_view()),
-    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)$',
+    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
+        '(?P<cloud_region_id>[0-9a-zA-Z_-]+)$',
         registration.RegistryV1.as_view()),
-    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/exten',
-        include('pike.extensions.urlsV1')),
-    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/tenants/?$',
+    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
+        '(?P<cloud_region_id>[0-9a-zA-Z_-]+)/exten',
+        include('pike.extensions.urls_v1')),
+    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
+        '(?P<cloud_region_id>[0-9a-zA-Z_-]+)/tenants/?$',
         tenants.APIv1Tenants.as_view()),
-    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/'
-        '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('pike.requests.urlsV1')),
-    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
+    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
+        '(?P<cloud_region_id>[0-9a-zA-Z_-]+)/'
+        '(?P<tenantid>[0-9a-zA-Z_-]{20,})/', include('pike.requests.urls_v1')),
+    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
+        '(?P<cloud_region_id>[0-9a-zA-Z_-]+)/capacity_check/?$',
         capacity.APIv1CapacityCheck.as_view()),
-    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
+    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
+        '(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/?$',
         infra_workload.APIv1InfraWorkload.as_view()),
-    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/(?P<requri>[0-9a-zA-Z_-]*)/?$',
+    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
+        '(?P<cloud_region_id>[0-9a-zA-Z_-]+)/infra_workload/(?P<requri>[0-9a-zA-Z_-]*)/?$',
         infra_workload.APIv1InfraWorkload.as_view()),
-    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/(?P<cloud_region_id>[0-9a-zA-Z_-]+)/',
-        include('pike.proxy.urlsV1')),
+    url(r'^api/multicloud-pike/v1/(?P<cloud_owner>[0-9a-zA-Z_-]+)/'
+        '(?P<cloud_region_id>[0-9a-zA-Z_-]+)/',
+        include('pike.proxy.urls_v1')),
 ]

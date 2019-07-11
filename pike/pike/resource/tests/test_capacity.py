@@ -1,3 +1,6 @@
+'''
+test capability
+'''
 # Copyright (c) 2018 Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
 import json
+import mock
 
 from rest_framework import status
 
@@ -115,9 +118,9 @@ TEST_REQ_FAILED_SOURCE = {
 
 
 class TestCapacity(test_base.TestRequest):
-    def setUp(self):
-        super(TestCapacity, self).setUp()
-
+    '''
+    TestCapacity
+    '''
     def _get_mock_response(self, return_value=None):
         mock_response = mock.Mock(spec=test_base.MockResponse)
         mock_response.status_code = status.HTTP_200_OK
@@ -127,6 +130,9 @@ class TestCapacity(test_base.TestRequest):
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_capacity_check_success(self, mock_get_vim_info, mock_get_session):
+        '''
+        test_capacity_check_success
+        '''
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
@@ -142,12 +148,15 @@ class TestCapacity(test_base.TestRequest):
             TEST_REQ_SUCCESS_SOURCE,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual({"result": True}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_capacity_check_nova_limits_failed(self, mock_get_vim_info, mock_get_session):
+        '''
+        test_capacity_check_nova_limits_failed
+        '''
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
@@ -163,12 +172,15 @@ class TestCapacity(test_base.TestRequest):
             TEST_REQ_FAILED_SOURCE,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual({"result": False}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_capacity_check_nova_hypervisor_outofram(self, mock_get_vim_info, mock_get_session):
+        '''
+        test_capacity_check_nova_hypervisor_outofram
+        '''
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
@@ -185,12 +197,15 @@ class TestCapacity(test_base.TestRequest):
             content_type='application/json',
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual({"result": False}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_capacity_check_nova_hypervisor_outofstorage(self, mock_get_vim_info, mock_get_session):
+        '''
+        test_capacity_check_nova_hypervisor_outofstorage
+        '''
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
@@ -207,12 +222,15 @@ class TestCapacity(test_base.TestRequest):
             content_type='application/json',
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual({"result": False}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_capacity_check_nova_hypervisor_outofvcpu(self, mock_get_vim_info, mock_get_session):
+        '''
+        test_capacity_check_nova_hypervisor_outofvcpu
+        '''
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
@@ -229,12 +247,15 @@ class TestCapacity(test_base.TestRequest):
             content_type='application/json',
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual({"result": False}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_capacity_check_nova_limits_outofram(self, mock_get_vim_info, mock_get_session):
+        '''
+        test_capacity_check_nova_limits_outofram
+        '''
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
@@ -251,12 +272,15 @@ class TestCapacity(test_base.TestRequest):
             content_type='application/json',
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual({"result": True}, response.data)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_capacity_check_volume_limits_outofstorage(self, mock_get_vim_info, mock_get_session):
+        '''
+        test_capacity_check_volume_limits_outofstorage
+        '''
         mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
         mock_get_session.return_value = test_base.get_mock_session(
             ["get"], {
@@ -273,5 +297,5 @@ class TestCapacity(test_base.TestRequest):
             content_type='application/json',
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual({"result": False}, response.data)
