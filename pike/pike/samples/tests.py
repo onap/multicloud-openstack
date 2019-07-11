@@ -1,3 +1,6 @@
+'''
+pike sample test
+'''
 # Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +21,11 @@ from rest_framework import status
 
 
 class SampleViewTest(unittest.TestCase):
+    '''
+    Sample view test
+    '''
     def setUp(self):
+
         self.client = Client()
 
     def tearDown(self):
