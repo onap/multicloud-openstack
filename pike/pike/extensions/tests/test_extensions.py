@@ -1,3 +1,6 @@
+'''
+test extensions
+'''
 # Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +15,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import unittest
 from django.test import Client
 from rest_framework import status
-import unittest
 
 
 class TestExtensions(unittest.TestCase):
+    '''
+    classs test extensions
+    '''
     def setUp(self):
         self.client = Client()
 
@@ -30,9 +36,9 @@ class TestExtensions(unittest.TestCase):
             "/api/multicloud-pike/v0/" + vimid + "/extensions/")
         json_content = response.json()
 
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(4, len(json_content.keys()))
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(4, len(list(json_content.keys())))
 
-        self.assertEquals(cloud_owner, json_content["cloud-owner"])
-        self.assertEquals(cloud_region_id, json_content["cloud-region-id"])
-        self.assertEquals(vimid, json_content["vimid"])
+        self.assertEqual(cloud_owner, json_content["cloud-owner"])
+        self.assertEqual(cloud_region_id, json_content["cloud-region-id"])
+        self.assertEqual(vimid, json_content["vimid"])

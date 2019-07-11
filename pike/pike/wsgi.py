@@ -1,3 +1,6 @@
+"""
+start django web server.
+"""
 # Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,4 +21,4 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pike.settings")
 
-application = get_wsgi_application()
+APPLICATION = get_wsgi_application()
