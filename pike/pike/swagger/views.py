@@ -1,3 +1,6 @@
+'''
+swagger view
+'''
 # Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +15,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-
 from rest_framework.response import Response
 
 from newton_base.swagger import views as newton_json_view
 
-logger = logging.getLogger(__name__)
-
 
 class SwaggerJsonView(newton_json_view.SwaggerJsonView):
+    '''
+    Swagger Json View
+    '''
 
     def get(self, request):
         '''
@@ -36,11 +38,14 @@ class SwaggerJsonView(newton_json_view.SwaggerJsonView):
             json_data["basePath"] = "/api/multicloud-pike/v0/"
             json_data["info"]["title"] = "Service NBI of MultiCloud plugin for OpenStack Pike"
             return Response(data=json_data, status=200)
-        else:
-            return Response(data={'error': 'internal error'}, status=500)
+
+        return Response(data={'error': 'internal error'}, status=500)
 
 
 class APIv1SwaggerJsonView(newton_json_view.SwaggerJsonView):
+    '''
+    V1 Swagger Json View
+    '''
 
     def get(self, request):
         '''
@@ -55,5 +60,5 @@ class APIv1SwaggerJsonView(newton_json_view.SwaggerJsonView):
             json_data["basePath"] = "/api/multicloud-pike/v1/"
             json_data["info"]["title"] = "Service NBI v1 of MultiCloud plugin for Pike"
             return Response(data=json_data, status=200)
-        else:
-            return Response(data={'error': 'internal error'}, status=500)
+
+        return Response(data={'error': 'internal error'}, status=500)

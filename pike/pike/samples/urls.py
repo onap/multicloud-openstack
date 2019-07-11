@@ -1,3 +1,6 @@
+'''
+Samples url
+'''
 # Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +16,10 @@
 # limitations under the License.
 
 from django.conf.urls import url
+from rest_framework.urlpatterns import format_suffix_patterns
 from pike.samples import views
 
-urlpatterns = [
+URLPATTERNS = [
     url(r'^samples/$', views.SampleList.as_view()), ]
+
+urlpatterns = format_suffix_patterns(URLPATTERNS)
