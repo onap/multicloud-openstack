@@ -1,3 +1,6 @@
+'''
+Extension url
+'''
 # Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +20,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from pike.extensions.views import extensions
 
-urlpatterns = [
+URLPATTERNS = [
     url(r'^sions/?$', extensions.Extensions.as_view()),
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns = format_suffix_patterns(URLPATTERNS)
