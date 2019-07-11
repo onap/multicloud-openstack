@@ -1,3 +1,6 @@
+'''
+test infra workload
+'''
 # Copyright (c) 2018 Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -101,7 +104,8 @@ MOCK_HEAT_CREATE_BODY1 = {
                             "get_param": "flavor"
                         },
                         "image": "40be8d1a-3eb9-40de-8abd-43237517384f",
-                        "user_data": "#!/bin/bash -xv\necho \"hello world\" &gt; /root/hello-world.txt\n"
+                        "user_data":
+                        "#!/bin/bash -xv\necho \"hello world\" &gt; /root/hello-world.txt\n"
                     }
                 }
             }
@@ -154,7 +158,8 @@ MOCK_HEAT_CREATE_BODY2 = {
                             "get_param": "flavor"
                         },
                         "image": "40be8d1a-3eb9-40de-8abd-43237517384f",
-                        "user_data": "#!/bin/bash -xv\necho \"hello world\" &gt; /root/hello-world.txt\n"
+                        "user_data":
+                        "#!/bin/bash -xv\necho \"hello world\" &gt; /root/hello-world.txt\n"
                     }
                 }
             }
@@ -166,7 +171,7 @@ MOCK_HEAT_CREATE_BODY2 = {
 
 class InfraWorkloadTest(unittest.TestCase):
     def setUp(self):
-        self._InfraWorkload = InfraWorkload()
+        self._infra_workload = InfraWorkload()
         pass
 
     def tearDown(self):
@@ -189,13 +194,14 @@ class InfraWorkloadTest(unittest.TestCase):
 
         vimid = "CloudOwner_Region1"
 
-        response = self._InfraWorkload.post(mock_request, vimid)
+        response = self._infra_workload.post(mock_request, vimid)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         pass
 
     @mock.patch.object(helper, 'MultiCloudServiceHelper')
     @mock.patch.object(helper, 'MultiCloudIdentityHelper')
-    def test_post_wo_oof_directive(self, mock_MultiCloudIdentityHelper, mock_MultiCloudServiceHelper):
+    def test_post_wo_oof_directive(self, mock_MultiCloudIdentityHelper,
+                                   mock_MultiCloudServiceHelper):
         mock_request = mock.Mock()
         mock_request.META = {"testkey": "testvalue"}
         mock_request.data = MOCK_HEAT_CREATE_BODY2
@@ -210,7 +216,7 @@ class InfraWorkloadTest(unittest.TestCase):
 
         vimid = "CloudOwner_Region1"
 
-        response = self._InfraWorkload.post(mock_request, vimid)
+        response = self._infra_workload.post(mock_request, vimid)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         pass
 
@@ -231,7 +237,7 @@ class InfraWorkloadTest(unittest.TestCase):
         vimid = "CloudOwner_Region1"
         mock_stack_id = "MOCKED_HEAT_STACK_ID1"
 
-        response = self._InfraWorkload.get(mock_request, vimid, mock_stack_id)
+        response = self._infra_workload.get(mock_request, vimid, mock_stack_id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         pass
 
@@ -252,7 +258,7 @@ class InfraWorkloadTest(unittest.TestCase):
         vimid = "CloudOwner_Region1"
         mock_stack_id = "MOCKED_HEAT_STACK_ID1"
 
-        response = self._InfraWorkload.delete(mock_request, vimid, mock_stack_id)
+        response = self._infra_workload.delete(mock_request, vimid, mock_stack_id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         pass
 
@@ -305,7 +311,8 @@ class APIv1InfraWorkloadTest(unittest.TestCase):
         cloud_region_id = "Region1"
         mock_stack_id = "MOCKED_HEAT_STACK_ID1"
 
-        response = self._APIv1InfraWorkload.get(mock_request, cloud_owner, cloud_region_id, mock_stack_id)
+        response = self._APIv1InfraWorkload.get(mock_request, cloud_owner,
+                                                cloud_region_id, mock_stack_id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         pass
 
@@ -327,6 +334,7 @@ class APIv1InfraWorkloadTest(unittest.TestCase):
         cloud_region_id = "Region1"
         mock_stack_id = "MOCKED_HEAT_STACK_ID1"
 
-        response = self._APIv1InfraWorkload.delete(mock_request, cloud_owner, cloud_region_id, mock_stack_id)
+        response = self._APIv1InfraWorkload.delete(mock_request, cloud_owner,
+                                                   cloud_region_id, mock_stack_id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         pass
