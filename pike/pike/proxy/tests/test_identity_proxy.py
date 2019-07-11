@@ -521,7 +521,7 @@ class TestIdentityService(unittest.TestCase):
         # simulate client to make the request
         data = {}
         response = self.client.post("/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens", data=data, format='json')
-        self.failUnlessEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         context = response.json()
 
         self.assertTrue(response['X-Subject-Token'] == mock_token_id)
@@ -559,8 +559,8 @@ class TestIdentityService(unittest.TestCase):
         response = self.client.post(
             "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/identity/v2.0/tokens",
             data=data, format='json')
-        self.failUnlessEqual(status.HTTP_200_OK,
-                             response.status_code)
+        self.assertEqual(status.HTTP_200_OK,
+                         response.status_code)
         context = response.json()
 
         self.assertIsNotNone(context['access']['token'])
@@ -620,8 +620,8 @@ class TestIdentityService(unittest.TestCase):
         response = self.client.post(
             "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens",
             data=json.dumps(token_data), content_type='application/json')
-        self.failUnlessEqual(status.HTTP_201_CREATED,
-                             response.status_code)
+        self.assertEqual(status.HTTP_201_CREATED,
+                         response.status_code)
         context = response.json()
 
         self.assertEqual(mock_info.MOCK_TOKEN_ID,
@@ -669,8 +669,8 @@ class TestIdentityService(unittest.TestCase):
         response = self.client.post(
             "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/identity/v2.0/tokens",
             data=json.dumps(token_data), content_type='application/json')
-        self.failUnlessEqual(status.HTTP_200_OK,
-                             response.status_code)
+        self.assertEqual(status.HTTP_200_OK,
+                         response.status_code)
         context = response.json()
 
         self.assertIsNotNone(context['access']['token'])
@@ -726,8 +726,8 @@ class TestIdentityService(unittest.TestCase):
         response = self.client.post(
             "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/identity/v3/auth/tokens",
             data=json.dumps(token_data), content_type='application/json')
-        self.failUnlessEqual(status.HTTP_201_CREATED,
-                             response.status_code)
+        self.assertEqual(status.HTTP_201_CREATED,
+                         response.status_code)
         context = response.json()
 
         self.assertEqual(mock_info.MOCK_TOKEN_ID,
