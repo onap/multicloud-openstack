@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # rest framework
-Django==1.9.6
+Django==2.2.3
 djangorestframework==3.3.3
 
 # for call rest api

@@ -30,9 +30,9 @@ class TestExtensions(unittest.TestCase):
             "/api/multicloud-pike/v0/" + vimid + "/extensions/")
         json_content = response.json()
 
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(4, len(json_content.keys()))
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(4, len(list(json_content.keys())))
 
-        self.assertEquals(cloud_owner, json_content["cloud-owner"])
-        self.assertEquals(cloud_region_id, json_content["cloud-region-id"])
-        self.assertEquals(vimid, json_content["vimid"])
+        self.assertEqual(cloud_owner, json_content["cloud-owner"])
+        self.assertEqual(cloud_region_id, json_content["cloud-region-id"])
+        self.assertEqual(vimid, json_content["vimid"])

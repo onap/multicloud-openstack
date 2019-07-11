@@ -722,12 +722,12 @@ class TestServiceProxy(unittest.TestCase):
         response = self.client.head(
             "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
             {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
 
     def test_unauthorized_access(self):
         response = self.client.get(
             "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers")
-        self.assertEquals(status.HTTP_403_FORBIDDEN, response.status_code)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_expired_auth_token(self, mock_get_vim_info):
@@ -735,7 +735,7 @@ class TestServiceProxy(unittest.TestCase):
 
         response = self.client.get("/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
                                    {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
-        self.assertEquals(status.HTTP_403_FORBIDDEN, response.status_code)
+        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_token_cache')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -747,14 +747,14 @@ class TestServiceProxy(unittest.TestCase):
         server_url = "/v2.1/fcca3cc49d5e42caae15459e27103efc/servers"
         url = (base_url + servicetype + server_url)
         response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
-        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+        self.assertEqual(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
 
         metadata_catalog = copy.deepcopy(MOCK_INTERNAL_METADATA_CATALOG)
         metadata_catalog[servicetype] = None
         mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), json.dumps(metadata_catalog))
 
         response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
-        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+        self.assertEqual(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
 
         metadata_catalog = copy.deepcopy(MOCK_INTERNAL_METADATA_CATALOG)
         metadata_catalog[servicetype]['prefix'] = None
@@ -762,7 +762,7 @@ class TestServiceProxy(unittest.TestCase):
         mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), json.dumps(metadata_catalog))
 
         response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
-        self.assertEquals(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
+        self.assertEqual(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -819,29 +819,29 @@ class TestServiceProxy(unittest.TestCase):
             "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
             MOCK_POST_SERVER_REQUEST, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code)
         context = response.json()
-        self.assertEquals(MOCK_TOKEN_ID, response['X-Subject-Token'])
+        self.assertEqual(MOCK_TOKEN_ID, response['X-Subject-Token'])
         self.assertIsNotNone(context['server'])
 
         # Retrieve resource
         response = self.client.get(
             "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
             {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
         context = response.json()
 
-        self.assertEquals(MOCK_TOKEN_ID, response['X-Subject-Token'])
+        self.assertEqual(MOCK_TOKEN_ID, response['X-Subject-Token'])
         self.assertIsNotNone(context['servers'])
 
         # Update resource
         response = self.client.get(
             "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
             {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
         context = response.json()
 
-        self.assertEquals(MOCK_TOKEN_ID, response['X-Subject-Token'])
+        self.assertEqual(MOCK_TOKEN_ID, response['X-Subject-Token'])
         self.assertIsNotNone(context['servers'])
 
         # simulate client to make the request
@@ -849,5 +849,5 @@ class TestServiceProxy(unittest.TestCase):
             "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers/324dfb7d-f4a9-419a-9a19-237df04b443b",
             HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_204_NO_CONTENT, response.status_code)
-        self.assertEquals(MOCK_TOKEN_ID, response['X-Subject-Token'])
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertEqual(MOCK_TOKEN_ID, response['X-Subject-Token'])
