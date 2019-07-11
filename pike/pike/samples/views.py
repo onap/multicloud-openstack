@@ -1,3 +1,6 @@
+'''
+samples view
+'''
 # Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +20,13 @@ import logging
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class SampleList(APIView):
     """
     List all samples.
     """
-    def get(self, request, format=None):
-        logger.debug("get")
+    def get(self, request):
+        LOGGER.debug("get %s", request)
         return Response({"status": "active"})
