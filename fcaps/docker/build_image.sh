@@ -6,8 +6,8 @@ cd ${DOCKER_BUILD_DIR}
 
 BUILD_ARGS="--no-cache"
 ORG="onap"
-VERSION="1.3.5-SNAPSHOT"
-STAGING="1.3.5-STAGING"
+VERSION="1.4.0-SNAPSHOT"
+STAGING="1.4.0-STAGING"
 PROJECT="multicloud"
 IMAGE="openstack-fcaps"
 DOCKER_REPOSITORY="nexus3.onap.org:10003"
