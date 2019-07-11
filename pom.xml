@@ -38,7 +38,7 @@
     </properties>
 
     <modules>
-        <module>newton</module>
+        <!--module>newton</module-->
         <module>ocata</module>
         <module>windriver</module>
         <module>pike</module>
