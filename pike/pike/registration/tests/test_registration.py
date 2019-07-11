@@ -1,3 +1,6 @@
+'''
+test registration
+'''
 # Copyright (c) 2018 Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -166,7 +169,7 @@ MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE = {
 }
 
 # HPA UT2: CPU-Topology
-MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS2_RESPONSE = {
+MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS2_RESPONSE = {
     "extra_specs": {
         "aggregate_instance_extra_specs:storage": "local_image",
         "capabilities:cpu_info:model": "Haswell",
@@ -177,7 +180,7 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS2_RESPONSE = {
 }
 
 # HPA UT3: mem_page_size
-MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS3_RESPONSE = {
+MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS3_RESPONSE = {
     "extra_specs": {
         "aggregate_instance_extra_specs:storage": "local_image",
         "capabilities:cpu_info:model": "Haswell",
@@ -186,7 +189,7 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS3_RESPONSE = {
 }
 
 # HPA UT4: numa_nodes
-MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS4_RESPONSE = {
+MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS4_RESPONSE = {
     "extra_specs": {
         "aggregate_instance_extra_specs:storage": "local_image",
         "capabilities:cpu_info:model": "Haswell",
@@ -199,7 +202,7 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS4_RESPONSE = {
 }
 
 # HPA UT5: instruction set
-MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS5_RESPONSE = {
+MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS5_RESPONSE = {
     "extra_specs": {
         "aggregate_instance_extra_specs:storage": "local_image",
         "capabilities:cpu_info:model": "Haswell",
@@ -208,7 +211,7 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS5_RESPONSE = {
 }
 
 # HPA UT6: pci passthrough
-MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS6_RESPONSE = {
+MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS6_RESPONSE = {
     "extra_specs": {
         "aggregate_instance_extra_specs:storage": "local_image",
         "capabilities:cpu_info:model": "Haswell",
@@ -216,7 +219,7 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS6_RESPONSE = {
     }
 }
 
-MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE = {
+MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS_RESPONSE = {
     "extra_specs": {
         "aggregate_instance_extra_specs:storage": "local_image",
         "capabilities:cpu_info:model": "Haswell",
@@ -227,6 +230,9 @@ MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE = {
 
 
 class TestRegistration(test_base.TestRequest):
+    '''
+    test registration
+    '''
 
     def setUp(self):
         super(TestRegistration, self).setUp()
@@ -263,13 +269,13 @@ class TestRegistration(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post((
-            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+        response = self.client.post(
+            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/registry",
+            TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
-                          response.status_code)
+        self.assertEqual(status.HTTP_202_ACCEPTED,
+                         response.status_code)
 
 #    @mock.patch.object(VimDriverUtils, 'delete_vim_info')
 #    def test_unregister_endpoint_successfully(
@@ -289,13 +295,13 @@ class TestRegistration(test_base.TestRequest):
             self, mock_delete_vim_info):
         mock_delete_vim_info.return_value = 1
 
-        response = self.client.delete((
-            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), "{}", content_type="application/json",
+        response = self.client.delete(
+            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/registry",
+            "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_204_NO_CONTENT,
-                          response.status_code)
+        self.assertEqual(status.HTTP_204_NO_CONTENT,
+                         response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -309,7 +315,7 @@ class TestRegistration(test_base.TestRequest):
                 "side_effect": [
                     self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
                     self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
-                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS_RESPONSE),
                     self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
@@ -319,12 +325,12 @@ class TestRegistration(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post((
-            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+        response = self.client.post(
+            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/registry",
+            TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -338,7 +344,7 @@ class TestRegistration(test_base.TestRequest):
                 "side_effect": [
                     self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
                     self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
-                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS2_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS2_RESPONSE),
                     self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
@@ -348,12 +354,12 @@ class TestRegistration(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post((
-            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+        response = self.client.post(
+            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/registry",
+            TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -367,7 +373,7 @@ class TestRegistration(test_base.TestRequest):
                 "side_effect": [
                     self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
                     self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
-                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS3_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS3_RESPONSE),
                     self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
@@ -377,12 +383,12 @@ class TestRegistration(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post((
-            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+        response = self.client.post(
+            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/registry",
+            TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -396,7 +402,7 @@ class TestRegistration(test_base.TestRequest):
                 "side_effect": [
                     self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
                     self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
-                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS4_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS4_RESPONSE),
                     self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
@@ -406,12 +412,12 @@ class TestRegistration(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post((
-            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+        response = self.client.post(
+            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/registry",
+            TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -425,7 +431,7 @@ class TestRegistration(test_base.TestRequest):
                 "side_effect": [
                     self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
                     self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
-                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS5_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS5_RESPONSE),
                     self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
@@ -435,12 +441,12 @@ class TestRegistration(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post((
-            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+        response = self.client.post(
+            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/registry",
+            TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
@@ -454,7 +460,7 @@ class TestRegistration(test_base.TestRequest):
                 "side_effect": [
                     self._get_mock_response(MOCK_GET_TENANT_RESPONSE),
                     self._get_mock_response(MOCK_GET_HPA_FLAVOR_LIST1_RESPONSE),
-                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_onap_mini_EXTRA_SPECS6_RESPONSE),
+                    self._get_mock_response(MOCK_GET_HPA_FLAVOR_ONAP_MINI_EXTRA_SPECS6_RESPONSE),
                     self._get_mock_response(MOCK_GET_IMAGE_RESPONSE),
                     self._get_mock_response(),
                     self._get_mock_response(MOCK_GET_AZ_RESPONSE),
@@ -464,9 +470,9 @@ class TestRegistration(test_base.TestRequest):
                 ]
             })
 
-        response = self.client.post((
-            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/"
-            "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
+        response = self.client.post(
+            "/api/multicloud-pike/v0/windriver-hudson-dc_RegionOne/registry",
+            TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED, response.status_code)
+        self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code)
