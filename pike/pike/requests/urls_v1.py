@@ -1,3 +1,6 @@
+'''
+Request url V1
+'''
 # Copyright (c) 2018 Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +28,7 @@ from newton_base.openoapi import limits
 from newton_base.openoapi import hosts
 from newton_base.openoapi import flavor
 
-urlpatterns = [
+URLPATTERNS = [
     url(r'^networks(/(?P<networkid>[0-9a-zA-Z_-]+))?',
         network.APIv1Networks.as_view()),
     url(r'^subnets(/(?P<subnetid>[0-9a-zA-Z_-]+))?',
@@ -46,4 +49,4 @@ urlpatterns = [
     url(r'^hosts(/(?P<hostname>[0-9a-zA-Z_-]+))?', hosts.APIv1Hosts.as_view()),
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns = format_suffix_patterns(URLPATTERNS)

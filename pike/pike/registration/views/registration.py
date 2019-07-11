@@ -1,3 +1,6 @@
+'''
+registration
+'''
 # Copyright (c) 2018 Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +22,7 @@ from django.conf import settings
 from newton_base.registration import registration as newton_registration
 from common.msapi import extsys
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 # DEBUG=True
 
@@ -29,7 +32,7 @@ class Registry(newton_registration.Registry):
     def __init__(self):
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
-        self._logger = logger
+        self._logger = LOGGER
         super(Registry, self).__init__()
 
 
@@ -37,7 +40,7 @@ class RegistryV1(Registry):
     def __init__(self):
         self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
         self.aai_base_url = settings.AAI_BASE_URL
-        self._logger = logger
+        self._logger = LOGGER
         super(RegistryV1, self).__init__()
 
     def post(self, request, cloud_owner="", cloud_region_id=""):

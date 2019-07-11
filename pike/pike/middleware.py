@@ -1,3 +1,6 @@
+'''
+This is middle module
+'''
 # Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,45 +23,54 @@ FORWARDED_FOR_FIELDS = ["HTTP_X_FORWARDED_FOR", "HTTP_X_FORWARDED_HOST",
                         "HTTP_X_FORWARDED_SERVER"]
 
 
-class LogContextMiddleware(object):
+class LogContextMiddleware:
+    '''
+    log context middleware
+    '''
 
-    #  the last IP behind multiple proxies,  if no exist proxies
-    #  get local host ip.
-    def _getLastIp(self, request):
-
-        ip = ""
+    def _get_last_ip(self, request):
+        '''
+        the last IP behind multiple proxies,  if no exist proxies
+        get local host ip.
+        '''
+        local_ip = ""
         try:
             for field in FORWARDED_FOR_FIELDS:
                 if field in request.META:
                     if ',' in request.META[field]:
                         parts = request.META[field].split(',')
-                        ip = parts[-1].strip().split(":")[0]
+                        local_ip = parts[-1].strip().split(":")[0]
                     else:
-                        ip = request.META[field].split(":")[0]
+                        local_ip = request.META[field].split(":")[0]
 
-            if ip == "":
-                ip = request.META.get("HTTP_HOST").split(":")[0]
+            if local_ip == "":
+                local_ip = request.META.get("HTTP_HOST").split(":")[0]
 
         except Exception:
             pass
 
-        return ip
+        return local_ip
 
     def process_request(self, request):
+        '''
+        process request
+        '''
         # fetch propageted Id from other component. if do not fetch id,
         # generate one.
-        ReqeustID = request.META.get("HTTP_X_TRANSACTIONID", None)
-        if ReqeustID is None:
-            ReqeustID = str(uuid.uuid3(uuid.NAMESPACE_URL, settings.MULTIVIM_VERSION))
-        MDC.put("requestID", ReqeustID)
+        reqeust_id = request.META.get("HTTP_X_TRANSACTIONID", None)
+        if reqeust_id is None:
+            reqeust_id = str(uuid.uuid3(uuid.NAMESPACE_URL, settings.MULTIVIM_VERSION))
+        MDC.put("requestID", reqeust_id)
         # generate the reqeust id
-        InvocationID = str(uuid.uuid4())
-        MDC.put("invocationID", InvocationID)
+        invocation_id = str(uuid.uuid4())
+        MDC.put("invocationID", invocation_id)
         MDC.put("serviceName", settings.MULTIVIM_VERSION)
-        MDC.put("serviceIP", self._getLastIp(request))
+        MDC.put("serviceIP", self._get_last_ip(request))
         return None
 
-    def process_response(self, request, response):
-
+    def process_response(self, response):
+        '''
+        process response
+        '''
         MDC.clear()
         return response
