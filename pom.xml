@@ -35,8 +35,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <nexusproxy>https://nexus.onap.org</nexusproxy>
-        <container-public-registry>nexus3.onap.org:10001</container-public-registry>
-        <container-staging-registry>nexus3.onap.org:10003</container-staging-registry>
     </properties>
 
     <modules>

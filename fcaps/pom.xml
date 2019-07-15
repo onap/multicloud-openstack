@@ -113,4 +113,76 @@
         </plugin>
       </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>copy-resources</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.basedir}/docker_target</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${project.basedir}/docker</directory>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                                <inherited>false</inherited>
+                                <configuration>
+                                    <target>
+                                        <exec executable="docker">
+                                           <arg value="build"/>
+                                           <arg value="-t"/>
+                                           <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-fcaps:${project.version}"/>
+                                           <arg value="docker_target"/>
+                                        </exec>
+                                        <exec executable="docker">
+                                            <arg value="tag"/>
+                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-fcaps:${project.version}"/>
+                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-fcaps:latest"/>
+                                        </exec>
+                                        <exec executable="docker">
+                                            <arg value="push"/>
+                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-fcaps:${project.version}"/>
+                                        </exec>
+                                        <exec executable="docker">
+                                            <arg value="push"/>
+                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-fcaps:latest"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
 </project>

@@ -154,21 +154,21 @@
                                         <exec executable="docker">
                                            <arg value="build"/>
                                            <arg value="-t"/>
-                                           <arg value="${container-staging-registry}/onap/multicloud/openstack-windriver:${project.version}"/>
+                                           <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-windriver:${project.version}"/>
                                            <arg value="docker_target"/>
                                         </exec>
                                         <exec executable="docker">
                                             <arg value="tag"/>
-                                            <arg value="${container-staging-registry}/onap/multicloud/openstack-windriver:${project.version}"/>
-                                            <arg value="${container-staging-registry}/onap/multicloud/openstack-windriver:latest"/>
+                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-windriver:${project.version}"/>
+                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-windriver:latest"/>
                                         </exec>
                                         <exec executable="docker">
                                             <arg value="push"/>
-                                            <arg value="${container-staging-registry}/onap/multicloud/openstack-windriver:${project.version}"/>
+                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-windriver:${project.version}"/>
                                         </exec>
                                         <exec executable="docker">
                                             <arg value="push"/>
-                                            <arg value="${container-staging-registry}/onap/multicloud/openstack-windriver:latest"/>
+                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-windriver:latest"/>
                                         </exec>
                                     </target>
                                 </configuration>
