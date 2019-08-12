@@ -22,7 +22,7 @@ RUN addgroup -S onap && adduser -S -G onap onap
 RUN apk update && \
     apk add uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
-    wget -O multicloud-openstack-fcaps.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-fcaps&e=zip&v=1.4.0-SNAPSHOT" && \
+    wget -O multicloud-openstack-fcaps.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=staging&g=org.onap.multicloud.openstack&a=multicloud-openstack-fcaps&e=zip&v=1.4.0" && \
     unzip -q -o -B multicloud-openstack-fcaps.zip && \
     chmod +x /opt/fcaps/*.sh && \
     rm -f multicloud-openstack-fcaps.zip && \

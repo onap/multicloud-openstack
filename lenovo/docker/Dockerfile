@@ -37,7 +37,7 @@ RUN groupadd -r onap && useradd -r -g onap onap
 RUN apt-get update && \
     apt-get install -y memcached wget unzip gcc libssl-dev && \
     cd /opt/ && \
-    wget -O multicloud-openstack-lenovo.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=snapshots&g=org.onap.multicloud.openstack&a=multicloud-openstack-lenovo&e=zip&v=1.4.0-SNAPSHOT" && \
+    wget -O multicloud-openstack-lenovo.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=staging&g=org.onap.multicloud.openstack&a=multicloud-openstack-lenovo&e=zip&v=1.4.0" && \
     unzip -q -o -B multicloud-openstack-lenovo.zip && \
     chmod +x /opt/lenovo/*.sh &&\
     rm -f multicloud-openstack-lenovo.zip &&\
