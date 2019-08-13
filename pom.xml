@@ -38,12 +38,13 @@
     </properties>
 
     <modules>
+        <module></module>
         <!--module>newton</module-->
         <module>ocata</module>
         <module>windriver</module>
         <module>pike</module>
         <module>starlingx</module>
-        <module>lenovo</module>
+        <!--module>lenovo</module-->
     </modules>
 
     <build>
