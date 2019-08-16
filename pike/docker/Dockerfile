@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:2-slim
+FROM python:3-slim
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
@@ -33,13 +33,14 @@ EXPOSE 9007
 
 RUN groupadd -r onap && useradd -r -g onap onap
 
+COPY ./multicloud-openstack-pike-1.4.0-SNAPSHOT.zip /opt/multicloud-openstack-pike.zip
 RUN apt-get update && \
     apt-get install -y memcached wget unzip gcc libssl-dev && \
     cd /opt/ && \
-    wget -O /opt/multicloud-openstack-pike.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=staging&g=org.onap.multicloud.openstack&a=multicloud-openstack-pike&e=zip&v=1.4.0" && \
     unzip -q -o -B /opt/multicloud-openstack-pike.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-pike.zip && \
-    pip install -r /opt/pike/requirements.txt && \
+    pip3 install -r /opt/pike/requirements.txt && \
+    pip3 install -r /opt/pike/uwsgi-requirements.txt && \
     apt-get --purge remove -y wget unzip gcc libssl-dev && \
     mkdir -p /var/log/onap/multicloud/openstack/pike && \
     chown onap:onap /var/log/onap -R && \
