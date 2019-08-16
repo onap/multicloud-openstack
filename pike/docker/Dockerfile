@@ -33,7 +33,7 @@ EXPOSE 9007
 
 RUN groupadd -r onap && useradd -r -g onap onap
 
-COPY ./multicloud-openstack-pike-1.4.0-SNAPSHOT.zip /opt/multicloud-openstack-pike.zip
+COPY ./multicloud-openstack-pike-*.zip /opt/multicloud-openstack-pike.zip
 RUN apt-get update && \
     apt-get install -y memcached wget unzip gcc libssl-dev && \
     cd /opt/ && \
