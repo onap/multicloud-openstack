@@ -25,7 +25,7 @@ from common.exceptions import VimDriverNewtonException
 from common.msapi import extsys
 from newton_base.extensions import extensions as newton_extensions
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 # DEBUG=True
 
@@ -34,12 +34,12 @@ class Extensions(newton_extensions.Extensions):
 
     def __init__(self):
         super(Extensions, self).__init__()
-        # self._logger = logger
+        # self._logger = LOGGER
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
 
     def get(self, request, vimid=""):
-        logger.debug("Extensions--get::data> %s" % request.data)
-        logger.debug("Extensions--get::vimid> %s"
+        LOGGER.debug("Extensions--get::data> %s" % request.data)
+        LOGGER.debug("Extensions--get::vimid> %s"
                      % vimid)
         try:
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
@@ -65,10 +65,10 @@ class Extensions(newton_extensions.Extensions):
         except VimDriverNewtonException as e:
             return Response(data={'error': e.content}, status=e.status_code)
         except HttpError as e:
-            logger.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
+            LOGGER.error("HttpError: status:%s, response:%s" % (e.http_status, e.response.json()))
             return Response(data=e.response.json(), status=e.http_status)
         except Exception as e:
-            logger.error(traceback.format_exc())
+            LOGGER.error(traceback.format_exc())
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -77,11 +77,11 @@ class APIv1Extensions(Extensions):
 
     def __init__(self):
         super(APIv1Extensions, self).__init__()
-        # self._logger = logger
+        # self._logger = LOGGER
         self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
 
     def get(self, request, cloud_owner="", cloud_region_id=""):
-        self._logger.info(
+        LOGGER.info(
             "cloud_owner,cloud_region_id: %s,%s" %
             (cloud_owner, cloud_region_id))
 

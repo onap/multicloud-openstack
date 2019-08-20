@@ -12,10 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 import json
-import mock
+# import mock
 from rest_framework import status
 import unittest
+
+if sys.version_info < (3, 0):
+    import mock
+else:
+    from unittest import mock
 
 from abc import ABCMeta
 from django.conf import settings
@@ -35,9 +41,15 @@ class MockResponse(object):
         pass
 
 
+def get_mock_response(return_value=None):
+    mock_response = mock.Mock(spec=MockResponse)
+    mock_response.status_code = status.HTTP_200_OK
+    mock_response.json.return_value = return_value
+    return mock_response
+
 def get_mock_session(http_actions, response_dict={}):
     mock_session = mock.Mock(
-        name='mock_session',spec=http_actions)
+        name='mock_session', spec=http_actions)
     for action in http_actions:
         side_effect = response_dict.get("side_effect")
         if side_effect and isinstance(side_effect, list):
