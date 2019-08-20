@@ -245,7 +245,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
+        self.assertEqual(status.HTTP_202_ACCEPTED,
                           response.status_code)
 
     #    @mock.patch.object(VimDriverUtils, 'delete_vim_info')
@@ -258,7 +258,7 @@ class TestRegistration(test_base.TestRequest):
     #            "registry"), "{}", content_type="application/json",
     #            HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-    #        self.assertEquals(status.HTTP_202_ACCEPTED,
+    #        self.assertEqual(status.HTTP_202_ACCEPTED,
     #                          response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'delete_vim_info')
@@ -271,7 +271,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), "{}", content_type="application/json",
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_204_NO_CONTENT,
+        self.assertEqual(status.HTTP_204_NO_CONTENT,
                           response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -301,7 +301,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
+        self.assertEqual(status.HTTP_202_ACCEPTED,
                           response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -331,7 +331,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
+        self.assertEqual(status.HTTP_202_ACCEPTED,
                           response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -361,7 +361,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
+        self.assertEqual(status.HTTP_202_ACCEPTED,
                           response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -391,7 +391,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
+        self.assertEqual(status.HTTP_202_ACCEPTED,
                           response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -421,7 +421,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
+        self.assertEqual(status.HTTP_202_ACCEPTED,
                           response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -451,7 +451,7 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
+        self.assertEqual(status.HTTP_202_ACCEPTED,
                           response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_session')
@@ -481,5 +481,5 @@ class TestRegistration(test_base.TestRequest):
             "registry"), TEST_REGISTER_ENDPOINT_REQUEST,
             HTTP_X_AUTH_TOKEN=mock_info.MOCK_TOKEN_ID)
 
-        self.assertEquals(status.HTTP_202_ACCEPTED,
+        self.assertEqual(status.HTTP_202_ACCEPTED,
                           response.status_code)

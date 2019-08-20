@@ -228,8 +228,8 @@ class InfraWorkloadHelper(object):
                             self._logger.debug("AAI update %s response: %s" %
                                                (aai_resource['uri'], content))
                     except Exception as e:
-                        self._logger.error(e.message)
-                        return status.HTTP_500_INTERNAL_SERVER_ERROR, "UPDATE_FAILED", e.message
+                        self._logger.error(str(e))
+                        return status.HTTP_500_INTERNAL_SERVER_ERROR, "UPDATE_FAILED", str(e)
 
                     # aai_resource_transactions = {"put": [aai_resource]}
                     # transactions.append(aai_resource_transactions)
@@ -284,8 +284,8 @@ class InfraWorkloadHelper(object):
                             self._logger.debug("AAI update %s response: %s" %
                                                (aai_resource['uri'], content))
                     except Exception as e:
-                        self._logger.error(e.message)
-                        return status.HTTP_500_INTERNAL_SERVER_ERROR, "UPDATE_FAILED", e.message
+                        self._logger.error(str(e))
+                        return status.HTTP_500_INTERNAL_SERVER_ERROR, "UPDATE_FAILED", str(e)
 
                     # aai_resource_transactions = {"put": [aai_resource]}
                     # transactions.append(aai_resource_transactions)
@@ -373,7 +373,7 @@ class InfraWorkloadHelper(object):
 
                         restcall.req_to_aai(vport_delete_url, "DELETE")
                 except Exception as e:
-                    # return 12, "DELETE_FAILED", e.message
+                    # return 12, "DELETE_FAILED", str(e)
                     pass
 
                 try:
@@ -389,8 +389,8 @@ class InfraWorkloadHelper(object):
 
             return 0, "DELETE_COMPLETE", "succeed"
         except Exception as e:
-            self._logger.error(e.message)
-            return status.HTTP_500_INTERNAL_SERVER_ERROR, "DELETE_FAILED", e.message
+            self._logger.error(str(e))
+            return status.HTTP_500_INTERNAL_SERVER_ERROR, "DELETE_FAILED", str(e)
         pass
 
     def workload_status(self, vimid, stack_id=None, stack_name=None, otherinfo=None, project_idorname=None):
@@ -444,8 +444,8 @@ class InfraWorkloadHelper(object):
 
             return retcode, workload_status, content
         except Exception as e:
-            self._logger.error(e.message)
-            return status.HTTP_500_INTERNAL_SERVER_ERROR, "GET_FAILED", e.message
+            self._logger.error(str(e))
+            return status.HTTP_500_INTERNAL_SERVER_ERROR, "GET_FAILED", str(e)
 
 
     def workload_detail(self, vimid, stack_id, nexturi=None, otherinfo=None, project_idorname=None):
@@ -497,5 +497,5 @@ class InfraWorkloadHelper(object):
 
             return 0, workload_status, content
         except Exception as e:
-            self._logger.error(e.message)
-            return status.HTTP_500_INTERNAL_SERVER_ERROR, "GET_FAILED", e.message
+            self._logger.error(str(e))
+            return status.HTTP_500_INTERNAL_SERVER_ERROR, "GET_FAILED", str(e)

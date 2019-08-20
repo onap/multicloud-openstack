@@ -33,7 +33,7 @@ def get_cache_by_url(resource_url):
         else:
             return None
     except Exception as e:
-        logger.error("get_cache_by_url exception: %s" % e.message)
+        logger.error("get_cache_by_url exception: %s" % str(e))
         return None
 
 
@@ -45,7 +45,7 @@ def set_cache_by_url(resource_url, resource_in_json):
             # logger.debug("Cache the resource: "+ resource_url)
             cache.set("AAI_" + resource_url, json.dumps(resource_in_json), 3600 * 24)
     except Exception as e:
-        logger.error("get_cache_by_url exception: %s" % e.message)
+        logger.error("get_cache_by_url exception: %s" % str(e))
         pass
 
 def filter_cache_by_url(resource_url):

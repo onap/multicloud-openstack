@@ -20,7 +20,7 @@ from titanium_cloud.swagger.views import APIv1SwaggerJsonViewDepreciated
 from titanium_cloud.swagger.views import SwaggerJsonView
 from titanium_cloud.swagger.views import APIv1SwaggerJsonView
 
-urlpatterns = [
+URLPATTERNS = [
     # API v0, depreciated
     url(r'^api/multicloud-titanium_cloud/v0/swagger.json$', SwaggerJsonViewDepreciated.as_view()),
 
@@ -35,4 +35,4 @@ urlpatterns = [
 
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns = format_suffix_patterns(URLPATTERNS)

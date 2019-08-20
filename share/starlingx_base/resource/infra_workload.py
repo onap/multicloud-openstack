@@ -139,12 +139,12 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                         status_code = status.HTTP_202_ACCEPTED\
                             if progress_code == 0 else progress_code
                     except Exception as e:
-                        self._logger.warn("Exception: %s" % e.message)
+                        self._logger.warn("Exception: %s" % str(e))
                         resp_template["workload_status_reason"] = progress
 
                     return Response(data=resp_template, status=status_code)
         except Exception as e:
-            errmsg = e.message
+            errmsg = str(e)
             self._logger.error(errmsg)
             resp_template["workload_status_reason"] = errmsg
             return Response(data=resp_template,
@@ -252,8 +252,8 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
             return Response(data=resp_template, status=status_code)
 
         except Exception as e:
-            self._logger.error(e.message)
-            resp_template["workload_status_reason"] = e.message
+            self._logger.error(str(e))
+            resp_template["workload_status_reason"] = str(e)
             return Response(data=resp_template,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -339,8 +339,8 @@ class InfraWorkload(newton_infra_workload.InfraWorkload):
                     resp_template["workload_status_reason"] = progress
                 return Response(data=resp_template, status=status_code)
         except Exception as e:
-            self._logger.error(e.message)
-            resp_template["workload_status_reason"] = e.message
+            self._logger.error(str(e))
+            resp_template["workload_status_reason"] = str(e)
             return Response(data=resp_template,
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -486,7 +486,7 @@ class InfraWorkloadHelper(infra_workload_helper.InfraWorkloadHelper):
                     self._logger.info("artifacts not available for vfmodule %s" % vf_module_model_customization_id)
                     pass
         except Exception as e:
-            self._logger.error("template_update fails: %s" % e.message)
+            self._logger.error("template_update fails: %s" % str(e))
 
         # try 2: reuse the input: template_data
         return template_data
