@@ -349,7 +349,7 @@ class MultiCloudThreadHelper(object):
                     try:
                         item["status"] = worker(*payload) or 0
                     except Exception as e:
-                        item["status"] = e.message
+                        item["status"] = str(e)
                     cache_item_for_query = {
                         "id": item["id"],
                         "status": item["status"]
@@ -364,14 +364,14 @@ class MultiCloudThreadHelper(object):
                             cache.set(self.owner.cache_expired_prefix + cache_item_for_query["id"], cache_item_for_query, 3600*24)
                             cache.delete(self.owner.cache_prefix + cache_item_for_query["id"])
                         except Exception as e:
-                            logger.error(e.message)
+                            logger.error(str(e))
                     else:
                         item["timestamp"] = now
                         #update cache
                         try:
                             cache.set(self.owner.cache_prefix + cache_item_for_query["id"], cache_item_for_query, 3600*24) 
                         except Exception as e:
-                            logger.error(e.message)
+                            logger.error(str(e))
                 pass
             # end of loop
             # while True:

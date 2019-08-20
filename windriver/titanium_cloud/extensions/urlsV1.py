@@ -17,8 +17,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from titanium_cloud.extensions.views import extensions
 
-urlpatterns = [
+URLPATTERNS = [
     url(r'^sions/?$', extensions.APIv1Extensions.as_view()),
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns = format_suffix_patterns(URLPATTERNS)

@@ -1,4 +1,4 @@
-FROM python:2-alpine
+FROM python:3-alpine
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
@@ -18,15 +18,15 @@ EXPOSE 9005
 
 RUN addgroup -S onap && adduser -S -G onap onap
 # COPY ./ /opt/windriver/
-
+COPY ./multicloud-openstack-windriver-*.zip /opt/multicloud-openstack-windriver.zip
 RUN apk update && \
     apk add uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
-    wget -O multicloud-openstack-windriver.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=staging&g=org.onap.multicloud.openstack&a=multicloud-openstack-windriver&e=zip&v=1.4.0" && \
     unzip -q -o -B multicloud-openstack-windriver.zip && \
     chmod +x /opt/windriver/*.sh && \
     rm -f multicloud-openstack-windriver.zip && \
-    pip install -r /opt/windriver/requirements.txt && \
+    pip3 install -r /opt/windriver/requirements.txt && \
+    pip3 install -r /opt/windriver/uwsgi-requirements.txt && \
     apk del wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     mkdir -p /var/log/onap/multicloud/openstack/windriver && \
     chown onap:onap /var/log/onap -R && \

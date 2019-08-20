@@ -28,7 +28,7 @@ def delete_dirs(path):
             shutil.rmtree(path)
     except Exception as e:
         logger.error(traceback.format_exc())
-        logger.error("Failed to delete %s:%s", path, e.message)
+        logger.error("Failed to delete %s:%s", path, str(e))
 
 
 def download_file_from_http(url, local_dir, file_name):

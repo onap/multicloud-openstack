@@ -495,7 +495,7 @@ class RegistryHelper(MultiCloudAAIHelper):
                     self._logger.error(traceback.format_exc())
                     return (
                         11,
-                        ex.message
+                        str(ex)
                     )
             else:
                 self._logger.error(
@@ -508,7 +508,7 @@ class RegistryHelper(MultiCloudAAIHelper):
             self._logger.error(traceback.format_exc())
             return (
                 11,
-                e.message
+                str(e)
             )
 
     def _discover_flavors(self, vimid="", session=None, viminfo=None):
@@ -568,7 +568,7 @@ class RegistryHelper(MultiCloudAAIHelper):
         except Exception as e:
             self._logger.error(traceback.format_exc())
             return (
-                11, e.message
+                11, str(e)
             )
 
     def _get_hpa_capabilities(self, flavor, extra_specs, viminfo):
@@ -661,7 +661,7 @@ class RegistryHelper(MultiCloudAAIHelper):
         except Exception as e:
             self._logger.error(traceback.format_exc())
             return (
-                11, e.message
+                11, str(e)
             )
 
         return basic_capability
@@ -1071,7 +1071,7 @@ class RegistryHelper(MultiCloudAAIHelper):
         except Exception as e:
             self._logger.error(traceback.format_exc())
             return (
-                11, e.message
+                11, str(e)
             )
 
     def _discover_availability_zones(self, vimid="", session=None,
@@ -1160,7 +1160,7 @@ class RegistryHelper(MultiCloudAAIHelper):
         except Exception as e:
             self._logger.error(traceback.format_exc())
             return (
-                11, e.message
+                11, str(e)
             )
 
     # def _discover_volumegroups(self, vimid="", session=None, viminfo=None):
@@ -1229,7 +1229,7 @@ class RegistryHelper(MultiCloudAAIHelper):
         except Exception as e:
             self._logger.error(traceback.format_exc())
             return (
-                11, e.message
+                11, str(e)
             )
 
     # def _discover_servergroups(self, vimid="", session=None, viminfo=None):
@@ -1456,7 +1456,7 @@ class RegistryHelper(MultiCloudAAIHelper):
         except Exception as e:
             self._logger.error(traceback.format_exc())
             return (
-                11, e.message
+                11, str(e)
             )
 
     def _update_proxy_identity_endpoint(self, vimid):
@@ -1531,6 +1531,6 @@ class RegistryHelper(MultiCloudAAIHelper):
         except Exception as e:
             self._logger.error(traceback.format_exc())
             return (
-                11, e.message
+                11, str(e)
             )
 
