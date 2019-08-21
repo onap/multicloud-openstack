@@ -20,7 +20,7 @@ RUN addgroup -S onap && adduser -S -G onap onap
 # COPY ./ /opt/windriver/
 COPY ./multicloud-openstack-windriver-*.zip /opt/multicloud-openstack-windriver.zip
 RUN apk update && \
-    apk add uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
+    apk add pcre pcre-dev uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
     unzip -q -o -B multicloud-openstack-windriver.zip && \
     chmod +x /opt/windriver/*.sh && \
