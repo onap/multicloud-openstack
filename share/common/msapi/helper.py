@@ -354,6 +354,7 @@ class MultiCloudThreadHelper(object):
                         "id": item["id"],
                         "status": item["status"]
                     }
+                    cache_item_for_query_str = json.dumps(cache_item_for_query)
                     if item.get("repeat", 0) == 0:
                         self.owner.expire(backlog_id)
                         # keep only the id and status
@@ -361,7 +362,7 @@ class MultiCloudThreadHelper(object):
 
                         #update cache
                         try:
-                            cache.set(self.owner.cache_expired_prefix + cache_item_for_query["id"], cache_item_for_query, 3600*24)
+                            cache.set(self.owner.cache_expired_prefix + cache_item_for_query["id"], cache_item_for_query_str, 3600*24)
                             cache.delete(self.owner.cache_prefix + cache_item_for_query["id"])
                         except Exception as e:
                             logger.error(str(e))
@@ -369,7 +370,7 @@ class MultiCloudThreadHelper(object):
                         item["timestamp"] = now
                         #update cache
                         try:
-                            cache.set(self.owner.cache_prefix + cache_item_for_query["id"], cache_item_for_query, 3600*24) 
+                            cache.set(self.owner.cache_prefix + cache_item_for_query["id"], cache_item_for_query_str, 3600*24)
                         except Exception as e:
                             logger.error(str(e))
                 pass

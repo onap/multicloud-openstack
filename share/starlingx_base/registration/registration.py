@@ -83,6 +83,13 @@ class APIv1Registry(newton_registration.Registry):
         super(APIv1Registry, self).__init__()
         # self._logger = logger
 
+    def get(self, request, cloud_owner="", cloud_region_id=""):
+        self._logger.debug("get cloud region: %s, %s"
+                           % (cloud_owner, cloud_region_id))
+
+        vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+        return super(APIv1Registry, self).get(request, vimid)
+
     def post(self, request, cloud_owner="", cloud_region_id=""):
         self._logger.info("registration with : %s, %s"
                           % (cloud_owner, cloud_region_id))
