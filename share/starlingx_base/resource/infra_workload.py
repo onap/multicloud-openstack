@@ -33,7 +33,7 @@ import yaml
 NoDatesSafeLoader = yaml.SafeLoader
 NoDatesSafeLoader.yaml_implicit_resolvers = {
     k: [r for r in v if r[0] != 'tag:yaml.org,2002:timestamp'] for
-        k, v in NoDatesSafeLoader.yaml_implicit_resolvers.items()
+        k, v in list(NoDatesSafeLoader.yaml_implicit_resolvers.items())
 }
 
 logger = logging.getLogger(__name__)

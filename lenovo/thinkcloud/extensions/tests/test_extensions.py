@@ -31,7 +31,7 @@ class TestExtensions(unittest.TestCase):
         json_content = response.json()
 
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(4, len(json_content.keys()))
+        self.assertEquals(4, len(list(json_content.keys())))
 
         self.assertEquals(cloud_owner, json_content["cloud-owner"])
         self.assertEquals(cloud_region_id, json_content["cloud-region-id"])

@@ -326,7 +326,7 @@ class MultiCloudThreadHelper(object):
                     time.sleep(nexttimer // 1000000)
                 nexttimer = 30*1000000  # initial interval in us to be updated:30 seconds
                 # logger.debug("self.owner.backlog: %s, len: %s" % (self.owner.name, len(self.owner.backlog)))
-                for backlog_id, item in self.owner.backlog.items():
+                for backlog_id, item in list(self.owner.backlog.items()):
                     # logger.debug("evaluate backlog item: %s" % item)
                     # check interval for repeatable backlog item
                     now = MultiCloudThreadHelper.get_epoch_now_usecond()

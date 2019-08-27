@@ -38,7 +38,7 @@ class ProxyUtils(object):
 
         content_str = json.dumps(content)
 
-        for (servicetype, service_metadata) in metadata_catalog.items():
+        for (servicetype, service_metadata) in list(metadata_catalog.items()):
             real_prefix = service_metadata.get('prefix', None)
             proxy_prefix = service_metadata.get('proxy_prefix', None)
 

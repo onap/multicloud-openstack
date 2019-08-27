@@ -488,7 +488,7 @@ class InfraResourceAuditor(newton_registration.RegistryHelper):
                 vimAzList.append(azName)
 
                 # get list of host names
-                pservers_info = [k for (k, v) in az['hosts'].items()]
+                pservers_info = [k for (k, v) in list(az['hosts'].items())]
 
                 # Get current cap info of azName
                 azCapCacheKey = "cap_" + vimid + "_" + azName

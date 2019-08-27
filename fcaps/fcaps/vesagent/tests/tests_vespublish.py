@@ -16,7 +16,8 @@ import mock
 
 import unittest
 # import json
-import urllib2
+# import urllib2
+import urllib
 
 from fcaps.vesagent import vespublish
 
@@ -36,8 +37,8 @@ class VespublishTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @mock.patch.object(urllib2, 'urlopen')
-    @mock.patch.object(urllib2, 'Request')
+    @mock.patch.object(urllib.request, 'urlopen')
+    @mock.patch.object(urllib.request, 'Request')
     def test_publishAnyEventToVES(self, mock_Request, mock_urlopen):
         mock_request = mock.Mock()
 

@@ -49,7 +49,7 @@ class Flavors(APIView):
           for spec in extra_specs_vfc:
               extra_specs_openstack[spec['keyName']] = spec['value']
        else:
-          for k,v in extra_specs_openstack.items():
+          for k,v in list(extra_specs_openstack.items()):
               spec={}
               spec['keyName']=k
               spec['value']=v
@@ -370,7 +370,7 @@ class Flavors(APIView):
         resp = self._get_flavor_extra_specs(sess, flavorid)
         extra_specs = resp.json()
         if extra_specs and extra_specs["extra_specs"]:
-            for k, _ in extra_specs["extra_specs"].items():
+            for k, _ in list(extra_specs["extra_specs"].items()):
                 # just try to delete extra spec, but do not care if succeeded
                 self._delete_flavor_one_extra_spec(sess, flavorid, k)
         return resp
