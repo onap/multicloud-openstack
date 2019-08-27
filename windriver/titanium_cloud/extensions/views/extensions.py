@@ -45,13 +45,13 @@ class Extensions(newton_extensions.Extensions):
             cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
             registered_extensions = \
                 [
-                    {
-                        "alias": "guest-monitor",
-                        "description": "Multiple network support",
-                        "name": "Guest Monitor",
-                        "url": self.proxy_prefix + "/%s/extensions/guest-monitor/{server_id}" % (vimid),
-                        "spec": ""
-                    }
+                    # {
+                    #     "alias": "guest-monitor",
+                    #     "description": "Multiple network support",
+                    #     "name": "Guest Monitor",
+                    #     "url": self.proxy_prefix + "/%s/extensions/guest-monitor/{server_id}" % (vimid),
+                    #     "spec": ""
+                    # }
                 ]
 
             content = {
