@@ -138,12 +138,12 @@ class TestUtil(unittest.TestCase):
             "ram": "16G"
         }
         new_keys = ["tenantId", "memory"]
-        mapping = [(o, n) for o, n in zip(dict_obj.keys(), new_keys)]
+        mapping = [(o, n) for o, n in zip(list(dict_obj.keys()), new_keys)]
         util.VimDriverUtils.replace_key_by_mapping(
             dict_obj, mapping)
 
-        self.assertEqual(len(new_keys), len(dict_obj.keys()))
-        self.assertEqual(sorted(new_keys), sorted(dict_obj.keys()))
+        self.assertEqual(len(new_keys), len(list(dict_obj.keys())))
+        self.assertEqual(sorted(new_keys), sorted(list(dict_obj.keys())))
 
     def test_replace_keys_reverse_order(self):
         dict_obj = {
@@ -151,9 +151,9 @@ class TestUtil(unittest.TestCase):
             "ram": "16G"
         }
         new_keys = ["tenantId", "memory"]
-        mapping = [(n, o) for o, n in zip(dict_obj.keys(), new_keys)]
+        mapping = [(n, o) for o, n in zip(list(dict_obj.keys()), new_keys)]
         util.VimDriverUtils.replace_key_by_mapping(
             dict_obj, mapping, reverse=True)
 
-        self.assertEqual(len(new_keys), len(dict_obj.keys()))
-        self.assertEqual(sorted(new_keys), sorted(dict_obj.keys()))
+        self.assertEqual(len(new_keys), len(list(dict_obj.keys())))
+        self.assertEqual(sorted(new_keys), sorted(list(dict_obj.keys())))

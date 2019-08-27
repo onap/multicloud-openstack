@@ -73,7 +73,7 @@ class VesAgentCtrlTest(unittest.TestCase):
         mock_request.data = {"testdatakey": "testdatavalue"}
 
         response = self.view.post(request=mock_request, vimid="fcaps-hudson-dc_RegionOne")
-        self.assertEquals(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
 
     @mock.patch.object(vesagent_ctrl.VesAgentCtrl, 'clearBacklogsOneVIM')
     @mock.patch.object(extsys, 'get_vim_by_id')
@@ -84,7 +84,7 @@ class VesAgentCtrlTest(unittest.TestCase):
         mock_request.META = {"testkey": "testvalue"}
 
         response = self.view.delete(request=mock_request, vimid="fcaps-hudson-dc_RegionOne")
-        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
 
     @mock.patch.object(cache, 'get')
     def test_getBacklogsOneVIM(self, mock_get):
@@ -100,7 +100,7 @@ class VesAgentCtrlTest(unittest.TestCase):
         mock_get.return_value = json.dumps(mock_vesagent_config)
 
         vesAgentConfig = self.view.getBacklogsOneVIM(vimid="fcaps-hudson-dc_RegionOne")
-        self.assertEquals(vesAgentConfig, mock_vesagent_config)
+        self.assertEqual(vesAgentConfig, mock_vesagent_config)
 
     @mock.patch.object(cache, 'set')
     @mock.patch.object(cache, 'get')
@@ -129,7 +129,7 @@ class VesAgentCtrlTest(unittest.TestCase):
 
         result = self.view.clearBacklogsOneVIM(
             vimid="fcaps-hudson-dc_RegionOne")
-        self.assertEquals(0, result)
+        self.assertEqual(0, result)
 
     @mock.patch.object(scheduleBacklogs, 'delay')
     @mock.patch.object(cache, 'set')

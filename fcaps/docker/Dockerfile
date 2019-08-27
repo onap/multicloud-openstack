@@ -1,4 +1,4 @@
-FROM python:2-alpine
+FROM python:3-alpine
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
@@ -18,16 +18,17 @@ EXPOSE 9011
 
 RUN addgroup -S onap && adduser -S -G onap onap
 # COPY ./ /opt/fcaps/
+COPY ./multicloud-openstack-fcaps-*.zip /opt/multicloud-openstack-fcaps.zip
 
 RUN apk update && \
-    apk add uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
+    apk add pcre pcre-dev uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
-    wget -O multicloud-openstack-fcaps.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=staging&g=org.onap.multicloud.openstack&a=multicloud-openstack-fcaps&e=zip&v=1.4.0" && \
     unzip -q -o -B multicloud-openstack-fcaps.zip && \
     chmod +x /opt/fcaps/*.sh && \
     rm -f multicloud-openstack-fcaps.zip && \
-    pip install -r /opt/fcaps/requirements.txt && \
-    apk del wget unzip gcc make libc-dev libffi-dev openssl-dev && \
+    pip3 install -r /opt/fcaps/requirements.txt && \
+    pip3 install -r /opt/fcaps/uwsgi-requirements.txt && \
+    apk del wget unzip gcc make libc-dev libffi-dev openssl-dev pcre-dev && \
     mkdir -p /var/log/onap/multicloud/fcaps && \
     chown onap:onap /var/log/onap -R && \
     chown onap:onap /opt/fcaps -R

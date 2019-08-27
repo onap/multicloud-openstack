@@ -17,7 +17,8 @@ from __future__ import absolute_import, unicode_literals
 import time
 import logging
 import json
-import urllib2
+# import urllib2
+import urllib
 
 logger = logging.getLogger(__name__)
 
@@ -41,11 +42,11 @@ def publishAnyEventToVES(ves_subscription, events):
 
             logger.info("publish event to VES: %s" % endpoint)
             headers = {'Content-Type': 'application/json'}
-            request = urllib2.Request(url=endpoint, headers=headers, data=json.dumps(events))
+            request = urllib.request.Request(url=endpoint, headers=headers, data=json.dumps(events))
             time.sleep(1)
-            response = urllib2.urlopen(request)
+            response = urllib.request.urlopen(request)
             logger.info("VES response is: %s" % response.read())
-        except urllib2.URLError as e:
+        except urllib.error.URLError as e:
             logger.critical("Failed to publish to %s: %s" % (endpoint, e.reason))
         except Exception as e:
             logger.error("exception:%s" % str(e))

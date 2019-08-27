@@ -125,16 +125,27 @@
                         <executions>
                             <execution>
                                 <id>copy-resources</id>
-                                <phase>validate</phase>
+                                <phase>install</phase>
                                 <goals>
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
+                                    <overwrite>true</overwrite>
+                                    <nonFilteredFileExtensions>
+                                        <nonFilteredFileExtension>zip</nonFilteredFileExtension>
+                                    </nonFilteredFileExtensions>
                                     <outputDirectory>${project.basedir}/docker_target</outputDirectory>
                                     <resources>
                                         <resource>
                                             <directory>${project.basedir}/docker</directory>
                                             <filtering>true</filtering>
+                                        </resource>
+                                        <resource>
+                                            <directory>${project.basedir}/target</directory>
+                                            <filtering>true</filtering>
+                                            <includes>
+                                                <include>*.zip</include>
+                                            </includes>
                                         </resource>
                                     </resources>
                                 </configuration>

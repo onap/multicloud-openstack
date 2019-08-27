@@ -41,7 +41,7 @@ def find_related_node(node_id, src_json_model, requirement_name):
 
 def convert_props(src_node, dest_node):
     if 'properties' in src_node and src_node['properties']:
-        for prop_name, prop_info in src_node['properties'].items():
+        for prop_name, prop_info in list(src_node['properties'].items()):
             if 'value' in prop_info:
                 dest_node['properties'][prop_name] = prop_info['value']   
 
@@ -54,7 +54,7 @@ def convert_inputs(src_json):
     inputs = {}
     if 'inputs' in src_json:
         src_inputs = src_json['inputs']
-        for param_name, param_info in src_inputs.items():
+        for param_name, param_info in list(src_inputs.items()):
             input_param = {}
             if 'type_name' in param_info:
                 input_param['type'] = param_info['type_name']
@@ -126,7 +126,7 @@ def convert_router_node(src_node, src_node_list):
         router_node['external_ip_addresses'] = []
         if 'properties' not in relation:
             continue
-        for prop_name, prop_info in relation['properties'].items():
+        for prop_name, prop_info in list(relation['properties'].items()):
             if prop_name == 'router_ip_address':
                 router_node['external_ip_addresses'].append(prop_info['value'])
         break
@@ -203,7 +203,7 @@ def convert_vdu_node(src_node, src_node_list, src_json_model):
     for capability in src_node['capabilities']:
         if capability['name'] != 'nfv_compute':
             continue
-        for prop_name, prop_info in capability['properties'].items():
+        for prop_name, prop_info in list(capability['properties'].items()):
             if 'value' in prop_info:
                 vdu_node['nfv_compute'][prop_name] = prop_info['value']
 

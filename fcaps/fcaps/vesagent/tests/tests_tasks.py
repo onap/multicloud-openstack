@@ -64,7 +64,7 @@ class VesTaskTest(unittest.TestCase):
             COUNT_TIME_SLOT2
         ]
         result = tasks.scheduleBacklogs(vimid="fcaps-hudson-dc_RegionOne")
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
 
     @mock.patch.object(tasks, 'processBacklogsOfOneVIM')
     @mock.patch.object(cache, 'get')
@@ -77,7 +77,7 @@ class VesTaskTest(unittest.TestCase):
             json.dumps(mock_VesAgentBacklogs_vimlist),
         ]
         result = tasks.processBacklogs()
-        self.assertEquals(COUNT_TIME_SLOT_ONE_VIM, result)
+        self.assertEqual(COUNT_TIME_SLOT_ONE_VIM, result)
 
     @mock.patch.object(tasks, 'processOneBacklog')
     @mock.patch.object(cache, 'set')
@@ -105,7 +105,7 @@ class VesTaskTest(unittest.TestCase):
         mock_cache_set.return_value = "mocked cache set"
         result = tasks.processBacklogsOfOneVIM(vimid="fcaps-hudson-dc_RegionOne")
         COUNT_TIME_SLOT = (1, 10)
-        self.assertEquals(COUNT_TIME_SLOT, result)
+        self.assertEqual(COUNT_TIME_SLOT, result)
 
     @mock.patch.object(fault_vm, 'processBacklog_fault_vm')
     def test_tasks_processOneBacklog(
@@ -140,4 +140,4 @@ class VesTaskTest(unittest.TestCase):
             poll_interval_default=10,
             oneBacklog=vesagent_onebacklog)
         COUNT_TIME_SLOT = (1, 10)
-        self.assertEquals(COUNT_TIME_SLOT, result)
+        self.assertEqual(COUNT_TIME_SLOT, result)

@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2018 Wind River Systems, Inc.
+# Copyright (c) 2017-2019 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -671,22 +671,22 @@ class RegistryHelper(MultiCloudAAIHelper):
         feature_uuid = uuid.uuid4()
 
         try:
-            if extra_specs.has_key('hw:cpu_policy')\
-                    or extra_specs.has_key('hw:cpu_thread_policy'):
+            if 'hw:cpu_policy' in extra_specs\
+                    or 'hw:cpu_thread_policy' in extra_specs:
                 cpupining_capability['hpa-capability-id'] = str(feature_uuid)
                 cpupining_capability['hpa-feature'] = 'cpuPinning'
                 cpupining_capability['architecture'] = 'generic'
                 cpupining_capability['hpa-version'] = 'v1'
 
                 cpupining_capability['hpa-feature-attributes'] = []
-                if extra_specs.has_key('hw:cpu_thread_policy'):
+                if 'hw:cpu_thread_policy' in extra_specs:
                     cpupining_capability['hpa-feature-attributes'].append(
                         {'hpa-attribute-key': 'logicalCpuThreadPinningPolicy',
                          'hpa-attribute-value':
                              '{{\"value\":\"{0}\"}}'.format(
                                  extra_specs['hw:cpu_thread_policy'])
                          })
-                if extra_specs.has_key('hw:cpu_policy'):
+                if 'hw:cpu_policy' in extra_specs:
                     cpupining_capability['hpa-feature-attributes'].append(
                         {'hpa-attribute-key':'logicalCpuPinningPolicy',
                          'hpa-attribute-value':
@@ -703,28 +703,28 @@ class RegistryHelper(MultiCloudAAIHelper):
         feature_uuid = uuid.uuid4()
 
         try:
-            if extra_specs.has_key('hw:cpu_sockets')\
-                    or extra_specs.has_key('hw:cpu_cores')\
-                    or extra_specs.has_key('hw:cpu_threads'):
+            if 'hw:cpu_sockets' in extra_specs\
+                    or 'hw:cpu_cores' in extra_specs\
+                    or 'hw:cpu_threads' in extra_specs:
                 cputopology_capability['hpa-capability-id'] = str(feature_uuid)
                 cputopology_capability['hpa-feature'] = 'cpuTopology'
                 cputopology_capability['architecture'] = 'generic'
                 cputopology_capability['hpa-version'] = 'v1'
 
                 cputopology_capability['hpa-feature-attributes'] = []
-                if extra_specs.has_key('hw:cpu_sockets'):
+                if 'hw:cpu_sockets' in extra_specs:
                     cputopology_capability['hpa-feature-attributes'].append(
                         {'hpa-attribute-key': 'numCpuSockets',
                          'hpa-attribute-value':
                              '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:cpu_sockets'])
                          })
-                if extra_specs.has_key('hw:cpu_cores'):
+                if 'hw:cpu_cores' in extra_specs:
                     cputopology_capability['hpa-feature-attributes'].append(
                         {'hpa-attribute-key': 'numCpuCores',
                          'hpa-attribute-value':
                              '{{\"value\":\"{0}\"}}'.format(extra_specs['hw:cpu_cores'])
                          })
-                if extra_specs.has_key('hw:cpu_threads'):
+                if 'hw:cpu_threads' in extra_specs:
                     cputopology_capability['hpa-feature-attributes'].append(
                         {'hpa-attribute-key': 'numCpuThreads',
                          'hpa-attribute-value':
@@ -740,7 +740,7 @@ class RegistryHelper(MultiCloudAAIHelper):
         feature_uuid = uuid.uuid4()
 
         try:
-            if extra_specs.has_key('hw:mem_page_size'):
+            if 'hw:mem_page_size' in extra_specs:
                 hugepages_capability['hpa-capability-id'] = str(feature_uuid)
                 hugepages_capability['hpa-feature'] = 'hugePages'
                 hugepages_capability['architecture'] = 'generic'
@@ -777,7 +777,7 @@ class RegistryHelper(MultiCloudAAIHelper):
         feature_uuid = uuid.uuid4()
 
         try:
-            if extra_specs.has_key('hw:numa_nodes'):
+            if 'hw:numa_nodes' in extra_specs:
                 numa_capability['hpa-capability-id'] = str(feature_uuid)
                 numa_capability['hpa-feature'] = 'numa'
                 numa_capability['architecture'] = 'generic'
@@ -796,7 +796,7 @@ class RegistryHelper(MultiCloudAAIHelper):
                     numacpu_key = "numaCpu-%s" % num
                     numamem_key = "numaMem-%s" % num
 
-                    if extra_specs.has_key(numa_cpu_node) and extra_specs.has_key(numa_mem_node):
+                    if numa_cpu_node in extra_specs and numa_mem_node in extra_specs:
                         numa_capability['hpa-feature-attributes'].append(
                             {'hpa-attribute-key': numacpu_key,
                              'hpa-attribute-value':
@@ -850,7 +850,7 @@ class RegistryHelper(MultiCloudAAIHelper):
         instruction_capability = {}
         feature_uuid = uuid.uuid4()
         try:
-            if extra_specs.has_key('hw:capabilities:cpu_info:features'):
+            if 'hw:capabilities:cpu_info:features' in extra_specs:
                 instruction_capability['hpa-capability-id'] = str(feature_uuid)
                 instruction_capability['hpa-feature'] = 'instructionSetExtensions'
                 instruction_capability['architecture'] = 'Intel64'
@@ -874,7 +874,7 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         try:
 
-            if extra_specs.has_key('pci_passthrough:alias'):
+            if 'pci_passthrough:alias' in extra_specs:
                 value1 = extra_specs['pci_passthrough:alias'].split(':')
                 value2 = value1[0].split('-')
 
@@ -910,7 +910,7 @@ class RegistryHelper(MultiCloudAAIHelper):
         feature_uuid = uuid.uuid4()
 
         try:
-            if extra_specs.has_key('aggregate_instance_extra_specs:sriov_nic'):
+            if 'aggregate_instance_extra_specs:sriov_nic' in extra_specs:
                 value1 = extra_specs['aggregate_instance_extra_specs:sriov_nic'].split(':')
                 value2 = value1[0].split('-', 5)
 
@@ -1098,7 +1098,7 @@ class RegistryHelper(MultiCloudAAIHelper):
                     continue
 
                 # get list of host names
-                pservers_info = [k for (k, v) in az['hosts'].items()]
+                pservers_info = [k for (k, v) in list(az['hosts'].items())]
                 # set the association between az and pservers
                 az_pserver_info[azName] = pservers_info
 
