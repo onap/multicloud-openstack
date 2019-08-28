@@ -347,7 +347,7 @@ class MultiCloudThreadHelper(object):
                     worker = item.get("worker", None)
                     payload = item.get("payload", None)
                     try:
-                        item["status"] = worker(*payload) or 0
+                        returncode, item["status"] = worker(*payload) or (0, "Succeed")
                     except Exception as e:
                         item["status"] = e.message
                     cache_item_for_query = {

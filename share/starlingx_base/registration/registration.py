@@ -253,16 +253,23 @@ class RegistryHelper(newton_registration.RegistryHelper):
             self._logger.debug("update cloud region fails %s" % e.message)
 
         try:
-            super(RegistryHelper, self).registryV0(vimid, project_idorname)
+            return super(RegistryHelper, self).registryV0(vimid, project_idorname)
         except Exception as e:
-            self._logger.debug("registryV0 fails %s" % e.message)
+            errmsg = "registryV0 fails %s" % str(e)
+            self._logger.debug(errmsg)
+            return 11, errmsg
 
-        return 0
-
-    def unregistry(self, vimid=""):
+    def unregistryV0(self, vimid=""):
         '''extend base method'''
 
-        return self.super(RegistryHelper, self).unregistry(vimid)
+        try:
+            return super(RegistryHelper, self).unregistryV0(vimid)
+        except Exception as e:
+            errmsg = "unregistryV0 fails %s" % str(e)
+            self._logger.debug(errmsg)
+            return 11, errmsg
+
+        # return (0, "Succeed")
 
     def _get_ovsdpdk_capabilities(self, extra_specs, viminfo):
         '''extend base method'''
