@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:2-alpine
+FROM python:3-alpine
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
@@ -32,15 +32,16 @@ ENV AAI_PASSWORD "AAI"
 EXPOSE 9009
 
 RUN addgroup -S onap && adduser -S -G onap onap
-
+# COPY ./ /opt/
+COPY ./multicloud-openstack-starlingx-*.zip /opt/multicloud-openstack-starlingx.zip
 RUN apk update && \
-    apk add bash uwsgi curl memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
+    apk add pcre pcre-dev uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
-    wget -O /opt/multicloud-openstack-starlingx.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=staging&g=org.onap.multicloud.openstack&a=multicloud-openstack-starlingx&e=zip&v=1.4.0" && \
     unzip -q -o -B /opt/multicloud-openstack-starlingx.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-starlingx.zip && \
-    pip install -r /opt/starlingx/requirements.txt && \
-    apk del wget unzip gcc make libc-dev libffi-dev openssl-dev && \
+    pip3 install -r /opt/starlingx/requirements.txt && \
+    pip3 install -r /opt/starlingx/uwsgi-requirements.txt && \
+    apk del wget unzip gcc make libc-dev libffi-dev openssl-dev pcre-dev && \
     mkdir -p /var/log/onap/multicloud/openstack/starlingx && \
     chown onap:onap /var/log/onap -R && \
     chown onap:onap /opt/starlingx -R

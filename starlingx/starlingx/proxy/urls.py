@@ -19,7 +19,7 @@ from starlingx.proxy.views import identityV3
 from starlingx.proxy.views import services
 from newton_base.proxy import dnsaasdelegate
 
-urlpatterns = [
+URLPATTERNS = [
     #    url(r'^identity/v2)$',
     #        identityV2.Tokens.as_view()),
     url(r'^identity/v3/auth/tokens/?$',
@@ -38,4 +38,4 @@ urlpatterns = [
         services.Services.as_view()),
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns = format_suffix_patterns(URLPATTERNS)
