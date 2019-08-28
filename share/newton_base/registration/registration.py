@@ -337,13 +337,13 @@ class RegistryHelper(MultiCloudAAIHelper):
 
             resource_url = ("/cloud-infrastructure/cloud-regions/"
                             "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                            "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                            "%(resource_type)ss/%(resource_type)s/%(resource_id)s/"
                             "?resource-version=%(resource-version)s"
                             % {
                                 "cloud_owner": cloud_owner,
                                 "cloud_region_id": cloud_region_id,
                                 "resource_type": "tenant",
-                                "resoure_id": tenant["tenant-id"],
+                                "resource_id": tenant["tenant-id"],
                                 "resource-version": tenant["resource-version"]
                             })
             # remove tenant
@@ -359,14 +359,14 @@ class RegistryHelper(MultiCloudAAIHelper):
                     if hpa_capabilities else []:
                 resource_url = ("/cloud-infrastructure/cloud-regions/"
                                 "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                                "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                                "%(resource_type)ss/%(resource_type)s/%(resource_id)s/"
                                 "hpa-capabilities/hpa-capability/%(hpa-capability-id)s/"
                                 "?resource-version=%(resource-version)s"
                                 % {
                                     "cloud_owner": cloud_owner,
                                     "cloud_region_id": cloud_region_id,
                                     "resource_type": "flavor",
-                                    "resoure_id": flavor["flavor-id"],
+                                    "resource_id": flavor["flavor-id"],
                                     "hpa-capability-id": hpa_capability["hpa-capability-id"],
                                     "resource-version": hpa_capability["resource-version"]
                                 })
@@ -377,13 +377,13 @@ class RegistryHelper(MultiCloudAAIHelper):
             # remove flavor
             resource_url = ("/cloud-infrastructure/cloud-regions/"
                             "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                            "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                            "%(resource_type)ss/%(resource_type)s/%(resource_id)s/"
                             "?resource-version=%(resource-version)s"
                             % {
                                 "cloud_owner": cloud_owner,
                                 "cloud_region_id": cloud_region_id,
                                 "resource_type": "flavor",
-                                "resoure_id": flavor["flavor-id"],
+                                "resource_id": flavor["flavor-id"],
                                 "resource-version": flavor["resource-version"]
                             })
 
@@ -395,13 +395,13 @@ class RegistryHelper(MultiCloudAAIHelper):
         for image in images.get("image", []) if images else []:
             resource_url = ("/cloud-infrastructure/cloud-regions/"
                             "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                            "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                            "%(resource_type)ss/%(resource_type)s/%(resource_id)s/"
                             "?resource-version=%(resource-version)s"
                             % {
                                 "cloud_owner": cloud_owner,
                                 "cloud_region_id": cloud_region_id,
                                 "resource_type": "image",
-                                "resoure_id": image["image-id"],
+                                "resource_id": image["image-id"],
                                 "resource-version": image["resource-version"]
                             })
             # remove image
@@ -409,6 +409,32 @@ class RegistryHelper(MultiCloudAAIHelper):
                 restcall.req_to_aai(resource_url, "DELETE")
 
         # remove all az
+        azs = cloudregiondata.get("availability-zones", None)
+        for az in azs.get("availability-zone", []) if azs else []:
+            # delete az relationship first
+            resource_url = ("/cloud-infrastructure/cloud-regions/"
+                            "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
+                            "%(resource_type)ss/%(resource_type)s/%(resource_id)s"
+                            % {
+                                "cloud_owner": cloud_owner,
+                                "cloud_region_id": cloud_region_id,
+                                "resource_type": "availability-zone",
+                                "resource_id": az["availability-zone-name"]
+                            })
+
+            rs = az.get("relationship-list", []).get("relationship", [])
+            for r in rs:
+                retcode, content, status_code = \
+                    restcall.req_to_aai(
+                        resource_url+"/relationship-list/relationship",
+                        "DELETE", content=r)
+
+            # delete az
+            resource_url2 = (resource_url + "?resource-version=%(resource-version)s"
+                             % {"resource-version": az["resource-version"]})
+            retcode, content, status_code = \
+                restcall.req_to_aai(resource_url2, "DELETE")
+
 
         # remove all vg
 
@@ -417,13 +443,13 @@ class RegistryHelper(MultiCloudAAIHelper):
         for snapshot in snapshots.get("snapshot", []) if snapshots else []:
             resource_url = ("/cloud-infrastructure/cloud-regions/"
                             "cloud-region/%(cloud_owner)s/%(cloud_region_id)s/"
-                            "%(resource_type)ss/%(resource_type)s/%(resoure_id)s/"
+                            "%(resource_type)ss/%(resource_type)s/%(resource_id)s/"
                             "?resource-version=%(resource-version)s"
                             % {
                                 "cloud_owner": cloud_owner,
                                 "cloud_region_id": cloud_region_id,
                                 "resource_type": "snapshot",
-                                "resoure_id": snapshot["snapshot-id"],
+                                "resource_id": snapshot["snapshot-id"],
                                 "resource-version": snapshot["resource-version"]
                             })
             # remove snapshot
