@@ -13,7 +13,10 @@
 # limitations under the License.
 
 from django.conf.urls import url
+from rest_framework.urlpatterns import format_suffix_patterns
 from starlingx.samples import views
 
-urlpatterns = [
+URLPATTERNS = [
     url(r'^samples/$', views.SampleList.as_view()), ]
+
+urlpatterns = format_suffix_patterns(URLPATTERNS)

@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
+# import mock
 
 import unittest
+from unittest import mock
 from django.test import Client
 from rest_framework import status
 from common.utils import restcall
@@ -83,29 +84,33 @@ class TestRegistration2(unittest.TestCase):
         restcall.req_to_aai = mock.Mock()
         restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
         mock_session = test_base.get_mock_session(
-            ["get"], {"get": {
-                "content": MOCK_GET_FLAVOR_RESPONSE}}),
+            ["get"], {
+                "side_effect": [
+                    test_base.get_mock_response(MOCK_GET_FLAVOR_RESPONSE)
+                ]
+            })
 
         retcode, content = self.view.register_helper._discover_flavors(
             vimid="starlingx_RegionOne",
             session=mock_session, viminfo=MOCK_VIM_INFO
         )
 
-        self.assertEquals(retcode, 11)
+        self.assertEqual(retcode, 0)
 
     def test_discover_flavors_w_hpa_numa(self):
         restcall.req_to_aai = mock.Mock()
         restcall.req_to_aai.return_value = (0, {}, status.HTTP_200_OK)
         mock_session = test_base.get_mock_session(
-            ["get"], {"side_effect": [{
-                "content": MOCK_GET_FLAVOR_RESPONSE_w_hpa_numa},
-                {
-                    "content": MOCK_GET_FLAVOR_EXTRASPECS_RESPONSE_w_hpa_numa}
-            ]}),
+            ["get"], {
+                "side_effect": [
+                    test_base.get_mock_response(MOCK_GET_FLAVOR_RESPONSE_w_hpa_numa),
+                    test_base.get_mock_response(MOCK_GET_FLAVOR_EXTRASPECS_RESPONSE_w_hpa_numa),
+                ]
+            }),
 
         retcode, content = self.view.register_helper._discover_flavors(
             vimid="starlingx_RegionOne",
             session=mock_session, viminfo=MOCK_VIM_INFO
         )
 
-        self.assertEquals(retcode, 11)
+        self.assertEqual(retcode, 0)
