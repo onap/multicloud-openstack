@@ -18,9 +18,9 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from starlingx.swagger.views import SwaggerJsonView
 from starlingx.swagger.views import APIv1SwaggerJsonView
 
-urlpatterns = [
+URLPATTERNS = [
     url(r'^api/multicloud-starlingx/v0/swagger.json$', SwaggerJsonView.as_view()),
     url(r'^api/multicloud-starlingx/v1/swagger.json$', APIv1SwaggerJsonView.as_view()),
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns = format_suffix_patterns(URLPATTERNS)
