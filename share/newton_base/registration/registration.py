@@ -119,9 +119,9 @@ class Registry(APIView):
             backlog_item = {
                 "id": vimid,
                 "worker": self.register_helper.unregistryV0,
-                "payload": (vimid),
+                "payload": (vimid,),  # important to add , at the end
                 "repeat": 0,
-                "status": (1, "The de-registration is on process")
+                "status": (1, "The de-registration is in progress")
             }
             self.register_thread.add(backlog_item)
             if 0 == self.register_thread.state():
