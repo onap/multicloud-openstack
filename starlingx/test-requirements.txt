@@ -1,6 +1,6 @@
 # for unit test
 coverage==4.2
-mock==2.0.0
+mock==3.0.5
 unittest_xml_reporting==1.12.0
 
 pylint # GPLv2
