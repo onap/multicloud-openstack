@@ -12,28 +12,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:2
+FROM python:3-slim
+
+ARG HTTP_PROXY=${HTTP_PROXY}
+ARG HTTPS_PROXY=${HTTPS_PROXY}
+
+ENV http_proxy $HTTP_PROXY
+ENV https_proxy $HTTPS_PROXY
 
 ENV MSB_ADDR "127.0.0.1"
 ENV MSB_PORT "80"
 ENV AAI_ADDR "aai.api.simpledemo.openecomp.org"
 ENV AAI_PORT "8443"
+ENV AAI_SERVICE_URL ""
 ENV AAI_SCHEMA_VERSION "v13"
 ENV AAI_USERNAME "AAI"
 ENV AAI_PASSWORD "AAI"
 
 EXPOSE 9007
 
-COPY multicloud-openstack-pike.zip /opt
+RUN groupadd -r onap && useradd -r -g onap onap
+
+COPY ./multicloud-openstack-pike-*.zip /opt/multicloud-openstack-pike.zip
 RUN apt-get update && \
-    apt-get install -y vim memcached unzip && \
+    apt-get install -y memcached wget unzip gcc libssl-dev && \
     cd /opt/ && \
-    unzip -q -o -B multicloud-openstack-pike.zip && \
-    chmod +x /opt/pike/*.sh && \
-    rm -f multicloud-openstack-pike.zip && \
-    pip install -r /opt/pike/requirements.txt
+    unzip -q -o -B /opt/multicloud-openstack-pike.zip -d /opt/ && \
+    rm -f /opt/multicloud-openstack-pike.zip && \
+    pip3 install -r /opt/pike/requirements.txt && \
+    pip3 install -r /opt/pike/uwsgi-requirements.txt && \
+    apt-get --purge remove -y wget unzip gcc libssl-dev && \
+    mkdir -p /var/log/onap/multicloud/openstack/pike && \
+    chown onap:onap /var/log/onap -R && \
+    apt-get -y autoremove && \
+    chown onap:onap /opt/pike -R
 
-ADD extsys.py /opt/pike/lib/share/common/msapi/extsys.py
+RUN mkdir -p /var/log/onap/multicloud/openstack/pike/
 
+USER onap
 WORKDIR /opt/pike
-CMD /bin/sh -c /opt/pike/run.sh
+CMD /bin/sh -c "/opt/pike/run.sh"

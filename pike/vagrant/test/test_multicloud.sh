@@ -25,7 +25,7 @@ cp oparent/settings.xml $HOME/.m2
 git clone /openstack
 cd openstack
 mvn clean install
-cp pike/target/multicloud-openstack-pike*.zip pike/vagrant/test/multicloud-openstack-pike.zip
+cp pike/target/multicloud-openstack-pike*.zip pike/vagrant/test/
 
 cd pike/vagrant/test
 sudo docker build -t multicloud-pike-test:latest .
