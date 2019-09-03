@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1ba4f3b_9bc9e627",
+        "filename": "pike/vagrant/Vagrantfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2019-09-03T07:29:16Z",
+      "side": 1,
+      "message": "please change 2019",
+      "range": {
+        "startLine": 1,
+        "startChar": 16,
+        "endLine": 1,
+        "endChar": 20
+      },
+      "revId": "c276df27eec70fe5a6d133e607a9c3cb6a17f3f4",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26059156_c4a67f51",
+        "filename": "pike/vagrant/bootstrap.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2363
+      },
+      "writtenOn": "2019-09-03T07:29:16Z",
+      "side": 1,
+      "message": "Please delete the blank.",
+      "range": {
+        "startLine": 7,
+        "startChar": 51,
+        "endLine": 7,
+        "endChar": 52
+      },
+      "revId": "c276df27eec70fe5a6d133e607a9c3cb6a17f3f4",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}
