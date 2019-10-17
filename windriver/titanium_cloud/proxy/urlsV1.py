@@ -32,7 +32,7 @@ URLPATTERNS = [
         services.APIv1GetTenants.as_view()),
     url(r'dns-delegate/(?P<requri>[0-9a-zA-Z./_-]*)$',
         dnsaasdelegate.APIv1DnsaasDelegate.as_view()),
-    url(r'^(?P<servicetype>[0-9a-zA-Z_-]{,18})/(?P<requri>[0-9a-zA-Z./_-]*)$',
+    url(r'^(?P<servicetype>[0-9a-zA-Z]{,18})/(?P<requri>[0-9a-zA-Z./_-]*)$',
         services.APIv1Services.as_view()),
 ]
 
