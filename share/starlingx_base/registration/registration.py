@@ -271,7 +271,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
 
         # return (0, "Succeed")
 
-    def _get_ovsdpdk_capabilities(self, extra_specs, viminfo):
+    def _get_ovsdpdk_capabilities(self, data):
         '''extend base method'''
 
         instruction_capability = {}
