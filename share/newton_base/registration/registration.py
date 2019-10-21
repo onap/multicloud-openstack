@@ -568,8 +568,8 @@ class RegistryHelper(MultiCloudAAIHelper):
                         req_resouce, "compute", session,
                         viminfo, vimid, "extra_specs")
 
-                    hpa_capabilities =\
-                        self._get_hpa_capabilities(flavor, extraResp, viminfo)
+                    data = [flavor, extraResp, viminfo]
+                    hpa_capabilities = self._get_hpa_capabilities(data)
                     flavor_info['hpa-capabilities'] = \
                         {'hpa-capability': hpa_capabilities}
 
@@ -597,65 +597,65 @@ class RegistryHelper(MultiCloudAAIHelper):
                 11, str(e)
             )
 
-    def _get_hpa_capabilities(self, flavor, extra_specs, viminfo):
+    def _get_hpa_capabilities(self, data):
         hpa_caps = []
 
         # Basic capabilties
-        caps_dict = self._get_hpa_basic_capabilities(flavor)
+        caps_dict = self._get_hpa_basic_capabilities(data)
         if len(caps_dict) > 0:
             self._logger.debug("basic_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
         # cpupining capabilities
-        caps_dict = self._get_cpupining_capabilities(extra_specs)
+        caps_dict = self._get_cpupining_capabilities(data)
         if len(caps_dict) > 0:
             self._logger.debug("cpupining_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
         # cputopology capabilities
-        caps_dict = self._get_cputopology_capabilities(extra_specs)
+        caps_dict = self._get_cputopology_capabilities(data)
         if len(caps_dict) > 0:
             self._logger.debug("cputopology_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
         # hugepages capabilities
-        caps_dict = self._get_hugepages_capabilities(extra_specs)
+        caps_dict = self._get_hugepages_capabilities(data)
         if len(caps_dict) > 0:
             self._logger.debug("hugepages_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
         # numa capabilities
-        caps_dict = self._get_numa_capabilities(extra_specs)
+        caps_dict = self._get_numa_capabilities(data)
         if len(caps_dict) > 0:
             self._logger.debug("numa_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
         # storage capabilities
-        caps_dict = self._get_storage_capabilities(flavor)
+        caps_dict = self._get_storage_capabilities(data)
         if len(caps_dict) > 0:
             self._logger.debug("storage_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
         # CPU instruction set extension capabilities
-        caps_dict = self._get_instruction_set_capabilities(extra_specs)
+        caps_dict = self._get_instruction_set_capabilities(data)
         if len(caps_dict) > 0:
             self._logger.debug("instruction_set_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
         # PCI passthrough capabilities
-        caps_dict = self._get_pci_passthrough_capabilities(extra_specs)
+        caps_dict = self._get_pci_passthrough_capabilities(data)
         if len(caps_dict) > 0:
             self._logger.debug("pci_passthrough_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
         # SRIOV-NIC capabilities
-        caps_dict = self._get_sriov_nic_capabilities(extra_specs)
+        caps_dict = self._get_sriov_nic_capabilities(data)
         if len(caps_dict) > 0:
             self._logger.debug("sriov_nic_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
 
         # ovsdpdk capabilities
-        caps_dict = self._get_ovsdpdk_capabilities(extra_specs, viminfo)
+        caps_dict = self._get_ovsdpdk_capabilities(data)
         if len(caps_dict) > 0:
             self._logger.debug("ovsdpdk_capabilities_info: %s" % caps_dict)
             hpa_caps.append(caps_dict)
@@ -663,9 +663,10 @@ class RegistryHelper(MultiCloudAAIHelper):
         logger.debug("hpa_caps:%s" % hpa_caps)
         return hpa_caps
 
-    def _get_hpa_basic_capabilities(self, flavor):
+    def _get_hpa_basic_capabilities(self, data):
         basic_capability = {}
         feature_uuid = uuid.uuid4()
+        flavor = data[0]
 
         try:
             basic_capability['hpa-capability-id'] = str(feature_uuid)
@@ -692,9 +693,10 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         return basic_capability
 
-    def _get_cpupining_capabilities(self, extra_specs):
+    def _get_cpupining_capabilities(self, data):
         cpupining_capability = {}
         feature_uuid = uuid.uuid4()
+        extra_specs = data[1]
 
         try:
             if 'hw:cpu_policy' in extra_specs\
@@ -724,9 +726,10 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         return cpupining_capability
 
-    def _get_cputopology_capabilities(self, extra_specs):
+    def _get_cputopology_capabilities(self, data):
         cputopology_capability = {}
         feature_uuid = uuid.uuid4()
+        extra_specs = data[1]
 
         try:
             if 'hw:cpu_sockets' in extra_specs\
@@ -761,9 +764,10 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         return cputopology_capability
 
-    def _get_hugepages_capabilities(self, extra_specs):
+    def _get_hugepages_capabilities(self, data):
         hugepages_capability = {}
         feature_uuid = uuid.uuid4()
+        extra_specs = data[1]
 
         try:
             if 'hw:mem_page_size' in extra_specs:
@@ -798,9 +802,10 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         return hugepages_capability
 
-    def _get_numa_capabilities(self, extra_specs):
+    def _get_numa_capabilities(self, data):
         numa_capability = {}
         feature_uuid = uuid.uuid4()
+        extra_specs = data[1]
 
         try:
             if 'hw:numa_nodes' in extra_specs:
@@ -838,9 +843,10 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         return numa_capability
 
-    def _get_storage_capabilities(self, flavor):
+    def _get_storage_capabilities(self, data):
         storage_capability = {}
         feature_uuid = uuid.uuid4()
+        flavor = data[0]
 
         try:
             storage_capability['hpa-capability-id'] = str(feature_uuid)
@@ -872,9 +878,11 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         return storage_capability
 
-    def _get_instruction_set_capabilities(self, extra_specs):
+    def _get_instruction_set_capabilities(self, data):
         instruction_capability = {}
         feature_uuid = uuid.uuid4()
+        extra_specs = data[1]
+
         try:
             if 'hw:capabilities:cpu_info:features' in extra_specs:
                 instruction_capability['hpa-capability-id'] = str(feature_uuid)
@@ -894,9 +902,10 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         return instruction_capability
 
-    def _get_pci_passthrough_capabilities(self, extra_specs):
+    def _get_pci_passthrough_capabilities(self, data):
         pci_passthrough_capability = {}
         feature_uuid = uuid.uuid4()
+        extra_specs = data[1]
 
         try:
 
@@ -931,9 +940,10 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         return pci_passthrough_capability
 
-    def _get_sriov_nic_capabilities(self, extra_specs):
+    def _get_sriov_nic_capabilities(self, data):
         sriov_capability = {}
         feature_uuid = uuid.uuid4()
+        extra_specs = data[1]
 
         try:
             if 'aggregate_instance_extra_specs:sriov_nic' in extra_specs:
@@ -967,9 +977,11 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         return sriov_capability
 
-    def _get_ovsdpdk_capabilities(self, extra_specs, viminfo):
+    def _get_ovsdpdk_capabilities(self, data):
         ovsdpdk_capability = {}
         feature_uuid = uuid.uuid4()
+        extra_specs = data[1]
+        viminfo = data[2]
 
         try:
             cloud_extra_info_str = viminfo.get('cloud_extra_info')
