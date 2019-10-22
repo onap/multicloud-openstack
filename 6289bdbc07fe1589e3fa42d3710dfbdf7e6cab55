@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61ce6a8c_87a289be",
+        "filename": "share/newton_base/registration/registration.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 1889
+      },
+      "writtenOn": "2019-10-22T02:50:20Z",
+      "side": 1,
+      "message": "I guess your intention is to normalize the data model passing to _get_hpa_capxxx()\nI agree with your idea, but I would suggest re-think about the way to do that, \nspecifically, use array(or tuple) vs dict.  with array to passing parameters, \nthe handler of hpa_xxx have to locate the specific parameter by index, which is less straigtforward.\nInstead, if you could use a dict with key to pair with each parameter, e.g. {\"flavor\": flavor,\"xxx\":yyy}, it might be more straightforward for handler to access specific parameter.",
+      "range": {
+        "startLine": 571,
+        "startChar": 20,
+        "endLine": 572,
+        "endChar": 70
+      },
+      "revId": "6289bdbc07fe1589e3fa42d3710dfbdf7e6cab55",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}
