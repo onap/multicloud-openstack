@@ -1,0 +1,4 @@
+distribution_type: 'maven'
+version: '1.4.3'
+project: 'multicloud-openstack'
+log_dir: 'multicloud-openstack-maven-stage-elalto/3/'
