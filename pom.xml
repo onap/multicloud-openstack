@@ -45,6 +45,7 @@
         <module>pike</module>
         <module>starlingx</module>
         <!--module>lenovo</module-->
+        <module>hpa</module>
     </modules>
 
     <build>
