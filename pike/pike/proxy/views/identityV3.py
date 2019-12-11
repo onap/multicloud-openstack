@@ -1,7 +1,4 @@
-'''
-identity v3
-'''
-# Copyright (c) 2018 Intel Corporation.
+# Copyright (c) 2019 Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,23 +18,24 @@ from django.conf import settings
 from newton_base.proxy import identityV3 as newton_identityV3
 from common.msapi import extsys
 
-LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 # DEBUG=True
 
 
 class Tokens(newton_identityV3.Tokens):
-
     def __init__(self):
+        super(Tokens, self).__init__()
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
-        self._logger = LOGGER
+        # self._logger = logger
 
 
 class TokensV2(newton_identityV3.TokensV2):
-
     def __init__(self):
+        super(TokensV2, self).__init__()
         self.proxy_prefix = settings.MULTICLOUD_PREFIX
-        self._logger = LOGGER
+        # self._logger = logger
 
 
 class APIv1Tokens(Tokens):
@@ -47,7 +45,7 @@ class APIv1Tokens(Tokens):
         # self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id=""):
-        self._logger.debug("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
         # self._logger.debug("META> %s" % request.META)
         # self._logger.debug("data> %s" % request.data)
 
@@ -55,7 +53,7 @@ class APIv1Tokens(Tokens):
         return super(APIv1Tokens, self).get(request, vimid)
 
     def post(self, request, cloud_owner="", cloud_region_id=""):
-        self._logger.debug("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
         # self._logger.debug("META> %s" % request.META)
         # self._logger.debug("data> %s" % request.data)
 
@@ -64,17 +62,13 @@ class APIv1Tokens(Tokens):
 
 
 class APIv1TokensV2(TokensV2):
-    '''
-    API v1 Tokens V2
-    '''
-
     def __init__(self):
         super(APIv1TokensV2, self).__init__()
         self.proxy_prefix = settings.MULTICLOUD_API_V1_PREFIX
         # self._logger = logger
 
     def get(self, request, cloud_owner="", cloud_region_id=""):
-        self._logger.debug("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
         # self._logger.debug("META> %s" % request.META)
         # self._logger.debug("data> %s" % request.data)
 
@@ -82,7 +76,7 @@ class APIv1TokensV2(TokensV2):
         return super(APIv1TokensV2, self).get(request, vimid)
 
     def post(self, request, cloud_owner="", cloud_region_id=""):
-        self._logger.debug("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
+        self._logger.info("cloud_owner,cloud_region_id: %s,%s" % (cloud_owner, cloud_region_id))
         # self._logger.debug("META> %s" % request.META)
         # self._logger.debug("data> %s" % request.data)
 

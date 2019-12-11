@@ -1,7 +1,4 @@
-'''
-Test proxy
-'''
-# Copyright (c) 2018 Intel Corporation.
+# Copyright (c) 2019 Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,18 +12,15 @@ Test proxy
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import copy
 import json
 
-import copy
-import unittest
-import mock
-
 from django.test import Client
+import mock
 from rest_framework import status
+import unittest
 
 from newton_base.util import VimDriverUtils
-from newton_base.tests import mock_info
-
 
 MOCK_VIM_INFO = {
     "createTime": "2017-04-01 02:22:27",
@@ -37,10 +31,10 @@ MOCK_VIM_INFO = {
     "type": "openstack",
     "url": "http://128.224.180.14:5000/v3",
     "userName": "admin",
-    "vendor": "WindRiver",
+    "vendor": "Pike",
     "version": "pike",
     "vimId": "pike_RegionOne",
-    'cloud_owner': 'windriver-hudson-dc',
+    'cloud_owner': 'starlingx',
     'cloud_region_id': 'RegionOne',
     'cloud_extra_info': '',
     'insecure': 'True',
@@ -495,8 +489,7 @@ MOCK_AUTH_STATE = {
 
 MOCK_INTERNAL_METADATA_CATALOG = {
     "identity": {
-        "proxy_prefix":
-        "http://172.16.77.20:9003/api/multicloud-pike/v0/pike_RegionOne/identity",
+        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-pike/v0/pike_RegionOne/identity",
         "prefix": "http://128.224.180.14:5000",
         "suffix": "v3"
     },
@@ -508,8 +501,7 @@ MOCK_INTERNAL_METADATA_CATALOG = {
     "orchestration": {
         "suffix": "v1/fcca3cc49d5e42caae15459e27103efc",
         "prefix": "http://128.224.180.14:8004",
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-pike/v0/pike_RegionOne/"
-                        "orchestration"
+        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-pike/v0/pike_RegionOne/orchestration"
     },
     "volume": {
         "prefix": "http://128.224.180.14:8776",
@@ -562,26 +554,22 @@ MOCK_INTERNAL_METADATA_CATALOG = {
         "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-pike/v0/pike_RegionOne/alarming"
     },
     "cloudformation": {
-        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-pike/v0/pike_RegionOne/"
-                        "cloudformation",
+        "proxy_prefix": "http://172.16.77.20:9003/api/multicloud-pike/v0/pike_RegionOne/cloudformation",
         "prefix": "http://128.224.180.14:8000",
         "suffix": "v1/fcca3cc49d5e42caae15459e27103efc"
     }
 }
-
 
 MOCK_GET_SERVERS_RESPONSE = {
     "servers": [
         {
             "links": [
                 {
-                    "href": "http://128.224.180.14:8774/v2.1/fcca3cc49d5e42caae15459e27103efc/"
-                            "servers/b2581b5c-7c56-4564-819d-fe7a2ce9c261",
+                    "href": "http://128.224.180.14:8774/v2.1/fcca3cc49d5e42caae15459e27103efc/servers/b2581b5c-7c56-4564-819d-fe7a2ce9c261",
                     "rel": "self"
                 },
                 {
-                    "href": "http://128.224.180.14:8774/fcca3cc49d5e42caae15459e27103efc/"
-                            "servers/b2581b5c-7c56-4564-819d-fe7a2ce9c261",
+                    "href": "http://128.224.180.14:8774/fcca3cc49d5e42caae15459e27103efc/servers/b2581b5c-7c56-4564-819d-fe7a2ce9c261",
                     "rel": "bookmark"
                 }
             ],
@@ -594,13 +582,11 @@ MOCK_GET_SERVERS_RESPONSE = {
             "links": [
                 {
                     "rel": "self",
-                    "href": "http://128.224.180.14:8774/v2.1/fcca3cc49d5e42caae15459e27103efc/"
-                            "servers/ff7b51ca-a272-45f4-b54c-e40b8099e67d"
+                    "href": "http://128.224.180.14:8774/v2.1/fcca3cc49d5e42caae15459e27103efc/servers/ff7b51ca-a272-45f4-b54c-e40b8099e67d"
                 },
                 {
                     "rel": "bookmark",
-                    "href": "http://128.224.180.14:8774/fcca3cc49d5e42caae15459e27103efc/"
-                            "servers/ff7b51ca-a272-45f4-b54c-e40b8099e67d"
+                    "href": "http://128.224.180.14:8774/fcca3cc49d5e42caae15459e27103efc/servers/ff7b51ca-a272-45f4-b54c-e40b8099e67d"
                 }
             ]
         }
@@ -622,15 +608,7 @@ MOCK_POST_SERVER_REQUEST = {
         "personality": [
             {
                 "path": "/etc/banner.txt",
-                "contents": "ICAgICAgDQoiQSBjbG91ZCBkb2VzIG5vdCBrbm93IHdoeSBp "
-                            "dCBtb3ZlcyBpbiBqdXN0IHN1Y2ggYSBkaXJlY3Rpb24gYW5k "
-                            "IGF0IHN1Y2ggYSBzcGVlZC4uLkl0IGZlZWxzIGFuIGltcHVs "
-                            "c2lvbi4uLnRoaXMgaXMgdGhlIHBsYWNlIHRvIGdvIG5vdy4g "
-                            "QnV0IHRoZSBza3kga25vd3MgdGhlIHJlYXNvbnMgYW5kIHRo "
-                            "ZSBwYXR0ZXJucyBiZWhpbmQgYWxsIGNsb3VkcywgYW5kIHlv "
-                            "dSB3aWxsIGtub3csIHRvbywgd2hlbiB5b3UgbGlmdCB5b3Vy "
-                            "c2VsZiBoaWdoIGVub3VnaCB0byBzZWUgYmV5b25kIGhvcml6 "
-                            "b25zLiINCg0KLVJpY2hhcmQgQmFjaA=="
+                "contents": "ICAgICAgDQoiQSBjbG91ZCBkb2VzIG5vdCBrbm93IHdoeSBp dCBtb3ZlcyBpbiBqdXN0IHN1Y2ggYSBkaXJlY3Rpb24gYW5k IGF0IHN1Y2ggYSBzcGVlZC4uLkl0IGZlZWxzIGFuIGltcHVs c2lvbi4uLnRoaXMgaXMgdGhlIHBsYWNlIHRvIGdvIG5vdy4g QnV0IHRoZSBza3kga25vd3MgdGhlIHJlYXNvbnMgYW5kIHRo ZSBwYXR0ZXJucyBiZWhpbmQgYWxsIGNsb3VkcywgYW5kIHlv dSB3aWxsIGtub3csIHRvbywgd2hlbiB5b3UgbGlmdCB5b3Vy c2VsZiBoaWdoIGVub3VnaCB0byBzZWUgYmV5b25kIGhvcml6 b25zLiINCg0KLVJpY2hhcmQgQmFjaA=="
             }
         ],
         "security_groups": [
@@ -652,13 +630,11 @@ MOCK_POST_SERVER_RESPONSE = {
         "id": "f5dc173b-6804-445a-a6d8-c705dad5b5eb",
         "links": [
             {
-                "href": "http://openstack.example.com/v2/6f70656e737461636b20342065766572/"
-                        "servers/f5dc173b-6804-445a-a6d8-c705dad5b5eb",
+                "href": "http://openstack.example.com/v2/6f70656e737461636b20342065766572/servers/f5dc173b-6804-445a-a6d8-c705dad5b5eb",
                 "rel": "self"
             },
             {
-                "href": "http://openstack.example.com/6f70656e737461636b20342065766572/"
-                        "servers/f5dc173b-6804-445a-a6d8-c705dad5b5eb",
+                "href": "http://openstack.example.com/6f70656e737461636b20342065766572/servers/f5dc173b-6804-445a-a6d8-c705dad5b5eb",
                 "rel": "bookmark"
             }
         ],
@@ -669,7 +645,6 @@ MOCK_POST_SERVER_RESPONSE = {
         ]
     }
 }
-
 
 MOCK_PATCH_IMAGE_REQUEST = [
     {
@@ -713,256 +688,6 @@ MOCK_PATCH_IMAGE_RESPONSE = {
 }
 
 
-class TestIdentityService(unittest.TestCase):
-    def setUp(self):
-        self.client = Client()
-
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_auth_state')
-    @mock.patch.object(VimDriverUtils, 'update_token_cache')
-    def test_token(self, mock_update_token_cache, mock_get_auth_state,
-                   mock_get_session, mock_get_vim_info):
-        '''
-                test API: get token
-        :param mock_update_token_cache:
-        :param mock_get_auth_state:
-        :param mock_get_session:
-        :param mock_get_vim_info:
-        :return:
-        '''
-
-        # mock VimDriverUtils APIs
-        mock_session_specs = ["get"]
-        mock_session_get_response = {'status': 200}
-        mock_session = mock.Mock(name='mock_session', spec=mock_session_specs)
-        mock_session.get.return_value = mock_session_get_response
-
-        mock_get_vim_info.return_value = MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
-        mock_get_auth_state.return_value = json.dumps(MOCK_AUTH_STATE)
-
-        mock_update_token_cache.return_value = MOCK_TOKEN_ID
-
-        # simulate client to make the request
-        data = {}
-        response = self.client.post(
-            "/api/multicloud-pike/v0/pike_RegionOne/identity/v3/auth/tokens",
-            data=data, format='json')
-        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
-        context = response.json()
-
-        self.assertTrue(response['X-Subject-Token'] == MOCK_TOKEN_ID)
-        self.assertTrue(context['token']['catalog'] is not None)
-
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_auth_state')
-    @mock.patch.object(VimDriverUtils, 'update_token_cache')
-    def test_tokensV2(self, mock_update_token_cache, mock_get_auth_state,
-                      mock_get_session, mock_get_vim_info):
-        '''
-                test API: get token
-        :param mock_update_token_cache:
-        :param mock_get_auth_state:
-        :param mock_get_session:
-        :param mock_get_vim_info:
-        :return:
-        '''
-
-        # mock VimDriverUtils APIs
-        mock_session_specs = ["get"]
-        mock_session_get_response = {'status': 200}
-        mock_session = mock.Mock(name='mock_session',
-                                 spec=mock_session_specs)
-        mock_session.get.return_value = mock_session_get_response
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
-        mock_get_auth_state.return_value = json.dumps(MOCK_AUTH_STATE)
-        mock_update_token_cache.return_value = mock_info.MOCK_TOKEN_ID
-
-        # simulate client to make the request
-        data = {}
-        response = self.client.post(
-            "/api/multicloud-pike/v0/pike_RegionOne/identity/v2.0/tokens",
-            data=data, format='json')
-        self.assertEqual(status.HTTP_200_OK,
-                         response.status_code)
-        context = response.json()
-
-        self.assertIsNotNone(context['access']['token'])
-        self.assertEqual(mock_info.MOCK_TOKEN_ID,
-                         context['access']['token']["id"])
-        self.assertIsNotNone(context['access']['serviceCatalog'])
-
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_auth_state')
-    @mock.patch.object(VimDriverUtils, 'update_token_cache')
-    def test_token_with_tenantname(self, mock_update_token_cache, mock_get_auth_state,
-                                   mock_get_session, mock_get_vim_info):
-        '''
-                test API: get token
-        :param mock_update_token_cache:
-        :param mock_get_auth_state:
-        :param mock_get_session:
-        :param mock_get_vim_info:
-        :return:
-        '''
-
-        # mock VimDriverUtils APIs
-        mock_session_specs = ["get"]
-        mock_session_get_response = {'status': 200}
-        mock_session = mock.Mock(name='mock_session',
-                                 spec=mock_session_specs)
-        mock_session.get.return_value = mock_session_get_response
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
-        mock_get_auth_state.return_value = json.dumps(MOCK_AUTH_STATE)
-        mock_update_token_cache.return_value = mock_info.MOCK_TOKEN_ID
-
-        # simulate client to make the request
-        token_data = {
-            "auth": {
-                "identity": {
-                    "methods": ["password"],
-                    "password": {
-                        "user": {
-                            "name": "demo",
-                            "domain": {"name": "Default"},
-                            "password": "demo"
-                        }
-                    }
-                },
-                "scope": {
-                    "project": {
-                        "domain": {"name": "Default"},
-                        "name": "Integration"
-                    }
-                }
-            }
-        }
-
-        response = self.client.post(
-            "/api/multicloud-pike/v0/pike_RegionOne/identity/v3/auth/tokens",
-            data=json.dumps(token_data), content_type='application/json')
-        self.assertEqual(status.HTTP_201_CREATED,
-                         response.status_code)
-        context = response.json()
-
-        self.assertEqual(mock_info.MOCK_TOKEN_ID,
-                         response['X-Subject-Token'])
-        self.assertIsNotNone(context['token']['catalog'])
-
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_auth_state')
-    @mock.patch.object(VimDriverUtils, 'update_token_cache')
-    def test_tokensV2_with_tenantname(self, mock_update_token_cache, mock_get_auth_state,
-                                      mock_get_session, mock_get_vim_info):
-        '''
-                test API: get token
-        :param mock_update_token_cache:
-        :param mock_get_auth_state:
-        :param mock_get_session:
-        :param mock_get_vim_info:
-        :return:
-        '''
-
-        # mock VimDriverUtils APIs
-        mock_session_specs = ["get"]
-        mock_session_get_response = {'status': 200}
-        mock_session = mock.Mock(name='mock_session',
-                                 spec=mock_session_specs)
-        mock_session.get.return_value = mock_session_get_response
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
-        mock_get_auth_state.return_value = json.dumps(MOCK_AUTH_STATE)
-        mock_update_token_cache.return_value = mock_info.MOCK_TOKEN_ID
-
-        # simulate client to make the request
-        token_data = {
-            "auth": {
-                "tenantName": "Integration",
-                "passwordCredentials": {
-                    "username": "demo",
-                    "password": "demo"
-                }
-            }
-        }
-
-        response = self.client.post(
-            "/api/multicloud-pike/v0/pike_RegionOne/identity/v2.0/tokens",
-            data=json.dumps(token_data), content_type='application/json')
-        self.assertEqual(status.HTTP_200_OK,
-                         response.status_code)
-        context = response.json()
-
-        self.assertIsNotNone(context['access']['token'])
-        self.assertEqual(mock_info.MOCK_TOKEN_ID,
-                         context['access']['token']["id"])
-        self.assertIsNotNone(context['access']['serviceCatalog'])
-
-    @mock.patch.object(VimDriverUtils, 'get_vim_info')
-    @mock.patch.object(VimDriverUtils, 'get_session')
-    @mock.patch.object(VimDriverUtils, 'get_auth_state')
-    @mock.patch.object(VimDriverUtils, 'update_token_cache')
-    def test_token_with_projectid(self, mock_update_token_cache, mock_get_auth_state,
-                                  mock_get_session, mock_get_vim_info):
-        '''
-                test API: get token
-        :param mock_update_token_cache:
-        :param mock_get_auth_state:
-        :param mock_get_session:
-        :param mock_get_vim_info:
-        :return:
-        '''
-
-        # mock VimDriverUtils APIs
-        mock_session_specs = ["get"]
-        mock_session_get_response = {'status': 200}
-        mock_session = mock.Mock(name='mock_session',
-                                 spec=mock_session_specs)
-        mock_session.get.return_value = mock_session_get_response
-
-        mock_get_vim_info.return_value = mock_info.MOCK_VIM_INFO
-        mock_get_session.return_value = mock_session
-        mock_get_auth_state.return_value = json.dumps(MOCK_AUTH_STATE)
-        mock_update_token_cache.return_value = mock_info.MOCK_TOKEN_ID
-
-        # simulate client to make the request
-        token_data = {
-            "auth": {
-                "identity": {
-                    "methods": ["password"],
-                    "password": {
-                        "user": {
-                            "name": "demo",
-                            "password": "demo"
-                        }
-                    }
-                },
-                "scope": {
-                    "project": {"id": "dd327af0542e47d7853e0470fe9ad625"}
-                }
-            }
-        }
-
-        response = self.client.post(
-            "/api/multicloud-pike/v0/pike_RegionOne/identity/v3/auth/tokens",
-            data=json.dumps(token_data), content_type='application/json')
-        self.assertEqual(status.HTTP_201_CREATED,
-                         response.status_code)
-        context = response.json()
-
-        self.assertEqual(mock_info.MOCK_TOKEN_ID,
-                         response['X-Subject-Token'])
-        self.assertIsNotNone(context['token']['catalog'])
-
-
 class MockResponse(object):
     status_code = 200
     content = ''
@@ -989,27 +714,24 @@ class TestServiceProxy(unittest.TestCase):
 
         mock_get_vim_info.return_value = MOCK_VIM_INFO
         mock_get_session.return_value = mock_session
-        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE),
-                                             json.dumps(MOCK_INTERNAL_METADATA_CATALOG))
+        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), json.dumps(MOCK_INTERNAL_METADATA_CATALOG))
         response = self.client.head(
-            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/"
-            "fcca3cc49d5e42caae15459e27103efc/servers",
+            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
             {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
     def test_unauthorized_access(self):
         response = self.client.get(
-            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/"
-            "fcca3cc49d5e42caae15459e27103efc/servers")
+            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers")
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_vim_info')
     def test_expired_auth_token(self, mock_get_vim_info):
         mock_get_vim_info.return_value = MOCK_VIM_INFO
 
-        response = self.client.get("/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/"
-                                   "fcca3cc49d5e42caae15459e27103efc/servers",
-                                   {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
+        response = self.client.get(
+            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
+            {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
     @mock.patch.object(VimDriverUtils, 'get_token_cache')
@@ -1018,16 +740,15 @@ class TestServiceProxy(unittest.TestCase):
         mock_get_vim_info.return_value = MOCK_VIM_INFO
         mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), {})
         servicetype = "compute"
-        base_url = "/api/multicloud-pike/v0/pike_RegionOne/"
-        server_url = "/v2.1/fcca3cc49d5e42caae15459e27103efc/servers"
-        url = (base_url + servicetype + server_url)
+        url_part1 = "/api/multicloud-pike/v0/pike_RegionOne/"
+        url_part3 = "/v2.1/fcca3cc49d5e42caae15459e27103efc/servers"
+        url = (url_part1 + servicetype + url_part3)
         response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
         self.assertEqual(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
 
         metadata_catalog = copy.deepcopy(MOCK_INTERNAL_METADATA_CATALOG)
         metadata_catalog[servicetype] = None
-        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE),
-                                             json.dumps(metadata_catalog))
+        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), json.dumps(metadata_catalog))
 
         response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
         self.assertEqual(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
@@ -1035,8 +756,7 @@ class TestServiceProxy(unittest.TestCase):
         metadata_catalog = copy.deepcopy(MOCK_INTERNAL_METADATA_CATALOG)
         metadata_catalog[servicetype]['prefix'] = None
         metadata_catalog[servicetype]['proxy_prefix'] = None
-        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE),
-                                             json.dumps(metadata_catalog))
+        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), json.dumps(metadata_catalog))
 
         response = self.client.get(url, {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
         self.assertEqual(status.HTTP_500_INTERNAL_SERVER_ERROR, response.status_code)
@@ -1046,8 +766,9 @@ class TestServiceProxy(unittest.TestCase):
     @mock.patch.object(VimDriverUtils, 'get_auth_state')
     @mock.patch.object(VimDriverUtils, 'update_token_cache')
     @mock.patch.object(VimDriverUtils, 'get_token_cache')
-    def test_crud_resources(self, mock_get_token_cache, mock_update_token_cache,
-                            mock_get_auth_state, mock_get_session, mock_get_vim_info):
+    def test_crud_resources(
+            self, mock_get_token_cache, mock_update_token_cache,
+            mock_get_auth_state, mock_get_session, mock_get_vim_info):
         '''
         Test service proxy API: GET
 
@@ -1090,13 +811,11 @@ class TestServiceProxy(unittest.TestCase):
         mock_get_session.return_value = mock_session
         mock_get_auth_state.return_value = json.dumps(MOCK_AUTH_STATE)
         mock_update_token_cache.return_value = MOCK_TOKEN_ID
-        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE),
-                                             json.dumps(MOCK_INTERNAL_METADATA_CATALOG))
+        mock_get_token_cache.return_value = (json.dumps(MOCK_AUTH_STATE), json.dumps(MOCK_INTERNAL_METADATA_CATALOG))
 
         # Create resource
         response = self.client.post(
-            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/"
-            "fcca3cc49d5e42caae15459e27103efc/servers",
+            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
             MOCK_POST_SERVER_REQUEST, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
 
         self.assertEqual(status.HTTP_202_ACCEPTED, response.status_code)
@@ -1106,8 +825,7 @@ class TestServiceProxy(unittest.TestCase):
 
         # Retrieve resource
         response = self.client.get(
-            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/"
-            "fcca3cc49d5e42caae15459e27103efc/servers",
+            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
             {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         context = response.json()
@@ -1117,8 +835,7 @@ class TestServiceProxy(unittest.TestCase):
 
         # Update resource
         response = self.client.get(
-            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/"
-            "fcca3cc49d5e42caae15459e27103efc/servers",
+            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers",
             {}, HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         context = response.json()
@@ -1128,8 +845,7 @@ class TestServiceProxy(unittest.TestCase):
 
         # simulate client to make the request
         response = self.client.delete(
-            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/"
-            "fcca3cc49d5e42caae15459e27103efc/servers/324dfb7d-f4a9-419a-9a19-237df04b443b",
+            "/api/multicloud-pike/v0/pike_RegionOne/compute/v2.1/fcca3cc49d5e42caae15459e27103efc/servers/324dfb7d-f4a9-419a-9a19-237df04b443b",
             HTTP_X_AUTH_TOKEN=MOCK_TOKEN_ID)
 
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)

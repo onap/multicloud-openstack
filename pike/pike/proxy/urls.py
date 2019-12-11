@@ -15,19 +15,19 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from pike.proxy.views import identity_v3
+from pike.proxy.views import identityV3
 from pike.proxy.views import services
 from newton_base.proxy import dnsaasdelegate
 
 URLPATTERNS = [
     url(r'^identity/v3/auth/tokens/?$',
-        identity_v3.Tokens.as_view()),
+        identityV3.Tokens.as_view()),
     url(r'^identity/v3/?$',
-        identity_v3.Tokens.as_view()),
+        identityV3.Tokens.as_view()),
     url(r'^identity/v2.0/?',
-        identity_v3.TokensV2.as_view()),
+        identityV3.TokensV2.as_view()),
     url(r'^identity/v2.0/tokens/?$',
-        identity_v3.TokensV2.as_view()),
+        identityV3.TokensV2.as_view()),
     url(r'^identity/v2.0/tenants/?$',
         services.GetTenants.as_view()),
     url(r'dns-delegate/(?P<requri>[0-9a-zA-Z./_-]*)$',
