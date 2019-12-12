@@ -276,252 +276,252 @@ class InfraWorkload(APIView):
             return Response(data={'error': str(e)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def heatbridge_update(self, request, vimid, stack_id):
-        '''
-        update heat resource to AAI for the specified cloud region and tenant
-        The resources includes: vserver, vserver/l-interface,
-        :param request:
-        :param vimid:
-        :param stack_id:
-        :return:
-        '''
+    # def heatbridge_update(self, request, vimid, stack_id):
+    #     '''
+    #     update heat resource to AAI for the specified cloud region and tenant
+    #     The resources includes: vserver, vserver/l-interface,
+    #     :param request:
+    #     :param vimid:
+    #     :param stack_id:
+    #     :return:
+    #     '''
 
-        cloud_owner, regionid = extsys.decode_vim_id(vimid)
-        # should go via multicloud proxy so that the selflink is updated by multicloud
-        retcode, v2_token_resp_json, os_status = \
-            helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
-                                            cloud_owner, regionid, "/v2.0/tokens")
-        if retcode > 0:
-            logger.error("authenticate fails:%s, %s, %s" %
-                         (cloud_owner, regionid, v2_token_resp_json))
+    #     cloud_owner, regionid = extsys.decode_vim_id(vimid)
+    #     # should go via multicloud proxy so that the selflink is updated by multicloud
+    #     retcode, v2_token_resp_json, os_status = \
+    #         helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+    #                                         cloud_owner, regionid, "/v2.0/tokens")
+    #     if retcode > 0:
+    #         logger.error("authenticate fails:%s, %s, %s" %
+    #                      (cloud_owner, regionid, v2_token_resp_json))
 
-            return None
-        tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
-        # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
+    #         return None
+    #     tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+    #     # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
 
-        # common prefix
-        aai_cloud_region = \
-            "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
-            % (cloud_owner, regionid, tenant_id)
+    #     # common prefix
+    #     aai_cloud_region = \
+    #         "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
+    #         % (cloud_owner, regionid, tenant_id)
 
-        # get stack resource
-        service_type = "orchestration"
-        resource_uri = "/stacks/%s/resources" % (stack_id)
-        self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
-        retcode, content, os_status = \
-            helper.MultiCloudServiceHelper(cloud_owner, regionid,
-                                           v2_token_resp_json,
-                                           service_type, resource_uri,
-                                           None, "GET")
+    #     # get stack resource
+    #     service_type = "orchestration"
+    #     resource_uri = "/stacks/%s/resources" % (stack_id)
+    #     self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
+    #     retcode, content, os_status = \
+    #         helper.MultiCloudServiceHelper(cloud_owner, regionid,
+    #                                        v2_token_resp_json,
+    #                                        service_type, resource_uri,
+    #                                        None, "GET")
 
-        resources = content.get('resources', []) if retcode == 0 and content else []
+    #     resources = content.get('resources', []) if retcode == 0 and content else []
 
-        # find and update resources
-        transactions = []
-        for resource in resources:
-            if resource.get('resource_status', None) != "CREATE_COMPLETE":
-                continue
-            if resource.get('resource_type', None) == 'OS::Nova::Server':
-                # retrieve vserver details
-                service_type = "compute"
-                resource_uri = "/servers/%s" % (resource['physical_resource_id'])
-                self._logger.info("retrieve vserver detail, URI:%s" % resource_uri)
-                retcode, content, os_status = \
-                    helper.MultiCloudServiceHelper(cloud_owner, regionid,
-                                                   v2_token_resp_json,
-                                                   service_type, resource_uri,
-                                                   None, "GET")
+    #     # find and update resources
+    #     transactions = []
+    #     for resource in resources:
+    #         if resource.get('resource_status', None) != "CREATE_COMPLETE":
+    #             continue
+    #         if resource.get('resource_type', None) == 'OS::Nova::Server':
+    #             # retrieve vserver details
+    #             service_type = "compute"
+    #             resource_uri = "/servers/%s" % (resource['physical_resource_id'])
+    #             self._logger.info("retrieve vserver detail, URI:%s" % resource_uri)
+    #             retcode, content, os_status = \
+    #                 helper.MultiCloudServiceHelper(cloud_owner, regionid,
+    #                                                v2_token_resp_json,
+    #                                                service_type, resource_uri,
+    #                                                None, "GET")
 
-                self._logger.debug(" resp data:%s" % content)
-                vserver_detail = content.get('server', None) if retcode == 0 and content else None
-                if vserver_detail:
-                    # compose inventory entry for vserver
-                    vserver_link = ""
-                    for link in vserver_detail['links']:
-                        if link['rel'] == 'self':
-                            vserver_link = link['href']
-                            break
-                        pass
+    #             self._logger.debug(" resp data:%s" % content)
+    #             vserver_detail = content.get('server', None) if retcode == 0 and content else None
+    #             if vserver_detail:
+    #                 # compose inventory entry for vserver
+    #                 vserver_link = ""
+    #                 for link in vserver_detail['links']:
+    #                     if link['rel'] == 'self':
+    #                         vserver_link = link['href']
+    #                         break
+    #                     pass
 
-                    # note: relationship-list to flavor/image is not be update yet
-                    # note: volumes is not updated yet
-                    # note: relationship-list to vnf will be handled somewhere else
-                    aai_resource = {
-                        'body': {
-                            'vserver-name': vserver_detail['name'],
-                            'vserver-name2': vserver_detail['name'],
-                            "vserver-id": vserver_detail['id'],
-                            "vserver-selflink": vserver_link,
-                            "prov-status": vserver_detail['status']
-                        },
-                        "uri": aai_cloud_region + "/vservers/vserver/%s" % (vserver_detail['id'])
-                    }
+    #                 # note: relationship-list to flavor/image is not be update yet
+    #                 # note: volumes is not updated yet
+    #                 # note: relationship-list to vnf will be handled somewhere else
+    #                 aai_resource = {
+    #                     'body': {
+    #                         'vserver-name': vserver_detail['name'],
+    #                         'vserver-name2': vserver_detail['name'],
+    #                         "vserver-id": vserver_detail['id'],
+    #                         "vserver-selflink": vserver_link,
+    #                         "prov-status": vserver_detail['status']
+    #                     },
+    #                     "uri": aai_cloud_region + "/vservers/vserver/%s" % (vserver_detail['id'])
+    #                 }
 
-                    try:
-                        # then update the resource
-                        retcode, content, status_code = \
-                            restcall.req_to_aai(aai_resource['uri'],
-                                                "PUT", content=aai_resource['body'])
+    #                 try:
+    #                     # then update the resource
+    #                     retcode, content, status_code = \
+    #                         restcall.req_to_aai(aai_resource['uri'],
+    #                                             "PUT", content=aai_resource['body'])
 
-                        if retcode == 0 and content:
-                            content = json.JSONDecoder().decode(content)
-                            self._logger.debug("AAI update %s response: %s" %
-                                               (aai_resource['uri'], content))
-                    except Exception:
-                        self._logger.error(traceback.format_exc())
-                        pass
+    #                     if retcode == 0 and content:
+    #                         content = json.JSONDecoder().decode(content)
+    #                         self._logger.debug("AAI update %s response: %s" %
+    #                                            (aai_resource['uri'], content))
+    #                 except Exception:
+    #                     self._logger.error(traceback.format_exc())
+    #                     pass
 
-                    aai_resource_transactions = {"put": [aai_resource]}
-                    transactions.append(aai_resource_transactions)
-                    # self._logger.debug("aai_resource :%s" % aai_resource_transactions)
-                    pass
+    #                 aai_resource_transactions = {"put": [aai_resource]}
+    #                 transactions.append(aai_resource_transactions)
+    #                 # self._logger.debug("aai_resource :%s" % aai_resource_transactions)
+    #                 pass
 
-        for resource in resources:
-            if resource.get('resource_status', None) != "CREATE_COMPLETE":
-                continue
-            if resource.get('resource_type', None) == 'OS::Neutron::Port':
-                # retrieve vport details
-                service_type = "network"
-                resource_uri = "/v2.0/ports/%s" % (resource['physical_resource_id'])
-                self._logger.info("retrieve vport detail, URI:%s" % resource_uri)
-                retcode, content, os_status = \
-                    helper.MultiCloudServiceHelper(cloud_owner, regionid,
-                                                   v2_token_resp_json,
-                                                   service_type, resource_uri,
-                                                   None, "GET")
+    #     for resource in resources:
+    #         if resource.get('resource_status', None) != "CREATE_COMPLETE":
+    #             continue
+    #         if resource.get('resource_type', None) == 'OS::Neutron::Port':
+    #             # retrieve vport details
+    #             service_type = "network"
+    #             resource_uri = "/v2.0/ports/%s" % (resource['physical_resource_id'])
+    #             self._logger.info("retrieve vport detail, URI:%s" % resource_uri)
+    #             retcode, content, os_status = \
+    #                 helper.MultiCloudServiceHelper(cloud_owner, regionid,
+    #                                                v2_token_resp_json,
+    #                                                service_type, resource_uri,
+    #                                                None, "GET")
 
-                self._logger.debug(" resp data:%s" % content)
+    #             self._logger.debug(" resp data:%s" % content)
 
-                vport_detail = content.get('port', None) if retcode == 0 and content else None
-                if vport_detail:
-                    # compose inventory entry for vport
-                    # note: l3-interface-ipv4-address-list,
-                    #  l3-interface-ipv6-address-list are not updated yet
-                    # note: network-name is not update yet since the detail
-                    #  coming with network-id
-                    aai_resource = {
-                        "body": {
-                            "interface-name": vport_detail['name'],
-                            "interface-id": vport_detail['id'],
-                            "macaddr": vport_detail['mac_address']
-                        },
-                        'uri':
-                            aai_cloud_region + "/vservers/vserver/%s/l-interfaces/l-interface/%s"
-                                               % (vport_detail['device_id'], vport_detail['name'])
-                    }
-                    try:
-                        # then update the resource
-                        retcode, content, status_code = \
-                            restcall.req_to_aai(aai_resource['uri'], "PUT",
-                                                content=aai_resource['body'])
+    #             vport_detail = content.get('port', None) if retcode == 0 and content else None
+    #             if vport_detail:
+    #                 # compose inventory entry for vport
+    #                 # note: l3-interface-ipv4-address-list,
+    #                 #  l3-interface-ipv6-address-list are not updated yet
+    #                 # note: network-name is not update yet since the detail
+    #                 #  coming with network-id
+    #                 aai_resource = {
+    #                     "body": {
+    #                         "interface-name": vport_detail['name'],
+    #                         "interface-id": vport_detail['id'],
+    #                         "macaddr": vport_detail['mac_address']
+    #                     },
+    #                     'uri':
+    #                         aai_cloud_region + "/vservers/vserver/%s/l-interfaces/l-interface/%s"
+    #                                            % (vport_detail['device_id'], vport_detail['name'])
+    #                 }
+    #                 try:
+    #                     # then update the resource
+    #                     retcode, content, status_code = \
+    #                         restcall.req_to_aai(aai_resource['uri'], "PUT",
+    #                                             content=aai_resource['body'])
 
-                        if retcode == 0 and content:
-                            content = json.JSONDecoder().decode(content)
-                            self._logger.debug("AAI update %s response: %s" %
-                                               (aai_resource['uri'], content))
-                    except Exception:
-                        self._logger.error(traceback.format_exc())
-                        pass
+    #                     if retcode == 0 and content:
+    #                         content = json.JSONDecoder().decode(content)
+    #                         self._logger.debug("AAI update %s response: %s" %
+    #                                            (aai_resource['uri'], content))
+    #                 except Exception:
+    #                     self._logger.error(traceback.format_exc())
+    #                     pass
 
-                    aai_resource_transactions = {"put": [aai_resource]}
-                    transactions.append(aai_resource_transactions)
-                    # self._logger.debug("aai_resource :%s" % aai_resource_transactions)
+    #                 aai_resource_transactions = {"put": [aai_resource]}
+    #                 transactions.append(aai_resource_transactions)
+    #                 # self._logger.debug("aai_resource :%s" % aai_resource_transactions)
 
-                    pass
+    #                 pass
 
-        aai_transactions = {"transactions": transactions}
-        self._logger.debug("aai_transactions :%s" % aai_transactions)
+    #     aai_transactions = {"transactions": transactions}
+    #     self._logger.debug("aai_transactions :%s" % aai_transactions)
 
-        return aai_transactions
+    #     return aai_transactions
 
-    def heatbridge_delete(self, request, vimid, stack_id):
-        '''
-        remove heat resource from AAI for the specified cloud region and tenant
-        The resources includes: vserver, vserver/l-interface,
-        :param request:
-        :param vimid:
-        :param stack_id:
-        :param tenant_id:
-        :return:
-        '''
+    # def heatbridge_delete(self, request, vimid, stack_id):
+    #     '''
+    #     remove heat resource from AAI for the specified cloud region and tenant
+    #     The resources includes: vserver, vserver/l-interface,
+    #     :param request:
+    #     :param vimid:
+    #     :param stack_id:
+    #     :param tenant_id:
+    #     :return:
+    #     '''
 
-        # enumerate the resources
-        cloud_owner, regionid = extsys.decode_vim_id(vimid)
-        # should go via multicloud proxy so that the selflink is updated by multicloud
-        retcode, v2_token_resp_json, os_status = \
-            helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
-                                            cloud_owner, regionid, "/v2.0/tokens")
-        if retcode > 0:
-            logger.error("authenticate fails:%s, %s, %s" %
-                         (cloud_owner, regionid, v2_token_resp_json))
-            return None
+    #     # enumerate the resources
+    #     cloud_owner, regionid = extsys.decode_vim_id(vimid)
+    #     # should go via multicloud proxy so that the selflink is updated by multicloud
+    #     retcode, v2_token_resp_json, os_status = \
+    #         helper.MultiCloudIdentityHelper(settings.MULTICLOUD_API_V1_PREFIX,
+    #                                         cloud_owner, regionid, "/v2.0/tokens")
+    #     if retcode > 0:
+    #         logger.error("authenticate fails:%s, %s, %s" %
+    #                      (cloud_owner, regionid, v2_token_resp_json))
+    #         return None
 
-        tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
-        # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
+    #     tenant_id = v2_token_resp_json["access"]["token"]["tenant"]["id"]
+    #     # tenant_name = v2_token_resp_json["access"]["token"]["tenant"]["name"]
 
-        # common prefix
-        aai_cloud_region = \
-            "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
-            % (cloud_owner, regionid, tenant_id)
+    #     # common prefix
+    #     aai_cloud_region = \
+    #         "/cloud-infrastructure/cloud-regions/cloud-region/%s/%s/tenants/tenant/%s" \
+    #         % (cloud_owner, regionid, tenant_id)
 
-        # get stack resource
-        service_type = "orchestration"
-        resource_uri = "/stacks/%s/resources" % (stack_id)
-        self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
-        retcode, content, os_status = \
-            helper.MultiCloudServiceHelper(cloud_owner, regionid,
-                                           v2_token_resp_json,
-                                           service_type, resource_uri,
-                                           None, "GET")
-        resources = content.get('resources', []) \
-            if retcode == 0 and content else []
+    #     # get stack resource
+    #     service_type = "orchestration"
+    #     resource_uri = "/stacks/%s/resources" % (stack_id)
+    #     self._logger.info("retrieve stack resources, URI:%s" % resource_uri)
+    #     retcode, content, os_status = \
+    #         helper.MultiCloudServiceHelper(cloud_owner, regionid,
+    #                                        v2_token_resp_json,
+    #                                        service_type, resource_uri,
+    #                                        None, "GET")
+    #     resources = content.get('resources', []) \
+    #         if retcode == 0 and content else []
 
-        vserver_list = [resource['physical_resource_id'] for resource in resources
-                        if resource.get('resource_type', None) == 'OS::Nova::Server']
+    #     vserver_list = [resource['physical_resource_id'] for resource in resources
+    #                     if resource.get('resource_type', None) == 'OS::Nova::Server']
 
-        try:
-            # get list of vservers
-            vserver_list_url = aai_cloud_region + "/vservers?depth=all"
-            retcode, content, status_code = \
-                restcall.req_to_aai(vserver_list_url, "GET")
-            if retcode > 0 or not content:
-                self._logger.debug("AAI get %s response: %s" % (vserver_list_url, content))
-                return None
-            content = json.JSONDecoder().decode(content)
-            vservers = content['vserver']
-            for vserver in vservers:
-                if vserver['vserver-id'] not in vserver_list:
-                    continue
+    #     try:
+    #         # get list of vservers
+    #         vserver_list_url = aai_cloud_region + "/vservers?depth=all"
+    #         retcode, content, status_code = \
+    #             restcall.req_to_aai(vserver_list_url, "GET")
+    #         if retcode > 0 or not content:
+    #             self._logger.debug("AAI get %s response: %s" % (vserver_list_url, content))
+    #             return None
+    #         content = json.JSONDecoder().decode(content)
+    #         vservers = content['vserver']
+    #         for vserver in vservers:
+    #             if vserver['vserver-id'] not in vserver_list:
+    #                 continue
 
-                try:
-                    # iterate vport, except will be raised if no l-interface exist
-                    for vport in vserver['l-interfaces']['l-interface']:
-                        # delete vport
-                        vport_delete_url = \
-                            aai_cloud_region + \
-                            "/vservers/vserver/%s/l-interfaces/l-interface/%s?resource-version=%s" \
-                            % (vserver['vserver-id'], vport['interface-name'],
-                               vport['resource-version'])
+    #             try:
+    #                 # iterate vport, except will be raised if no l-interface exist
+    #                 for vport in vserver['l-interfaces']['l-interface']:
+    #                     # delete vport
+    #                     vport_delete_url = \
+    #                         aai_cloud_region + \
+    #                         "/vservers/vserver/%s/l-interfaces/l-interface/%s?resource-version=%s" \
+    #                         % (vserver['vserver-id'], vport['interface-name'],
+    #                            vport['resource-version'])
 
-                        restcall.req_to_aai(vport_delete_url, "DELETE")
-                except Exception:
-                    pass
+    #                     restcall.req_to_aai(vport_delete_url, "DELETE")
+    #             except Exception:
+    #                 pass
 
-                try:
-                    # delete vserver
-                    vserver_delete_url = \
-                        aai_cloud_region + \
-                        "/vservers/vserver/%s?resource-version=%s" \
-                        % (vserver['vserver-id'], vserver['resource-version'])
+    #             try:
+    #                 # delete vserver
+    #                 vserver_delete_url = \
+    #                     aai_cloud_region + \
+    #                     "/vservers/vserver/%s?resource-version=%s" \
+    #                     % (vserver['vserver-id'], vserver['resource-version'])
 
-                    restcall.req_to_aai(vserver_delete_url, "DELETE")
-                except Exception:
-                    continue
+    #                 restcall.req_to_aai(vserver_delete_url, "DELETE")
+    #             except Exception:
+    #                 continue
 
-        except Exception:
-            self._logger.error(traceback.format_exc())
-            return None
-        pass
+    #     except Exception:
+    #         self._logger.error(traceback.format_exc())
+    #         return None
+    #     pass
 
 
 class APIv1InfraWorkload(InfraWorkload):
