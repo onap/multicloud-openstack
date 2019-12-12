@@ -20,7 +20,7 @@ from django.conf.urls import include, url
 from pike.registration.views import registration
 from newton_base.openoapi import tenants
 from newton_base.resource import capacity
-from newton_base.resource import infra_workload
+from starlingx_base.resource import infra_workload
 
 urlpatterns = [
     url(r'^', include('pike.swagger.urls')),
