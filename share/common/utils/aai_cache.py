@@ -17,11 +17,14 @@ logger = logging.getLogger(__name__)
 
 # note: memcached key length should be < 250, the value < 1MB
 
+
 def flush_cache_by_url(resource_url):
     try:
-        cache.delete("AAI_" + resource_url)
+        # this is to invalidate similar cache data blindly
+        resource_wo_query = resource_url.split("?", 1)[0]
+        cache.delete("AAI_" + resource_wo_query)
     except:
-        pass # silently drop any exception
+        pass  # silently drop any exception
 
 
 def get_cache_by_url(resource_url):
@@ -43,14 +46,18 @@ def set_cache_by_url(resource_url, resource_in_json):
         if filter_cache_by_url(resource_url):
             # cache the resource for 24 hours
             # logger.debug("Cache the resource: "+ resource_url)
-            cache.set("AAI_" + resource_url, json.dumps(resource_in_json), 3600 * 24)
+            cache.set("AAI_" + resource_url,
+                      json.dumps(resource_in_json), 3600 * 24)
     except Exception as e:
         logger.error("get_cache_by_url exception: %s" % str(e))
-        pass
+
 
 def filter_cache_by_url(resource_url):
+    # cannot cache url with query string, e.g. depth=all
+    if resource_url.find(r"?") >= 0:
+        return False
     # hardcoded filter: cloud region only
-    if resource_url.find(r"cloud-infrastructure/cloud-regions/cloud-region") > 0:
+    if resource_url.find(r"cloud-infrastructure/cloud-regions/cloud-region") >= 0:
         return True
     else:
         return False

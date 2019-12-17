@@ -139,11 +139,15 @@ def req_to_aai(resource, method, content='', appid=settings.MULTICLOUD_APP_ID, n
     # hook to flush cache
     if method.upper() in ["PUT", "POST", "PATCH", "DELETE"]:
         aai_cache.flush_cache_by_url(resource)
-    elif method.upper() in ["GET"] and not nocache:
-        content = aai_cache.get_cache_by_url(resource)
-        # logger.debug("cached resource: %s, %s" % (resource, content))
-        if content:
-            return content
+    elif method.upper() in ["GET"]:
+        if not nocache:
+            content = aai_cache.get_cache_by_url(resource)
+            # logger.debug("cached resource: %s, %s" % (resource, content))
+            if content:
+                return content
+        else:
+            # flush possible cached data blindly
+            aai_cache.flush_cache_by_url(resource)
 
     ret, resp_body, resp_status = _call_req(
         settings.AAI_BASE_URL, settings.AAI_USERNAME, settings.AAI_PASSWORD, rest_no_auth,

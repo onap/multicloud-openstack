@@ -282,7 +282,7 @@ class RegistryHelper(MultiCloudAAIHelper):
 
         # get cloud-region
         retcode, content, status_code = \
-            restcall.req_to_aai(resource_url, "GET")
+            restcall.req_to_aai(resource_url, "GET", nocache=True)
 
         # add resource-version
         cloudregiondata = {}
@@ -1412,7 +1412,7 @@ class RegistryHelper(MultiCloudAAIHelper):
 
             # get cloud-region
             retcode, content, status_code = \
-                restcall.req_to_aai(resource_url, "GET")
+                restcall.req_to_aai(resource_url, "GET", nocache=True)
 
             # add resource-version to url
             if retcode == 0 and content:
@@ -1515,7 +1515,7 @@ class RegistryHelper(MultiCloudAAIHelper):
 
                 # get cloud-region
                 retcode, content, status_code = \
-                    restcall.req_to_aai(resource_url, "GET")
+                    restcall.req_to_aai(resource_url, "GET", nocache=True)
 
                 # add resource-version to url
                 if retcode == 0 and content:
