@@ -343,7 +343,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
 
             # get cloud-region
             retcode, content, status_code = \
-                restcall.req_to_aai(resource_url, "GET")
+                restcall.req_to_aai(resource_url, "GET", nocache=True)
 
             # add resource-version
             if retcode == 0 and content:
@@ -372,7 +372,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
             while True:
                 # get cloud-region
                 retcode2, content2, status_code2 = \
-                    restcall.req_to_aai(resource_url, "GET")
+                    restcall.req_to_aai(resource_url, "GET", nocache=True)
                 if retcode2 == 0 and content2:
                     content2 = json.JSONDecoder().decode(content2)
                     if content2.get("identity-url", None)\
