@@ -1,0 +1,14 @@
+distribution_type: 'container'
+container_release_tag: '1.5.2'
+project: 'multicloud-openstack'
+log_dir: 'multicloud-openstack-maven-docker-stage-master/180/'
+ref: 34c5c84a17dee7a821eb1f3b18eadb0598150cdf
+containers:
+    - name: 'multicloud/openstack-fcaps'
+      version: '1.5.2'
+    - name: 'multicloud/openstack-pike'
+      version: '1.5.2'
+    - name: 'multicloud/openstack-starlingx'
+      version: '1.5.2'
+    - name: 'multicloud/openstack-windriver'
+      version: '1.5.2'
