@@ -90,15 +90,17 @@ CACHES = {
 }
 
 # [MSB]
+DEFAULT_MSB_PROTO = "http"
+MSB_SERVICE_PROTOCOL = os.environ.get('MSB_PROTO', DEFAULT_MSB_PROTO)
 MSB_SERVICE_ADDR = os.environ.get('MSB_ADDR', "127.0.0.1")
 MSB_SERVICE_PORT = os.environ.get('MSB_PORT', "80")
 
 # [Multicloud]
-MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-pike/v0" % (
-    MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
+MULTICLOUD_PREFIX = "%s://%s:%s/api/multicloud-pike/v0" % (
+    MSB_SERVICE_PROTOCOL, MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
-MULTICLOUD_API_V1_PREFIX = "http://%s:%s/api/multicloud-pike/v1" % (
-    MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
+MULTICLOUD_API_V1_PREFIX = "%s://%s:%s/api/multicloud-pike/v1" % (
+    MSB_SERVICE_PROTOCOL, MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
 # [A&AI]
 AAI_ADDR = os.environ.get('AAI_ADDR', "aai.api.simpledemo.openecomp.org")

@@ -6,6 +6,7 @@ ARG HTTPS_PROXY=${HTTPS_PROXY}
 ENV http_proxy $HTTP_PROXY
 ENV https_proxy $HTTPS_PROXY
 
+ENV MSB_PROTO "http"
 ENV MSB_ADDR "127.0.0.1"
 ENV MSB_PORT "80"
 ENV AAI_ADDR "aai.api.simpledemo.openecomp.org"

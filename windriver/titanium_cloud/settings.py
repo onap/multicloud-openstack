@@ -81,7 +81,7 @@ TIME_ZONE = 'UTC'
 
 STATIC_URL = '/static/'
 
-
+DEFAULT_MSB_PROTO = "http"
 DEFAULT_MSB_ADDR = "127.0.0.1"
 DEFAULT_CACHE_BACKEND_LOCATION = '127.0.0.1:11211'
 
@@ -93,15 +93,16 @@ CACHES = {
 }
 
 # [MSB]
+MSB_SERVICE_PROTOCOL = os.environ.get('MSB_PROTO', DEFAULT_MSB_PROTO)
 MSB_SERVICE_ADDR = os.environ.get('MSB_ADDR', DEFAULT_MSB_ADDR)
 MSB_SERVICE_PORT = os.environ.get('MSB_PORT', "80")
 
 # [Multicloud]
-MULTICLOUD_PREFIX = "http://%s:%s/api/multicloud-titaniumcloud/v0" % (
-    MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
+MULTICLOUD_PREFIX = "%s://%s:%s/api/multicloud-titaniumcloud/v0" % (
+    MSB_SERVICE_PROTOCOL, MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
-MULTICLOUD_API_V1_PREFIX = "http://%s:%s/api/multicloud-titaniumcloud/v1" % (
-    MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
+MULTICLOUD_API_V1_PREFIX = "%s://%s:%s/api/multicloud-titaniumcloud/v1" % (
+    MSB_SERVICE_PROTOCOL, MSB_SERVICE_ADDR, MSB_SERVICE_PORT)
 
 # [A&AI]
 AAI_ADDR = os.environ.get('AAI_ADDR', "aai.api.simpledemo.openecomp.org")
