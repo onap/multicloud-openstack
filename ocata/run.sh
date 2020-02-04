@@ -20,7 +20,7 @@ export PYTHONPATH=lib/share
 #nohup python manage.py runserver 0.0.0.0:9006 2>&1 &
 
 if [ ${SSL_ENABLED} = "true" ]; then
-    nohup uwsgi --https :9006,ocata/pub/ssl/cert/cert.crt,ocata/pub/ssl/cert/cert.key --module ocata.wsgi --master --enable-threads --processes 4 &
+    nohup uwsgi --https :9006,ocata/pub/ssl/cert/cert.crt,ocata/pub/ssl/cert/cert.key,HIGH --module ocata.wsgi --master --enable-threads --processes 4 &
 
 else
     nohup uwsgi --http :9006 --module ocata.wsgi --master --enable-threads --processes 4 &
