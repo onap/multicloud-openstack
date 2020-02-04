@@ -22,6 +22,7 @@ if [ ${SSL_ENABLED} = "true" ]; then
 
 else
     nohup uwsgi --http :9009 --module starlingx.wsgi --master --enable-threads --processes 4 &
+fi
 
 logDir="/var/log/onap/multicloud/openstack/starlingx"
 if [ ! -x  $logDir  ]; then
