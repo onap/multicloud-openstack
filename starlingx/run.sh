@@ -15,7 +15,7 @@
 
 memcached -d -m 2048 -c 1024 -p 11211 -P /tmp/memcached1.pid
 export PYTHONPATH=lib/share
-uwsgi --http :9009 --module starlingx.wsgi --master --processes 4
+# uwsgi --http :9009 --module starlingx.wsgi --master --processes 4
 
 if [ ${SSL_ENABLED} = "true" ]; then
     nohup uwsgi --https :9009,starlingx/pub/ssl/cert/cert.crt,starlingx/pub/ssl/cert/cert.key --module starlingx.wsgi --master --enable-threads --processes 4 &
