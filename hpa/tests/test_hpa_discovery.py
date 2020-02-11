@@ -95,7 +95,7 @@ class TestDiscovery(unittest.TestCase):
         ]
 
         vimtype = "windriver"
-        hpa = hpa_discovery.HPA_Discovery()
+        hpa = hpa_discovery.HPADiscovery()
         for extra_spec in extra_specs:
             data = {"flavor": flavor, "extra_specs": extra_spec, "viminfo": viminfo, "vimtype": vimtype}
             results = hpa.get_hpa_capabilities(data)

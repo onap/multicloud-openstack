@@ -1,3 +1,6 @@
+"""
+hpa discovery
+"""
 import traceback
 import uuid
 import json
@@ -6,6 +9,9 @@ from hpa import base
 
 
 def ignore_case_get(args, key, def_val=""):
+    """
+    get the value of key
+    """
     if not key:
         return def_val
     if key in args:
@@ -15,7 +21,7 @@ def ignore_case_get(args, key, def_val=""):
             return args[old_key]
     return def_val
 
-class HPA_Discovery(base.HPA_DiscoveryBase):
+class HPADiscovery(base.HPADiscoveryBase):
     """HPA Discovery implementation.
     """
     def __init__(self):
@@ -111,7 +117,7 @@ class HPA_Discovery(base.HPA_DiscoveryBase):
             basic_capability['hpa-feature-attributes'].append(
                 {'hpa-attribute-key':'virtualMemSize',
                  'hpa-attribute-value':
-                     '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(flavor['ram'],"MB")
+                     '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(flavor['ram'], "MB")
                  })
         except Exception as e:
             self._logger.error(traceback.format_exc())
@@ -209,21 +215,22 @@ class HPA_Discovery(base.HPA_DiscoveryBase):
                     hugepages_capability['hpa-feature-attributes'].append(
                         {'hpa-attribute-key': 'memoryPageSize',
                          'hpa-attribute-value':
-                             '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(2,"MB")
+                             '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(2, "MB")
                          })
                 elif extra_specs['hw:mem_page_size'] == 'small':
                     hugepages_capability['hpa-feature-attributes'].append(
                         {'hpa-attribute-key': 'memoryPageSize',
                          'hpa-attribute-value':
-                             '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(4,"KB")
+                             '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(4, "KB")
                          })
                 elif extra_specs['hw:mem_page_size'] == 'any':
-                    self._logger.info("Currently HPA feature memoryPageSize did not support 'any' page!!")
-                else :
+                    self._logger.info("Currently HPA feature did not support 'any'!!")
+                else:
                     hugepages_capability['hpa-feature-attributes'].append(
                         {'hpa-attribute-key': 'memoryPageSize',
                          'hpa-attribute-value':
-                             '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(extra_specs['hw:mem_page_size'],"KB")
+                             '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(
+                                 extra_specs['hw:mem_page_size'], "KB")
                          })
         except Exception:
             self._logger.error(traceback.format_exc())
@@ -264,7 +271,8 @@ class HPA_Discovery(base.HPA_DiscoveryBase):
                         numa_capability['hpa-feature-attributes'].append(
                             {'hpa-attribute-key': numamem_key,
                              'hpa-attribute-value':
-                                 '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(extra_specs[numa_mem_node],"MB")
+                                 '{{\"value\":\"{0}\",\"unit\":\"{1}\"}}'.format(
+                                     extra_specs[numa_mem_node], "MB")
                              })
         except Exception:
             self._logger.error(traceback.format_exc())
@@ -362,7 +370,7 @@ class HPA_Discovery(base.HPA_DiscoveryBase):
                     {'hpa-attribute-key': 'pciDeviceId',
                      'hpa-attribute-value':
                          '{{\"value\":\"{0}\"}}'.format(value2[4])
-                                                                         })
+                     })
         except Exception:
             self._logger.error(traceback.format_exc())
 
@@ -431,14 +439,14 @@ class HPA_Discovery(base.HPA_DiscoveryBase):
                         cloud_extra_info_str = json.loads(cloud_extra_info_str)
                     except Exception as ex:
                         self._logger.error("Can not convert cloud extra info %s %s" % (
-                                     str(ex), cloud_extra_info_str))
+                            str(ex), cloud_extra_info_str))
                         return {}
-                if cloud_extra_info_str :
+                if cloud_extra_info_str:
                     cloud_dpdk_info = cloud_extra_info_str.get("ovsDpdk")
-                    if cloud_dpdk_info :
+                    if cloud_dpdk_info:
                         libname = cloud_dpdk_info.get("libname")
                         libversion = cloud_dpdk_info.get("libversion")
-            
+
             ovsdpdk_capability['hpa-feature-attributes'] = [
                 {
                     'hpa-attribute-key': str(libname),

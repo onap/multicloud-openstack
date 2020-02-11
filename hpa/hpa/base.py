@@ -1,15 +1,18 @@
+"""
+base case for hpa discovery
+"""
 import abc
 
 import six
 
 
 @six.add_metaclass(abc.ABCMeta)
-class HPA_DiscoveryBase(object):
+class HPADiscoveryBase:
     """Base class for example plugin used in the tutorial.
     """
 
     def __init__(self):
-        """do nothing""" 
+        """do nothing"""
 
     @abc.abstractmethod
     def get_hpa_capabilities(self, data):
