@@ -430,7 +430,7 @@ class HPA_Discovery(base.HPA_DiscoveryBase):
                     try:
                         cloud_extra_info_str = json.loads(cloud_extra_info_str)
                     except Exception as ex:
-                        logger.error("Can not convert cloud extra info %s %s" % (
+                        self._logger.error("Can not convert cloud extra info %s %s" % (
                                      str(ex), cloud_extra_info_str))
                         return {}
                 if cloud_extra_info_str :
