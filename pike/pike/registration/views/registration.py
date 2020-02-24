@@ -19,7 +19,7 @@ import logging
 
 from django.conf import settings
 
-from newton_base.registration import registration as newton_registration
+from newton_base.registration import registration_driver as newton_registration
 from common.msapi import extsys
 
 LOGGER = logging.getLogger(__name__)

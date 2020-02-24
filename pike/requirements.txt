@@ -35,3 +35,4 @@ python-memcached
 
 # for onap logging
 onappylog>=1.0.9
+onaphpadriver>=1.0
