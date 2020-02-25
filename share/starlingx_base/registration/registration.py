@@ -17,6 +17,10 @@ import json
 import uuid
 import traceback
 
+import requests
+
+from ruamel import yaml
+
 from django.conf import settings
 
 from newton_base.registration import registration as newton_registration
@@ -252,6 +256,13 @@ class RegistryHelper(newton_registration.RegistryHelper):
         except Exception as e:
             self._logger.debug("update cloud region fails %s" % str(e))
 
+        # update k8s connectivity
+        try:
+            self._update_k8s_info(cloud_owner, cloud_region_id, viminfo,
+                cloud_extra_info)
+        except Exception as e:
+            self.__logger.debug("update k8s info failes %s" % str(e))
+
         try:
             return super(RegistryHelper, self).registryV0(vimid, project_idorname)
         except Exception as e:
@@ -289,6 +300,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
                  '{{\"value\":\"{0}\"}}'.format("v17.02")
              })
         return instruction_capability
+
 
     def _update_cloud_region(self, cloud_owner, cloud_region_id, openstack_region_id, viminfo, session=None):
         if cloud_owner and cloud_region_id:
@@ -418,6 +430,119 @@ class RegistryHelper(newton_registration.RegistryHelper):
             self._logger.error(traceback.format_exc())
             return []
 
+
+    def _update_k8s_info(self, cloud_owner, cloud_region_id,
+        viminfo, cloud_extra_info, session=None):
+        try:
+
+            # check system version of starlingx
+            systeminfo = self._get_list_resources(
+                "/isystems", "platform", session, viminfo, vimid,
+                "isystems")
+            systemversion = systeminfo.get("software_version", None) if systeminfo else None
+            if not systemversion:
+                self._logger.warn("query system version fails")
+                return
+
+            # check if a k8s platform
+            is_k8s_cluster = False
+            # check WRCP versions:
+            if systemversion == "19.12":
+                is_k8s_cluster = true
+            elif systemversion == "19.10":
+                is_k8s_cluster = true
+
+            if not is_k8s_cluster:
+                self._logger.log("%s, %s is not a k8s platform, system version: %s"
+                    % (cloud_owner, cloud_region_id, systemversion))
+                return
+
+            # check if user token provided to access k8s platform
+            k8s_token = cloud_extra_info.get(
+                "k8s-apitoken", None) if cloud_extra_info else None
+            k8s_apiserver = cloud_extra_info.get(
+                "k8s-apiserver", None) if cloud_extra_info else None
+            if not k8s_token:
+                self._logger.warn("k8s-apitoken is not provided,"\
+                    "k8s connectivity must be provisioned in other ways")
+                return
+
+            if not k8s_apiserver:
+                self._logger.warn("k8s-apiserver is not provided,"\
+                    "k8s connectivity must be provisioned in other ways")
+                return
+
+            # now create kube config
+            kubecfgdata = {
+                "apiVersion": "v1",
+                "clusters":
+                [
+                    {"cluster": {
+                        "insecure-skip-tls-verify": True,
+                        "server": k8s_apiserver
+                    },
+                    "name": "wrcpcluster"}
+                ],
+                "contexts":
+                [
+                    {"context": {
+                        "cluster": "wrcpcluster",
+                        "namespace": "default",
+                        "user": "admin-user"},
+                    "name": "wrcpcluster-admin"}
+                ],
+                "current-context": "wrcpcluster-admin",
+                "kind": "Config",
+                "preferences": {},
+                "users":
+                [
+                    {"name": "admin-user",
+                    "user":{
+                        "token": k8s_apitoken
+                    }}
+                ]
+            }
+
+            kubecfgfilepath = "/tmp/k8sconfig_%s_%s" % (cloud_owner, cloud_region_id)
+
+            # encoding = utf-8 by default
+            with open(kubecfgfilepath, "w") as kubecfgfile:
+                yaml.dump(kubecfgdata, kubecfgfile, Dumper=yaml.RoundTripDumper)
+
+            # now create connectivity to multicloud-k8s
+            multicloudK8sUrl = "%s://%s:%s/api/multicloud-k8s/v1" % (
+                settings.MSB_SERVICE_PROTOCOL, settings.MSB_SERVICE_ADDR, settings.MSB_SERVICE_PORT)
+            auth_api_url = "/v1/connectivity-info"
+
+            metadata1 = {
+                "cloud-owner" : cloud_owner,
+                "cloud-region" :  cloud_region_id,
+                "other-connectivity-list" : {}
+                }
+
+            with open(kubecfgfilepath, "rb") as kubecfgfile:
+                files = {
+                    'metadata': (None, json.dumps(metadata1)),
+                    'file': kubecfgfile
+                }
+
+                resp = requests.post(multicloudK8sUrl+auth_api_url, files=files, verify=False)
+                if resp.status_code == '201':
+                    # self._logger.log("create k8sconnectivity succeed:%s" % (json.dumps(metadata1)))
+                    self._logger.log("create k8sconnectivity for %s, %s, %s, succeeds: %s"
+                        % (cloud_owner, cloud_region_id, ret))
+                else:
+                    self._logger.warn("create k8sconnectivity for %s, %s, %s, fails:%s"
+                        % (cloud_owner, cloud_region_id, ret, resp.content))
+                #print(resp.content, resp.status_code)
+
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s"
+                               % (e.http_status, e.response.json()))
+            return []
+        except Exception:
+            self._logger.error(traceback.format_exc())
+            return []
 
 class InfraResourceAuditor(newton_registration.RegistryHelper):
 
