@@ -11,6 +11,8 @@ keystoneauth1==2.18.0
 # python-memcached
 python-memcached
 
+ruamel.yaml=0.16.10
+
 # uwsgi for parallel processing
 # uwsgi
 
