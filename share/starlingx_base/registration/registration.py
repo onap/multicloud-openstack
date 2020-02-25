@@ -17,6 +17,8 @@ import json
 import uuid
 import traceback
 
+from ruamel import yaml
+
 from django.conf import settings
 
 from newton_base.registration import registration as newton_registration
@@ -252,6 +254,13 @@ class RegistryHelper(newton_registration.RegistryHelper):
         except Exception as e:
             self._logger.debug("update cloud region fails %s" % str(e))
 
+        # update k8s connectivity
+        try:
+            self._update_k8s_info(cloud_owner, cloud_region_id,
+             region_specified, viminfo, cloud_extra_info)
+        except Exception as e:
+            self.__logger.debug("update k8s info failes %s" % str(e))
+
         try:
             return super(RegistryHelper, self).registryV0(vimid, project_idorname)
         except Exception as e:
@@ -289,6 +298,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
                  '{{\"value\":\"{0}\"}}'.format("v17.02")
              })
         return instruction_capability
+
 
     def _update_cloud_region(self, cloud_owner, cloud_region_id, openstack_region_id, viminfo, session=None):
         if cloud_owner and cloud_region_id:
@@ -418,6 +428,156 @@ class RegistryHelper(newton_registration.RegistryHelper):
             self._logger.error(traceback.format_exc())
             return []
 
+
+    def _update_k8s_info(self, cloud_owner, cloud_region_id, openstack_region_id,
+        viminfo, cloud_extra_info, session=None):
+        try:
+
+            # check system version of starlingx
+            systeminfo = self._get_list_resources(
+                "/isystems", "platform", session, viminfo, vimid,
+                "isystems")
+            systemversion = systeminfo.get("software_version", None) if systeminfo else None
+            if not systemversion:
+                self._logger.warn("query system version fails")
+                return
+            
+            # check if a k8s platform
+            is_k8s_cluster = False
+            # check WRCP versions:
+            if systemversion == "19.12":
+                is_k8s_cluster = true
+            elif systemversion == "19.10":
+                is_k8s_cluster = true
+
+            if not is_k8s_cluster:
+                self._logger.log("%s %s %s is not a k8s platform" % (cloud_owner, cloud_region_id, openstack_region_id))
+                return
+
+            # check if user token provided to access k8s platform
+            k8s_token = cloud_extra_info.get(
+                "k8s-apitoken", None) if cloud_extra_info else None
+            k8s_apiserver = cloud_extra_info.get(
+                "k8s-apiserver", None) if cloud_extra_info else None
+            if not k8s_token:
+                self._logger.warn("k8s-apitoken is not provided, k8s connectivity must be provisioned in other ways")
+                return
+
+            if not k8s_apiserver:
+                self._logger.warn("k8s-apiserver is not provided, k8s connectivity must be provisioned in other ways")
+                return
+
+            # now create kube config
+            # kubeconfig_format = "apiVersion: v1\nclusters:\n- cluster:\n    insecure-skip-tls-verify: true"\
+            #     "\n    server: %s\n  name: wrcpcluster\ncontexts:\n- context:\n    cluster: wrcpcluster"\
+            #     "\n    namespace: default\n    user: admin-user\n  name: wrcpcluster-admin"\
+            #     "\ncurrent-context: wrcpcluster-admin\nkind: Config\npreferences: {}"\
+            #     "\nusers:\n- name: admin-user\n  user:\n    token:%s"
+
+            # kubeconfig = kubeconfig_format % (k8s_apiserver, k8s_apitoken)
+
+            kubecfgdata = {
+                "apiVersion": "v1",
+                "clusters":
+                [
+                    {"cluster": {
+                        "insecure-skip-tls-verify": True,
+                        "server": k8s_apiserver
+                    },
+                    "name": "wrcpcluster"}
+                ],
+                "contexts":
+                [
+                    {"context": {
+                        "cluster": "wrcpcluster",
+                        "namespace": "default",
+                        "user": "admin-user"},
+                    "name": "wrcpcluster-admin"}
+                ],
+                "current-context": "wrcpcluster-admin",
+                "kind": "Config",
+                "preferences": {},
+                "users":
+                [
+                    {"name": "admin-user",
+                    "user":{
+                        "token": k8s_apitoken
+                    }}
+                ]
+            }
+
+            # encoding = utf-8 ?
+            with open("/tmp/kubeconfig_%s_%s_%s" % (cloud_owner, cloud_region_id, openstack_region_id), "w") as kubecfg:
+                yaml.dump(kubecfgdata, kubecfg, Dumper=yaml.RoundTripDumper)
+            
+            # now create connectivity to multicloud-k8s
+            multicloudK8sUrl = "%s://%s:%s/api/multicloud-k8s/v1" % (
+                settings.MSB_SERVICE_PROTOCOL, settings.MSB_SERVICE_ADDR, settings.MSB_SERVICE_PORT)
+            auth_api_url = "/v1/connectivity-info"
+
+            metadata1 = {
+                "cloud-region" : cloud_owner,
+                "cloud-owner" :  cloud_region_id,
+                "other-connectivity-list" : {}
+                }
+    
+            extra_headers = "type=application/json;metadata=" + json.dumps(metadata1)
+
+            ret = restcall._call_req(multicloudK8sUrl, "", "", 0, auth_api_url,
+                "POST", extra_headers, json.dumps(kubecfgdata))
+            if ret[0] == 0 and ret[1]:
+                 content = json.JSONDecoder().decode(ret[1])
+                 ret[1] = content
+            self._logger.log("create connectivity for %s, %s, %s, returns: %s"
+                % (cloud_owner, cloud_region_id, openstack_region_id, ret))
+
+            # return ret
+            # kubeconfig_sample_path = ""
+            # with open(kubeconfig_sample_path, 'r') as af:
+            #     kubeconfigcontent = yaml.load(af, Loader=NoDatesSafeLoader)
+            # auth_api_url_format = "/{f_cloudowner}/{f_cloudregionid}/identity{f_uri}"
+            # auth_api_url = auth_api_url_format.format(f_cloudowner=cloud_owner,
+            #                                         f_cloudregionid=cloud_region_id,
+            #                                         f_uri=uri)
+            # extra_headers = header
+            # ret = restcall._call_req(k8s_apiserver, "", "", 0, auth_api_url, "POST", extra_headers, json.dumps(data))
+            # if ret[0] == 0 and ret[1]:
+            #     content = json.JSONDecoder().decode(ret[1])
+            #     ret[1] = content
+            # return ret
+
+            # regions = []
+            # # vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+            # isDistributedCloud = False
+            # openstackregions = self._get_list_resources(
+            #     "/regions", "identity", session, viminfo, vimid,
+            #     "regions")
+
+            # for region in openstackregions:
+            #     if region['id'] == 'SystemController':
+            #         isDistributedCloud = True
+            #         break
+            #     else:
+            #         continue
+
+            # for region in openstackregions:
+            #     if region['id'] == 'SystemController':
+            #         continue
+            #     elif region['id'] == 'RegionOne' and isDistributedCloud:
+            #         continue
+            #     else:
+            #         regions.append(region['id'])
+
+            # self._logger.info("Discovered Regions :%s" % regions)
+            # return regions
+
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s"
+                               % (e.http_status, e.response.json()))
+            return []
+        except Exception:
+            self._logger.error(traceback.format_exc())
+            return []
 
 class InfraResourceAuditor(newton_registration.RegistryHelper):
 
