@@ -1,10 +1,14 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
-    name='hpa',
+    name='onaphpadriver',
     version='1.0',
 
     description='HPA discovery package for stevedore',
+    long_description=long_description,
 
     author='Haibin Huang',
     author_email='haibin.huang@intel.com',
