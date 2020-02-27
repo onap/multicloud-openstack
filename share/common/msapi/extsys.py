@@ -46,13 +46,12 @@ def get_vim_by_id(vim_id):
                 status_code2, content2)
         tmp_authinfo = json.JSONDecoder().decode(content2)
 
-        # get the first auth info by default
-        tmp_authinfo = tmp_authinfo['esr-system-info'][0] if tmp_authinfo \
-                                                             and tmp_authinfo.get('esr-system-info', None) else None
-
         #convert vim information
-        if tmp_viminfo and tmp_authinfo:
+        if tmp_viminfo and tmp_authinfo and tmp_authinfo.get('esr-system-info'):
             viminfo = {}
+            # get the first auth info by default
+            tmp_authinfo = tmp_authinfo['esr-system-info'][0]
+
             viminfo['vimId'] = vim_id
             viminfo['resource-version'] = tmp_viminfo.get('resource-version')
             viminfo['cloud_owner'] = cloud_owner
@@ -62,16 +61,22 @@ def get_vim_by_id(vim_id):
             viminfo['version'] = tmp_viminfo.get('cloud-region-version')
             viminfo['cloud_extra_info'] = tmp_viminfo.get('cloud-extra-info')
 
-            viminfo['userName'] = tmp_authinfo['user-name']
-            viminfo['password'] = tmp_authinfo['password']
-            viminfo['domain'] = tmp_authinfo.get('cloud-domain')
-            viminfo['url'] = tmp_authinfo.get('service-url')
-            viminfo['tenant'] = tmp_authinfo.get('default-tenant')
-            viminfo['cacert'] = tmp_authinfo.get('ssl-cacert')
-            viminfo['insecure'] = tmp_authinfo.get('ssl-insecure')
+            viminfo['userName'] = tmp_authinfo.get('user-name', "")
+            viminfo['password'] = tmp_authinfo.get('password', "")
+            viminfo['domain'] = tmp_authinfo.get('cloud-domain', "")
+            viminfo['url'] = tmp_authinfo.get('service-url', "")
+            viminfo['tenant'] = tmp_authinfo.get('default-tenant', "")
+            viminfo['cacert'] = tmp_authinfo.get('ssl-cacert', "")
+            viminfo['insecure'] = tmp_authinfo.get('ssl-insecure', True)
             viminfo["complex-name"] = tmp_viminfo.get("complex-name")
-            viminfo['openstack_region_id'] = tmp_viminfo.get("cloud-epa-caps") \
-                if tmp_viminfo.get("cloud-epa-caps") else cloud_region_id
+            # move the openstack region id store location, but keep backward compatibility
+            viminfo['openstack_region_id'] = tmp_authinfo.get("openstack-region-id") \
+                or tmp_viminfo.get("cloud-epa-caps", cloud_region_id)
+            try:
+                viminfo['cloud_extra_info_json'] = json.loads(
+                    viminfo.get('cloud_extra_info', {}))
+            except Exception:
+                pass
 
             return viminfo
     return None

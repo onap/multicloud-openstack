@@ -90,8 +90,8 @@ class MultiCloudAAIHelper(object):
         # identity service should not filtered by region since it is might be first call
         # to figure out available region list
         if service_type != 'identity':
-            service['region_name'] = viminfo['openstack_region_id']\
-                if viminfo.get('openstack_region_id') else viminfo['cloud_region_id']
+            service['region_name'] = viminfo.get('openstack_region_id') \
+                or viminfo['cloud_region_id']
 
         self._logger.debug("making request with URI:%s,%s" % (resource_url, service))
         resp = session.get(resource_url, endpoint_filter=service)
