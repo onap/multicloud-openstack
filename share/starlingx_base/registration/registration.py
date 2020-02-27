@@ -161,20 +161,19 @@ class RegistryHelper(newton_registration.RegistryHelper):
                 "Cloud Region not found in AAI: %s" % vimid
             )
 
-        cloud_extra_info_str = viminfo['cloud_extra_info']
-        cloud_extra_info = None
-        try:
-            cloud_extra_info = json.loads(cloud_extra_info_str) \
-                if cloud_extra_info_str else None
-        except Exception as ex:
-            logger.error("Can not convert cloud extra info %s %s" % (
-                str(ex), cloud_extra_info_str))
-            pass
+        # cloud_extra_info_str = viminfo.get('cloud_extra_info', {})
+        # cloud_extra_info = {}
+        # try:
+        #     cloud_extra_info = json.loads(cloud_extra_info_str)
+        # except Exception as ex:
+        #     logger.error("Can not convert cloud extra info %s %s" % (
+        #         str(ex), cloud_extra_info_str))
+        #     pass
+        cloud_extra_info = viminfo.get("cloud_extra_info_json",{})
 
-        region_specified = cloud_extra_info.get(
-            "openstack-region-id", None) if cloud_extra_info else None
+        region_specified = cloud_extra_info.get("openstack-region-id", None)
         multi_region_discovery = cloud_extra_info.get(
-            "multi-region-discovery", None) if cloud_extra_info else None
+            "multi-region-discovery", None)
 
         sess = None
         if project_idorname:
@@ -253,13 +252,14 @@ class RegistryHelper(newton_registration.RegistryHelper):
         try:
             self._update_cloud_region(cloud_owner, cloud_region_id,
                                       region_specified, viminfo)
+            #re-fetch viminfo
+            viminfo = VimDriverUtils.get_vim_info(vimid)
         except Exception as e:
             self._logger.debug("update cloud region fails %s" % str(e))
 
         # update k8s connectivity
         try:
-            self._update_k8s_info(cloud_owner, cloud_region_id, viminfo,
-                cloud_extra_info, sess)
+            self._update_k8s_info(cloud_owner, cloud_region_id, viminfo, sess)
         except Exception as e:
             self.__logger.debug("update k8s info failes %s" % str(e))
             # continue the registration without reporting error
@@ -313,8 +313,13 @@ class RegistryHelper(newton_registration.RegistryHelper):
                     "cloud_region_id": cloud_region_id
                 })
 
-            # Note1: The intent is to populate the openstack region id into property: cloud-region.esr-system-info.openstackRegionId
+            # Note1: The intent is to populate the openstack region id into property
+            # : cloud-region.esr-system-info.openstack-region-id
             # Note2: As temp solution: the openstack region id was put into AAI cloud-region["cloud-epa-caps"]
+            cloud_extra_info = viminfo.get("cloud_extra_info_json", {})
+            system_info = self._get_system_info(cloud_owner, cloud_region_id, viminfo, session)
+            if system_info:
+                cloud_extra_info["isystem"] = system_info
 
             resource_info = {
                 "cloud-owner": cloud_owner,
@@ -326,7 +331,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
                     if self.proxy_prefix[-3:] == "/v0" else
                     self.proxy_prefix + "/%s/%s/identity/v2.0" % (cloud_owner, cloud_region_id),
                 "complex-name": viminfo["complex-name"],
-                "cloud-extra-info": viminfo["cloud_extra_info"],
+                "cloud-extra-info": json.dumps(cloud_extra_info),
                 "cloud-epa-caps": openstack_region_id,
                 "esr-system-info-list": {
                     "esr-system-info": [
@@ -339,8 +344,8 @@ class RegistryHelper(newton_registration.RegistryHelper):
                             "ssl-cacert": viminfo["cacert"],
                             "ssl-insecure": viminfo["insecure"],
                             "cloud-domain": viminfo["domain"],
-                            "default-tenant": viminfo["tenant"]
-
+                            "default-tenant": viminfo["tenant"],
+                            "openstack-region-id": openstack_region_id
                         }
                     ]
                 }
@@ -432,16 +437,41 @@ class RegistryHelper(newton_registration.RegistryHelper):
             return []
 
 
-    def _update_k8s_info(self, cloud_owner, cloud_region_id,
-        viminfo, cloud_extra_info, session=None):
+    def _get_system_info(self, cloud_owner, cloud_region_id,  viminfo, session=None):
+        '''
+        query and populate system info into cloud_extra_info
+        '''
+        system_info = {}
         try:
             vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
 
             # check system version of starlingx
-            systeminfo = self._get_list_resources(
+            isysteminfo = self._get_list_resources(
                 "/isystems", "platform", session, viminfo, vimid,
                 "isystems")
-            systemversion = systeminfo[0].get("software_version", None) if systeminfo else None
+            system_info['software_version'] = isysteminfo[0].get("software_version", None) if isysteminfo else None
+            system_info['system_mode'] = isysteminfo[0].get("system_mode", None) if isysteminfo else None
+            system_info['system_type'] = isysteminfo[0].get("system_type", None) if isysteminfo else None
+            return system_info
+        except HttpError as e:
+            self._logger.error("HttpError: status:%s, response:%s"
+                               % (e.http_status, e.response.json()))
+        except Exception:
+            self._logger.error(traceback.format_exc())
+
+        return None
+
+
+    def _update_k8s_info(self, cloud_owner, cloud_region_id,
+        viminfo, session=None):
+        try:
+            cloud_extra_info = viminfo.get("cloud_extra_info_json",{})
+
+            vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
+
+            # check system version of starlingx
+            system_info = cloud_extra_info.get("isystem", {})
+            systemversion = system_info.get("software_version", None)
             if not systemversion:
                 self._logger.warn("query system version fails")
                 return
@@ -460,21 +490,14 @@ class RegistryHelper(newton_registration.RegistryHelper):
                 return
 
             # check if user token provided to access k8s platform
-            k8s_apitoken = cloud_extra_info.get(
-                "k8s-apitoken", None) if cloud_extra_info else None
-            k8s_apiserver = cloud_extra_info.get(
-                "k8s-apiserver", None) if cloud_extra_info else None
-            if not k8s_apitoken:
-                self._logger.warn("k8s-apitoken is not provided,"\
+            k8s_apitoken = cloud_extra_info.get("k8s-apitoken", None)
+            k8s_apiserver = cloud_extra_info.get("k8s-apiserver", None)
+            if not k8s_apitoken or not k8s_apiserver:
+                self._logger.warn("k8s-apitoken or k8s-apiserver is not provided,"\
                     "k8s connectivity must be provisioned in other ways")
                 return
 
-            if not k8s_apiserver:
-                self._logger.warn("k8s-apiserver is not provided,"\
-                    "k8s connectivity must be provisioned in other ways")
-                return
-
-            # now create kube config
+            # now create kube config with following template
             kubecfgdata = {
                 "apiVersion": "v1",
                 "clusters":
