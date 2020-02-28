@@ -17,6 +17,7 @@ import logging
 import json
 import requests
 import tarfile
+import base64
 from ruamel import yaml
 
 
@@ -68,7 +69,7 @@ class InfraWorkloadHelper:
 
         # 1, create profile if not exists
         # manifest.yaml content
-        manifest_yaml = {
+        manifest_yaml_json = {
             "version": "v1",
             "type": {
                 "values": "override_values.yaml"
@@ -86,10 +87,8 @@ class InfraWorkloadHelper:
         for attr in user_directive.get("attributes", []):
             aname = attr.get("attribute_name", None)
             avalue = attr.get("attribute_value", None)
-            if aname == "override_values":
-                # manifest_yaml = avalue["manifest_yaml"]
-                # #override_values_yaml = avalue["override_values_yaml"]
-                override_values_yaml = avalue
+            if aname == "override_values_yaml_base64":
+                override_values_yaml_json = yaml.load(base64.b64encode(avalue), Loader=yaml.Loader)
             elif aname == "definition-name":
                 rbname = avalue
             elif aname == "definition-version":
@@ -99,7 +98,7 @@ class InfraWorkloadHelper:
 
         multicloudK8sUrl = "%s://%s:%s/api/multicloud-k8s/v1" % (
             settings.MSB_SERVICE_PROTOCOL, settings.MSB_SERVICE_ADDR, settings.MSB_SERVICE_PORT)
-        if rbname and rbversion and profilename:
+        if rbname and rbversion and profilename and override_values_yaml:
             # package them into tarball
             basedir="/tmp/%s_%s_%s/" % (rbname, rbversion, profilename)
             manifest_yaml_filename="manifest.yaml"
@@ -109,10 +108,10 @@ class InfraWorkloadHelper:
                 os.mkdir(basedir)
             logger.debug("k8s profile temp dir for %s,%s,%s is %s" % (rbname, rbversion, profilename, basedir))
             with open(basedir+manifest_yaml_filename, "w") as f:
-                yaml.dump(manifest_yaml, f, Dumper=yaml.RoundTripDumper)
+                yaml.dump(manifest_yaml_json, f, Dumper=yaml.RoundTripDumper)
             with open(basedir+override_values_yaml_filename, "w") as f:
-                #yaml.dump(override_values_yaml, f, Dumper=yaml.RoundTripDumper)
-                f.write(override_values_yaml)
+                yaml.dump(override_values_yaml_json, f, Dumper=yaml.RoundTripDumper)
+                #f.write(override_values_yaml)
 
             tar = tarfile.open(basedir+profile_filename, "w:gz")
             # tar.add(basedir+manifest_yaml_filename, arcname=manifest_yaml_filename,filter=resettarfile)
