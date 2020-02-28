@@ -79,9 +79,9 @@ class InfraWorkloadHelper:
         override_values_yaml = ""
 
         # extract rb and profile info from user_directive
-        rbname = "fakerbname"
-        rbversion = "1"
-        profilename = "p1"
+        rbname = None
+        rbversion = None
+        profilename = None
 
         for attr in user_directive.get("attributes", []):
             aname = attr.get("attribute_name", None)
@@ -97,49 +97,50 @@ class InfraWorkloadHelper:
             elif aname == "profile-name":
                 profilename = avalue
 
-        # package them into tarball
-        basedir="/tmp/%s_%s_%s/" % (rbname, rbversion, profilename)
-        manifest_yaml_filename="manifest.yaml"
-        override_values_yaml_filename = "override_values.yaml"
-        profile_filename = "profile.tar.gz"
-        if not os.path.isdir(basedir):
-            os.mkdir(basedir)
-        logger.debug("k8s profile temp dir for %s,%s,%s is %s" % (rbname, rbversion, profilename, basedir))
-        with open(basedir+manifest_yaml_filename, "w") as f:
-            yaml.dump(manifest_yaml, f, Dumper=yaml.RoundTripDumper)
-        with open(basedir+override_values_yaml_filename, "w") as f:
-            #yaml.dump(override_values_yaml, f, Dumper=yaml.RoundTripDumper)
-            f.write(override_values_yaml)
-
-        tar = tarfile.open(basedir+profile_filename, "w:gz")
-        # tar.add(basedir+manifest_yaml_filename, arcname=manifest_yaml_filename,filter=resettarfile)
-        tar.add(basedir+manifest_yaml_filename, arcname=manifest_yaml_filename)
-        tar.add(basedir+override_values_yaml_filename, arcname=override_values_yaml_filename)
-        tar.close()
-
-        # create profile and upload content
-        create_rbprofile_json = {
-            "rb-name": rbname,
-            "rb-version": rbversion,
-            "profile-name": profilename,
-            "release-name": "r1",
-            "namespace": "testnamespace1",
-            "kubernetes-version": "1.16.2"
-        }
-
         multicloudK8sUrl = "%s://%s:%s/api/multicloud-k8s/v1" % (
             settings.MSB_SERVICE_PROTOCOL, settings.MSB_SERVICE_ADDR, settings.MSB_SERVICE_PORT)
-        profileUrl = multicloudK8sUrl+"/v1/rb/definition/%s/%s/profile" % (rbname, rbversion)
+        if rbname and rbversion and profilename:
+            # package them into tarball
+            basedir="/tmp/%s_%s_%s/" % (rbname, rbversion, profilename)
+            manifest_yaml_filename="manifest.yaml"
+            override_values_yaml_filename = "override_values.yaml"
+            profile_filename = "profile.tar.gz"
+            if not os.path.isdir(basedir):
+                os.mkdir(basedir)
+            logger.debug("k8s profile temp dir for %s,%s,%s is %s" % (rbname, rbversion, profilename, basedir))
+            with open(basedir+manifest_yaml_filename, "w") as f:
+                yaml.dump(manifest_yaml, f, Dumper=yaml.RoundTripDumper)
+            with open(basedir+override_values_yaml_filename, "w") as f:
+                #yaml.dump(override_values_yaml, f, Dumper=yaml.RoundTripDumper)
+                f.write(override_values_yaml)
 
-        #data = open('create_rbprofile.json')
-        response = requests.post(profileUrl, data=json.dumps(create_rbprofile_json), verify=False)
-        logger.debug("create profile, returns: %s,%s" % (response.content, response.status_code))
+            tar = tarfile.open(basedir+profile_filename, "w:gz")
+            # tar.add(basedir+manifest_yaml_filename, arcname=manifest_yaml_filename,filter=resettarfile)
+            tar.add(basedir+manifest_yaml_filename, arcname=manifest_yaml_filename)
+            tar.add(basedir+override_values_yaml_filename, arcname=override_values_yaml_filename)
+            tar.close()
 
-        profileContentUrl = profileUrl + "/%s/content" % (profilename)
-        #profileContent = open(basedir+profile_filename, 'rb').read()
-        with open(basedir+profile_filename, "rb") as profileContent:
-            response = requests.post(profileContentUrl, data=profileContent.read(), verify=False)
-            logger.debug("upload profile content, returns: %s,%s" % (response.content, response.status_code))
+            # create profile and upload content
+            create_rbprofile_json = {
+                "rb-name": rbname,
+                "rb-version": rbversion,
+                "profile-name": profilename,
+                "release-name": "r1",
+                "namespace": "testnamespace1",
+                "kubernetes-version": "1.16.2"
+            }
+
+            profileUrl = multicloudK8sUrl+"/v1/rb/definition/%s/%s/profile" % (rbname, rbversion)
+
+            #data = open('create_rbprofile.json')
+            response = requests.post(profileUrl, data=json.dumps(create_rbprofile_json), verify=False)
+            logger.debug("create profile, returns: %s,%s" % (response.content, response.status_code))
+
+            profileContentUrl = profileUrl + "/%s/content" % (profilename)
+            #profileContent = open(basedir+profile_filename, 'rb').read()
+            with open(basedir+profile_filename, "rb") as profileContent:
+                response = requests.post(profileContentUrl, data=profileContent.read(), verify=False)
+                logger.debug("upload profile content, returns: %s,%s" % (response.content, response.status_code))
 
         # 2.forward infra_workload API requests with queries
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
@@ -151,7 +152,7 @@ class InfraWorkloadHelper:
         resp = requests.post(infraUrl, data=workload_data, verify=False)
         # resp_template["workload_status_reason"] = resp.content
         # status_code = resp.status_code
-        return Response(data=resp.content, status=resp.status_code)
+        return Response(data=json.loads(resp.content), status=resp.status_code)
 
 
     @staticmethod
@@ -183,7 +184,7 @@ class InfraWorkloadHelper:
         resp = requests.delete(infraUrl, data=workload_data, verify=False)
         # resp_template["workload_status_reason"] = resp.content
         # status_code = resp.status_code        
-        return Response(data=resp.content, status=resp.status_code)
+        return Response(data=json.loads(resp.content), status=resp.status_code)
 
 
     @staticmethod
@@ -205,7 +206,7 @@ class InfraWorkloadHelper:
         multicloudK8sUrl = "%s://%s:%s/api/multicloud-k8s/v1" % (
             settings.MSB_SERVICE_PROTOCOL, settings.MSB_SERVICE_ADDR, settings.MSB_SERVICE_PORT)
 
-        # 1.forward infra_workload API requests with queries
+        # forward infra_workload API requests with queries
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
         infraUrl = multicloudK8sUrl+"/%s/%s/infra_workload" % (cloud_owner, cloud_region_id)
         if workload_query_str:
@@ -215,4 +216,4 @@ class InfraWorkloadHelper:
         resp = requests.get(infraUrl, data=workload_data, verify=False)
         # resp_template["workload_status_reason"] = resp.content
         # status_code = resp.status_code
-        return Response(data=resp.content, status=resp.status_code)
+        return Response(data=json.loads(resp.content), status=resp.status_code)
