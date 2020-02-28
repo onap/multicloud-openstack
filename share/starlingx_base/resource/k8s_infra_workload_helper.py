@@ -17,6 +17,7 @@ import logging
 import json
 import requests
 import tarfile
+import base64
 from ruamel import yaml
 
 
@@ -89,7 +90,7 @@ class InfraWorkloadHelper:
             if aname == "override_values":
                 # manifest_yaml = avalue["manifest_yaml"]
                 # #override_values_yaml = avalue["override_values_yaml"]
-                override_values_yaml = avalue
+                override_values_yaml = base64.b64encode(avalue)
             elif aname == "definition-name":
                 rbname = avalue
             elif aname == "definition-version":
@@ -99,7 +100,7 @@ class InfraWorkloadHelper:
 
         multicloudK8sUrl = "%s://%s:%s/api/multicloud-k8s/v1" % (
             settings.MSB_SERVICE_PROTOCOL, settings.MSB_SERVICE_ADDR, settings.MSB_SERVICE_PORT)
-        if rbname and rbversion and profilename:
+        if rbname and rbversion and profilename and override_values_yaml:
             # package them into tarball
             basedir="/tmp/%s_%s_%s/" % (rbname, rbversion, profilename)
             manifest_yaml_filename="manifest.yaml"
@@ -111,8 +112,8 @@ class InfraWorkloadHelper:
             with open(basedir+manifest_yaml_filename, "w") as f:
                 yaml.dump(manifest_yaml, f, Dumper=yaml.RoundTripDumper)
             with open(basedir+override_values_yaml_filename, "w") as f:
-                #yaml.dump(override_values_yaml, f, Dumper=yaml.RoundTripDumper)
-                f.write(override_values_yaml)
+                yaml.dump(yaml.load(override_values_yaml, Loader=yaml.Loader), f, Dumper=yaml.RoundTripDumper)
+                #f.write(override_values_yaml)
 
             tar = tarfile.open(basedir+profile_filename, "w:gz")
             # tar.add(basedir+manifest_yaml_filename, arcname=manifest_yaml_filename,filter=resettarfile)
