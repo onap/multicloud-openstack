@@ -473,31 +473,15 @@ class RegistryHelper(newton_registration.RegistryHelper):
         try:
             cloud_extra_info = viminfo.get("cloud_extra_info_json",{})
 
-            vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
-
-            # check system version of starlingx
-            system_info = cloud_extra_info.get("isystem", {})
-            systemversion = system_info.get("software_version", None)
-            if not systemversion:
-                self._logger.warn("query system version fails")
-                return
-
             # check if a k8s platform
-            is_k8s_cluster = False
-            # check WRCP versions:
-            if systemversion == "19.12":
-                is_k8s_cluster = True
-            elif systemversion == "19.10":
-                is_k8s_cluster = True
-
-            if not is_k8s_cluster:
+            if VimDriverUtils.check_k8s_cluster(viminfo):
                 self._logger.info("%s, %s is not a k8s platform, system version: %s"
                     % (cloud_owner, cloud_region_id, systemversion))
                 return
 
             # check if user token provided to access k8s platform
-            k8s_apitoken = cloud_extra_info.get("k8s-apitoken", None)
-            k8s_apiserver = cloud_extra_info.get("k8s-apiserver", None)
+            k8s_apitoken = cloud_extra_info.get("k8s-apitoken")
+            k8s_apiserver = cloud_extra_info.get("k8s-apiserver")
             if not k8s_apitoken or not k8s_apiserver:
                 self._logger.warn("k8s-apitoken or k8s-apiserver is not provided,"\
                     "k8s connectivity must be provisioned in other ways")

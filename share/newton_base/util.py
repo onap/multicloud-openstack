@@ -177,3 +177,20 @@ class VimDriverUtils(object):
                 return result
             return profiled_func
         return wrapper
+
+
+    @staticmethod
+    def check_k8s_cluster(viminfo):
+        """
+        check if cloud region is k8s cluster
+        """
+        software_version = viminfo.get("cloud_extra_info_json", {})
+        .get("isystem", {}).get("software_version")
+
+        is_k8s_cluster = False
+        if software_version == "19.12":
+            is_k8s_cluster = True
+        elif software_version == "19.10":
+            is_k8s_cluster = True
+
+        return is_k8s_cluster
