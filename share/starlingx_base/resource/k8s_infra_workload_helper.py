@@ -142,12 +142,14 @@ class InfraWorkloadHelper:
         # 2.forward infra_workload API requests with queries
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
         infraUrl = multicloudK8sUrl+"/%s/%s/infra_workload" % (cloud_owner, cloud_region_id)
+        if workloadid:
+            infraUrl += ("/%s" % workloadid)
         if workload_query:
             infraUrl += ("?%s" % workload_query)
 
         # should we forward headers ? TBD
         logger.debug("request with url,content: %s,%s" % (infraUrl, workload_data))
-        resp = requests.post(infraUrl, data=workload_data, verify=False)
+        resp = requests.post(infraUrl, data=json.dumps(workload_data), verify=False)
         # resp_template["workload_status_reason"] = resp.content
         logger.debug("response status,content: %s,%s" % (resp.status_code, resp.content))
         return Response(data=json.loads(resp.content), status=resp.status_code)
@@ -174,12 +176,14 @@ class InfraWorkloadHelper:
         # 1.forward infra_workload API requests with queries
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
         infraUrl = multicloudK8sUrl+"/%s/%s/infra_workload" % (cloud_owner, cloud_region_id)
+        if workloadid:
+            infraUrl += ("/%s" % workloadid)
         if workload_query_str:
             infraUrl += ("?%s" % workload_query_str)
 
         # should we forward headers ? TBD
         logger.debug("request with url,content: %s,%s" % (infraUrl, workload_data))
-        resp = requests.delete(infraUrl, data=workload_data, verify=False)
+        resp = requests.delete(infraUrl, data=json.dumps(workload_data), verify=False)
         # resp_template["workload_status_reason"] = resp.content
         logger.debug("response status,content: %s,%s" % (resp.status_code, resp.content))
         return Response(data=json.loads(resp.content), status=resp.status_code)
@@ -206,12 +210,14 @@ class InfraWorkloadHelper:
         # forward infra_workload API requests with queries
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
         infraUrl = multicloudK8sUrl+"/%s/%s/infra_workload" % (cloud_owner, cloud_region_id)
+        if workloadid:
+            infraUrl += ("/%s" % workloadid)
         if workload_query_str:
             infraUrl += ("?%s" % workload_query_str)
 
         # should we forward headers ? TBD
         logger.debug("request with url,content: %s,%s" % (infraUrl, workload_data))
-        resp = requests.get(infraUrl, data=workload_data, verify=False)
+        resp = requests.get(infraUrl, data=json.dumps(workload_data), verify=False)
         # resp_template["workload_status_reason"] = resp.content
         logger.debug("response status,content: %s,%s" % (resp.status_code, resp.content))
         return Response(data=json.loads(resp.content), status=resp.status_code)
