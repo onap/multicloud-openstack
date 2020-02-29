@@ -107,7 +107,7 @@ class InfraWorkloadHelper:
                 os.mkdir(basedir)
             logger.debug("k8s profile temp dir for %s,%s,%s is %s" % (rbname, rbversion, profilename, basedir))
             with open(basedir+manifest_yaml_filename, "w") as f_manifest_yaml:
-                yaml.dump(f_manifest_yaml, f1, Dumper=yaml.RoundTripDumper)
+                yaml.dump(manifest_yaml_json, f_manifest_yaml, Dumper=yaml.RoundTripDumper)
             with open(basedir+override_values_yaml_filename, "w") as f_override_values_yaml:
                 yaml.dump(override_values_yaml_json, f_override_values_yaml, Dumper=yaml.RoundTripDumper)
 
