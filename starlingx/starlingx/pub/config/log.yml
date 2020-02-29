@@ -20,6 +20,10 @@ loggers:
       handlers: [console_handler, file_handler]
       level: "DEBUG"
       propagate: False
+    starlingx_base:
+      handlers: [console_handler, file_handler]
+      level: "DEBUG"
+      propagate: False
     newton_base:
       handlers: [console_handler, file_handler]
       level: "DEBUG"

@@ -39,7 +39,6 @@ class InfraWorkloadHelper:
     #     tarinfo.uname = tarinfo.gname = "root"
     #     return tarinfo
 
-    @staticmethod
     def workload_create(self, vimid, workloadid, request):
         '''
         Deploy workload to target k8s via multicloud-k8s
@@ -77,7 +76,7 @@ class InfraWorkloadHelper:
         }
 
         # override_values.yaml content
-        override_values_yaml = ""
+        override_values_yaml_json = ""
 
         # extract rb and profile info from user_directive
         rbname = None
@@ -88,7 +87,7 @@ class InfraWorkloadHelper:
             aname = attr.get("attribute_name", None)
             avalue = attr.get("attribute_value", None)
             if aname == "override_values_yaml_base64":
-                override_values_yaml_json = yaml.load(base64.b64encode(avalue), Loader=yaml.Loader)
+                override_values_yaml_json = yaml.load(base64.b64decode(avalue), Loader=yaml.Loader)
             elif aname == "definition-name":
                 rbname = avalue
             elif aname == "definition-version":
@@ -98,7 +97,7 @@ class InfraWorkloadHelper:
 
         multicloudK8sUrl = "%s://%s:%s/api/multicloud-k8s/v1" % (
             settings.MSB_SERVICE_PROTOCOL, settings.MSB_SERVICE_ADDR, settings.MSB_SERVICE_PORT)
-        if rbname and rbversion and profilename and override_values_yaml:
+        if rbname and rbversion and profilename and override_values_yaml_json:
             # package them into tarball
             basedir="/tmp/%s_%s_%s/" % (rbname, rbversion, profilename)
             manifest_yaml_filename="manifest.yaml"
@@ -107,11 +106,10 @@ class InfraWorkloadHelper:
             if not os.path.isdir(basedir):
                 os.mkdir(basedir)
             logger.debug("k8s profile temp dir for %s,%s,%s is %s" % (rbname, rbversion, profilename, basedir))
-            with open(basedir+manifest_yaml_filename, "w") as f:
-                yaml.dump(manifest_yaml_json, f, Dumper=yaml.RoundTripDumper)
-            with open(basedir+override_values_yaml_filename, "w") as f:
-                yaml.dump(override_values_yaml_json, f, Dumper=yaml.RoundTripDumper)
-                #f.write(override_values_yaml)
+            with open(basedir+manifest_yaml_filename, "w") as f_manifest_yaml:
+                yaml.dump(f_manifest_yaml, f1, Dumper=yaml.RoundTripDumper)
+            with open(basedir+override_values_yaml_filename, "w") as f_override_values_yaml:
+                yaml.dump(override_values_yaml_json, f_override_values_yaml, Dumper=yaml.RoundTripDumper)
 
             tar = tarfile.open(basedir+profile_filename, "w:gz")
             # tar.add(basedir+manifest_yaml_filename, arcname=manifest_yaml_filename,filter=resettarfile)
@@ -148,13 +146,13 @@ class InfraWorkloadHelper:
             infraUrl += ("?%s" % workload_query)
 
         # should we forward headers ? TBD
+        logger.debug("request with url,content: %s,%s" % (infraUrl, workload_data))
         resp = requests.post(infraUrl, data=workload_data, verify=False)
         # resp_template["workload_status_reason"] = resp.content
-        # status_code = resp.status_code
+        logger.debug("response status,content: %s,%s" % (resp.status_code, resp.content))
         return Response(data=json.loads(resp.content), status=resp.status_code)
 
 
-    @staticmethod
     def workload_delete(self, vimid, workloadid, request):
         '''
         remove workload
@@ -180,13 +178,13 @@ class InfraWorkloadHelper:
             infraUrl += ("?%s" % workload_query_str)
 
         # should we forward headers ? TBD
+        logger.debug("request with url,content: %s,%s" % (infraUrl, workload_data))
         resp = requests.delete(infraUrl, data=workload_data, verify=False)
         # resp_template["workload_status_reason"] = resp.content
-        # status_code = resp.status_code        
+        logger.debug("response status,content: %s,%s" % (resp.status_code, resp.content))
         return Response(data=json.loads(resp.content), status=resp.status_code)
 
 
-    @staticmethod
     def workload_detail(self, vimid, workloadid, request):
         '''
         get workload status
@@ -212,7 +210,8 @@ class InfraWorkloadHelper:
             infraUrl += ("?%s" % workload_query_str)
 
         # should we forward headers ? TBD
+        logger.debug("request with url,content: %s,%s" % (infraUrl, workload_data))
         resp = requests.get(infraUrl, data=workload_data, verify=False)
         # resp_template["workload_status_reason"] = resp.content
-        # status_code = resp.status_code
+        logger.debug("response status,content: %s,%s" % (resp.status_code, resp.content))
         return Response(data=json.loads(resp.content), status=resp.status_code)
