@@ -142,6 +142,8 @@ class InfraWorkloadHelper:
         # 2.forward infra_workload API requests with queries
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
         infraUrl = multicloudK8sUrl+"/%s/%s/infra_workload" % (cloud_owner, cloud_region_id)
+        if workloadid:
+            infraUrl += ("/%s" % workloadid)
         if workload_query:
             infraUrl += ("?%s" % workload_query)
 
@@ -174,6 +176,8 @@ class InfraWorkloadHelper:
         # 1.forward infra_workload API requests with queries
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
         infraUrl = multicloudK8sUrl+"/%s/%s/infra_workload" % (cloud_owner, cloud_region_id)
+        if workloadid:
+            infraUrl += ("/%s" % workloadid)
         if workload_query_str:
             infraUrl += ("?%s" % workload_query_str)
 
@@ -206,6 +210,8 @@ class InfraWorkloadHelper:
         # forward infra_workload API requests with queries
         cloud_owner, cloud_region_id = extsys.decode_vim_id(vimid)
         infraUrl = multicloudK8sUrl+"/%s/%s/infra_workload" % (cloud_owner, cloud_region_id)
+        if workloadid:
+            infraUrl += ("/%s" % workloadid)
         if workload_query_str:
             infraUrl += ("?%s" % workload_query_str)
 
