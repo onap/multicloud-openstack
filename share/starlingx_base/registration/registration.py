@@ -474,7 +474,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
             cloud_extra_info = viminfo.get("cloud_extra_info_json",{})
 
             # check if a k8s platform
-            if VimDriverUtils.check_k8s_cluster(viminfo):
+            if not VimDriverUtils.check_k8s_cluster(viminfo):
                 self._logger.info("%s, %s is not a k8s platform"
                     % (cloud_owner, cloud_region_id))
                 return
