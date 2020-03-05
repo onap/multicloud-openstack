@@ -1,6 +1,6 @@
 # 1. compile hpa plugin
 cd hpa
-python setup.py compile
+python setup.py build
 
 # 2. install hpa plugin
 cd hpa

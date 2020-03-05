@@ -160,29 +160,6 @@
                             <execution>
                                 <phase>install</phase>
                                 <inherited>false</inherited>
-                                <configuration>
-                                    <target>
-                                        <exec executable="docker">
-                                           <arg value="build"/>
-                                           <arg value="-t"/>
-                                           <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-hpa:${project.version}"/>
-                                           <arg value="docker_target"/>
-                                        </exec>
-                                        <exec executable="docker">
-                                            <arg value="tag"/>
-                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-hpa:${project.version}"/>
-                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-hpa:latest"/>
-                                        </exec>
-                                        <exec executable="docker">
-                                            <arg value="push"/>
-                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-hpa:${project.version}"/>
-                                        </exec>
-                                        <exec executable="docker">
-                                            <arg value="push"/>
-                                            <arg value="${CONTAINER_PUSH_REGISTRY}/onap/multicloud/openstack-hpa:latest"/>
-                                        </exec>
-                                    </target>
-                                </configuration>
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
