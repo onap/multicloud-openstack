@@ -245,6 +245,17 @@ class RegistryHelper(newton_registration.RegistryHelper):
                     new_vimid = extsys.encode_vim_id(
                         cloud_owner, gen_cloud_region_id)
                     super(RegistryHelper, self).registryV0(new_vimid, project_idorname)
+                    # update k8s connectivity
+                    try:
+                        newviminfo = VimDriverUtils.get_vim_info(new_vimid)
+                        sess = VimDriverUtils.get_session(
+                            newviminfo, tenant_name=newviminfo.get('tenant', None))
+                        self._update_k8s_info(cloud_owner, gen_cloud_region_id, newviminfo, sess)
+                    except Exception as e:
+                        self.__logger.debug(
+                            "update k8s info failes for cloud region:%s,%s, %s"
+                            % (cloud_owner, gen_cloud_region_id, str(e)))
+                        # continue the registration without reporting error
                 except Exception as e:
                     self._logger.debug("registryV0 fails %s" % str(e))
 
@@ -255,7 +266,9 @@ class RegistryHelper(newton_registration.RegistryHelper):
             #re-fetch viminfo
             viminfo = VimDriverUtils.get_vim_info(vimid)
         except Exception as e:
-            self._logger.debug("update cloud region fails %s" % str(e))
+            self._logger.debug(
+                "update cloud region fails for cloud region: %s,%s, %s"
+                 % (cloud_owner, cloud_region_id, str(e)))
 
         # update k8s connectivity
         try:
