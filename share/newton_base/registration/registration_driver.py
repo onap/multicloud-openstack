@@ -563,6 +563,7 @@ class RegistryHelper(MultiCloudAAIHelper):
                     flavor_info['flavor-selflink'] = 'http://0.0.0.0'
 
                 # add hpa capabilities
+                hpa_capabilities = []
                 if (flavor['name'].find('onap.') == 0):
                     req_resouce = "/flavors/%s/os-extra_specs" % flavor['id']
                     extraResp = self._get_list_resources(
@@ -576,9 +577,9 @@ class RegistryHelper(MultiCloudAAIHelper):
                         hpa_capability = hpa.get_hpa_capabilities(data)
                         hpa_capabilities.append(hpa_capability)
 
+                    logger.info("hpa_capabilities:%s" % hpa_capabilities)
                     flavor_info['hpa-capabilities'] = \
                         {'hpa-capability': hpa_capabilities}
-                    logger.debug("hpa_capabilities:%s" % hpa_capabilities)
 
                 retcode, content = self._update_resoure(
                     cloud_owner, cloud_region_id, flavor['id'],
