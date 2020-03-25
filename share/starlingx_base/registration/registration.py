@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2018 Wind River Systems, Inc.
+# Copyright (c) 2017-2020 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,23 +51,27 @@ class APIv0Registry(newton_registration.Registry):
     def post(self, request, vimid=""):
         self._logger.info("registration with :  %s" % vimid)
 
-        # Get the specified tenant id
-        specified_project_idorname = request.META.get("Project", None)
+        # check if auditor is enabled
+        viminfo = VimDriverUtils.get_vim_info(vimid)
+        cloud_extra_info = viminfo.get("cloud_extra_info_json",{})
+        if cloud_extra_info.("capacity_auditor_enabled", false):
+            # Get the specified tenant id
+            specified_project_idorname = request.META.get("Project", None)
 
-        # vim registration will trigger the start the audit of AZ capacity
-        worker_self = InfraResourceAuditor(
-            settings.MULTICLOUD_API_V1_PREFIX,
-            settings.AAI_BASE_URL
-        )
-        backlog_item = {
-            "id": vimid,
-            "worker": worker_self.azcap_audit,
-            "payload": (vimid, specified_project_idorname),
-            "repeat": 10*1000000,  # repeat every 10 seconds
-        }
-        gAZCapAuditThread.add(backlog_item)
-        if 0 == gAZCapAuditThread.state():
-            gAZCapAuditThread.start()
+            # vim registration will trigger the start the audit of AZ capacity
+            worker_self = InfraResourceAuditor(
+                settings.MULTICLOUD_API_V1_PREFIX,
+                settings.AAI_BASE_URL
+            )
+            backlog_item = {
+                "id": vimid,
+                "worker": worker_self.azcap_audit,
+                "payload": (vimid, specified_project_idorname),
+                "repeat": 10*1000000,  # repeat every 10 seconds
+            }
+            gAZCapAuditThread.add(backlog_item)
+            if 0 == gAZCapAuditThread.state():
+                gAZCapAuditThread.start()
         return super(APIv0Registry, self).post(request, vimid)
 
     def delete(self, request, vimid=""):
@@ -104,20 +108,23 @@ class APIv1Registry(newton_registration.Registry):
 
             vimid = extsys.encode_vim_id(cloud_owner, cloud_region_id)
 
-            # vim registration will trigger the start the audit of AZ capacity
-            worker_self = InfraResourceAuditor(
-                settings.MULTICLOUD_API_V1_PREFIX,
-                settings.AAI_BASE_URL
-            )
-            backlog_item = {
-                "id": vimid,
-                "worker": worker_self.azcap_audit,
-                "payload": (vimid, specified_project_idorname),
-                "repeat": 5 * 1000000,  # repeat every 5 seconds
-            }
-            gAZCapAuditThread.add(backlog_item)
-            if 0 == gAZCapAuditThread.state():
-                gAZCapAuditThread.start()
+            viminfo = VimDriverUtils.get_vim_info(vimid)
+            cloud_extra_info = viminfo.get("cloud_extra_info_json",{})
+            if cloud_extra_info.("capacity_auditor_enabled", false):
+                # vim registration will trigger the start the audit of AZ capacity
+                worker_self = InfraResourceAuditor(
+                    settings.MULTICLOUD_API_V1_PREFIX,
+                    settings.AAI_BASE_URL
+                )
+                backlog_item = {
+                    "id": vimid,
+                    "worker": worker_self.azcap_audit,
+                    "payload": (vimid, specified_project_idorname),
+                    "repeat": 5 * 1000000,  # repeat every 5 seconds
+                }
+                gAZCapAuditThread.add(backlog_item)
+                if 0 == gAZCapAuditThread.state():
+                    gAZCapAuditThread.start()
 
             return super(APIv1Registry, self).post(request, vimid)
 
@@ -372,7 +379,7 @@ class RegistryHelper(newton_registration.RegistryHelper):
 
             # get the resource first
             resource_url = ("/cloud-infrastructure/cloud-regions/"
-                            "cloud-region/%(cloud_owner)s/%(cloud_region_id)s"
+                            "cloud-region/%(cloud_owner)s/%(cloud_region_id)s?depth=1"
                             % {
                                 "cloud_owner": cloud_owner,
                                 "cloud_region_id": cloud_region_id
@@ -386,8 +393,15 @@ class RegistryHelper(newton_registration.RegistryHelper):
             if retcode == 0 and content:
                 content = json.JSONDecoder().decode(content)
                 # resource_info["resource-version"] = content["resource-version"]
+                esrinfo = content.get("esr-system-info-list",{}).get("esr-system-info",[{}])[0]
+                if esrinfo:
+                    # keep esr-system-info-id intact
+                    resource_info[esr-system-info-list]["esr-system-info"]["esr-system-info-id"] \
+                        =  esrinfo.get("esr-system-info-id", str(uuid.uuid4()))
+
                 content.update(resource_info)
                 resource_info = content
+                #now take care of esr-system-info
 
             # then update the resource
             retcode, content, status_code = \
