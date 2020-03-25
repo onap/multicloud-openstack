@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2018 Wind River Systems, Inc.
+# Copyright (c) 2017-2020 Wind River Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,18 @@ def flush_cache_by_url(resource_url):
     try:
         # this is to invalidate similar cache data blindly
         resource_wo_query = resource_url.split("?", 1)[0]
-        cache.delete("AAI_" + resource_wo_query)
+        aaikey = "AAI_" + resource_wo_query
+        cache.delete(aaikey)
+
+        # AAI entry keys: flush all entries with same prefix
+        aaikeylist = json.loads(cache.get("AAIKeys", '[]'))
+        aaikeyset = set([])
+        for k in aaikeylist:
+            if k.find(aaikey) >= 0:
+                cache.delete(k)
+            else:
+                aaikeyset.add(k)
+        cache.set("AAIKeys", json.dumps(list(aaikeyset)))
     except:
         pass  # silently drop any exception
 
@@ -46,10 +57,15 @@ def set_cache_by_url(resource_url, resource_in_json):
         if filter_cache_by_url(resource_url):
             # cache the resource for 24 hours
             # logger.debug("Cache the resource: "+ resource_url)
-            cache.set("AAI_" + resource_url,
-                      json.dumps(resource_in_json), 3600 * 24)
+            aaikey = "AAI_" + resource_url
+            cache.set(aaikey, json.dumps(resource_in_json), 3600 * 24)
+            # AAI entry keys
+            aaikeylist = json.loads(cache.get("AAIKeys", '[]'))
+            aaikeyset = set(aaikeylist)
+            aaikeyset.add(aaikey)
+            cache.set("AAIKeys", json.dumps(list(aaikeyset)))
     except Exception as e:
-        logger.error("get_cache_by_url exception: %s" % str(e))
+        logger.error("set_cache_by_url exception: %s" % str(e))
 
 
 def filter_cache_by_url(resource_url):
