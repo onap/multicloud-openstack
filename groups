@@ -1,4 +1,5 @@
 # UUID                                                                               	Group Name
 #
+24c0442c6465e82d6d5ca06012487a5475f4ea28                                             	saml/onap-gerrit-multicloud-openstack-committers
 daebbf523be390041a1a9c0e340a6d833aae5043                                             	GitHub Replication
 ldap:cn=onap-gerrit-multicloud-openstack-committers,ou=Groups,dc=freestandards,dc=org	ldap/onap-gerrit-multicloud-openstack-committers
