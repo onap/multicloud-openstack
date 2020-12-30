@@ -31,7 +31,7 @@ RUN apt-get update && \
     unzip -q -o -B multicloud-openstack-ocata.zip && \
     chmod +x /opt/ocata/*.sh && \
     rm -f multicloud-openstack-ocata.zip && \
-    pip install -r /opt/ocata/requirements.txt
+    pip install --no-cache-dir -r /opt/ocata/requirements.txt
 
 ADD extsys.py /opt/ocata/lib/share/common/msapi/extsys.py
 

@@ -40,8 +40,8 @@ RUN apt-get update && \
     cd /opt/ && \
     unzip -q -o -B /opt/multicloud-openstack-pike.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-pike.zip && \
-    pip3 install -r /opt/pike/requirements.txt && \
-    pip3 install -r /opt/pike/uwsgi-requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/pike/requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/pike/uwsgi-requirements.txt && \
     apt-get --purge remove -y wget unzip gcc libssl-dev && \
     mkdir -p /var/log/onap/multicloud/openstack/pike && \
     chown onap:onap /var/log/onap -R && \

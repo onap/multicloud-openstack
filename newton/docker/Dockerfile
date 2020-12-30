@@ -39,7 +39,7 @@ RUN apt-get update && \
     unzip -q -o -B multicloud-openstack-newton.zip && \
     chmod +x /opt/newton/*.sh && \
     rm -f multicloud-openstack-newton.zip && \
-    pip install -r /opt/newton/requirements.txt
+    pip install --no-cache-dir -r /opt/newton/requirements.txt
 
 WORKDIR /opt/newton
 CMD /bin/sh -c /opt/newton/run.sh

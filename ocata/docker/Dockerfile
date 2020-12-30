@@ -40,7 +40,7 @@ RUN apt-get update && \
     wget -O /opt/multicloud-openstack-ocata.zip "https://nexus.onap.org/service/local/artifact/maven/redirect?r=staging&g=org.onap.multicloud.openstack&a=multicloud-openstack-ocata&e=zip&v=1.4.0" && \
     unzip -q -o -B /opt/multicloud-openstack-ocata.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-ocata.zip && \
-    pip install -r /opt/ocata/requirements.txt && \
+    pip install --no-cache-dir -r /opt/ocata/requirements.txt && \
     apt-get --purge remove -y wget unzip gcc libssl-dev && \
     apt-get -y autoremove && \
     mkdir -p /var/log/onap/multicloud/openstack/ocata && \

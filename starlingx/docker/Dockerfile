@@ -40,8 +40,8 @@ RUN apk update && \
     cd /opt/ && \
     unzip -q -o -B /opt/multicloud-openstack-starlingx.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-starlingx.zip && \
-    pip3 install -r /opt/starlingx/requirements.txt && \
-    pip3 install -r /opt/starlingx/uwsgi-requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/starlingx/requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/starlingx/uwsgi-requirements.txt && \
     apk del wget unzip gcc make libc-dev libffi-dev openssl-dev pcre-dev && \
     mkdir -p /var/log/onap/multicloud/openstack/starlingx && \
     chown onap:onap /var/log/onap -R && \

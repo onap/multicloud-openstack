@@ -26,8 +26,8 @@ RUN apk update && \
     unzip -q -o -B multicloud-openstack-windriver.zip && \
     chmod +x /opt/windriver/*.sh && \
     rm -f multicloud-openstack-windriver.zip && \
-    pip3 install -r /opt/windriver/requirements.txt && \
-    pip3 install -r /opt/windriver/uwsgi-requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/windriver/requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/windriver/uwsgi-requirements.txt && \
     apk del wget unzip gcc make libc-dev libffi-dev openssl-dev pcre-dev && \
     mkdir -p /var/log/onap/multicloud/openstack/windriver && \
     chown onap:onap /var/log/onap -R && \

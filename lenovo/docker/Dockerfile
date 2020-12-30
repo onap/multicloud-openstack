@@ -41,7 +41,7 @@ RUN apt-get update && \
     unzip -q -o -B multicloud-openstack-lenovo.zip && \
     chmod +x /opt/lenovo/*.sh &&\
     rm -f multicloud-openstack-lenovo.zip &&\
-    pip install -r /opt/lenovo/requirements.txt &&\
+    pip install --no-cache-dir -r /opt/lenovo/requirements.txt &&\
     apt-get --purge remove -y wget unzip gcc libssl-dev && \
     apt-get -y autoremove && \
     mkdir -p /var/log/onap/multicloud/openstack/lenovo && \

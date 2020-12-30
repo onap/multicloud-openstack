@@ -27,8 +27,8 @@ RUN apk update && \
     unzip -q -o -B multicloud-openstack-fcaps.zip && \
     chmod +x /opt/fcaps/*.sh && \
     rm -f multicloud-openstack-fcaps.zip && \
-    pip3 install -r /opt/fcaps/requirements.txt && \
-    pip3 install -r /opt/fcaps/uwsgi-requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/fcaps/requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/fcaps/uwsgi-requirements.txt && \
     apk del wget unzip gcc make libc-dev libffi-dev openssl-dev pcre-dev && \
     mkdir -p /var/log/onap/multicloud/fcaps && \
     chown onap:onap /var/log/onap -R && \
