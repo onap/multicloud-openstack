@@ -14,11 +14,9 @@
 
 import os
 import sys
-
-from logging import config
-from onaplogging import monkey
-monkey.patch_all()
-
+import platform
+import yaml
+from logging import config as log_config
 
 CACHE_EXPIRATION_TIME = 3600
 
@@ -56,7 +54,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'titanium_cloud.middleware.LogContextMiddleware',
 ]
 
 ROOT_URLCONF = 'titanium_cloud.urls'
@@ -122,11 +119,47 @@ ROOT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 OPENSTACK_VERSION = "titaniumcloud"
 MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
 
+if platform.system() == 'Windows' or 'test' in sys.argv:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': True,
+        'formatters': {
+            'standard': {
+                'format': '%(asctime)s:[%(name)s]:[%(filename)s]-[%(lineno)d] [%(levelname)s]:%(message)s',
+            },
+        },
+        'filters': {
+        },
+        'handlers': {
+            'file_handler': {
+                'level': 'DEBUG',
+                'class': 'logging.handlers.RotatingFileHandler',
+                'filename': os.path.join(BASE_DIR, 'logs/test.log'),
+                'formatter': 'standard',
+                'maxBytes': 1024 * 1024 * 50,
+                'backupCount': 5,
+            },
+        },
 
-LOGGING_CONFIG = None
-# yaml configuration of logging
-LOGGING_FILE = os.path.join(BASE_DIR, 'titanium_cloud/pub/config/log.yml')
-config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
+        'loggers': {
+            'common': {
+                'handlers': ['file_handler'],
+                'level': 'DEBUG',
+                'propagate': False
+            },
+        }
+    }
+else:
+    log_path = "/var/log/onap/multicloud/openstack/windriver"
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
+
+    LOGGING_CONFIG = None
+    # yaml configuration of logging
+    LOGGING_FILE = os.path.join(BASE_DIR, 'titanium_cloud/pub/config/log.yml')
+    with open(file=LOGGING_FILE, mode='r', encoding="utf-8")as file:
+        logging_yaml = yaml.load(stream=file, Loader=yaml.FullLoader)
+    log_config.dictConfig(config=logging_yaml)
 
 if 'test' in sys.argv:
 
