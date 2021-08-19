@@ -14,10 +14,9 @@
 
 import os
 import sys
+import yaml
+from logging import config as log_config
 
-from logging import config
-from onaplogging import monkey
-monkey.patch_all()
 
 CACHE_EXPIRATION_TIME = 3600
 
@@ -55,7 +54,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'starlingx.middleware.LogContextMiddleware',
 ]
 
 ROOT_URLCONF = 'starlingx.urls'
@@ -127,7 +125,9 @@ MULTIVIM_VERSION = "multicloud-" + OPENSTACK_VERSION
 LOGGING_CONFIG = None
 # yaml configuration of logging
 LOGGING_FILE = os.path.join(BASE_DIR, 'starlingx/pub/config/log.yml')
-config.yamlConfig(filepath=LOGGING_FILE, watchDog=True)
+with open(file=LOGGING_FILE, mode='r', encoding="utf-8")as file:
+    logging_yaml = yaml.load(stream=file, Loader=yaml.FullLoader)
+log_config.dictConfig(config=logging_yaml)
 
 if 'test' in sys.argv:
 
