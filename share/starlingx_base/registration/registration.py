@@ -442,14 +442,14 @@ class RegistryHelper(newton_registration.RegistryHelper):
                 "/regions", "identity", session, viminfo, vimid,
                 "regions")
 
-            for region in openstackregions:
+            for region in openstackregions or []:
                 if region['id'] == 'SystemController':
                     isDistributedCloud = True
                     break
                 else:
                     continue
 
-            for region in openstackregions:
+            for region in openstackregions or []:
                 if region['id'] == 'SystemController':
                     continue
                 elif region['id'] == 'RegionOne' and isDistributedCloud:

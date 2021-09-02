@@ -213,7 +213,7 @@ class TokensV2(Tokens):
 
         try:
             resp = super(TokensV2,self).post(request, vimid)
-            self._logger.debug("Token(v3)returns> headers:%s, data:%s" % (resp._headers, resp.data))
+            # self._logger.debug("Token(v3)returns> headers:%s, data:%s" % (resp._headers, resp.data))
             if resp.status_code == status.HTTP_201_CREATED:
                 v3_content =  resp.data
                 v3_token = v3_content['token']

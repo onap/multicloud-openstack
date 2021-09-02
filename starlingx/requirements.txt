@@ -13,11 +13,11 @@
 # limitations under the License.
 
 # rest framework
-Django==2.2.3
-djangorestframework==3.9.4
+Django==3.2.7
+djangorestframework==3.12.4
 
 # for call rest api
-httplib2==0.13.0
+httplib2==0.19.1
 
 # for call openstack auth and transport api
 keystoneauth1==2.18.0
@@ -25,7 +25,7 @@ keystoneauth1==2.18.0
 # python-memcached
 python-memcached
 
-ruamel.yaml==0.16.10
+ruamel.yaml==0.17.1
 
 # uwsgi for parallel processing
 # uwsgi
@@ -35,4 +35,4 @@ ruamel.yaml==0.16.10
 # mock==2.0.0
 # unittest_xml_reporting==1.12.0
 
-PyYAML==5.3.1
+PyYAML==5.4.1
