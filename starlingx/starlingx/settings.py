@@ -146,6 +146,21 @@ if platform.system() == 'Windows' or 'test' in sys.argv:
         },
 
         'loggers': {
+            'starlingx': {
+                'handlers': ['file_handler'],
+                'level': 'DEBUG',
+                'propagate': False
+            },
+            'starlingx_base': {
+                'handlers': ['file_handler'],
+                'level': 'DEBUG',
+                'propagate': False
+            },
+            'newton_base': {
+                'handlers': ['file_handler'],
+                'level': 'DEBUG',
+                'propagate': False
+            },
             'common': {
                 'handlers': ['file_handler'],
                 'level': 'DEBUG',
