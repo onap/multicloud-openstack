@@ -1,4 +1,5 @@
-FROM python:3.8-alpine
+# FROM python:3.8-alpine
+FROM nexus3.onap.org:10001/onap/integration-python:9.1.0
 
 ARG HTTP_PROXY=${HTTP_PROXY}
 ARG HTTPS_PROXY=${HTTPS_PROXY}
@@ -17,7 +18,9 @@ ENV AAI_PASSWORD "AAI"
 
 EXPOSE 9011
 
-RUN addgroup -S onap && adduser -S -G onap onap
+# RUN addgroup -S onap && adduser -S -G onap onap
+USER root
+
 # COPY ./ /opt/fcaps/
 COPY ./multicloud-openstack-fcaps-*.zip /opt/multicloud-openstack-fcaps.zip
 
