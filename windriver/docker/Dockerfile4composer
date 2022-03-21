@@ -21,14 +21,14 @@ EXPOSE 9005
 # RUN addgroup -S onap && adduser -S -G onap onap
 USER root
 
+COPY ./windriver /opt/windriver/
+COPY ./share /opt/windriver/lib/share
 # COPY ./ /opt/windriver/
-COPY ./multicloud-openstack-windriver-*.zip /opt/multicloud-openstack-windriver.zip
+# COPY ./multicloud-openstack-windriver-*.zip /opt/multicloud-openstack-windriver.zip
 RUN apk update && \
     apk add pcre pcre-dev uwsgi wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
-    unzip -q -o -B multicloud-openstack-windriver.zip && \
     chmod +x /opt/windriver/*.sh && \
-    rm -f multicloud-openstack-windriver.zip && \
     pip3 install --no-cache-dir -r /opt/windriver/requirements.txt && \
     pip3 install --no-cache-dir -r /opt/windriver/uwsgi-requirements.txt && \
     apk del wget unzip gcc make libc-dev libffi-dev openssl-dev pcre-dev && \

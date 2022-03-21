@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Intel Corporation.
+# Copyright (c) 2019 Intel Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,26 +31,27 @@ ENV AAI_SCHEMA_VERSION "v13"
 ENV AAI_USERNAME "AAI"
 ENV AAI_PASSWORD "AAI"
 
-EXPOSE 9007
+EXPOSE 9009
 
 # RUN addgroup -S onap && adduser -S -G onap onap
 USER root
 
-COPY ./multicloud-openstack-pike-*.zip /opt/multicloud-openstack-pike.zip
+COPY ./starlingx /opt/starlingx/
+COPY ./share /opt/starlingx/lib/share
+# COPY ./ /opt/
+# COPY ./multicloud-openstack-starlingx-*.zip /opt/multicloud-openstack-starlingx.zip
 RUN apk update && \
     apk add pcre pcre-dev uwsgi wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
-    unzip -q -o -B /opt/multicloud-openstack-pike.zip -d /opt/ && \
-    rm -f /opt/multicloud-openstack-pike.zip && \
-    pip3 install --no-cache-dir -r /opt/pike/requirements.txt && \
-    pip3 install --no-cache-dir -r /opt/pike/uwsgi-requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/starlingx/requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/starlingx/uwsgi-requirements.txt && \
     apk del wget unzip gcc make libc-dev libffi-dev openssl-dev pcre-dev && \
-    mkdir -p /var/log/onap/multicloud/openstack/pike && \
+    mkdir -p /var/log/onap/multicloud/openstack/starlingx && \
     chown onap:onap /var/log/onap -R && \
-    chown onap:onap /opt/pike -R
-
-RUN mkdir -p /var/log/onap/multicloud/openstack/pike/
+    chown onap:onap /opt/starlingx -R
+    
+RUN mkdir -p /var/log/onap/multicloud/openstack/starlingx/
 
 USER onap
-WORKDIR /opt/pike
-CMD /bin/sh -c "/opt/pike/run.sh"
+WORKDIR /opt/starlingx
+CMD /bin/sh -c "/opt/starlingx/run.sh"
