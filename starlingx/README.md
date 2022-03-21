@@ -13,3 +13,12 @@
 # limitations under the License.
 
 # Micro service of MultiCloud plugin for starlingx.
+
+
+docker-compose -f docker-compose-starlingx.yml build
+
+docker-compose -f docker-compose-starlingx.yml up -d
+
+docker ps
+
+docker-compose -f docker-compose-starlingx.yml down

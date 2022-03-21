@@ -13,3 +13,11 @@
 # limitations under the License.
 
 # Micro service of MultiCloud plugin for Wind River Titanium Cloud.
+
+docker-compose -f docker-compose-windriver.yml build
+
+docker-compose -f docker-compose-windriver.yml up -d
+
+docker ps
+
+docker-compose -f docker-compose-windriver.yml down

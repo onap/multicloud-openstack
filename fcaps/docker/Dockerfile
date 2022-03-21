@@ -25,7 +25,7 @@ USER root
 COPY ./multicloud-openstack-fcaps-*.zip /opt/multicloud-openstack-fcaps.zip
 
 RUN apk update && \
-    apk add pcre pcre-dev uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
+    apk add pcre pcre-dev uwsgi wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
     unzip -q -o -B multicloud-openstack-fcaps.zip && \
     chmod +x /opt/fcaps/*.sh && \

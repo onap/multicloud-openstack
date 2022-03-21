@@ -13,3 +13,12 @@
 # limitations under the License.
 
 # Micro service of MultiCloud plugin for pike.
+### local test with docker-composer:
+
+docker-compose -f docker-compose-pike.yml build
+
+docker-compose -f docker-compose-pike.yml up -d
+
+docker ps
+
+docker-compose -f docker-compose-pike.yml down
