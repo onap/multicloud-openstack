@@ -21,11 +21,31 @@ services:
             - RABBITMQ_DEFAULT_USER=admin
             - RABBITMQ_DEFAULT_PASS=mypass
         ports:
+            - "5672:5672"
             - "15672:15672"
+            - "15692:15692"
+    memcached:
+        hostname: memcached
+        image: memcached:alpine3.15
+        # entrypoint:
+        # - memcached
+        # - -d
+        # - -m 2048
+        # - -c 1024
+        # - -p 11211
+        # - -P /tmp/memcached1.pid"
+        ports:
+        - "11211:11211"
 
     worker:
         build:
             context: .
-            dockerfile: Dockerfile
-        volumes:
-            - .:/fcaps
+            dockerfile: Dockerfile-fcaps
+        image: openstack-fcaps:test
+        environment:
+            - RABBITMQ_DEFAULT_USER=admin
+            - RABBITMQ_DEFAULT_PASS=mypass
+            - RABBITMQ_HOST=rabbit
+            - MEMCACHED_HOST=memcached
+        # volumes:
+        #     - .:/fcaps
