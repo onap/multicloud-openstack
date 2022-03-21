@@ -80,13 +80,24 @@ TIME_ZONE = 'UTC'
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+MEMCACHED_HOST = os.environ.get('MEMCACHED_HOST', '127.0.0.1')
+MEMCACHED_PORT = os.environ.get('MEMCACHED_PORT', '11211')
+DEFAULT_CACHE_BACKEND_LOCATION = "%s:%s" % (MEMCACHED_HOST, MEMCACHED_PORT)
 
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': DEFAULT_CACHE_BACKEND_LOCATION,
     }
 }
+
+# [RABBITMQ]
+RABBITMQ_DEFAULT_USER = os.environ.get('RABBITMQ_DEFAULT_USER', 'guest')
+RABBITMQ_DEFAULT_PASS = os.environ.get('RABBITMQ_DEFAULT_PASS', 'guest')
+RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST', 'localhost')
+RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
+RABBITMQ_URL = "amqp://%s:%s@%s:%s//" % (
+    RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT)
 
 # [MSB]
 DEFAULT_MSB_PROTO = "http"

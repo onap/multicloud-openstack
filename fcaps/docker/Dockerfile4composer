@@ -16,27 +16,28 @@ ENV AAI_SCHEMA_VERSION "v13"
 ENV AAI_USERNAME "AAI"
 ENV AAI_PASSWORD "AAI"
 
-EXPOSE 9005
+EXPOSE 9011
 
 # RUN addgroup -S onap && adduser -S -G onap onap
 USER root
 
-# COPY ./ /opt/windriver/
-COPY ./multicloud-openstack-windriver-*.zip /opt/multicloud-openstack-windriver.zip
+COPY ./fcaps /opt/fcaps/
+COPY ./share /opt/fcaps/lib/share
+# COPY ./multicloud-openstack-fcaps-*.zip /opt/multicloud-openstack-fcaps.zip
+
 RUN apk update && \
     apk add pcre pcre-dev uwsgi wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
-    unzip -q -o -B multicloud-openstack-windriver.zip && \
-    chmod +x /opt/windriver/*.sh && \
-    rm -f multicloud-openstack-windriver.zip && \
-    pip3 install --no-cache-dir -r /opt/windriver/requirements.txt && \
-    pip3 install --no-cache-dir -r /opt/windriver/uwsgi-requirements.txt && \
+    chmod +x /opt/fcaps/*.sh && \
+    pip3 install --no-cache-dir -r /opt/fcaps/requirements.txt && \
+    pip3 install --no-cache-dir -r /opt/fcaps/uwsgi-requirements.txt && \
     apk del wget unzip gcc make libc-dev libffi-dev openssl-dev pcre-dev && \
-    mkdir -p /var/log/onap/multicloud/openstack/windriver && \
+    mkdir -p /var/log/onap/multicloud/fcaps && \
     chown onap:onap /var/log/onap -R && \
-    chown onap:onap /opt/windriver -R
+    chown onap:onap /opt/fcaps -R
+
 
 USER onap
 
-WORKDIR /opt/windriver
-CMD /bin/sh -c /opt/windriver/run.sh
+WORKDIR /opt/fcaps
+CMD /bin/sh -c /opt/fcaps/run.sh

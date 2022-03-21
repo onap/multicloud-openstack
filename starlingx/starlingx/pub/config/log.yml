@@ -16,11 +16,11 @@ version: 1
 disable_existing_loggers: False
 
 loggers:
-    starlingx:
+    starlingx_base:
       handlers: [console_handler, file_handler]
       level: "DEBUG"
       propagate: False
-    starlingx_base:
+    starlingx:
       handlers: [console_handler, file_handler]
       level: "DEBUG"
       propagate: False
@@ -32,6 +32,7 @@ loggers:
       handlers: [console_handler, file_handler]
       level: "DEBUG"
       propagate: False
+
 handlers:
     console_handler:
         level: "DEBUG"
@@ -44,3 +45,7 @@ handlers:
         formatter: "standard"
         maxBytes: 52428800
         backupCount: 10
+
+formatters:
+    standard:
+        format: "%(asctime)s|||||%(name)s||%(thread)||%(funcName)s||%(levelname)s||%(message)s"

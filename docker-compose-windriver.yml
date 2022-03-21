@@ -14,18 +14,19 @@
 
 version: '2'
 services:
-    rabbit:
-        hostname: rabbit
-        image: rabbitmq:alpine
-        environment:
-            - RABBITMQ_DEFAULT_USER=admin
-            - RABBITMQ_DEFAULT_PASS=mypass
+    memcached:
+        hostname: memcached
+        image: memcached:alpine3.15
+        command: ["memcached", "-m", "2048", "-c", "1024", "-p", "11211", "-P", "/tmp/memcached1.pid", "-v"]
         ports:
-            - "15672:15672"
+        - "11211:11211"
 
     worker:
         build:
             context: .
-            dockerfile: Dockerfile
-        volumes:
-            - .:/fcaps
+            dockerfile: ./windriver/docker/Dockerfile4composer
+        image: openstack-windriver:test
+        environment:
+            - MEMCACHED_HOST=memcached
+        # volumes:
+        #     - .:/fcaps

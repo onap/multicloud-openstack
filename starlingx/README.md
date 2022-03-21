@@ -13,3 +13,28 @@
 # limitations under the License.
 
 # Micro service of MultiCloud plugin for starlingx.
+
+
+docker-compose -f docker-compose-starlingx.yml build
+
+docker-compose -f docker-compose-starlingx.yml up -d
+
+docker ps
+
+### Test memcached
+docker exec -it openstack_worker_1 sh
+
+cat <<EOF>testmemcached.py
+import memcache
+mem = memcache.Client(['memcached:11211'], debug=1)
+mem.set("testkey1","testvalue1")
+value1 = mem.get("testkey1")
+print("memcached is working" if value1=="testvalue1" else "memcached is not working")
+EOF
+
+python testmemcached.py
+
+exit
+
+docker-compose -f docker-compose-starlingx.yml down
+
