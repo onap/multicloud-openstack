@@ -39,7 +39,7 @@ USER root
 # COPY ./ /opt/
 COPY ./multicloud-openstack-starlingx-*.zip /opt/multicloud-openstack-starlingx.zip
 RUN apk update && \
-    apk add pcre pcre-dev uwsgi memcached wget unzip gcc make libc-dev libffi-dev openssl-dev && \
+    apk add pcre pcre-dev uwsgi wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
     unzip -q -o -B /opt/multicloud-openstack-starlingx.zip -d /opt/ && \
     rm -f /opt/multicloud-openstack-starlingx.zip && \

@@ -13,3 +13,13 @@
 # limitations under the License.
 
 # Micro service of MultiCloud plugin for Wind River Titanium Cloud.
+
+### local test with docker-composer:
+
+docker-compose -f docker-compose-fcaps.yml build
+
+docker-compose -f docker-compose-fcaps.yml up -d
+
+docker ps
+
+docker-compose -f docker-compose-fcaps.yml down

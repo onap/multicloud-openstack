@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-memcached -d -m 2048 -c 1024 -p 11211 -P /tmp/memcached1.pid
+# memcached should be provided as sidecar to avoid GPLv3 license issue
+# memcached -d -m 2048 -c 1024 -p 11211 -P /tmp/memcached1.pid
 export PYTHONPATH=lib/share
 # uwsgi --http :9009 --module starlingx.wsgi --master --processes 4
 

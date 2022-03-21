@@ -36,12 +36,12 @@ EXPOSE 9007
 # RUN addgroup -S onap && adduser -S -G onap onap
 USER root
 
-COPY ./multicloud-openstack-pike-*.zip /opt/multicloud-openstack-pike.zip
+COPY ./pike /opt/pike/
+COPY ./share /opt/pike/lib/share
+# COPY ./multicloud-openstack-pike-*.zip /opt/multicloud-openstack-pike.zip
 RUN apk update && \
     apk add pcre pcre-dev uwsgi wget unzip gcc make libc-dev libffi-dev openssl-dev && \
     cd /opt/ && \
-    unzip -q -o -B /opt/multicloud-openstack-pike.zip -d /opt/ && \
-    rm -f /opt/multicloud-openstack-pike.zip && \
     pip3 install --no-cache-dir -r /opt/pike/requirements.txt && \
     pip3 install --no-cache-dir -r /opt/pike/uwsgi-requirements.txt && \
     apk del wget unzip gcc make libc-dev libffi-dev openssl-dev pcre-dev && \
