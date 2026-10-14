@@ -1,0 +1,117 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 The Linux Foundation
+
+# SonarCloud analysis of the master branch itself, for
+# multicloud/openstack.
+#
+# Replaces the Jenkins jobs multicloud-openstack-fcaps-sonar,
+# multicloud-openstack-hpa-sonar and multicloud-openstack-pike-sonar,
+# all built from the global-jjb gerrit-maven-sonar template.
+#
+# This repository is analysed as several SonarCloud projects rather
+# than one, because that is how Jenkins has always reported it: each
+# module has its own JJB stanza, its own project-name, and therefore
+# its own key. Collapsing them into a single project here would
+# discard every history, so the lane fans out over the modules.
+#
+# The repository's windriver and starlingx modules are deliberately
+# absent. Their Jenkins stanzas name SonarCloud projects that do not
+# exist in the organisation, so those scans have been reporting
+# nowhere; they are retired rather than reproduced. The vmware stanza
+# belongs to a different Gerrit project, multicloud/openstack/vmware.
+#
+# The filename deliberately omits 'gerrit'. That substring is what opts
+# a workflow into gerrit_to_platform dispatch, and this one must not
+# run against a patchset: it analyses the long-lived branch, so
+# dispatching it per change would re-scan master on every patchset.
+#
+# It does not vote. The Jenkins jobs it replaces set skip-vote on every
+# outcome, so Sonar has never gated a change here, and this lane does
+# not start.
+name: 'SonarCloud Master Analysis'
+
+# yamllint disable-line rule:truthy
+on:
+  schedule:
+    # Matches the cadence of the Jenkins jobs this replaces. The time is
+    # derived from the project name for the same reason Jenkins hashes
+    # it: a fixed value would start every migrated repo's scan at once.
+    - cron: "31 5 * * 6"
+  workflow_dispatch:
+
+concurrency:
+  # The workflow name is part of the group because the group is
+  # repository-wide, and without it separate lanes would cancel each
+  # other on the same ref. All matrix legs belong to one run, so they
+  # are never in contention with each other.
+  group: '${{ github.workflow }}-${{ github.ref }}'
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  sonarqube-cloud:
+    name: 'SonarCloud Analysis (${{ matrix.module }})'
+    permissions:
+      contents: read
+    strategy:
+      # One module failing to build should not hide the others' results.
+      fail-fast: false
+      matrix:
+        include:
+          - module: fcaps
+            sonar_project_key: onap_multicloud-openstack-fcaps
+          - module: hpa
+            sonar_project_key: onap_multicloud-openstack-hpa
+          - module: pike
+            sonar_project_key: onap_multicloud-openstack-pike
+    # yamllint disable-line rule:line-length
+    uses: lfreleng-actions/security-workflows/.github/workflows/sonarqube-cloud.yaml@4da5165382f8ca9b5ef0270caa343be4a63493d5  # v0.9.2
+    with:
+      # Same SonarCloud projects the Jenkins jobs report to, so the
+      # migration does not fork any analysis history.
+      sonar_organization: 'onap'
+      sonar_project_key: ${{ matrix.sonar_project_key }}
+      # The Jenkins jobs select the module with '-f <module>/pom.xml'.
+      # path_prefix is the equivalent that both the build and
+      # sonar-maven-plugin honour, and it also scopes Sonar's
+      # projectBaseDir to the module.
+      path_prefix: ${{ matrix.module }}
+      #
+      # sonar_branch_name and sonar_branch_target are deliberately
+      # unset. global-jjb/shell/maven-sonar.sh only sets
+      # sonar.branch.name when SCAN_DEV_BRANCH is true, which the
+      # template leaves false, so Jenkins passes nothing but projectKey,
+      # organization and token and lets Sonar resolve the branch.
+      #
+      # analysis_mode is deliberately unset so the reusable derives
+      # sonar-maven-plugin from build_type. The Scanner CLI walks
+      # target/generated-sources and reports findings against generated
+      # code, which has taken a project from 0 bugs to over a thousand
+      # while still reporting success. This lane writes the project's
+      # own analysis, so it cannot absorb that mistake.
+      build_type: 'maven'
+      mvn_phases: 'clean install'
+      mvn_params: '-Djib.skip=true --fail-at-end'
+      #
+      # The Jenkins jobs leave sonarcloud-qualitygate-wait false, so the
+      # gate has never been awaited or enforced here. Neither is done.
+      wait_for_quality_gate: false
+      fail_on_quality_gate: false
+      #
+      # The reusable defaults to 45, which a cold-cache 'clean install'
+      # plus a scan can exceed; the job is then cancelled mid-scan
+      # rather than failing with a diagnosis.
+      timeout_minutes: 90
+      #
+      # Maven pulls from artifact CDNs that are impractical to enumerate
+      # in the allow-list, and the build shares this job with the scan.
+      build_permit_egress_traffic: true
+    secrets:
+      sonar_token: ${{ secrets.SONAR_TOKEN }}
+      # The organisation's authoritative Maven settings, which define the
+      # onap-public mirror. It carries no credentials and needs none: the
+      # ONAP public group serves anonymously, and this lane only resolves
+      # dependencies, never deploys.
+      maven_global_settings: ${{ vars.MVN_GLOBAL_SETTINGS }}
