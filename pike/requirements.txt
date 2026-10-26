@@ -35,6 +35,6 @@ ruamel.yaml==0.17.1
 # mock==2.0.0
 # unittest_xml_reporting==1.12.0
 
-PyYAML==5.4.1
+PyYAML==6.0.3
 
 onaphpadriver>=1.0

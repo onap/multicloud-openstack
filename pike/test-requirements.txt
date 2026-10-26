@@ -1,5 +1,5 @@
 # for unit test
-coverage==4.2
+coverage==7.16.2
 mock==2.0.0
 unittest_xml_reporting==1.12.0
 
